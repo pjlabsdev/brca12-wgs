@@ -1,0 +1,9 @@
+# Manta 1.6 requires Python 2.7, therefore it runs in its own environment.
+name: genome-brca12-manta
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=2.7
+  - manta=1.6.0
+  - htslib=1.21

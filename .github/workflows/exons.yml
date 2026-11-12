@@ -1,0 +1,16 @@
+name: Build exon BED
+# Regenerates assets/brca12_exons.bed from Ensembl (MANE Select, GRCh38) and uploads it.
+on:
+  workflow_dispatch:
+  push:
+    paths: ["bin/brca12_make_exons.py", ".github/workflows/exons.yml"]
+jobs:
+  exons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python bin/brca12_make_exons.py > brca12_exons.bed && cat brca12_exons.bed
+      - uses: actions/upload-artifact@v4
+        with: { name: brca12_exons, path: brca12_exons.bed }

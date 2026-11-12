@@ -1,0 +1,298 @@
+{
+  "schema": "genome.brca12.v1",
+  "sample": "TEST",
+  "generatedAt": "2026-11-12T17:32:57+00:00",
+  "assembly": "GRCh38",
+  "researchUseOnly": true,
+  "disclaimer": {
+    "de": "Nur für Forschung und persönliche Information (RUO). Diese Ergebnisse dürfen nicht ohne klinisch validierte Bestätigung (akkreditiertes Labor, z. B. Sanger-Sequenzierung oder MLPA) medizinisch interpretiert werden. Die ACMG/AMP-Angaben sind maschinelle Hinweise auf einzelne Kriterien und keine Klassifikation. Ein unauffälliges Ergebnis schließt eine erbliche BRCA1/BRCA2-Veranlagung nicht aus.",
+    "en": "Research use only (RUO). These results must not be interpreted medically without clinically validated confirmation (accredited laboratory, e.g. Sanger sequencing or MLPA). The ACMG/AMP entries are automated hints on individual criteria, not a classification. An unremarkable result does not rule out a hereditary BRCA1/BRCA2 predisposition."
+  },
+  "clinicalClassification": null,
+  "input": {
+    "mode": "fastq",
+    "files": [
+      "R1.fq.gz",
+      "R2.fq.gz"
+    ]
+  },
+  "reference": {
+    "path": "/Referenzen/GRCh38/GRCh38.fa",
+    "assembly": "GRCh38",
+    "check": {
+      "assembly": "GRCh38",
+      "ok": true,
+      "contigs": {
+        "chr13": 114364328,
+        "chr17": 83257441
+      },
+      "messages": [
+        "Referenz anhand der Contig-Längen von chr13 und chr17 als GRCh38 erkannt."
+      ],
+      "contigStyle": "chr",
+      "regions": [
+        {
+          "chrom": "chr17",
+          "start": 43044295,
+          "end": 43170327,
+          "gene": "BRCA1"
+        },
+        {
+          "chrom": "chr13",
+          "start": 32315077,
+          "end": 32400268,
+          "gene": "BRCA2"
+        }
+      ],
+      "exonCount": {
+        "BRCA1": 1,
+        "BRCA2": 1
+      },
+      "chromLengths": {
+        "chr13": 114364328,
+        "chr17": 83257441
+      }
+    }
+  },
+  "snvCaller": "GATK HaplotypeCaller",
+  "thresholds": {
+    "minExonDepth": 20.0,
+    "minExonPct20x": 95.0,
+    "lowDepth": 10.0,
+    "maxLowMapqFraction": 0.1
+  },
+  "genes": {
+    "BRCA1": {
+      "symbol": "BRCA1",
+      "chrom": "chr17",
+      "start": 43044295,
+      "end": 43170327,
+      "strand": "-",
+      "transcript": "ENST00000357654 / NM_007294.4 (MANE Select)",
+      "coverage": {
+        "exonCount": 1,
+        "codingMeanDepth": 8.0,
+        "pct20x": 0.0,
+        "uncertainExons": [
+          "Exon 23 (Legacy 24)"
+        ]
+      },
+      "smallVariants": [
+        {
+          "gene": "BRCA1",
+          "chrom": "chr17",
+          "pos": 43093000,
+          "ref": "AG",
+          "alt": "A",
+          "genotype": "heterozygot",
+          "gt": "0/1",
+          "depth": 38,
+          "altDepth": 18,
+          "alleleFraction": 0.474,
+          "gq": 99,
+          "filter": "PASS",
+          "variantClass": "deletion",
+          "consequence": "frameshift_variant",
+          "impact": "HIGH",
+          "transcript": "ENST00000357654",
+          "maneSelect": "NM_007294.4",
+          "hgvsc": "c.3000del",
+          "hgvsp": "p.Ser1000fs",
+          "exon": "10/23",
+          "intron": null,
+          "maxAF": null,
+          "clinvar": {
+            "significance": "Pathogenic",
+            "reviewStatus": "reviewed by expert panel",
+            "stars": 3,
+            "condition": "Hereditary breast ovarian cancer syndrome"
+          },
+          "acmgHints": [
+            {
+              "code": "PVS1 (Kandidat)",
+              "textDE": "Vorzeitiger Stopp, Leserasterverschiebung oder kanonische Spleißstelle im MANE-Transkript. PVS1 nach ENIGMA-Spezifikation prüfen.",
+              "textEN": "Premature stop, frameshift or canonical splice site in the MANE transcript. Check PVS1 against the ENIGMA specification.",
+              "direction": "pathogenic"
+            },
+            {
+              "code": "PM2_Supporting (Kandidat)",
+              "textDE": "In gnomAD nicht beobachtet.",
+              "textEN": "Not observed in gnomAD.",
+              "direction": "pathogenic"
+            }
+          ],
+          "qualityFlags": []
+        }
+      ]
+    },
+    "BRCA2": {
+      "symbol": "BRCA2",
+      "chrom": "chr13",
+      "start": 32315077,
+      "end": 32400268,
+      "strand": "+",
+      "transcript": "ENST00000380152 / NM_000059.4 (MANE Select)",
+      "coverage": {
+        "exonCount": 1,
+        "codingMeanDepth": 31.0,
+        "pct20x": 100.0,
+        "uncertainExons": []
+      },
+      "smallVariants": [
+        {
+          "gene": "BRCA2",
+          "chrom": "chr13",
+          "pos": 32338000,
+          "ref": "A",
+          "alt": "G",
+          "genotype": "homozygot",
+          "gt": "1/1",
+          "depth": 35,
+          "altDepth": 35,
+          "alleleFraction": 1.0,
+          "gq": 99,
+          "filter": "PASS",
+          "variantClass": "SNV",
+          "consequence": "synonymous_variant",
+          "impact": "LOW",
+          "transcript": "ENST00000380152",
+          "maneSelect": "NM_000059.4",
+          "hgvsc": "c.4000A>G",
+          "hgvsp": "p.=",
+          "exon": "11/27",
+          "intron": null,
+          "maxAF": 0.3,
+          "clinvar": {
+            "significance": "Benign",
+            "reviewStatus": "reviewed by expert panel",
+            "stars": 3,
+            "condition": "not specified"
+          },
+          "acmgHints": [
+            {
+              "code": "BA1 (Kandidat)",
+              "textDE": "Höchste gnomAD-Populationsfrequenz 0.3 liegt über 0,1 % (ENIGMA-Schwelle; Filterfrequenz prüfen).",
+              "textEN": "Highest gnomAD population frequency 0.3 is above 0.1% (ENIGMA threshold; verify filtering allele frequency).",
+              "direction": "benign"
+            },
+            {
+              "code": "BP4/BP7 (Kandidat)",
+              "textDE": "Keine Proteinänderung vorhergesagt; BP7/BP4 nur nach Ausschluss eines Spleißeffekts.",
+              "textEN": "No protein change predicted; BP7/BP4 only after excluding a splicing effect.",
+              "direction": "benign"
+            }
+          ],
+          "qualityFlags": []
+        }
+      ]
+    }
+  },
+  "exonCoverage": [
+    {
+      "gene": "BRCA1",
+      "exon": 23,
+      "label": "Exon 23 (Legacy 24)",
+      "chrom": "chr17",
+      "start": 43045001,
+      "end": 43045100,
+      "length": 100,
+      "meanDepth": 8.0,
+      "pct10x": 50.0,
+      "pct20x": 0.0,
+      "pct30x": 0.0,
+      "lowMapqFraction": 0.333,
+      "dosageRatio": 0.27,
+      "status": "unsicher",
+      "reasons": [
+        "mittlere Tiefe 8.0x < 20.0x",
+        "nur 0.0 % der Basen >= 20x",
+        "33 % der Reads mit MAPQ < 20 (Pseudogen/Repeat)"
+      ]
+    },
+    {
+      "gene": "BRCA2",
+      "exon": 11,
+      "label": "Exon 11",
+      "chrom": "chr13",
+      "start": 32336265,
+      "end": 32341196,
+      "length": 4932,
+      "meanDepth": 31.0,
+      "pct10x": 100.0,
+      "pct20x": 100.0,
+      "pct30x": 0.0,
+      "lowMapqFraction": 0.0,
+      "dosageRatio": 1.03,
+      "status": "ok",
+      "reasons": []
+    }
+  ],
+  "lowCoverageIntervals": [
+    {
+      "gene": "BRCA1",
+      "chrom": "chr17",
+      "start": 43045001,
+      "end": 43045040,
+      "minDepth": 5.0,
+      "length": 40
+    }
+  ],
+  "cnvs": [],
+  "cnvSegmentsChecked": 2,
+  "exonDosageHints": [],
+  "svs": [
+    {
+      "gene": "BRCA1",
+      "id": "MantaDEL:1",
+      "type": "DEL",
+      "chrom": "chr17",
+      "pos": 43090000,
+      "end": 43096000,
+      "mateChrom": null,
+      "matePos": null,
+      "length": 6000,
+      "genotype": "0/1",
+      "pairedReads": "20,8",
+      "splitReads": "15,6",
+      "filter": "PASS",
+      "affectedExons": [],
+      "caller": "Manta",
+      "flags": [
+        "Bestätigung mit orthogonaler Methode nötig"
+      ]
+    }
+  ],
+  "toolVersions": {
+    "nextflow": "24.10.4",
+    "bwa": "0.7.18-r1243",
+    "samtools": "1.21",
+    "bcftools": "1.21",
+    "gatk": "v4.6.1.0",
+    "manta": "1.6.0",
+    "cnvkit": "0.9.11",
+    "ensembl-vep": "113.0",
+    "mosdepth": "0.3.10",
+    "python": "3.13.18"
+  },
+  "invocation": "nextflow run main.nf --sample TEST --reference /Referenzen/GRCh38/GRCh38.fa --reads_r1 /Referenzen/GRCh38/R1.fq.gz --reads_r2 /Referenzen/GRCh38/R2.fq.gz --snv_caller haplotypecaller -profile <conda|standard>",
+  "nextflowSession": "3f7db909-984c-42d5-9d29-90af653043e0",
+  "limitations": [
+    "Nur GRCh38/hg38. Koordinaten BRCA1 chr17:43044295-43170327 (Minus-Strang), BRCA2 chr13:32315077-32400268 (Plus-Strang).",
+    "Kurz-Read-WGS erfasst Mosaike unter etwa 15 % Allelanteil, komplexe Umlagerungen und Bereiche mit Pseudogen-Homologie (BRCA1-Exons 1-2 und BRCA1P1) nur eingeschränkt.",
+    "CNVs stammen aus einer Einzelprobe mit flacher CNVkit-Referenz und gelten nur als Kandidaten. Einzelexon-Deletionen oder -Duplikationen unter etwa 1 kb sind unsicher; MLPA ist die übliche Bestätigung.",
+    "Manta meldet nur SVs mit Bruchpunkt im Suchfenster um BRCA1/BRCA2. Insertionen mobiler Elemente (z. B. Alu in BRCA2-Exon 3) werden nicht sicher erkannt.",
+    "ACMG/AMP: nur maschinelle Hinweise auf einzelne Kriterien (ENIGMA-Schwellen). Keine Klassifikation; PS3, PM5, PS1, PP1, PS4 und Spleißanalysen fehlen.",
+    "ClinVar-Angaben hängen von der Version der verwendeten ClinVar-VCF ab."
+  ],
+  "summary": {
+    "smallVariantCount": 2,
+    "clinvarPathogenicCount": 1,
+    "lossOfFunctionCandidateCount": 1,
+    "cnvCandidateCount": 0,
+    "exonDosageHintCount": 0,
+    "svCount": 1,
+    "uncertainExonCount": 1,
+    "lowCoverageIntervalCount": 1,
+    "needsAttention": true
+  }
+}
