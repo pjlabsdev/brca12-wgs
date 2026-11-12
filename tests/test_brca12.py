@@ -73,6 +73,17 @@ class PipelineScriptsTest(unittest.TestCase):
                             "--out-exact", "x", "--out-exons", "x")
         self.assertEqual(r.returncode, 2)
 
+    def test_bundled_assets_match_mane(self):
+        d = self.tmp
+        r = self.run_script(f"{BIN}/brca12_prepare.py", "--fai", self.fai,
+                            "--regions", os.path.join(ROOT, "assets", "brca12_regions.bed"),
+                            "--exons", os.path.join(ROOT, "assets", "brca12_exons.bed"),
+                            "--out-check", f"{d}/c.json", "--out-calling", f"{d}/a", "--out-sv", f"{d}/b",
+                            "--out-exact", f"{d}/e", "--out-exons", f"{d}/x")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        with open(f"{d}/c.json") as handle:
+            self.assertEqual(json.load(handle)["exonCount"], {"BRCA1": 23, "BRCA2": 27})
+
     def test_last_exon_lof_is_restricted(self):
         hints = variants.acmg_hints("BRCA2", {"Consequence": "stop_gained", "EXON": "27/27",
                                               "HGVSp": "ENSP:p.Lys3326Ter"}, 0.005)
