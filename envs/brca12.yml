@@ -1,0 +1,17 @@
+# Pinned versions for reproducible runs (bioconda). Manta needs Python 2.7 and has its own
+# environment (envs/manta.yml). On Apple Silicon use CONDA_SUBDIR=osx-64 (Rosetta).
+name: genome-brca12
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - bwa=0.7.18
+  - samtools=1.21
+  - bcftools=1.21
+  - htslib=1.21
+  - gatk4=4.6.1.0
+  - manta=1.6.0
+  - cnvkit=0.9.11
+  - mosdepth=0.3.10
+  - ensembl-vep=113.0
