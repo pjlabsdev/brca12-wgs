@@ -2,8 +2,26 @@
   "title": "brca12-wgs: BRCA1/BRCA2 germline analysis from whole-genome sequencing (GRCh38)",
   "upload_type": "software",
   "description": "<p>Nextflow pipeline for BRCA1/BRCA2 germline analysis from whole-genome sequencing on GRCh38: BWA-MEM, samtools, GATK HaplotypeCaller or DeepVariant, Manta, CNVkit, Ensembl VEP with ClinVar and mosdepth exon coverage. Produces separate SNV/indel, CNV and SV results, ACMG/AMP criterion hints (ENIGMA thresholds, no classification), exon-level coverage with uncertain regions flagged, and HTML/Markdown/JSON reports. Research use only: results must not be interpreted medically without clinically validated confirmation.</p>",
-  "creators": [{"name": "pjlabsdev"}],
+  "creators": [
+    {
+      "name": "Jungwirth, Peter",
+      "affiliation": "PJ Labs"
+    }
+  ],
   "license": "MIT",
-  "keywords": ["BRCA1", "BRCA2", "whole-genome sequencing", "germline", "Nextflow", "GRCh38", "variant calling", "copy number variation", "structural variants", "ACMG/AMP", "hereditary breast and ovarian cancer"],
-  "access_right": "open"
+  "keywords": [
+    "BRCA1",
+    "BRCA2",
+    "whole-genome sequencing",
+    "germline",
+    "Nextflow",
+    "GRCh38",
+    "variant calling",
+    "copy number variation",
+    "structural variants",
+    "ACMG/AMP",
+    "hereditary breast and ovarian cancer"
+  ],
+  "access_right": "open",
+  "version": "1.0.0"
 }
