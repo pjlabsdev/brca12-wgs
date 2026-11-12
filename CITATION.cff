@@ -1,8 +1,13 @@
 cff-version: 1.2.0
 message: "If you use brca12-wgs, please cite it as below."
 title: "brca12-wgs: BRCA1/BRCA2 germline analysis from whole-genome sequencing (GRCh38)"
+type: software
 authors:
-  - name: "pjlabsdev"
+  - family-names: Jungwirth
+    given-names: Peter
+    affiliation: PJ Labs
+repository-code: "https://github.com/pjlabsdev/brca12-wgs"
+license: MIT
 version: 1.0.0
 date-released: 2026-11-12
-license: MIT
+keywords: [BRCA1, BRCA2, whole-genome sequencing, Nextflow, GRCh38]
