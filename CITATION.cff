@@ -8,6 +8,6 @@ authors:
     affiliation: PJ Labs
 repository-code: "https://github.com/pjlabsdev/brca12-wgs"
 license: MIT
-version: 1.0.0
+version: 1.0.1
 date-released: 2026-11-12
 keywords: [BRCA1, BRCA2, whole-genome sequencing, Nextflow, GRCh38]

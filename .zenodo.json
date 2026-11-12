@@ -8,7 +8,7 @@
       "affiliation": "PJ Labs"
     }
   ],
-  "license": "MIT",
+  "license": "mit",
   "keywords": [
     "BRCA1",
     "BRCA2",
@@ -23,5 +23,5 @@
     "hereditary breast and ovarian cancer"
   ],
   "access_right": "open",
-  "version": "1.0.0"
+  "version": "1.0.1"
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 (2026-11-12)
+
+- Archive release for the Zenodo DOI (Zenodo licence id in lowercase SPDX form). No pipeline changes.
+
 ## 1.0.0 (2026-11-12)
 
 - First public release: FASTQ or BAM/CRAM to BRCA1/BRCA2 report on GRCh38.
