@@ -27,8 +27,11 @@ def look(site, report, calls_vcf):
         if sv["chrom"] != site["chrom"]:
             continue
         sv_end = sv["end"] or sv["pos"]
-        if kind == "DEL" and sv["type"] == "DEL" and abs(sv["pos"] - pos) <= SLOP and abs(sv_end - end) <= SLOP:
-            found["manta"].append({k: sv[k] for k in ("type", "pos", "end", "length", "genotype", "filter", "flags")})
+        overlap = min(sv_end, end) - max(sv["pos"], pos)
+        # panel coordinates of merged short-read SV calls are not base-exact: 50 % reciprocal overlap
+        if kind == "DEL" and sv["type"] == "DEL" and overlap >= 0.5 * (end - pos) and overlap >= 0.5 * (sv_end - sv["pos"]):
+            found["manta"].append({**{k: sv[k] for k in ("type", "pos", "end", "length", "genotype", "filter", "flags")},
+                                   "startDifference": sv["pos"] - pos, "endDifference": sv_end - end})
         if kind == "ALU" and sv["type"] in ("INS", "BND") and abs(sv["pos"] - pos) <= SLOP:
             found["manta"].append({k: sv[k] for k in ("type", "pos", "length", "genotype", "filter", "flags")})
     out = subprocess.run(["bcftools", "query", "-r", f"{site['chrom']}:{pos - SLOP}-{end + SLOP}",

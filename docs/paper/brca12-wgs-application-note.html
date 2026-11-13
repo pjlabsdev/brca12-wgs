@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>brca12-wgs: a reproducible Nextflow pipeline for BRCA1/BRCA2 germline analysis from whole-genome sequencing on GRCh38</title>
+<style>
+@page { size: A4; margin: 22mm 20mm 22mm 20mm; }
+body { font-family: "Charter", "Georgia", serif; font-size: 10.5pt; line-height: 1.45; color: #111; }
+h1 { font-size: 16pt; line-height: 1.25; margin: 0 0 8pt; font-weight: 600; }
+h2 { font-size: 12pt; margin: 16pt 0 5pt; font-weight: 600; }
+h3 { font-size: 10.5pt; margin: 10pt 0 3pt; font-weight: 600; font-style: italic; }
+.meta { font-size: 10pt; margin-bottom: 4pt; }
+.small { font-size: 9pt; color: #333; }
+.abstract { border-top: 1px solid #999; border-bottom: 1px solid #999; padding: 8pt 0; margin: 12pt 0; }
+.box { border: 1px solid #c58b00; background: #fff8e6; padding: 7pt 9pt; margin: 10pt 0; font-size: 9.5pt; }
+table { border-collapse: collapse; width: 100%; font-size: 8.8pt; margin: 6pt 0 10pt; }
+th, td { border-bottom: 1px solid #ccc; padding: 3pt 4pt; text-align: left; vertical-align: top; }
+th { border-bottom: 1.2px solid #444; }
+caption { caption-side: top; text-align: left; font-size: 9pt; margin-bottom: 3pt; }
+code { font-family: "IBM Plex Mono", Menlo, monospace; font-size: 8.8pt; }
+pre { font-family: "IBM Plex Mono", Menlo, monospace; font-size: 8.2pt; background: #f4f4f4; padding: 6pt; white-space: pre-wrap; }
+ol.refs { font-size: 8.8pt; padding-left: 16pt; } ol.refs li { margin-bottom: 2pt; }
+</style></head><body>
+
+<h1>brca12-wgs: a reproducible Nextflow pipeline for BRCA1/BRCA2 germline analysis from whole-genome sequencing on GRCh38</h1>
+<div class="meta"><strong>Peter Jungwirth, MSc</strong><br>PJ Labs, Austria</div>
+<div class="small">Software report (preprint), version 1.0.2, 13 November 2026 · Software: https://github.com/pjlabsdev/brca12-wgs · DOI: <span id="doi">10.5281/zenodo.24173638</span> · Licence: MIT</div>
+
+<div class="abstract">
+<strong>Summary.</strong> Germline pathogenic variants in <i>BRCA1</i> and <i>BRCA2</i> cause hereditary breast and ovarian cancer syndrome, and the clinically relevant variant spectrum includes single-nucleotide variants, small insertions and deletions, exon-level copy-number changes and larger structural rearrangements. Many openly available BRCA workflows were designed for amplicon panels on the GRCh37/hg19 assembly and report only small variants. We present <i>brca12-wgs</i>, a Nextflow pipeline that takes paired-end FASTQ files or an existing BAM/CRAM from whole-genome sequencing and produces a structured BRCA1/BRCA2 report on GRCh38. It combines BWA-MEM alignment, GATK HaplotypeCaller or DeepVariant for small variants, Manta for structural variants, CNVkit plus per-exon read-depth ratios for copy-number candidates, Ensembl VEP with MANE Select transcripts, gnomAD frequencies and ClinVar, and mosdepth-based coverage per exon. The report keeps BRCA1 and BRCA2 small variants, copy-number changes and structural variants in separate sections, flags exons and intervals with insufficient or ambiguous coverage, and lists automated hints on single ACMG/AMP criteria using ClinGen ENIGMA thresholds without assigning a classification. All tool versions and executed commands are recorded. In a targeted benchmark against the Genome in a Bottle truth sets for HG001 and HG002, the pipeline recovered 364 of 364 SNVs and 67 of 69 indels in the high-confidence parts of both genes, and all 34 variants in the coding exons ±20 bp without a false positive. The software is intended for research use; results require confirmation by a clinically validated laboratory method before any medical interpretation.<br>
+<strong>Availability.</strong> Source code, test data and continuous-integration tests are available under the MIT licence at https://github.com/pjlabsdev/brca12-wgs; the archived release is available under the DOI above.
+</div>
+
+<div class="box"><strong>Research use only.</strong> brca12-wgs is not a medical device and has not been clinically validated. Its output must not be used for diagnosis, risk assessment or treatment decisions without confirmation in an accredited laboratory (for example Sanger sequencing for small variants and MLPA for copy-number changes). ACMG/AMP entries are automated hints on individual criteria, not variant classifications. A result without findings does not exclude a hereditary BRCA1/BRCA2 predisposition.</div>
+
+<h2>1 Introduction</h2>
+<p>Pathogenic germline variants in the tumour suppressor genes <i>BRCA1</i> (chr17, minus strand) and <i>BRCA2</i> (chr13, plus strand) substantially increase lifetime risks of breast, ovarian, prostate and pancreatic cancer. Most pathogenic alleles are truncating SNVs and small indels, but large genomic rearrangements such as single- or multi-exon deletions and duplications account for a relevant fraction of findings, particularly in <i>BRCA1</i>, which is rich in Alu repeats and has a partially duplicated pseudogene (<i>BRCA1P1</i>) near its 5′ end.</p>
+<p>Whole-genome sequencing (WGS) captures all of these variant classes in a single assay, but extracting a reliable gene-level result requires several specialised tools, consistent coordinates and explicit statements about where the data are not sufficient. Openly available workflows such as BRCA-analyzer [14] were developed for amplicon panels on GRCh37/hg19, depend on licence-restricted annotation (ANNOVAR) and do not report copy-number or structural variants. General-purpose germline pipelines cover WGS but are not tailored to a concise, gene-focused report with exon-level coverage and conservative interpretation hints.</p>
+<p><i>brca12-wgs</i> addresses this gap with three design goals: (i) GRCh38 only, with automatic rejection of other assemblies; (ii) separate, traceable evidence layers for small variants, copy-number candidates, structural variants and coverage; and (iii) reproducibility through pinned software environments, recorded tool versions and a verbatim command log.</p>
+
+<h2>2 Implementation</h2>
+<p>The pipeline is written in Nextflow DSL2 [9] and runs locally with conda environments or with tools available on the system path. Figure-equivalent overview of the processes is given in Table 1.</p>
+
+<table><caption><strong>Table 1.</strong> Processes, tools and outputs.</caption>
+<tr><th>Step</th><th>Tool (pinned version)</th><th>Purpose</th></tr>
+<tr><td>Input check</td><td>Python</td><td>GRCh38 detection from chr13/chr17 lengths; region and exon BED harmonisation</td></tr>
+<tr><td>Alignment</td><td>BWA-MEM 0.7.18 [1], samtools 1.21 [2]</td><td>Read-group tagged alignment, fixmate, sort, duplicate marking, index</td></tr>
+<tr><td>SNVs/indels</td><td>GATK 4.6.1.0 HaplotypeCaller [3] or DeepVariant [4]</td><td>Calling in BRCA1/BRCA2 ± 200 bp</td></tr>
+<tr><td>Structural variants</td><td>Manta 1.6.0 [5]</td><td>Breakpoints within ± 1 Mb of both genes</td></tr>
+<tr><td>Copy number</td><td>CNVkit 0.9.11 [6]</td><td>WGS mode, flat reference over chr13 and chr17; per-exon depth ratios</td></tr>
+<tr><td>Extraction</td><td>bcftools 1.21 [2]</td><td>Normalisation, per-gene VCFs</td></tr>
+<tr><td>Annotation</td><td>Ensembl VEP 113 [7]</td><td>MANE Select [12], HGVS, gnomAD [13], ClinVar [11] via <code>--custom</code></td></tr>
+<tr><td>Coverage</td><td>mosdepth 0.3.10 [8], samtools</td><td>Per exon at MAPQ ≥ 20 and ≥ 0; thresholds 10/20/30×; per-base depth</td></tr>
+<tr><td>Report</td><td>Python (standard library)</td><td>HTML, Markdown (English or German), JSON</td></tr>
+</table>
+
+<h3>2.1 Reference and regions</h3>
+<p>The input check reads the FASTA index and accepts the reference only if chr13 and chr17 have the GRCh38 lengths (114,364,328 and 83,257,441 bp); the GRCh37 lengths are rejected with an explicit message. Gene loci are fixed to chr17:43,044,295–43,170,327 (<i>BRCA1</i>) and chr13:32,315,077–32,400,268 (<i>BRCA2</i>). A user-supplied region BED is accepted only if every interval lies within these loci. Exons are taken from the MANE Select transcripts ENST00000357654/NM_007294.4 (23 exons) and ENST00000380152/NM_000059.4 (27 exons), generated from the Ensembl REST API by a bundled script and checked for exon counts in continuous integration. For <i>BRCA1</i> the report additionally shows the legacy exon numbering, which omits exon 4.</p>
+
+<h3>2.2 Variant calling</h3>
+<p>Small variants are called with GATK HaplotypeCaller restricted to the padded gene regions, or optionally with DeepVariant. Restricting the calling intervals reduces run time from hours to minutes on a 30× genome while giving the same calls within the target. Manta is run with call regions extending 1 Mb around both genes, so that rearrangements with one breakpoint inside a gene are retained, including translocations reported as breakend (BND) pairs. For copy number, CNVkit is run in WGS mode with 1 kb bins over chr13 and chr17 and a flat reference; segments overlapping a gene with an estimated copy number different from two are reported as candidates together with the affected exons. Independently, the mean depth of each exon is divided by the median depth of 100 kb windows on the same chromosome; ratios below 0.65 or above 1.35 are listed as dosage hints. Because only a single sample is available, neither approach provides calibrated sensitivity, and both are labelled as candidates that require MLPA or another validated method.</p>
+
+<h3>2.3 Annotation and ACMG/AMP hints</h3>
+<p>VEP annotates consequences, HGVS notation, exon or intron number and gnomAD exome and genome frequencies, prioritising the MANE Select transcript. ClinVar significance, review status (converted to stars) and condition are added from a user-supplied ClinVar VCF so that the ClinVar version is under the user's control. On top of this, the pipeline evaluates a small set of single ACMG/AMP criteria [10] with thresholds from the ClinGen ENIGMA BRCA1/BRCA2 Variant Curation Expert Panel [15]: PVS1 candidate for stop-gain, frameshift, canonical splice-site and start-loss consequences, reported as restricted when the variant lies in the last exon (possible nonsense-mediated decay escape; see also [16]); PM2_Supporting when the variant is absent from gnomAD; BA1 above 0.1 % and BS1 above 0.01 % maximum population frequency (used as a proxy for the filtering allele frequency); open PP3/BP4 for missense variants, which require calibrated predictors; splice warnings; and BP4/BP7 candidates for variants without predicted protein change. Known exceptions such as <i>BRCA2</i> p.Lys3326Ter are noted. Each hint is stored with German and English text and a direction (pathogenic, benign, neutral). No combination rule is applied and no classification is assigned; the JSON field <code>clinicalClassification</code> is always null.</p>
+
+<h3>2.4 Coverage and uncertain regions</h3>
+<p>Coverage is computed per exon at mapping quality ≥ 20 and, separately, without a mapping-quality filter. An exon is flagged as uncertain if its mean depth is below 20×, if fewer than 95 % of its bases reach 20×, or if more than 10 % of reads have mapping quality below 20, which identifies regions affected by pseudogene homology or repeats. All intervals below 10× inside the gene loci are listed individually. Small variants receive quality flags for non-PASS filters, depth below 15, genotype quality below 20, heterozygous allele fractions outside 25–75 % (possible mosaicism or artefact), mapping quality below 40 and location in an uncertain exon. All thresholds are parameters.</p>
+
+<h3>2.5 Reporting and reproducibility</h3>
+<p>The report contains separate sections for <i>BRCA1</i> SNVs/indels, <i>BRCA2</i> SNVs/indels, copy-number candidates, structural variants, coverage per exon and uncertain intervals, followed by tool versions, the invocation and known limitations. It is produced as standalone HTML and Markdown in English or German, and as JSON (schema <code>genome.brca12.v1</code>) for downstream software. Tool versions are captured at run time rather than assumed from the environment files. Every Nextflow task copies its command script into a combined <code>brca12_commands.sh</code>, and Nextflow trace, timeline and report files are kept. Conda environments pin all tool versions; Manta runs in a separate Python 2.7 environment.</p>
+
+<h2>3 Testing</h2>
+<p>The repository contains unit tests that run the input check and report builder on synthetic data. They cover rejection of GRCh37 references and of regions outside the loci, consistency of the bundled exon BED with MANE (23 and 27 exons), the last-exon restriction of PVS1, frequency-based hints, quality flags, low-coverage interval merging, CNV and SV overlap with exons including breakend mates, and the presence of all report sections and of the disclaimer in both languages. A second test runs the complete Nextflow workflow with stand-in executables that emit realistic file formats, verifying that every process is connected and that all report files are produced. Both tests run in GitHub Actions on every change.</p>
+<p>These tests verify the software logic and workflow wiring. Analytical performance was measured separately (Section 3.1).</p>
+
+<h3>3.1 Benchmark against Genome in a Bottle (HG001, HG002)</h3>
+<p>Small-variant calls were compared with the Genome in a Bottle (GIAB) NIST v4.2.1 GRCh38 truth sets for HG001 (NA12878) and HG002 (NA24385) [17, 18]. Illumina HiSeq 2×148 bp reads from the public GIAB data release were used. Read pairs that the GIAB alignments placed within <i>BRCA1</i> or <i>BRCA2</i> ±10 kb were extracted, downsampled to approximately 36× (HG001) and 30× (HG002), converted back to FASTQ and processed by the complete pipeline from FASTQ, using BWA-MEM, GATK HaplotypeCaller, bcftools, mosdepth and Manta at the versions in Table 1. The reference consisted of chr13 and chr17 of the GRCh38 no-alt analysis set. Calls were matched to the truth with RTG Tools <code>vcfeval</code> 3.13 [19], which compares haplotypes and requires the genotype to agree. Evaluation was restricted to the GIAB high-confidence regions, which cover 91.9 % (HG001) and 95.1 % (HG002) of the 211,225 bp of both gene loci, and was repeated for MANE exons ±20 bp. The script and all results are in the <code>validation/</code> directory of the repository.</p>
+
+<table><caption><strong>Table 3.</strong> Small-variant benchmark inside <i>BRCA1</i> and <i>BRCA2</i> (GIAB high-confidence regions). 95 % Wilson confidence intervals in brackets.</caption>
+<tr><th>Sample</th><th>Region</th><th>Type</th><th>Truth</th><th>TP</th><th>FP</th><th>FN</th><th>Recall</th><th>Precision</th></tr>
+<tr><td>HG001</td><td>Gene loci</td><td>SNV</td><td>269</td><td>269</td><td>1</td><td>0</td><td>1.000 [0.986–1.000]</td><td>0.996 [0.979–0.999]</td></tr>
+<tr><td>HG001</td><td>Gene loci</td><td>Indel</td><td>49</td><td>48</td><td>1</td><td>1</td><td>0.980 [0.893–0.996]</td><td>0.980 [0.893–0.996]</td></tr>
+<tr><td>HG001</td><td>Exons ±20 bp</td><td>SNV / indel</td><td>20 / 2</td><td>20 / 2</td><td>0 / 0</td><td>0 / 0</td><td>1.000 / 1.000</td><td>1.000 / 1.000</td></tr>
+<tr><td>HG002</td><td>Gene loci</td><td>SNV</td><td>95</td><td>95</td><td>0</td><td>0</td><td>1.000 [0.961–1.000]</td><td>1.000 [0.961–1.000]</td></tr>
+<tr><td>HG002</td><td>Gene loci</td><td>Indel</td><td>20</td><td>19</td><td>1</td><td>1</td><td>0.950 [0.764–0.991]</td><td>0.950 [0.764–0.991]</td></tr>
+<tr><td>HG002</td><td>Exons ±20 bp</td><td>SNV / indel</td><td>11 / 1</td><td>11 / 1</td><td>0 / 0</td><td>0 / 0</td><td>1.000 / 1.000</td><td>1.000 / 1.000</td></tr>
+</table>
+
+<p>Three calls were discordant, all intronic. Two were genotype errors in homopolymer stretches of <i>BRCA2</i> at 12× and 14× local depth: chr13:32344166, where the truth is a multiallelic insertion/deletion and only the deletion was called, and chr13:32349814, where a homozygous 1 bp deletion was called heterozygous. Each counts as one false positive and one false negative, and both were marked by the pipeline's own quality flags (depth below 15, genotype quality below 20, unusual allele balance). The third was a heterozygous SNV at chr17:43164525 upstream of the <i>BRCA1</i> coding region (34×, GQ 99) that is absent from the HG001 truth set; it carried no quality flag. Exon coverage was sufficient for all 50 exons in HG001 (mean 23–53×). In HG002, three exons were correctly flagged as uncertain because of depth: <i>BRCA1</i> exon 1, <i>BRCA1</i> exon 21 (legacy 22; mean 17.5×) and <i>BRCA2</i> exon 1. No exon had more than 10 % of reads below mapping quality 20. Manta reported no structural variant in either sample.</p>
+
+<p>The benchmark has four main limitations.</p>
+<ul>
+<li>Only reads already placed near the genes were realigned, and only against chr13 and chr17. This removes competition from paralogous sequence elsewhere in the genome, which may overstate precision, and omits reads originally placed elsewhere, which may understate recall. A whole-genome run against the complete reference is planned.</li>
+<li>No Ensembl VEP cache was available on the benchmark machine. Annotation was replaced by a pass-through, and CNVkit by a neutral stand-in, so annotation, ACMG/AMP hints and copy-number calling are not covered.</li>
+<li>Two samples and two genes yield few events, particularly exonic indels (three), and the confidence intervals are correspondingly wide.</li>
+<li>Neither sample carries a pathogenic <i>BRCA1/BRCA2</i> variant. Performance on pathogenic SNVs, indels and exon-level deletions or duplications still needs characterised reference materials.</li>
+</ul>
+
+<h2>4 Comparison with existing workflows</h2>
+<table><caption><strong>Table 2.</strong> Feature comparison with BRCA-analyzer [14].</caption>
+<tr><th></th><th>brca12-wgs 1.0.2</th><th>BRCA-analyzer</th></tr>
+<tr><td>Data type</td><td>WGS (FASTQ or BAM/CRAM)</td><td>Amplicon panels</td></tr>
+<tr><td>Assembly</td><td>GRCh38, enforced</td><td>hg19</td></tr>
+<tr><td>Small variants</td><td>GATK 4 HaplotypeCaller or DeepVariant</td><td>GATK 3.6/3.7</td></tr>
+<tr><td>Copy number / SV</td><td>CNVkit + exon dosage / Manta</td><td>Not included</td></tr>
+<tr><td>Annotation</td><td>VEP, MANE Select, gnomAD, user ClinVar</td><td>ANNOVAR, snpEff, ClinVar 2018</td></tr>
+<tr><td>Interpretation support</td><td>ACMG/AMP criterion hints (ENIGMA), no classification</td><td>Not included</td></tr>
+<tr><td>Coverage</td><td>Per exon, MAPQ-aware, uncertain intervals</td><td>Per amplicon</td></tr>
+<tr><td>Output</td><td>HTML, Markdown, JSON</td><td>Excel, Word</td></tr>
+<tr><td>Licence</td><td>MIT</td><td>GPL-3.0</td></tr>
+</table>
+
+<h2>5 Limitations</h2>
+<ul>
+<li>Short-read WGS has limited sensitivity for mosaic variants below about 15 % allele fraction, for complex rearrangements and in regions with pseudogene homology such as <i>BRCA1</i> exons 1–2.</li>
+<li>Copy-number results come from a single sample with a flat reference and are candidates only; single-exon events below about 1 kb are uncertain. Cohort-based callers such as GATK gCNV are not used because they require a trained model.</li>
+<li>Mobile element insertions (for example Alu insertions in <i>BRCA2</i> exon 3) are not reliably detected.</li>
+<li>The ACMG/AMP hints cover a subset of criteria; functional (PS3/BS3), segregation (PP1), case-control (PS4), same-codon (PS1/PM5) and splicing evidence are not evaluated. Population thresholds use the maximum population allele frequency as a proxy for the filtering allele frequency.</li>
+<li>DeepVariant on macOS is available only through containers; the default caller is GATK HaplotypeCaller.</li>
+<li>Benchmarking so far covers small variants in two GIAB samples with a targeted read set (Section 3.1). Copy-number calling, annotation and pathogenic variants have not been benchmarked.</li>
+</ul>
+
+<h2>6 Availability and requirements</h2>
+<p><strong>Project:</strong> brca12-wgs · <strong>Repository:</strong> https://github.com/pjlabsdev/brca12-wgs · <strong>Archived version:</strong> DOI <span>10.5281/zenodo.24173638</span> · <strong>Operating systems:</strong> Linux, macOS · <strong>Requirements:</strong> Nextflow ≥ 23.10, Java 17, conda/mamba or the listed tools, GRCh38 FASTA with index and dictionary, Ensembl VEP GRCh38 cache, ClinVar VCF · <strong>Licence:</strong> MIT.</p>
+<pre>nextflow run main.nf -profile conda \
+  --sample S --reads_r1 S_R1.fastq.gz --reads_r2 S_R2.fastq.gz \
+  --reference GRCh38.fa --vep_cache ~/.vep --clinvar_vcf clinvar.vcf.gz</pre>
+
+<h2>Acknowledgements</h2>
+<p>The software and this report were developed with the assistance of an AI coding assistant (Claude, Anthropic). The author reviewed the design and is responsible for the content.</p>
+<h2>Conflict of interest</h2>
+<p>None declared.</p>
+
+<h2>References</h2>
+<ol class="refs">
+<li>Li H. Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. arXiv:1303.3997; 2013.</li>
+<li>Danecek P, Bonfield JK, Liddle J, et al. Twelve years of SAMtools and BCFtools. GigaScience. 2021;10(2):giab008.</li>
+<li>Poplin R, Ruano-Rubio V, DePristo MA, et al. Scaling accurate genetic variant discovery to tens of thousands of samples. bioRxiv 201178; 2018.</li>
+<li>Poplin R, Chang PC, Alexander D, et al. A universal SNP and small-indel variant caller using deep neural networks. Nat Biotechnol. 2018;36:983–987.</li>
+<li>Chen X, Schulz-Trieglaff O, Shaw R, et al. Manta: rapid detection of structural variants and indels for germline and cancer sequencing applications. Bioinformatics. 2016;32(8):1220–1222.</li>
+<li>Talevich E, Shain AH, Botton T, Bastian BC. CNVkit: genome-wide copy number detection and visualization from targeted DNA sequencing. PLoS Comput Biol. 2016;12(4):e1004873.</li>
+<li>McLaren W, Gil L, Hunt SE, et al. The Ensembl Variant Effect Predictor. Genome Biol. 2016;17:122.</li>
+<li>Pedersen BS, Quinlan AR. Mosdepth: quick coverage calculation for genomes and exomes. Bioinformatics. 2018;34(5):867–868.</li>
+<li>Di Tommaso P, Chatzou M, Floden EW, et al. Nextflow enables reproducible computational workflows. Nat Biotechnol. 2017;35:316–319.</li>
+<li>Richards S, Aziz N, Bale S, et al. Standards and guidelines for the interpretation of sequence variants. Genet Med. 2015;17(5):405–424.</li>
+<li>Landrum MJ, Lee JM, Benson M, et al. ClinVar: improving access to variant interpretations and supporting evidence. Nucleic Acids Res. 2018;46(D1):D1062–D1067.</li>
+<li>Morales J, Pujar S, Loveland JE, et al. A joint NCBI and EMBL-EBI transcript set for clinical genomics and research. Nature. 2022;604:310–315.</li>
+<li>Karczewski KJ, Francioli LC, Tiao G, et al. The mutational constraint spectrum quantified from variation in 141,456 humans. Nature. 2020;581:434–443.</li>
+<li>Kechin A. BRCA-analyzer: automatic workflow for analysis of BRCA1/2 NGS data. https://github.com/aakechin/BRCA-analyzer (accessed 12 November 2026).</li>
+<li>Parsons MT, de la Hoya M, Richardson ME, et al. Evidence-based recommendations for gene-specific ACMG/AMP variant classification from the ClinGen ENIGMA BRCA1 and BRCA2 Variant Curation Expert Panel. Am J Hum Genet. 2024;111(9):2044–2058.</li>
+<li>Abou Tayoun AN, Pesaran T, DiStefano MT, et al. Recommendations for interpreting the loss of function PVS1 ACMG/AMP variant criterion. Hum Mutat. 2018;39(11):1517–1524.</li>
+<li>Zook JM, Chapman B, Wang J, et al. Integrating human sequence data sets provides a resource of benchmark SNP and indel genotype calls. Nat Biotechnol. 2014;32:246–251.</li>
+<li>Wagner J, Olson ND, Harris L, et al. Benchmarking challenging small variants with linked and long reads. Cell Genomics. 2022;2(5):100128.</li>
+<li>Cleary JG, Braithwaite R, Gaastra K, et al. Comparing variant call files for performance benchmarking of next-generation sequencing variant calling pipelines. bioRxiv 023754; 2015.</li>
+</ol>
+</body></html>

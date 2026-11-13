@@ -1,0 +1,1060 @@
+{
+  "carriers": [
+    {
+      "sample": "HG02164",
+      "population": "CDX",
+      "gene": "BRCA1",
+      "variant": "chr17:43124063 G>A",
+      "hgvs": "c.34C>T",
+      "consequence": "p.Gln12Ter, nonsense",
+      "clinvarIn1000gAnnotation": "pathogenic",
+      "nygcFilter": "PASS",
+      "detected": true,
+      "genotype": "0/1",
+      "depth": 47,
+      "GQ": 99,
+      "AD": "23,24",
+      "inReport": true,
+      "concordance": [
+        {
+          "sample": "HG02164",
+          "region": "gene_loci",
+          "type": "SNV",
+          "evaluatedBases": 211225,
+          "truthTotal": 102,
+          "TP": 102,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.9637,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.9637,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "HG02164",
+          "region": "gene_loci",
+          "type": "INDEL",
+          "evaluatedBases": 211225,
+          "truthTotal": 45,
+          "TP": 32,
+          "FP": 4,
+          "FN": 13,
+          "recall": 0.7111,
+          "recall95CI": [
+            0.5663,
+            0.8227
+          ],
+          "precision": 0.871,
+          "precision95CI": [
+            0.7115,
+            0.9487
+          ],
+          "F1": 0.783
+        },
+        {
+          "sample": "HG02164",
+          "region": "exons_pm20",
+          "type": "SNV",
+          "evaluatedBases": 21002,
+          "truthTotal": 13,
+          "TP": 13,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.7719,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.7719,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "HG02164",
+          "region": "exons_pm20",
+          "type": "INDEL",
+          "evaluatedBases": 21002,
+          "truthTotal": 1,
+          "TP": 1,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.2065,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.2065,
+            1.0
+          ],
+          "F1": 1.0
+        }
+      ]
+    },
+    {
+      "sample": "HG03929",
+      "population": "BEB",
+      "gene": "BRCA1",
+      "variant": "chr17:43092128 G>A",
+      "hgvs": "c.3403C>T",
+      "consequence": "p.Gln1135Ter, nonsense",
+      "clinvarIn1000gAnnotation": "pathogenic",
+      "nygcFilter": "PASS",
+      "detected": true,
+      "genotype": "0/1",
+      "depth": 26,
+      "GQ": 99,
+      "AD": "14,12",
+      "inReport": true,
+      "concordance": [
+        {
+          "sample": "HG03929",
+          "region": "gene_loci",
+          "type": "SNV",
+          "evaluatedBases": 211225,
+          "truthTotal": 64,
+          "TP": 62,
+          "FP": 0,
+          "FN": 2,
+          "recall": 0.9688,
+          "recall95CI": [
+            0.893,
+            0.9914
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.9417,
+            1.0
+          ],
+          "F1": 0.9841
+        },
+        {
+          "sample": "HG03929",
+          "region": "gene_loci",
+          "type": "INDEL",
+          "evaluatedBases": 211225,
+          "truthTotal": 43,
+          "TP": 33,
+          "FP": 5,
+          "FN": 10,
+          "recall": 0.7674,
+          "recall95CI": [
+            0.6226,
+            0.8685
+          ],
+          "precision": 0.8649,
+          "precision95CI": [
+            0.7202,
+            0.9409
+          ],
+          "F1": 0.8132
+        },
+        {
+          "sample": "HG03929",
+          "region": "exons_pm20",
+          "type": "SNV",
+          "evaluatedBases": 21002,
+          "truthTotal": 9,
+          "TP": 9,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.7008,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.7008,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "HG03929",
+          "region": "exons_pm20",
+          "type": "INDEL",
+          "evaluatedBases": 21002,
+          "truthTotal": 2,
+          "TP": 2,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.3424,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.3424,
+            1.0
+          ],
+          "F1": 1.0
+        }
+      ]
+    },
+    {
+      "sample": "HG00365",
+      "population": "FIN",
+      "gene": "BRCA1",
+      "variant": "chr17:43082403 C>T",
+      "hgvs": "c.4357+1G>A",
+      "consequence": "canonical splice donor",
+      "clinvarIn1000gAnnotation": "pathogenic",
+      "nygcFilter": "PASS",
+      "detected": true,
+      "genotype": "0/1",
+      "depth": 33,
+      "GQ": 99,
+      "AD": "16,17",
+      "inReport": true,
+      "concordance": [
+        {
+          "sample": "HG00365",
+          "region": "gene_loci",
+          "type": "SNV",
+          "evaluatedBases": 211225,
+          "truthTotal": 267,
+          "TP": 266,
+          "FP": 1,
+          "FN": 1,
+          "recall": 0.9963,
+          "recall95CI": [
+            0.9791,
+            0.9993
+          ],
+          "precision": 0.9963,
+          "precision95CI": [
+            0.9791,
+            0.9993
+          ],
+          "F1": 0.9963
+        },
+        {
+          "sample": "HG00365",
+          "region": "gene_loci",
+          "type": "INDEL",
+          "evaluatedBases": 211225,
+          "truthTotal": 105,
+          "TP": 94,
+          "FP": 6,
+          "FN": 11,
+          "recall": 0.8952,
+          "recall95CI": [
+            0.8221,
+            0.9405
+          ],
+          "precision": 0.9381,
+          "precision95CI": [
+            0.8716,
+            0.9713
+          ],
+          "F1": 0.9162
+        },
+        {
+          "sample": "HG00365",
+          "region": "exons_pm20",
+          "type": "SNV",
+          "evaluatedBases": 21002,
+          "truthTotal": 18,
+          "TP": 18,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.8241,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.8241,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "HG00365",
+          "region": "exons_pm20",
+          "type": "INDEL",
+          "evaluatedBases": 21002,
+          "truthTotal": 1,
+          "TP": 1,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.2065,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.2065,
+            1.0
+          ],
+          "F1": 1.0
+        }
+      ]
+    },
+    {
+      "sample": "NA19397",
+      "population": "LWK",
+      "gene": "BRCA2",
+      "variant": "chr13:32336632 TTTATA>T",
+      "hgvs": "c.2279_2283del",
+      "consequence": "frameshift",
+      "clinvarIn1000gAnnotation": "pathogenic",
+      "nygcFilter": "VQSRTrancheINDEL99.00to100.00",
+      "detected": true,
+      "genotype": "0/1",
+      "depth": 25,
+      "GQ": 99,
+      "AD": "10,15",
+      "inReport": true,
+      "concordance": [
+        {
+          "sample": "NA19397",
+          "region": "gene_loci",
+          "type": "SNV",
+          "evaluatedBases": 211225,
+          "truthTotal": 184,
+          "TP": 184,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.9795,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.9795,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "NA19397",
+          "region": "gene_loci",
+          "type": "INDEL",
+          "evaluatedBases": 211225,
+          "truthTotal": 90,
+          "TP": 79,
+          "FP": 7,
+          "FN": 11,
+          "recall": 0.8778,
+          "recall95CI": [
+            0.7943,
+            0.9304
+          ],
+          "precision": 0.9146,
+          "precision95CI": [
+            0.8341,
+            0.958
+          ],
+          "F1": 0.8958
+        },
+        {
+          "sample": "NA19397",
+          "region": "exons_pm20",
+          "type": "SNV",
+          "evaluatedBases": 21002,
+          "truthTotal": 9,
+          "TP": 9,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.7008,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.7008,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "NA19397",
+          "region": "exons_pm20",
+          "type": "INDEL",
+          "evaluatedBases": 21002,
+          "truthTotal": 2,
+          "TP": 2,
+          "FP": 1,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.3424,
+            1.0
+          ],
+          "precision": 0.6667,
+          "precision95CI": [
+            0.2077,
+            0.9385
+          ],
+          "F1": 0.8
+        }
+      ]
+    },
+    {
+      "sample": "HG02274",
+      "population": "PEL",
+      "gene": "BRCA2",
+      "variant": "chr13:32339498 TTGTA>T",
+      "hgvs": "c.5146_5149del",
+      "consequence": "frameshift",
+      "clinvarIn1000gAnnotation": "pathogenic",
+      "nygcFilter": "PASS",
+      "detected": true,
+      "genotype": "0/1",
+      "depth": 25,
+      "GQ": 99,
+      "AD": "20,5",
+      "inReport": true,
+      "concordance": [
+        {
+          "sample": "HG02274",
+          "region": "gene_loci",
+          "type": "SNV",
+          "evaluatedBases": 211225,
+          "truthTotal": 249,
+          "TP": 247,
+          "FP": 4,
+          "FN": 2,
+          "recall": 0.992,
+          "recall95CI": [
+            0.9712,
+            0.9978
+          ],
+          "precision": 0.9841,
+          "precision95CI": [
+            0.9597,
+            0.9938
+          ],
+          "F1": 0.988
+        },
+        {
+          "sample": "HG02274",
+          "region": "gene_loci",
+          "type": "INDEL",
+          "evaluatedBases": 211225,
+          "truthTotal": 100,
+          "TP": 94,
+          "FP": 2,
+          "FN": 6,
+          "recall": 0.94,
+          "recall95CI": [
+            0.8752,
+            0.9722
+          ],
+          "precision": 0.9778,
+          "precision95CI": [
+            0.9226,
+            0.9939
+          ],
+          "F1": 0.9585
+        },
+        {
+          "sample": "HG02274",
+          "region": "exons_pm20",
+          "type": "SNV",
+          "evaluatedBases": 21002,
+          "truthTotal": 12,
+          "TP": 12,
+          "FP": 2,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.7575,
+            1.0
+          ],
+          "precision": 0.8571,
+          "precision95CI": [
+            0.6006,
+            0.9599
+          ],
+          "F1": 0.9231
+        },
+        {
+          "sample": "HG02274",
+          "region": "exons_pm20",
+          "type": "INDEL",
+          "evaluatedBases": 21002,
+          "truthTotal": 2,
+          "TP": 2,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.3424,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.3424,
+            1.0
+          ],
+          "F1": 1.0
+        }
+      ]
+    },
+    {
+      "sample": "NA19130",
+      "population": "YRI",
+      "gene": "BRCA2",
+      "variant": "chr13:32339596 C>CTA",
+      "hgvs": "c.5241_5242insTA",
+      "consequence": "frameshift",
+      "clinvarIn1000gAnnotation": "pathogenic",
+      "nygcFilter": "PASS",
+      "detected": true,
+      "genotype": "0/1",
+      "depth": 36,
+      "GQ": 99,
+      "AD": "21,15",
+      "inReport": true,
+      "concordance": [
+        {
+          "sample": "NA19130",
+          "region": "gene_loci",
+          "type": "SNV",
+          "evaluatedBases": 211225,
+          "truthTotal": 188,
+          "TP": 182,
+          "FP": 3,
+          "FN": 6,
+          "recall": 0.9681,
+          "recall95CI": [
+            0.9321,
+            0.9853
+          ],
+          "precision": 0.9838,
+          "precision95CI": [
+            0.9534,
+            0.9945
+          ],
+          "F1": 0.9759
+        },
+        {
+          "sample": "NA19130",
+          "region": "gene_loci",
+          "type": "INDEL",
+          "evaluatedBases": 211225,
+          "truthTotal": 99,
+          "TP": 84,
+          "FP": 5,
+          "FN": 15,
+          "recall": 0.8485,
+          "recall95CI": [
+            0.765,
+            0.906
+          ],
+          "precision": 0.9398,
+          "precision95CI": [
+            0.8666,
+            0.974
+          ],
+          "F1": 0.8918
+        },
+        {
+          "sample": "NA19130",
+          "region": "exons_pm20",
+          "type": "SNV",
+          "evaluatedBases": 21002,
+          "truthTotal": 17,
+          "TP": 17,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.8157,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.8157,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "NA19130",
+          "region": "exons_pm20",
+          "type": "INDEL",
+          "evaluatedBases": 21002,
+          "truthTotal": 2,
+          "TP": 2,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.3424,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.3424,
+            1.0
+          ],
+          "F1": 1.0
+        }
+      ]
+    },
+    {
+      "sample": "NA19132",
+      "population": "YRI",
+      "gene": "BRCA2",
+      "variant": "chr13:32339596 C>CTA",
+      "hgvs": "c.5241_5242insTA",
+      "consequence": "frameshift",
+      "clinvarIn1000gAnnotation": "pathogenic",
+      "nygcFilter": "PASS",
+      "detected": true,
+      "genotype": "0/1",
+      "depth": 28,
+      "GQ": 99,
+      "AD": "9,19",
+      "inReport": true,
+      "concordance": [
+        {
+          "sample": "NA19132",
+          "region": "gene_loci",
+          "type": "SNV",
+          "evaluatedBases": 211225,
+          "truthTotal": 172,
+          "TP": 170,
+          "FP": 1,
+          "FN": 2,
+          "recall": 0.9884,
+          "recall95CI": [
+            0.9586,
+            0.9968
+          ],
+          "precision": 0.9942,
+          "precision95CI": [
+            0.9676,
+            0.999
+          ],
+          "F1": 0.9913
+        },
+        {
+          "sample": "NA19132",
+          "region": "gene_loci",
+          "type": "INDEL",
+          "evaluatedBases": 211225,
+          "truthTotal": 92,
+          "TP": 78,
+          "FP": 8,
+          "FN": 14,
+          "recall": 0.8478,
+          "recall95CI": [
+            0.7606,
+            0.9071
+          ],
+          "precision": 0.8987,
+          "precision95CI": [
+            0.8127,
+            0.9478
+          ],
+          "F1": 0.8725
+        },
+        {
+          "sample": "NA19132",
+          "region": "exons_pm20",
+          "type": "SNV",
+          "evaluatedBases": 21002,
+          "truthTotal": 12,
+          "TP": 12,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.7575,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.7575,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "NA19132",
+          "region": "exons_pm20",
+          "type": "INDEL",
+          "evaluatedBases": 21002,
+          "truthTotal": 3,
+          "TP": 3,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.4385,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.4385,
+            1.0
+          ],
+          "F1": 1.0
+        }
+      ]
+    },
+    {
+      "sample": "HG01377",
+      "population": "CLM",
+      "gene": "BRCA2",
+      "variant": "chr13:32354916 G>T",
+      "hgvs": "c.7063G>T",
+      "consequence": "p.Glu2355Ter, nonsense",
+      "clinvarIn1000gAnnotation": "not annotated",
+      "nygcFilter": "PASS",
+      "detected": true,
+      "genotype": "0/1",
+      "depth": 32,
+      "GQ": 99,
+      "AD": "20,12",
+      "inReport": true,
+      "concordance": [
+        {
+          "sample": "HG01377",
+          "region": "gene_loci",
+          "type": "SNV",
+          "evaluatedBases": 211225,
+          "truthTotal": 341,
+          "TP": 339,
+          "FP": 0,
+          "FN": 2,
+          "recall": 0.9941,
+          "recall95CI": [
+            0.9789,
+            0.9984
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.9888,
+            1.0
+          ],
+          "F1": 0.9971
+        },
+        {
+          "sample": "HG01377",
+          "region": "gene_loci",
+          "type": "INDEL",
+          "evaluatedBases": 211225,
+          "truthTotal": 106,
+          "TP": 92,
+          "FP": 6,
+          "FN": 14,
+          "recall": 0.8679,
+          "recall95CI": [
+            0.7904,
+            0.9197
+          ],
+          "precision": 0.9355,
+          "precision95CI": [
+            0.8663,
+            0.9701
+          ],
+          "F1": 0.9004
+        },
+        {
+          "sample": "HG01377",
+          "region": "exons_pm20",
+          "type": "SNV",
+          "evaluatedBases": 21002,
+          "truthTotal": 26,
+          "TP": 26,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.8713,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.8713,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "HG01377",
+          "region": "exons_pm20",
+          "type": "INDEL",
+          "evaluatedBases": 21002,
+          "truthTotal": 3,
+          "TP": 1,
+          "FP": 1,
+          "FN": 2,
+          "recall": 0.3333,
+          "recall95CI": [
+            0.0615,
+            0.7923
+          ],
+          "precision": 0.5,
+          "precision95CI": [
+            0.0945,
+            0.9055
+          ],
+          "F1": 0.4
+        }
+      ]
+    },
+    {
+      "sample": "HG00611",
+      "population": "CHS",
+      "gene": "BRCA2",
+      "variant": "chr13:32357820 G>GA",
+      "hgvs": "c.7697dup",
+      "consequence": "frameshift",
+      "clinvarIn1000gAnnotation": "pathogenic",
+      "nygcFilter": "PASS",
+      "detected": true,
+      "genotype": "0/1",
+      "depth": 46,
+      "GQ": 99,
+      "AD": "27,19",
+      "inReport": true,
+      "concordance": [
+        {
+          "sample": "HG00611",
+          "region": "gene_loci",
+          "type": "SNV",
+          "evaluatedBases": 211225,
+          "truthTotal": 113,
+          "TP": 112,
+          "FP": 1,
+          "FN": 1,
+          "recall": 0.9912,
+          "recall95CI": [
+            0.9516,
+            0.9984
+          ],
+          "precision": 0.9912,
+          "precision95CI": [
+            0.9516,
+            0.9984
+          ],
+          "F1": 0.9912
+        },
+        {
+          "sample": "HG00611",
+          "region": "gene_loci",
+          "type": "INDEL",
+          "evaluatedBases": 211225,
+          "truthTotal": 59,
+          "TP": 53,
+          "FP": 4,
+          "FN": 6,
+          "recall": 0.8983,
+          "recall95CI": [
+            0.7954,
+            0.9526
+          ],
+          "precision": 0.9259,
+          "precision95CI": [
+            0.8245,
+            0.9708
+          ],
+          "F1": 0.9119
+        },
+        {
+          "sample": "HG00611",
+          "region": "exons_pm20",
+          "type": "SNV",
+          "evaluatedBases": 21002,
+          "truthTotal": 13,
+          "TP": 13,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.7719,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.7719,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "HG00611",
+          "region": "exons_pm20",
+          "type": "INDEL",
+          "evaluatedBases": 21002,
+          "truthTotal": 3,
+          "TP": 3,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.4385,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.4385,
+            1.0
+          ],
+          "F1": 1.0
+        }
+      ]
+    },
+    {
+      "sample": "HG00612",
+      "population": "CHS",
+      "gene": "BRCA2",
+      "variant": "chr13:32357820 G>GA",
+      "hgvs": "c.7697dup",
+      "consequence": "frameshift",
+      "clinvarIn1000gAnnotation": "pathogenic",
+      "nygcFilter": "PASS",
+      "detected": true,
+      "genotype": "0/1",
+      "depth": 25,
+      "GQ": 99,
+      "AD": "20,5",
+      "inReport": true,
+      "concordance": [
+        {
+          "sample": "HG00612",
+          "region": "gene_loci",
+          "type": "SNV",
+          "evaluatedBases": 211225,
+          "truthTotal": 108,
+          "TP": 108,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.9657,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.9657,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "HG00612",
+          "region": "gene_loci",
+          "type": "INDEL",
+          "evaluatedBases": 211225,
+          "truthTotal": 44,
+          "TP": 38,
+          "FP": 3,
+          "FN": 6,
+          "recall": 0.8636,
+          "recall95CI": [
+            0.7329,
+            0.936
+          ],
+          "precision": 0.9231,
+          "precision95CI": [
+            0.7968,
+            0.9735
+          ],
+          "F1": 0.8924
+        },
+        {
+          "sample": "HG00612",
+          "region": "exons_pm20",
+          "type": "SNV",
+          "evaluatedBases": 21002,
+          "truthTotal": 12,
+          "TP": 12,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.7575,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.7575,
+            1.0
+          ],
+          "F1": 1.0
+        },
+        {
+          "sample": "HG00612",
+          "region": "exons_pm20",
+          "type": "INDEL",
+          "evaluatedBases": 21002,
+          "truthTotal": 2,
+          "TP": 2,
+          "FP": 0,
+          "FN": 0,
+          "recall": 1.0,
+          "recall95CI": [
+            0.3424,
+            1.0
+          ],
+          "precision": 1.0,
+          "precision95CI": [
+            0.3424,
+            1.0
+          ],
+          "F1": 1.0
+        }
+      ]
+    }
+  ],
+  "detected": 10,
+  "total": 10,
+  "concordanceWithNygc": [
+    {
+      "region": "gene_loci",
+      "type": "SNV",
+      "nygc": 1788,
+      "TP": 1772,
+      "FP": 10,
+      "FN": 16
+    },
+    {
+      "region": "gene_loci",
+      "type": "INDEL",
+      "nygc": 783,
+      "TP": 677,
+      "FP": 50,
+      "FN": 106
+    },
+    {
+      "region": "exons_pm20",
+      "type": "SNV",
+      "nygc": 141,
+      "TP": 141,
+      "FP": 2,
+      "FN": 0
+    },
+    {
+      "region": "exons_pm20",
+      "type": "INDEL",
+      "nygc": 21,
+      "TP": 19,
+      "FP": 2,
+      "FN": 2
+    }
+  ]
+}
