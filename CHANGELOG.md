@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## 1.0.2 (2026-11-13)
 
+- GIAB HG001/HG002 benchmark of the BRCA1/BRCA2 small-variant calls (`validation/`).
+- DOI badge and citation in the README, `doi:` in CITATION.cff.
 - CNVkit WGS mode now gets one BED for `--targets` and `--access` (the accessible part of chr13/chr17);
   CNVkit rejects two different files there, so the CNV step failed on real runs.
 - `envs/brca12.yml` no longer lists Manta, which needs Python 2.7 and made the main environment
