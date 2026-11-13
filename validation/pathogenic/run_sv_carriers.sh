@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Real structural variants in BRCA1/BRCA2 from the 1000 Genomes Project (not disease-causing).
+#
+# Sites:   sv_sites_1000g.tsv, two Alu insertions in BRCA2 and two deletions in BRCA1 from the phased
+#          SNV/INDEL/SV panel of the 3,202 samples (short-read calls: GATK-SV/MELT and svtools).
+# Samples: sv_carriers_1000g.tsv, carriers according to the panel plus six samples that are 0|0 at
+#          all four sites. Reads as in run_carriers.sh (NYGC 30x CRAM, gene +/- 10 kb, back to FASTQ).
+#          Mates that the original alignment placed outside the two windows are not included.
+# Stand-ins: VEP (passthrough) and CNVkit (neutral segments).
+#
+# Usage: validation/pathogenic/run_sv_carriers.sh WORKDIR
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+HERE="$ROOT/validation/pathogenic"
+WORK="${1:?usage: run_sv_carriers.sh WORKDIR}"
+DATA="$WORK/data"
+KG="$WORK/svkg"
+THREADS="${THREADS:-4}"
+S3=https://1000genomes.s3.amazonaws.com/1000G_2504_high_coverage
+REG="chr17:43034295-43180327 chr13:32305077-32410268"
+mkdir -p "$KG" && cd "$KG"
+
+grep -v '^#' "$HERE/sv_carriers_1000g.tsv" | while IFS=$'\t' read -r s run prefix _; do
+  out="$WORK/sv_carriers/$s"
+  [[ -s $out/brca12_results.json ]] && continue
+  if [[ ! -s ${s}_R1.fastq.gz ]]; then
+    for attempt in 1 2 3 4; do   # the remote read occasionally stalls
+      timeout 300 samtools view -@2 -b -T "$DATA/ref.fa" -o "$s.region.bam" "$S3/$prefix/$run/$s.final.cram" $REG && break
+      [[ $attempt -lt 4 ]] || exit 1
+    done
+    samtools collate -@2 -u -O "$s.region.bam" | samtools fastq -@2 -1 "${s}_R1.fastq.gz" -2 "${s}_R2.fastq.gz" -0 /dev/null -s /dev/null -n -
+  fi
+  (cd "$WORK" && nextflow run "$ROOT/main.nf" -profile standard -work-dir "$WORK/work_$s" \
+     --sample "$s" --reads_r1 "$KG/${s}_R1.fastq.gz" --reads_r2 "$KG/${s}_R2.fastq.gz" \
+     --reference "$DATA/ref.fa" --vep_cache "$DATA/vep_cache" --clinvar_vcf "$DATA/clinvar.vcf.gz" \
+     --vep "$ROOT/validation/vep_passthrough.sh" --cnvkit "$DATA/stand_ins/cnvkit.py" \
+     --threads "$THREADS" --outdir "$out" < /dev/null)
+  rm -rf "$WORK/work_$s"
+done
+python3 "$HERE/sv_carriers_eval.py" --sites "$HERE/sv_sites_1000g.tsv" --carriers "$HERE/sv_carriers_1000g.tsv" \
+  --workdir "$WORK/sv_carriers" --out "$WORK/sv_carriers/sv_carriers_summary"

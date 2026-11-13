@@ -329,3 +329,28 @@ class EnigmaRulesTest(unittest.TestCase):
         found = src.for_variant("chr17", 43045050, "C", "T", "BRCA1")
         self.assertEqual((found["spliceai"], found["bayesdel"], found["gnomad"]), (0.35, 0.31, None))
         self.assertIsNone(src.for_variant("chr17", 43045050, "C", "A", "BRCA1")["spliceai"])
+
+
+class SpikeInFindingsTest(unittest.TestCase):
+    """Fixes that came out of the spike-in validation."""
+
+    def test_dosage_hint_for_exon_flagged_uncertain(self):
+        exons = [{"gene": "BRCA2", "label": "Exon 15", "dosageRatio": 0.49, "status": "unsicher"},
+                 {"gene": "BRCA2", "label": "Exon 11", "dosageRatio": 1.02, "status": "ok"}]
+        hints = structural.exon_dosage_hints(exons)
+        self.assertEqual([(h["exon"], h["type"]) for h in hints], [("Exon 15", "möglicher Verlust")])
+        self.assertIn("unsicher markiert", hints[0]["note"])
+
+    def test_breakend_pair_is_flagged_as_possible_insertion(self):
+        header = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS\n"
+        rows = ("chr13\t32319152\tb1\tA\t]chr17:43152885]A\t999\tPASS\tSVTYPE=BND;MATEID=m1\tGT:PR:SR\t0/1:53,11:33,12\n"
+                "chr13\t32319164\tb2\tA\tA[chr17:43152572[\t999\tPASS\tSVTYPE=BND;MATEID=m2\tGT:PR:SR\t0/1:51,20:32,13\n"
+                "chr13\t32350000\tb3\tA\tA[chr5:100[\t999\tPASS\tSVTYPE=BND;MATEID=m3\tGT:PR:SR\t0/1:9,4:3,2\n")
+        with tempfile.TemporaryDirectory() as d:
+            path = f"{d}/sv.vcf"
+            with open(path, "w") as handle:
+                handle.write(header + rows)
+            regions = [("chr13", 32315076, 32400268, "BRCA2")]
+            found = structural.structural_variants(path, regions, [])
+        flagged = [sv["pos"] for sv in found if any("mögliche Insertion" in f for f in sv["flags"])]
+        self.assertEqual(flagged, [32319152, 32319164])

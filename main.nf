@@ -205,7 +205,9 @@ process CALL_CNV_CNVKIT {
     script:
     // CNVkit WGS mode with a flat reference on chr13 and chr17 (normalised across both
     // chromosomes). A single sample without a cohort yields candidates only; GATK gCNV
-    // would need a trained cohort model.
+    // would need a trained cohort model. --drop-low-coverage keeps bins with (almost) no reads
+    // out of the segmentation; without it such coverage holes dominate the CBS statistics and
+    // heterozygous deletions up to whole-gene size were missed in the spike-in validation.
     """
     set -euo pipefail
     ${params.cnvkit} access ${reference} -o access.bed
@@ -214,6 +216,7 @@ process CALL_CNV_CNVKIT {
     # In WGS mode CNVkit requires the same BED for --targets and --access.
     ${params.cnvkit} batch ${bam} --method wgs --normal --fasta ${reference} \\
       --targets wgs_regions.bed --access wgs_regions.bed --target-avg-size 1000 \\
+      --drop-low-coverage \\
       --output-reference flat_reference.cnn --output-dir cnvkit -p ${task.cpus}
     # CNVkit names its output after the BAM; rename unless the BAM is already called like the sample.
     if [ "${bam.baseName}" != "${params.sample}" ]; then

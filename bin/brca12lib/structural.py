@@ -54,16 +54,21 @@ def cnv_segments(cns_path, cnr_path, regions, exons):
 
 
 def exon_dosage_hints(exons, low=0.65, high=1.35):
+    """Exon depth relative to the chromosome median. A heterozygous deletion halves the depth and
+    thereby also makes the exon "unsicher" (low depth), so such exons must not be skipped."""
     hints = []
     for exon in exons:
         ratio = exon.get("dosageRatio")
-        if ratio is None or exon["status"] != "ok":
+        if ratio is None:
             continue
         if ratio < low or ratio > high:
+            note = "Exonweise Tiefe relativ zum Chromosomen-Median; nur ein Hinweis, kein CNV-Call."
+            if exon["status"] != "ok":
+                note += " Exon ist zugleich als unsicher markiert: Verlust oder Abdeckungsproblem, nicht unterscheidbar."
             hints.append({
                 "gene": exon["gene"], "exon": exon["label"], "ratio": ratio,
                 "type": "möglicher Verlust" if ratio < low else "möglicher Zugewinn",
-                "note": "Exonweise Tiefe relativ zum Chromosomen-Median; nur ein Hinweis, kein CNV-Call.",
+                "note": note,
             })
     return hints
 
@@ -123,4 +128,11 @@ def structural_variants(path, regions, exons):
                 "affectedExons": _affected_exons(chrom, pos, end, exons, gene),
                 "caller": "Manta", "flags": flags,
             })
+    # Two breakends a few bases apart whose mates lie elsewhere are the signature of an insertion
+    # of foreign sequence (e.g. a mobile element such as Alu); Manta cannot name it as INS.
+    bnds = [r for r in results if r["type"] == "BND"]
+    for a in bnds:
+        if any(b is not a and b["gene"] == a["gene"] and b["chrom"] == a["chrom"] and abs(b["pos"] - a["pos"]) <= 50
+               for b in bnds):
+            a["flags"].insert(0, "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)")
     return results
