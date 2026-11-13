@@ -1,0 +1,91 @@
+{
+  "sample": "HG002",
+  "geneBases": 211225,
+  "geneBasesInGiabConfident": 200954,
+  "results": [
+    {
+      "sample": "HG002",
+      "region": "gene_loci",
+      "type": "SNV",
+      "evaluatedBases": 200954,
+      "truthTotal": 95,
+      "TP": 95,
+      "FP": 0,
+      "FN": 0,
+      "recall": 1.0,
+      "recall95CI": [
+        0.9611,
+        1.0
+      ],
+      "precision": 1.0,
+      "precision95CI": [
+        0.9611,
+        1.0
+      ],
+      "F1": 1.0
+    },
+    {
+      "sample": "HG002",
+      "region": "gene_loci",
+      "type": "INDEL",
+      "evaluatedBases": 200954,
+      "truthTotal": 20,
+      "TP": 19,
+      "FP": 1,
+      "FN": 1,
+      "recall": 0.95,
+      "recall95CI": [
+        0.7639,
+        0.9911
+      ],
+      "precision": 0.95,
+      "precision95CI": [
+        0.7639,
+        0.9911
+      ],
+      "F1": 0.95
+    },
+    {
+      "sample": "HG002",
+      "region": "exons_pm20",
+      "type": "SNV",
+      "evaluatedBases": 20920,
+      "truthTotal": 11,
+      "TP": 11,
+      "FP": 0,
+      "FN": 0,
+      "recall": 1.0,
+      "recall95CI": [
+        0.7412,
+        1.0
+      ],
+      "precision": 1.0,
+      "precision95CI": [
+        0.7412,
+        1.0
+      ],
+      "F1": 1.0
+    },
+    {
+      "sample": "HG002",
+      "region": "exons_pm20",
+      "type": "INDEL",
+      "evaluatedBases": 20920,
+      "truthTotal": 1,
+      "TP": 1,
+      "FP": 0,
+      "FN": 0,
+      "recall": 1.0,
+      "recall95CI": [
+        0.2065,
+        1.0
+      ],
+      "precision": 1.0,
+      "precision95CI": [
+        0.2065,
+        1.0
+      ],
+      "F1": 1.0
+    }
+  ]
+}

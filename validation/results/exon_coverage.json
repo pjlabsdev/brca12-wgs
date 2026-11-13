@@ -1,0 +1,806 @@
+{
+ "HG001": [
+  {
+   "gene": "BRCA1",
+   "label": "Exon 1",
+   "meanDepth": 27.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 2",
+   "meanDepth": 32.5,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 3",
+   "meanDepth": 49.5,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 4 (Legacy 5)",
+   "meanDepth": 43.8,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 5 (Legacy 6)",
+   "meanDepth": 52.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 6 (Legacy 7)",
+   "meanDepth": 35.4,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 7 (Legacy 8)",
+   "meanDepth": 43.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 8 (Legacy 9)",
+   "meanDepth": 33.9,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 9 (Legacy 10)",
+   "meanDepth": 39.7,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 10 (Legacy 11)",
+   "meanDepth": 40.4,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 11 (Legacy 12)",
+   "meanDepth": 35.2,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 12 (Legacy 13)",
+   "meanDepth": 42.8,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 13 (Legacy 14)",
+   "meanDepth": 35.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 14 (Legacy 15)",
+   "meanDepth": 35.9,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 15 (Legacy 16)",
+   "meanDepth": 39.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 16 (Legacy 17)",
+   "meanDepth": 41.2,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 17 (Legacy 18)",
+   "meanDepth": 34.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 18 (Legacy 19)",
+   "meanDepth": 30.2,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 19 (Legacy 20)",
+   "meanDepth": 31.7,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 20 (Legacy 21)",
+   "meanDepth": 24.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 21 (Legacy 22)",
+   "meanDepth": 37.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 22 (Legacy 23)",
+   "meanDepth": 34.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 23 (Legacy 24)",
+   "meanDepth": 32.5,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 1",
+   "meanDepth": 23.4,
+   "pct20x": 95.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 2",
+   "meanDepth": 39.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 3",
+   "meanDepth": 31.5,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 4",
+   "meanDepth": 35.9,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 5",
+   "meanDepth": 44.2,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 6",
+   "meanDepth": 34.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 7",
+   "meanDepth": 31.5,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 8",
+   "meanDepth": 50.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 9",
+   "meanDepth": 45.2,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 10",
+   "meanDepth": 37.5,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 11",
+   "meanDepth": 43.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 12",
+   "meanDepth": 42.6,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 13",
+   "meanDepth": 51.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 14",
+   "meanDepth": 40.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 15",
+   "meanDepth": 46.6,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 16",
+   "meanDepth": 40.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 17",
+   "meanDepth": 31.4,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 18",
+   "meanDepth": 27.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 19",
+   "meanDepth": 43.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 20",
+   "meanDepth": 45.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 21",
+   "meanDepth": 53.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 22",
+   "meanDepth": 48.6,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 23",
+   "meanDepth": 37.7,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 24",
+   "meanDepth": 35.8,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 25",
+   "meanDepth": 42.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 26",
+   "meanDepth": 33.9,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 27",
+   "meanDepth": 40.2,
+   "pct20x": 98.9,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  }
+ ],
+ "HG002": [
+  {
+   "gene": "BRCA1",
+   "label": "Exon 1",
+   "meanDepth": 20.9,
+   "pct20x": 78.7,
+   "lowMapqFraction": 0.0,
+   "status": "unsicher"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 2",
+   "meanDepth": 34.6,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 3",
+   "meanDepth": 38.9,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 4 (Legacy 5)",
+   "meanDepth": 33.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 5 (Legacy 6)",
+   "meanDepth": 47.8,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 6 (Legacy 7)",
+   "meanDepth": 47.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 7 (Legacy 8)",
+   "meanDepth": 32.4,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 8 (Legacy 9)",
+   "meanDepth": 37.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 9 (Legacy 10)",
+   "meanDepth": 26.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 10 (Legacy 11)",
+   "meanDepth": 35.4,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 11 (Legacy 12)",
+   "meanDepth": 27.4,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 12 (Legacy 13)",
+   "meanDepth": 31.9,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 13 (Legacy 14)",
+   "meanDepth": 39.5,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 14 (Legacy 15)",
+   "meanDepth": 30.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 15 (Legacy 16)",
+   "meanDepth": 39.2,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 16 (Legacy 17)",
+   "meanDepth": 40.4,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 17 (Legacy 18)",
+   "meanDepth": 36.8,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 18 (Legacy 19)",
+   "meanDepth": 34.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 19 (Legacy 20)",
+   "meanDepth": 29.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 20 (Legacy 21)",
+   "meanDepth": 26.6,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 21 (Legacy 22)",
+   "meanDepth": 17.5,
+   "pct20x": 5.4,
+   "lowMapqFraction": 0.0,
+   "status": "unsicher"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 22 (Legacy 23)",
+   "meanDepth": 32.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA1",
+   "label": "Exon 23 (Legacy 24)",
+   "meanDepth": 33.9,
+   "pct20x": 97.7,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 1",
+   "meanDepth": 22.9,
+   "pct20x": 91.2,
+   "lowMapqFraction": 0.0,
+   "status": "unsicher"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 2",
+   "meanDepth": 31.6,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 3",
+   "meanDepth": 31.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 4",
+   "meanDepth": 34.6,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 5",
+   "meanDepth": 42.5,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 6",
+   "meanDepth": 35.8,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 7",
+   "meanDepth": 39.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 8",
+   "meanDepth": 51.9,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 9",
+   "meanDepth": 33.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 10",
+   "meanDepth": 32.2,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 11",
+   "meanDepth": 40.5,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 12",
+   "meanDepth": 44.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 13",
+   "meanDepth": 39.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 14",
+   "meanDepth": 42.4,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 15",
+   "meanDepth": 28.3,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 16",
+   "meanDepth": 32.7,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 17",
+   "meanDepth": 30.9,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 18",
+   "meanDepth": 32.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 19",
+   "meanDepth": 45.0,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 20",
+   "meanDepth": 36.6,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 21",
+   "meanDepth": 38.6,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 22",
+   "meanDepth": 35.2,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 23",
+   "meanDepth": 41.2,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 24",
+   "meanDepth": 32.5,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 25",
+   "meanDepth": 36.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 26",
+   "meanDepth": 40.9,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  },
+  {
+   "gene": "BRCA2",
+   "label": "Exon 27",
+   "meanDepth": 35.1,
+   "pct20x": 100.0,
+   "lowMapqFraction": 0.0,
+   "status": "ok"
+  }
+ ]
+}
