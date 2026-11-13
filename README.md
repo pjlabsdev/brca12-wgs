@@ -112,8 +112,23 @@ bash tests/run_stub_pipeline.sh         # full Nextflow run with stand-in tools
 ```
 
 Both run in GitHub Actions on every push. They check the pipeline wiring and the reporting logic,
-not the accuracy of the external callers. Validation against GIAB or a characterised BRCA reference
-sample is still to come.
+not the accuracy of the external callers.
+
+## Validation (GIAB HG001, HG002)
+
+Small-variant calls were compared with the GIAB v4.2.1 truth sets inside the GIAB high-confidence
+part of BRCA1/BRCA2. Reads were taken from GIAB Illumina data at about 30-36x and run from FASTQ.
+
+| Sample | SNV recall / precision | Indel recall / precision | Exons ±20 bp |
+|---|---|---|---|
+| HG001 | 269/269 · 0.996 | 48/49 · 0.980 | 22/22 found, 0 FP |
+| HG002 | 95/95 · 1.000 | 19/20 · 0.950 | 12/12 found, 0 FP |
+
+Both indel misses are genotype errors in intronic homopolymers at 12-14x, and the report flags both.
+This is a targeted benchmark: reads were extracted around the genes and realigned to chr13/chr17
+only. Annotation and CNVs were not part of it, and neither sample carries a pathogenic variant.
+Method, the three discordant calls, limitations and a script to reproduce it are in
+[validation/README.md](validation/README.md).
 
 ## Deutsch (Kurzfassung)
 

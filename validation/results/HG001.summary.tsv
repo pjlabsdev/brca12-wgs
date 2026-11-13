@@ -1,0 +1,5 @@
+sample	region	type	evaluatedBases	truthTotal	TP	FP	FN	recall	precision	F1
+HG001	gene_loci	SNV	194166	269	269	1	0	1.0	0.9963	0.9981
+HG001	gene_loci	INDEL	194166	49	48	1	1	0.9796	0.9796	0.9796
+HG001	exons_pm20	SNV	20904	20	20	0	0	1.0	1.0	1.0
+HG001	exons_pm20	INDEL	20904	2	2	0	0	1.0	1.0	1.0
