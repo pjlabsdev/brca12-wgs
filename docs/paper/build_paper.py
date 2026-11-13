@@ -1,0 +1,743 @@
+#!/usr/bin/env python3
+"""Build the application note (HTML with inline SVG figures) from the validation result files.
+
+Every number and figure in the note is read from the files under validation/ so that the text
+cannot drift from the data. Usage:
+
+    python3 docs/paper/build_paper.py [--fonts DIR] > docs/paper/brca12-wgs-application-note.html
+
+--fonts points to a directory with the IBM Plex Mono and Instrument Sans woff2 files (fontsource
+layout); they are embedded so that the PDF does not depend on installed fonts.
+"""
+import argparse
+import base64
+import glob
+import gzip
+import html
+import json
+import math
+import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+VAL = os.path.join(ROOT, "validation")
+PATHO = os.path.join(VAL, "pathogenic")
+RES = os.path.join(PATHO, "results")
+
+INK, SUB, LINE, PAPER = "#141413", "#56544C", "#D8D5CC", "#FAF9F5"
+GOLD = "#A57A27"                       # brand mark only, never a chart colour
+OK, BAD, WARN, BLUE, GREY = "#2A7350", "#B3261E", "#8F5B00", "#2F5D8A", "#9A978E"
+MONO = "'IBM Plex Mono', ui-monospace, Menlo, monospace"
+SANS = "'Instrument Sans', 'Helvetica Neue', Arial, sans-serif"
+
+LOGO = """<svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 0 600 95" role="img" aria-label="PJ Labs">
+<g><path d="M 60,18.5 L 70,23.1 L 80,29.4 L 90,36.5 L 100,44.2 L 110,51.8 L 120,59.2 L 130,65.8 L 140,71.4 L 150,75.6 L 160,78.2 L 170,79.1 L 180,78.2 L 190,75.6 L 200,71.4 L 210,65.8 L 220,59.2 L 230,51.8 L 240,44.2 L 250,36.5" fill="none" stroke="#A57A27" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 80,70.6 L 90,63.5 L 100,55.8 L 110,48.2 L 120,40.8 L 130,34.2 L 140,28.6 L 150,24.4 L 160,21.8 L 170,20.9 L 180,21.8 L 190,24.4 L 200,28.6 L 210,34.2 L 220,40.8 L 230,48.2 L 240,55.8 L 250,63.5 L 260,70.6 L 270,76.9 L 280,81.5" fill="none" stroke="#A57A27" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
+<line x1="144" y1="40.92" x2="144" y2="59.08" stroke="#A57A27" stroke-width="5" stroke-linecap="round"/>
+<line x1="170" y1="34.90" x2="170" y2="65.10" stroke="#A57A27" stroke-width="5" stroke-linecap="round"/>
+<line x1="196" y1="40.92" x2="196" y2="59.08" stroke="#A57A27" stroke-width="5" stroke-linecap="round"/></g>
+<text x="315" y="72" font-family="'IBM Plex Mono', ui-monospace, Menlo, monospace" font-weight="500" font-size="46" fill="#141413">PJ Labs</text></svg>"""
+
+
+# ------------------------------------------------------------------ data
+def load(path):
+    with open(path) as handle:
+        return json.load(handle)
+
+
+def table(path):
+    rows, keys = [], None
+    with open(path) as handle:
+        for line in handle:
+            if line.startswith("#"):
+                keys = line[1:].rstrip("\n").split("\t")
+            elif line.strip():
+                rows.append(dict(zip(keys, line.rstrip("\n").split("\t"))))
+    return rows
+
+
+def wilson(k, n, z=1.96):
+    if n == 0:
+        return 0.0, 1.0
+    p = k / n
+    d = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / d
+    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return max(0.0, c - h), min(1.0, c + h)
+
+
+def exons():
+    out = {"BRCA1": [], "BRCA2": []}
+    for line in open(os.path.join(ROOT, "assets", "brca12_exons.bed")):
+        f = line.rstrip("\n").split("\t")
+        if len(f) >= 4 and "_ex" in f[3]:
+            gene, number = f[3].split("_ex")
+            out[gene].append((int(number), int(f[1]) + 1, int(f[2])))
+    return out
+
+
+class Data:
+    def __init__(self):
+        self.giab = [r for s in ("HG001", "HG002") for r in load(os.path.join(VAL, "results", f"{s}.summary.json"))["results"]]
+        self.carriers = load(os.path.join(RES, "carriers_summary.json"))
+        self.spike = load(os.path.join(RES, "spike_summary.json"))
+        self.spike_before = load(os.path.join(RES, "spike_summary.before_fix.json"))
+        self.sv = load(os.path.join(RES, "sv_carriers_summary.json"))
+        self.small_events = table(os.path.join(PATHO, "small_events.tsv"))
+        self.large_events = table(os.path.join(PATHO, "large_events.tsv"))
+        self.carrier_table = table(os.path.join(PATHO, "carriers_1000g.tsv"))
+        self.sv_sites = table(os.path.join(PATHO, "sv_sites_1000g.tsv"))
+        self.depth = table(os.path.join(RES, "depth_bins.tsv"))
+        self.exons = exons()
+
+    def giab_total(self, region, kind):
+        rows = [r for r in self.giab if r["region"] == region and r["type"] == kind]
+        return sum(r["TP"] for r in rows), sum(r["truthTotal"] for r in rows), sum(r["FP"] for r in rows)
+
+    def concordance(self, region, kind):
+        r = next(x for x in self.carriers["concordanceWithNygc"] if x["region"] == region and x["type"] == kind)
+        return r["TP"], r["nygc"], r["FP"]
+
+    def large(self, which="spike"):
+        return (self.spike if which == "spike" else self.spike_before)["largeEvents"]
+
+    def count_large(self, key, which="spike"):
+        return sum(1 for e in self.large(which) if e.get(key))
+
+    def sv_site(self, sid):
+        return self.sv["bySite"][sid]
+
+
+# ------------------------------------------------------------------ svg helpers
+def esc(text):
+    return html.escape(str(text), quote=True)
+
+
+def text(x, y, s, size=8, anchor="start", fill=INK, mono=False, weight=400, italic=False, rotate=None):
+    style = f"font-family:{MONO if mono else SANS};font-size:{size}px;font-weight:{weight};" + ("font-style:italic;" if italic else "")
+    tr = f' transform="rotate({rotate} {x} {y})"' if rotate is not None else ""
+    return f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" fill="{fill}" style="{style}"{tr}>{esc(s)}</text>'
+
+
+def svg(width, height, body):
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="100%" '
+            f'role="img">{"".join(body)}</svg>')
+
+
+def fmt_bp(n):
+    if n >= 1000:
+        v = n / 1000
+        return f"{v:.0f} kb" if v >= 10 or abs(v - round(v)) < 0.05 else f"{v:.1f} kb"
+    return f"{n} bp"
+
+
+# ------------------------------------------------------------------ figure 1: workflow
+def fig_workflow():
+    w, h = 720, 250
+    b = []
+
+    def box(x, y, bw, bh, title, sub, fill="#FFFFFF", stroke=LINE):
+        b.append(f'<rect x="{x}" y="{y}" width="{bw}" height="{bh}" rx="5" fill="{fill}" stroke="{stroke}"/>')
+        b.append(text(x + bw / 2, y + 15, title, 8.5, "middle", mono=True, weight=500))
+        for i, line in enumerate(sub):
+            b.append(text(x + bw / 2, y + 27 + 10 * i, line, 7.2, "middle", SUB))
+
+    def arrow(x1, y1, x2, y2):
+        b.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{SUB}" stroke-width="1" marker-end="url(#ah)"/>')
+
+    b.append(f'<defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">'
+             f'<path d="M0,0 L8,4 L0,8 z" fill="{SUB}"/></marker></defs>')
+    box(8, 96, 100, 48, "Input", ["FASTQ pair or", "BAM/CRAM (WGS)"])
+    box(132, 96, 104, 48, "Check + align", ["GRCh38 only", "BWA-MEM, samtools"])
+    arrow(108, 120, 131, 120)
+    rows = [("Small variants", ["GATK HaplotypeCaller", "or DeepVariant"], 8),
+            ("Structural variants", ["Manta, genes ±1 Mb"], 68),
+            ("Copy number", ["CNVkit (WGS) +", "exon depth ratios"], 128),
+            ("Coverage", ["mosdepth per exon,", "MAPQ-aware"], 188)]
+    for title, sub, y in rows:
+        box(268, y, 128, 48, title, sub)
+        arrow(236, 120, 267, y + 24)
+    box(428, 8, 128, 48, "Annotation", ["VEP 113, MANE Select,", "ClinVar"])
+    arrow(396, 32, 427, 32)
+    box(428, 68, 128, 48, "ACMG/AMP hints", ["ClinGen ENIGMA v1.2,", "single criteria only"])
+    arrow(492, 56, 492, 67)
+    box(588, 96, 124, 48, "Report", ["HTML, Markdown, JSON", "no classification"], fill="#F3F1EA")
+    arrow(556, 92, 587, 112)
+    for y in (92, 152, 212):
+        arrow(396, y, 587, 120 + (y - 152) * 0.12)
+    b.append(f'<rect x="428" y="172" width="284" height="64" rx="5" fill="none" stroke="{WARN}" stroke-dasharray="3 2"/>')
+    b.append(text(438, 188, "Research use only", 8.5, mono=True, weight=500, fill=WARN))
+    b.append(text(438, 201, "Findings are candidates. Confirmation in an accredited", 7.2, fill=SUB))
+    b.append(text(438, 211, "laboratory (Sanger, MLPA) is required before any medical", 7.2, fill=SUB))
+    b.append(text(438, 221, "interpretation.", 7.2, fill=SUB))
+    return svg(w, h, b)
+
+
+# ------------------------------------------------------------------ figure 2: gene maps
+def fig_gene_maps(d):
+    w, h = 720, 430
+    b = []
+    left, right = 62, 706
+    panels = [("BRCA1", "chr17", 43044295, 43170327, "minus strand, NM_007294.4", 20),
+              ("BRCA2", "chr13", 32315077, 32400268, "plus strand, NM_000059.4", 232)]
+    for gene, chrom, lo, hi, label, top in panels:
+        def X(g):
+            return left + (g - lo) / (hi - lo) * (right - left)
+        axis = top + 78
+        b.append(text(8, top + 8, gene, 10, mono=True, weight=500, italic=True))
+        b.append(text(left, top + 8, f"{chrom}:{lo:,}–{hi:,} · {label}", 7.2, fill=SUB))
+        # real carriers (lollipops)
+        seen = {}
+        for c in d.carrier_table:
+            if c["gene"] == gene:
+                seen.setdefault((int(c["pos"]), c["hgvs_c"]), 0)
+                seen[(int(c["pos"]), c["hgvs_c"])] += 1
+        placed = []
+        for i, ((pos, name), n) in enumerate(sorted(seen.items())):
+            x = X(pos)
+            level = 0
+            while any(abs(x - px) < 62 and level == pl for px, pl in placed):
+                level += 1
+            placed.append((x, level))
+            y = axis - 26 - 14 * level
+            b.append(f'<line x1="{x:.1f}" y1="{axis - 7}" x2="{x:.1f}" y2="{y + 3:.1f}" stroke="{BAD}" stroke-width="0.9"/>')
+            b.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.2" fill="{BAD}"/>')
+            anchor = "end" if x > right - 90 else "start"
+            b.append(text(x + (5 if anchor == "start" else -5), y + 2.6, name + (f" (×{n})" if n > 1 else ""), 6.8, anchor, mono=True))
+        # gene body and exons
+        b.append(f'<line x1="{left}" y1="{axis}" x2="{right}" y2="{axis}" stroke="{INK}" stroke-width="1"/>')
+        for number, start, end in d.exons[gene]:
+            x1, x2 = X(start), X(end)
+            b.append(f'<rect x="{x1:.1f}" y="{axis - 6}" width="{max(1.3, x2 - x1):.1f}" height="12" fill="{INK}"/>')
+        first = min(d.exons[gene], key=lambda e: e[0])
+        last = max(d.exons[gene], key=lambda e: e[0])
+        for number, start, end in (first, last):
+            b.append(text(X((start + end) / 2), axis + 16, f"ex {number}", 6.5, "middle", SUB, mono=True))
+        # spiked small variants
+        y0 = axis + 24
+        for e in d.small_events:
+            if e["gene"] == gene:
+                x = X(int(e["pos"]))
+                colour = BLUE if e["kind"] == "SNV" else (OK if e["kind"] == "INS" else WARN)
+                b.append(f'<line x1="{x:.1f}" y1="{y0}" x2="{x:.1f}" y2="{y0 + 9}" stroke="{colour}" stroke-width="0.8"/>')
+        b.append(text(8, y0 + 8, "spike-in", 6.8, fill=SUB))
+        # large spiked events
+        y1 = y0 + 18
+        rows = [e for e in d.large_events if e["gene"] == gene]
+        rows.sort(key=lambda e: -int(e["size"]))
+        for i, e in enumerate(rows):
+            y = y1 + 9 * i
+            start, end = int(e["start"]), int(e["end"])
+            x1, x2 = X(max(lo - (hi - lo) * 0.03, start)), X(min(hi + (hi - lo) * 0.03, end))
+            colour = OK if e["kind"] == "LDUP" else (BAD if e["kind"] == "LDEL" else INK)
+            if e["kind"] == "ALU":
+                b.append(f'<path d="M{x1 - 3:.1f},{y:.1f} L{x1 + 3:.1f},{y:.1f} L{x1:.1f},{y + 6:.1f} z" fill="{INK}"/>')
+                lab = "Alu insertion, exon 3"
+            else:
+                b.append(f'<rect x="{x1:.1f}" y="{y:.1f}" width="{max(2.2, x2 - x1):.1f}" height="5" fill="{colour}" opacity="0.8"/>')
+                lab = ("dup " if e["kind"] == "LDUP" else "del ") + fmt_bp(int(e["size"]))
+            lx = x2 + 4 if x2 < right - 80 else x1 - 4
+            b.append(text(lx, y + 5, lab, 6.5, "start" if x2 < right - 80 else "end", SUB, mono=True))
+        # real SVs
+        for s in d.sv_sites:
+            if s["gene"] == gene:
+                x = X(int(s["pos"]))
+                b.append(f'<path d="M{x:.1f},{axis + 8} l-3.5,7 l7,0 z" fill="none" stroke="{INK}" stroke-width="0.9"/>')
+    ly = h - 14
+    items = [("circle", BAD, "pathogenic variant, real carrier (1000 Genomes)"), ("tick", BLUE, "spiked SNV"),
+             ("tick", WARN, "spiked deletion ≤ 40 bp"), ("tick", OK, "spiked insertion ≤ 25 bp"),
+             ("bar", BAD, "spiked large deletion"), ("bar", OK, "spiked tandem duplication"),
+             ("tri", INK, "real SV (1000 Genomes)")]
+    x = 8
+    for kind, colour, label in items:
+        if kind == "circle":
+            b.append(f'<circle cx="{x + 3}" cy="{ly - 3}" r="3" fill="{colour}"/>')
+        elif kind == "tick":
+            b.append(f'<line x1="{x + 3}" y1="{ly - 7}" x2="{x + 3}" y2="{ly + 1}" stroke="{colour}" stroke-width="1.2"/>')
+        elif kind == "bar":
+            b.append(f'<rect x="{x}" y="{ly - 5}" width="8" height="4" fill="{colour}" opacity="0.8"/>')
+        else:
+            b.append(f'<path d="M{x + 4},{ly - 7} l-3.5,7 l7,0 z" fill="none" stroke="{colour}" stroke-width="0.9"/>')
+        b.append(text(x + 11, ly, label, 6.6, fill=SUB))
+        x += 17 + len(label) * 3.25
+    return svg(w, h, b)
+
+
+# ------------------------------------------------------------------ figure 3: recall by class
+def recall_rows(d):
+    rows = []
+    k, n, _ = d.giab_total("gene_loci", "SNV")
+    rows.append(("GIAB truth sets (HG001, HG002)", "SNVs, gene loci", k, n))
+    k, n, _ = d.giab_total("gene_loci", "INDEL")
+    rows.append(("", "Indels, gene loci", k, n))
+    ks, ns, _ = d.giab_total("exons_pm20", "SNV")
+    ki, ni, _ = d.giab_total("exons_pm20", "INDEL")
+    rows.append(("", "All variants, exons ±20 bp", ks + ki, ns + ni))
+    rows.append(("Real carriers (1000 Genomes)", "Pathogenic SNVs/indels", d.carriers["detected"], d.carriers["total"]))
+    order = ["SNV", "deletion 1 bp", "deletion 2-5 bp", "deletion 6-20 bp", "deletion 21-50 bp",
+             "insertion/duplication 1 bp", "insertion/duplication 2-5 bp", "insertion/duplication 6-20 bp",
+             "insertion/duplication 21-50 bp"]
+    for i, key in enumerate(order):
+        v = d.spike["smallByClass"][key]
+        rows.append(("Spike-in, small variants" if i == 0 else "", key[0].upper() + key[1:].replace("-", "–") + ("s" if key == "SNV" else ""), v["found"], v["spiked"]))
+    rows.append(("Spike-in, large events", "Deletions, duplications, Alu (Manta)", d.count_large("manta"), len(d.large())))
+    rows.append(("", "Same events, CNVkit segments", d.count_large("cnvkit"), len(d.large())))
+    for sid, label in (("HGSV_216998", "Deletion 1,081 bp (BRCA1)"), ("HGSV_216996", "Deletion 271 bp (BRCA1)"),
+                       ("HGSV_181048", "Alu insertion, common (BRCA2)"), ("HGSV_181052", "Alu insertion, rare (BRCA2)")):
+        s = d.sv_site(sid)
+        rows.append(("Real SVs (1000 Genomes)" if sid == "HGSV_216998" else "", label, s["carriersReported"], s["carriers"]))
+    return rows
+
+
+def fig_recall(d):
+    rows = recall_rows(d)
+    w, rh, top = 720, 15.5, 26
+    h = top + rh * len(rows) + 30
+    b = []
+    x0, x1 = 420, 660
+
+    def X(p):
+        return x0 + p * (x1 - x0)
+
+    for p in (0, 0.25, 0.5, 0.75, 1.0):
+        b.append(f'<line x1="{X(p):.1f}" y1="{top - 6}" x2="{X(p):.1f}" y2="{top + rh * len(rows)}" stroke="{LINE}" stroke-width="0.6"/>')
+        b.append(text(X(p), top + rh * len(rows) + 12, f"{p:.2f}".rstrip("0").rstrip(".") if p not in (0, 1) else str(int(p)), 7, "middle", SUB, mono=True))
+    b.append(text((x0 + x1) / 2, top + rh * len(rows) + 25, "Fraction detected (95 % Wilson interval)", 7.5, "middle", SUB))
+    b.append(text(8, top - 12, "Data set", 7.5, fill=SUB))
+    b.append(text(196, top - 12, "Variant class", 7.5, fill=SUB))
+    b.append(text(706, top - 12, "found / total", 7.5, "end", SUB))
+    for i, (group, label, k, n) in enumerate(rows):
+        y = top + rh * i + rh / 2
+        if group:
+            if i:
+                b.append(f'<line x1="8" y1="{y - rh / 2:.1f}" x2="706" y2="{y - rh / 2:.1f}" stroke="{LINE}" stroke-width="0.6"/>')
+            b.append(text(8, y + 2.6, group, 7.6, weight=500))
+        b.append(text(196, y + 2.6, label, 7.6))
+        lo, hi = wilson(k, n)
+        colour = OK if k == n else (WARN if k / n >= 0.5 else BAD)
+        b.append(f'<line x1="{X(lo):.1f}" y1="{y:.1f}" x2="{X(hi):.1f}" y2="{y:.1f}" stroke="{colour}" stroke-width="1.4"/>')
+        b.append(f'<circle cx="{X(k / n):.1f}" cy="{y:.1f}" r="3" fill="{colour}"/>')
+        b.append(text(706, y + 2.6, f"{k} / {n}", 7.6, "end", mono=True))
+    return svg(w, h, b)
+
+
+# ------------------------------------------------------------------ figure 4: large events per caller
+def fig_large(d):
+    events = sorted(d.large(), key=lambda e: e["size"])
+    before = {(e["sample"], e["gene"]): e for e in d.large("before")}
+    cols = [("Manta", "manta"), ("CNVkit 1.0.2", "cnv_before"), ("CNVkit 1.1.0", "cnvkit"),
+            ("Exon depth hint", "hint"), ("Small-variant caller", "smallVariantCaller")]
+    w, rh, top = 720, 16, 44
+    h = top + rh * len(events) + 34
+    b = []
+    cx0, cw = 392, 64
+    b.append(text(8, top - 10, "Spiked event (heterozygous)", 7.5, fill=SUB))
+    b.append(text(300, top - 10, "Size", 7.5, "end", SUB))
+    for j, (name, _) in enumerate(cols):
+        words = name.split(" ")
+        if len(words) > 2:
+            words = [" ".join(words[:-1]), words[-1]]
+        for i, wd in enumerate(words if len(name) > 11 else [name]):
+            b.append(text(cx0 + cw * j, top - 20 + 10 * i + (10 if len(name) <= 11 else 0), wd, 7.2, "middle", SUB))
+    for i, e in enumerate(events):
+        y = top + rh * i + rh / 2
+        if i % 2 == 0:
+            b.append(f'<rect x="4" y="{y - rh / 2:.1f}" width="{w - 8}" height="{rh}" fill="#F3F1EA"/>')
+        kind = {"LDEL": "Deletion", "LDUP": "Tandem duplication", "ALU": "Alu insertion"}[e["kind"]]
+        note = e["note"].split(",")[0].split(";")[0]
+        note = note.replace("deletion of ", "").replace("tandem duplication of ", "").replace("Alu insertion in ", "")
+        b.append(text(8, y + 2.6, f"{e['gene']}  {kind}", 7.6, mono=True))
+        b.append(text(150, y + 2.6, note[:44], 7.2, fill=SUB))
+        b.append(text(300, y + 2.6, fmt_bp(e["size"]), 7.6, "end", mono=True))
+        # size bar on log scale
+        bx0, bx1 = 306, 356
+        frac = (math.log10(e["size"]) - 2) / (math.log10(135000) - 2)
+        b.append(f'<rect x="{bx0}" y="{y - 2:.1f}" width="{max(1.5, frac * (bx1 - bx0)):.1f}" height="4" fill="{GREY}"/>')
+        ratios = [v for v in e.get("affectedExonDepthRatios", {}).values() if v is not None]
+        deviates = [v for v in ratios if (v < 0.65 if e["kind"] == "LDEL" else v > 1.35)]
+        state = {"manta": bool(e["manta"]), "cnvkit": bool(e["cnvkit"]),
+                 "cnv_before": bool(before.get((e["sample"], e["gene"]), {}).get("cnvkit")),
+                 "hint": bool(e["exonDosageHints"]), "smallVariantCaller": bool(e["smallVariantCaller"])}
+        applicable = {"manta": True, "cnvkit": e["kind"] != "ALU", "cnv_before": e["kind"] != "ALU",
+                      "hint": bool(ratios) and e["kind"] != "ALU", "smallVariantCaller": e["size"] <= 400}
+        for j, (_, key) in enumerate(cols):
+            x = cx0 + cw * j
+            if not applicable[key]:
+                b.append(text(x, y + 2.6, "n/a", 6.8, "middle", GREY))
+            elif state[key]:
+                b.append(f'<circle cx="{x}" cy="{y:.1f}" r="4.2" fill="{OK}"/>')
+                b.append(f'<path d="M{x - 2.2},{y:.1f} l1.6,1.8 l2.9,-3.4" fill="none" stroke="#fff" stroke-width="1.1"/>')
+            else:
+                b.append(f'<circle cx="{x}" cy="{y:.1f}" r="4.2" fill="none" stroke="{BAD}" stroke-width="1.1"/>')
+    yb = top + rh * len(events) + 14
+    for j, (_, key) in enumerate(cols):
+        x = cx0 + cw * j
+        if key == "cnv_before":
+            k = sum(1 for e in events if before.get((e["sample"], e["gene"]), {}).get("cnvkit"))
+        elif key == "hint":
+            k = sum(1 for e in events if e["exonDosageHints"])
+        else:
+            k = sum(1 for e in events if e.get(key))
+        b.append(text(x, yb, f"{k} / {len(events)}", 7.6, "middle", mono=True, weight=500))
+    b.append(text(8, yb, "Detected", 7.6, weight=500))
+    b.append(text(8, yb + 13, "Filled: reported with the correct type at the spiked position. Open: not reported. Size bar on a log scale.", 6.8, fill=SUB))
+    return svg(w, h, b)
+
+
+# ------------------------------------------------------------------ figure 5: depth profiles
+def fig_depth(d):
+    panels = []
+    for key in sorted({r["panel"] for r in d.depth}):
+        rows = [r for r in d.depth if r["panel"] == key]
+        panels.append((key, rows))
+    w, ph = 720, 118
+    h = ph * len(panels) + 22
+    b = []
+    left, right = 46, 706
+    for i, (key, rows) in enumerate(panels):
+        top = 12 + ph * i
+        lo, hi = min(int(r["start"]) for r in rows), max(int(r["end"]) for r in rows)
+        y0, y1 = top + 14, top + ph - 26
+
+        def X(g):
+            return left + (g - lo) / (hi - lo) * (right - left)
+
+        def Y(v):
+            v = max(-2.0, min(1.2, v))
+            return y1 - (v + 2.0) / 3.2 * (y1 - y0)
+
+        title = rows[0]["title"]
+        b.append(text(left, top + 6, title, 7.6, weight=500))
+        for v in (-2, -1, 0, 1):
+            b.append(f'<line x1="{left}" y1="{Y(v):.1f}" x2="{right}" y2="{Y(v):.1f}" stroke="{LINE}" stroke-width="0.6"/>')
+            b.append(text(left - 5, Y(v) + 2.5, str(v), 6.8, "end", SUB, mono=True))
+        b.append(f'<line x1="{left}" y1="{Y(-1):.1f}" x2="{right}" y2="{Y(-1):.1f}" stroke="{BAD}" stroke-width="0.6" stroke-dasharray="3 2"/>')
+        ev_s, ev_e = int(rows[0]["event_start"]), int(rows[0]["event_end"])
+        if ev_e > ev_s:
+            b.append(f'<rect x="{X(ev_s):.1f}" y="{y0}" width="{X(ev_e) - X(ev_s):.1f}" height="{y1 - y0}" fill="{BAD}" opacity="0.08"/>')
+        gs, ge = int(rows[0]["gene_start"]), int(rows[0]["gene_end"])
+        b.append(f'<line x1="{X(gs):.1f}" y1="{y1 + 6}" x2="{X(ge):.1f}" y2="{y1 + 6}" stroke="{INK}" stroke-width="3"/>')
+        b.append(text(X((gs + ge) / 2), y1 + 17, rows[0]["gene"], 7, "middle", italic=True))
+        for r in rows:
+            v = float(r["log2"])
+            inside = ev_s <= (int(r["start"]) + int(r["end"])) / 2 <= ev_e
+            b.append(f'<circle cx="{X((int(r["start"]) + int(r["end"])) / 2):.1f}" cy="{Y(v):.1f}" r="1.1" fill="{BAD if inside else GREY}"/>')
+        b.append(text(right, y1 + 17, f"{rows[0]['chrom']}:{lo / 1e6:.2f}–{hi / 1e6:.2f} Mb", 6.8, "end", SUB, mono=True))
+    b.append(text(10, 12 + ph * len(panels) / 2, "log2 depth ratio (1 kb bins)", 7.2, "middle", SUB, rotate=-90))
+    return svg(w, h, b)
+
+
+# ------------------------------------------------------------------ html
+def fonts_css(directory):
+    if not directory:
+        return ""
+    css = []
+    wanted = [("IBM Plex Mono", "ibm-plex-mono", ("400-normal", "500-normal", "400-italic")),
+              ("Instrument Sans", "instrument-sans", ("400-normal", "500-normal", "400-italic", "500-italic"))]
+    for family, slug, variants in wanted:
+        for variant in variants:
+            weight, style = variant.split("-")
+            for subset in ("latin", "latin-ext"):
+                hits = glob.glob(os.path.join(directory, "**", f"{slug}-{subset}-{variant}.woff2"), recursive=True)
+                if not hits:
+                    continue
+                data = base64.b64encode(open(hits[0], "rb").read()).decode()
+                rng = "U+0000-00FF,U+2013-2014,U+2018-201D,U+2022,U+2026,U+2032,U+2212,U+2264-2265" if subset == "latin" else "U+0100-024F,U+1E00-1EFF"
+                css.append(f"@font-face{{font-family:'{family}';font-weight:{weight};font-style:{style};"
+                           f"src:url(data:font/woff2;base64,{data}) format('woff2');unicode-range:{rng};}}")
+    return "\n".join(css)
+
+
+def pct(k, n):
+    return f"{100 * k / n:.1f} %"
+
+
+def build(d, fonts, version, date, doi):
+    c = d.carriers
+    snv_k, snv_n, _ = d.giab_total("gene_loci", "SNV")
+    ind_k, ind_n, _ = d.giab_total("gene_loci", "INDEL")
+    ex_k = sum(d.giab_total("exons_pm20", t)[0] for t in ("SNV", "INDEL"))
+    ex_n = sum(d.giab_total("exons_pm20", t)[1] for t in ("SNV", "INDEL"))
+    small_found = sum(v["found"] for v in d.spike["smallByClass"].values())
+    small_total = sum(v["spiked"] for v in d.spike["smallByClass"].values())
+    n_large = len(d.large())
+    manta = d.count_large("manta")
+    cnv_after = d.count_large("cnvkit")
+    cnv_before = d.count_large("cnvkit", "before")
+    hints = sum(1 for e in d.large() if e["exonDosageHints"])
+    cnv_found = sorted((e for e in d.large() if e["cnvkit"]), key=lambda e: e["size"])
+    cnv_min = fmt_bp(cnv_found[0]["size"]) if cnv_found else "n/a"
+    del_big, del_small = d.sv_site("HGSV_216998"), d.sv_site("HGSV_216996")
+    alu_c, alu_r = d.sv_site("HGSV_181048"), d.sv_site("HGSV_181052")
+    alu_k, alu_n = alu_c["carriersReported"] + alu_r["carriersReported"], alu_c["carriers"] + alu_r["carriers"]
+    controls = max(s["controls"] for s in d.sv["bySite"].values())
+    control_hits = sum(s["controlsReported"] for s in d.sv["bySite"].values())
+    cs_k, cs_n, cs_fp = d.concordance("exons_pm20", "SNV")
+    ci_k, ci_n, ci_fp = d.concordance("exons_pm20", "INDEL")
+    unexpected = [u for u in d.spike["unexpected"] if not (u["caller"] == "Manta" and u["type"] == "BND")]
+    fp_exon = "no"
+    carriers_rows = "".join(
+        f"<tr><td>{esc(r['sample'])}</td><td>{esc(r['population'])}</td><td><i>{esc(r['gene'])}</i></td><td><code>{esc(r['hgvs'])}</code></td>"
+        f"<td>{esc(r['consequence'])}</td><td>{'yes' if r['detected'] else 'no'}, {esc(r['genotype'] or '')}</td><td>{esc(r['depth'])}</td><td>{esc(r['AD'])}</td></tr>"
+        for r in c["carriers"])
+    sv_rows = ""
+    for s in d.sv_sites:
+        t = d.sv_site(s["id"])
+        kind = "Alu insertion" if s["type"] == "ALU" else "Deletion"
+        sv_rows += (f"<tr><td><i>{esc(s['gene'])}</i></td><td>{kind}, {int(s['length']):,} bp</td><td><code>{esc(s['chrom'])}:{int(s['pos']):,}</code></td>"
+                    f"<td>{esc(s['callers_in_panel'])}</td><td>{t['carriersReported']} / {t['carriers']}</td><td>{t['controlsReported']} / {t['controls']}</td></tr>")
+    style = f"""
+{fonts_css(fonts)}
+@page {{ size: A4; margin: 17mm 16mm 18mm 16mm; }}
+* {{ box-sizing: border-box; }}
+body {{ font-family: {SANS}; font-size: 9.2pt; line-height: 1.42; color: {INK}; margin: 0; }}
+.mast {{ display: flex; justify-content: space-between; align-items: center; border-bottom: 1.2px solid {INK}; padding-bottom: 6pt; margin-bottom: 12pt; }}
+.mast .kind {{ font-family: {MONO}; font-size: 7.8pt; color: {SUB}; text-align: right; line-height: 1.35; }}
+h1 {{ font-family: {MONO}; font-weight: 500; font-size: 16.5pt; line-height: 1.22; margin: 0 0 8pt; letter-spacing: -0.2pt; }}
+h2 {{ font-family: {MONO}; font-weight: 500; font-size: 10.6pt; margin: 13pt 0 4pt; break-after: avoid; }}
+h3 {{ font-family: {MONO}; font-weight: 500; font-size: 9.2pt; margin: 9pt 0 2pt; break-after: avoid; }}
+p {{ margin: 0 0 5.5pt; text-align: justify; hyphens: auto; }}
+.meta {{ font-size: 9.4pt; margin-bottom: 3pt; }} .meta strong {{ font-weight: 500; }}
+.small {{ font-family: {MONO}; font-size: 7.6pt; color: {SUB}; line-height: 1.4; }}
+.top {{ display: grid; grid-template-columns: 1fr 58mm; gap: 6mm; margin: 10pt 0 6pt; }}
+.summary {{ border-top: 1px solid {LINE}; padding-top: 6pt; }}
+.summary p {{ font-size: 9pt; }}
+.highlights {{ background: #F3F1EA; border-radius: 5px; padding: 8pt 9pt; font-size: 8.3pt; line-height: 1.38; }}
+.highlights h2 {{ margin: 0 0 4pt; font-size: 9pt; }} .highlights ul {{ margin: 0; padding-left: 11pt; }} .highlights li {{ margin-bottom: 3.5pt; }}
+.ruo {{ border: 1px solid {WARN}; border-left-width: 3px; border-radius: 4px; padding: 5pt 8pt; font-size: 8.2pt; margin: 6pt 0 8pt; }}
+.ruo strong {{ font-family: {MONO}; font-weight: 500; color: {WARN}; }}
+.cols {{ column-count: 2; column-gap: 7mm; }}
+figure {{ margin: 8pt 0 9pt; break-inside: avoid; column-span: all; }}
+figure .frame {{ border: 1px solid {LINE}; border-radius: 5px; padding: 6pt; background: #FFFFFF; }}
+figcaption, caption {{ font-size: 8pt; line-height: 1.35; color: {INK}; text-align: left; margin-top: 4pt; }}
+figcaption strong, caption strong {{ font-family: {MONO}; font-weight: 500; }}
+table {{ border-collapse: collapse; width: 100%; font-size: 7.9pt; margin: 4pt 0 9pt; break-inside: avoid; }}
+.wide {{ column-span: all; }}
+caption {{ caption-side: top; margin: 0 0 3pt; }}
+th, td {{ border-bottom: 0.6px solid {LINE}; padding: 2.4pt 4pt; text-align: left; vertical-align: top; }}
+th {{ font-family: {MONO}; font-weight: 500; font-size: 7.4pt; color: {SUB}; border-bottom: 1px solid {INK}; }}
+code {{ font-family: {MONO}; font-size: 7.9pt; }}
+pre {{ font-family: {MONO}; font-size: 7.4pt; background: #F3F1EA; padding: 5pt 6pt; border-radius: 4px; white-space: pre-wrap; }}
+ul {{ margin: 0 0 5.5pt; padding-left: 12pt; }} li {{ margin-bottom: 2pt; }}
+ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs li {{ margin-bottom: 1.5pt; }}
+"""
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>brca12-wgs: a reproducible Nextflow pipeline for BRCA1/BRCA2 germline analysis from whole-genome sequencing on GRCh38</title>
+<style>{style}</style></head><body>
+
+<div class="mast"><div>{LOGO}</div><div class="kind">Software report · preprint<br>Version {esc(version)} · {esc(date)}</div></div>
+
+<h1>brca12-wgs: a reproducible Nextflow pipeline for <i>BRCA1</i>/<i>BRCA2</i> germline analysis from whole-genome sequencing on GRCh38</h1>
+<div class="meta"><strong>Peter Jungwirth, MSc</strong> · PJ Labs, Austria</div>
+<div class="small">Software: https://github.com/pjlabsdev/brca12-wgs · DOI: <span id="doi">{esc(doi)}</span> · Licence: MIT</div>
+
+<div class="top">
+<div class="summary">
+<p><strong>Summary.</strong> Germline pathogenic variants in <i>BRCA1</i> and <i>BRCA2</i> cause hereditary breast and ovarian cancer syndrome. The relevant spectrum spans single-nucleotide variants, small insertions and deletions, exon-level copy-number changes and larger rearrangements, yet many open BRCA workflows target amplicon panels on GRCh37 and report small variants only. <i>brca12-wgs</i> is a Nextflow pipeline that takes paired-end FASTQ files or a BAM/CRAM from whole-genome sequencing and produces a structured BRCA1/BRCA2 report on GRCh38. It combines BWA-MEM, GATK HaplotypeCaller or DeepVariant, Manta, CNVkit with per-exon depth ratios, Ensembl VEP with MANE Select transcripts, ClinVar and mosdepth, and lists automated hints on single ACMG/AMP criteria following the ClinGen ENIGMA specification without assigning a classification. We measured performance on four kinds of data: Genome in a Bottle truth sets ({snv_k} of {snv_n} SNVs and {ind_k} of {ind_n} indels), ten 1000 Genomes carriers of pathogenic variants ({c['detected']} of {c['total']} detected), {small_total} small and {n_large} large variants spiked into real reads, and real Alu insertions and deletions in 1000 Genomes samples. Manta reported all {n_large} spiked large events, whereas single-sample CNVkit segmentation reported {cnv_after} of {n_large} after a correction made during this work ({cnv_before} before). The software is for research use; results require confirmation by a clinically validated method.</p>
+<p><strong>Availability.</strong> Source code, test data, validation scripts and results are available under the MIT licence at https://github.com/pjlabsdev/brca12-wgs.</p>
+</div>
+<div class="highlights"><h2>Highlights</h2><ul>
+<li>One command from WGS reads to a BRCA1/BRCA2 report with small variants, structural variants, copy number and exon coverage on GRCh38.</li>
+<li>{c['detected']} of {c['total']} real carriers of pathogenic variants from the 1000 Genomes Project were detected with the correct genotype.</li>
+<li>{small_found} of {small_total} spiked SNVs and indels up to 40 bp and {manta} of {n_large} spiked deletions, duplications and an Alu insertion were reported.</li>
+<li>The validation exposed and fixed three defects, including missed copy-number segments.</li>
+<li>Research use only. No classification is assigned.</li>
+</ul></div>
+</div>
+
+<div class="ruo"><strong>Research use only.</strong> brca12-wgs is not a medical device and has not been clinically validated. Its output must not be used for diagnosis, risk assessment or treatment decisions without confirmation in an accredited laboratory (for example Sanger sequencing for small variants and MLPA for copy-number changes). ACMG/AMP entries are automated hints on individual criteria, not variant classifications. A result without findings does not exclude a hereditary BRCA1/BRCA2 predisposition.</div>
+
+<figure><div class="frame">{fig_workflow()}</div>
+<figcaption><strong>Figure 1. Workflow.</strong> Reads are checked against GRCh38 and aligned. Four evidence layers are computed independently and kept separate in the report. Hints on single ACMG/AMP criteria are attached to annotated small variants; no combination rule is applied.</figcaption></figure>
+
+<div class="cols">
+<h2>1 Introduction</h2>
+<p>Pathogenic germline variants in the tumour suppressor genes <i>BRCA1</i> (chr17, minus strand) and <i>BRCA2</i> (chr13, plus strand) substantially increase lifetime risks of breast, ovarian, prostate and pancreatic cancer. Most pathogenic alleles are truncating SNVs and small indels, but large genomic rearrangements such as single- or multi-exon deletions and duplications account for a relevant fraction of findings, particularly in <i>BRCA1</i>, which is rich in Alu repeats and has a partially duplicated pseudogene (<i>BRCA1P1</i>) near its 5′ end.</p>
+<p>Whole-genome sequencing (WGS) captures all of these variant classes in a single assay, but extracting a reliable gene-level result requires several specialised tools, consistent coordinates and explicit statements about where the data are not sufficient. Openly available workflows such as BRCA-analyzer [14] were developed for amplicon panels on GRCh37/hg19, depend on licence-restricted annotation and do not report copy-number or structural variants. General-purpose germline pipelines cover WGS but are not tailored to a concise, gene-focused report with exon-level coverage and conservative interpretation hints.</p>
+<p><i>brca12-wgs</i> addresses this gap with three design goals: (i) GRCh38 only, with automatic rejection of other assemblies; (ii) separate, traceable evidence layers for small variants, copy-number candidates, structural variants and coverage; and (iii) reproducibility through pinned software environments, recorded tool versions and a verbatim command log.</p>
+
+<h2>2 Implementation</h2>
+<p>The pipeline is written in Nextflow DSL2 [9] and runs locally with conda environments or with tools on the system path (Figure 1, Table 1).</p>
+
+<table><caption><strong>Table 1.</strong> Processes, tools and outputs.</caption>
+<tr><th>Step</th><th>Tool (pinned version)</th><th>Purpose</th></tr>
+<tr><td>Input check</td><td>Python</td><td>GRCh38 detection from chr13/chr17 lengths; region and exon BED harmonisation</td></tr>
+<tr><td>Alignment</td><td>BWA-MEM 0.7.18 [1], samtools 1.21 [2]</td><td>Alignment, fixmate, sort, duplicate marking</td></tr>
+<tr><td>SNVs/indels</td><td>GATK 4.6.1.0 HaplotypeCaller [3] or DeepVariant [4]</td><td>Calling in both genes ± 200 bp</td></tr>
+<tr><td>Structural variants</td><td>Manta 1.6.0 [5]</td><td>Breakpoints within ± 1 Mb of both genes</td></tr>
+<tr><td>Copy number</td><td>CNVkit 0.9.11 [6]</td><td>WGS mode, flat reference over chr13 and chr17; per-exon depth ratios</td></tr>
+<tr><td>Annotation</td><td>Ensembl VEP 113 [7], bcftools</td><td>MANE Select [12], HGVS, gnomAD [13], ClinVar [11]</td></tr>
+<tr><td>Coverage</td><td>mosdepth 0.3.10 [8]</td><td>Per exon at MAPQ ≥ 20 and ≥ 0; 10/20/30×</td></tr>
+<tr><td>Report</td><td>Python (standard library)</td><td>HTML, Markdown (English or German), JSON</td></tr>
+</table>
+
+<h3>2.1 Reference and regions</h3>
+<p>The input check reads the FASTA index and accepts the reference only if chr13 and chr17 have the GRCh38 lengths; GRCh37 is rejected with an explicit message. Gene loci are fixed to chr17:43,044,295–43,170,327 (<i>BRCA1</i>) and chr13:32,315,077–32,400,268 (<i>BRCA2</i>). Exons are taken from the MANE Select transcripts NM_007294.4 (23 exons) and NM_000059.4 (27 exons). For <i>BRCA1</i> the report also shows the legacy exon numbering, which omits exon 4.</p>
+
+<h3>2.2 Variant calling</h3>
+<p>Small variants are called with GATK HaplotypeCaller restricted to the padded gene regions, or optionally with DeepVariant. Manta is run with call regions extending 1 Mb around both genes, so that rearrangements with one breakpoint inside a gene are retained, including breakend (BND) pairs. Two breakends a few bases apart whose mates lie elsewhere are flagged as a possible insertion of foreign sequence such as a mobile element. For copy number, CNVkit is run in WGS mode with 1 kb bins over chr13 and chr17 and a flat reference; bins with almost no coverage are excluded from segmentation (Section 3.3). Segments overlapping a gene with an estimated copy number different from two are reported as candidates with the affected exons. Independently, the mean depth of each exon is divided by the median depth of 100 kb windows on the same chromosome; ratios below 0.65 or above 1.35 are listed as dosage hints. Because only a single sample is available, both are labelled as candidates that require MLPA or another validated method.</p>
+
+<h3>2.3 Annotation and ACMG/AMP hints</h3>
+<p>VEP annotates consequences, HGVS notation and exon or intron number on the MANE Select transcript. ClinVar significance, review status and condition come from a user-supplied ClinVar VCF, so that the ClinVar version is under the user's control. The pipeline then evaluates single ACMG/AMP criteria [10] following version 1.2 of the ClinGen ENIGMA BRCA1/BRCA2 specification [15]: BA1, BS1 and BS1_Supporting from gnomAD non-cancer filtering allele frequencies in non-founder populations, PM2_Supporting for substitutions absent from both gnomAD data sets, PP3 and BP4 from BayesDel and SpliceAI inside the defined functional domains, BP1_Strong outside them and BP7 for silent and deep intronic variants. The gnomAD, SpliceAI and BayesDel files are supplied by the user; without them the corresponding hints are reported as open or as approximations. Truncating and canonical splice variants are reported as PVS1 candidates, restricted in the last exon [16]; the exon-specific PVS1 decision tree is not yet applied. No combination rule is used and no classification is assigned; the JSON field <code>clinicalClassification</code> is always null.</p>
+
+<h3>2.4 Coverage and uncertain regions</h3>
+<p>An exon is flagged as uncertain if its mean depth is below 20×, if fewer than 95 % of its bases reach 20×, or if more than 10 % of reads have mapping quality below 20, which identifies regions affected by pseudogene homology or repeats. All intervals below 10× are listed. Small variants receive quality flags for non-PASS filters, low depth, low genotype quality, heterozygous allele fractions outside 25–75 %, low mapping quality and location in an uncertain exon. All thresholds are parameters.</p>
+
+<h3>2.5 Reporting and reproducibility</h3>
+<p>The report has separate sections for <i>BRCA1</i> and <i>BRCA2</i> small variants, copy-number candidates, structural variants, coverage per exon and uncertain intervals, followed by tool versions, the invocation and limitations. It is produced as HTML and Markdown in English or German and as JSON (schema <code>genome.brca12.v1</code>). Tool versions are captured at run time, every task copies its command script into <code>brca12_commands.sh</code>, and conda environments pin all tool versions. Unit tests and a stub run of the complete workflow run in GitHub Actions on every change.</p>
+
+<h2>3 Validation</h2>
+<p>Four data sets were used (Figures 2 and 3). All scripts, sample lists and result files are in the <code>validation/</code> directory of the repository.</p>
+
+<h3>3.1 Genome in a Bottle truth sets</h3>
+<p>Small-variant calls were compared with the GIAB NIST v4.2.1 GRCh38 truth sets for HG001 and HG002 [17, 18]. Illumina HiSeq 2×148 bp read pairs that the GIAB alignments placed within either gene ±10 kb were extracted, downsampled to about 36× and 30×, converted back to FASTQ and processed from FASTQ. Calls were matched with RTG Tools <code>vcfeval</code> [19], which compares haplotypes and requires the genotype to agree, inside the GIAB high-confidence regions (91.9 % and 95.1 % of the 211,225 bp of both loci). The pipeline recovered {snv_k} of {snv_n} SNVs and {ind_k} of {ind_n} indels, and all {ex_n} variants in the exons ±20 bp without a false positive. The three discordant calls were intronic; two were genotype errors in homopolymers at 12× and 14× that carried the pipeline's own quality flags.</p>
+
+<h3>3.2 Real carriers of pathogenic variants</h3>
+<p>The 30× joint call set of the 3,202 samples of the 1000 Genomes Project [20] was searched for loss-of-function variants in the MANE coding sequence and its canonical splice sites. Ten individuals carry eight such variants, seven of them annotated as pathogenic in the ClinVar release used by that call set (Table 2). Read pairs over both genes ±10 kb were taken from the public CRAM files and processed from FASTQ. All {c['detected']} variants were called heterozygous with genotype quality 99, including a 5 bp deletion that the 1000 Genomes call set itself marks as low confidence. As a secondary check, calls in the exons ±20 bp agreed with the 1000 Genomes genotypes of the same individuals for {cs_k} of {cs_n} SNVs and {ci_k} of {ci_n} indels, with {cs_fp} and {ci_fp} additional calls; that call set is a comparison, not a truth set.</p>
+
+<table class="wide"><caption><strong>Table 2.</strong> Carriers of pathogenic <i>BRCA1</i>/<i>BRCA2</i> variants in the 1000 Genomes Project and the result of the pipeline. AD, reads supporting reference and variant allele.</caption>
+<tr><th>Sample</th><th>Pop.</th><th>Gene</th><th>Variant (MANE)</th><th>Consequence</th><th>Detected, genotype</th><th>Depth</th><th>AD</th></tr>
+{carriers_rows}
+</table>
+
+</div>
+
+<figure><div class="frame">{fig_gene_maps(d)}</div>
+<figcaption><strong>Figure 2. Variants used for validation, drawn on both gene loci.</strong> Black boxes are MANE Select exons. Above the gene: pathogenic variants of real carriers. Below: spiked small variants (one tick each), spiked large events and the positions of real structural variants.</figcaption></figure>
+
+<figure><div class="frame">{fig_recall(d)}</div>
+<figcaption><strong>Figure 3. Detection by data set and variant class.</strong> Points are the fraction of known variants that the pipeline reported; bars are 95 % Wilson intervals. Green, all found; amber and red, partly found. Small numbers give wide intervals.</figcaption></figure>
+
+<div class="cols">
+<h3>3.3 Spike-in experiment</h3>
+<p>No openly available short-read WGS data set of a carrier of a pathogenic exon deletion, duplication or Alu insertion was found; the GeT-RM reference materials [21] are distributed as DNA. We therefore spiked synthetic heterozygous variants into real reads. The background was GIAB HG002 on chr13 and chr17 at about 30×, which gives CNVkit a real chromosome-wide baseline. Inside both genes ±20 kb every real read pair was replaced by a pair with the same position, fragment length, read lengths and base qualities, read from one of two haplotypes: the reference, or the reference with the spiked events. Sequencing errors were drawn from the real base qualities. Coverage profile and fragment sizes therefore stayed those of the real run. The replaced pairs were aligned with BWA-MEM and merged with the untouched background, and the pipeline was run with real Manta and CNVkit.</p>
+<p>Two samples carried {small_total} small variants: one per coding exon segment with rotating types, SNVs at canonical splice sites, and five variants modelled on well-known pathogenic alleles (<i>BRCA1</i> c.68_69del, c.181T&gt;G, c.5266dup; <i>BRCA2</i> c.771_775del, c.5946del), whose coordinates were derived from a coding-sequence model that is checked by translation. All {small_found} were called with the correct genotype, with {fp_exon} false positive in the exons (Figure 3). Outside the exons, each sample showed short artefactual calls directly at the breakpoints of spiked large deletions.</p>
+<p>Six samples carried {n_large} large events from 120 bp to a whole-gene deletion, two tandem duplications and an Alu insertion in <i>BRCA2</i> exon 3 (Figure 4). Manta reported {manta} of {n_large} with exact breakpoints and heterozygous genotype; the Alu insertion appeared as a pair of breakends. With the settings of version 1.0.2, CNVkit reported {cnv_before} of {n_large}: bins without coverage dominated the segmentation statistics, and even whole-gene deletions with a clear half-depth signal were merged into their neighbours (Figure 5). Excluding such bins (<code>--drop-low-coverage</code>) raised this to {cnv_after} of {n_large}; the smallest event reported by CNVkit was {cnv_min}. In addition, exon dosage hints had been suppressed for exactly the affected exons, because a heterozygous deletion also makes an exon fall below the depth threshold. After the correction, {hints} of the {n_large - 1} deletions and duplications produced a dosage hint for an affected exon. A third defect stopped the pipeline when the input BAM was named like the sample.</p>
+</div>
+
+<figure><div class="frame">{fig_large(d)}</div>
+<figcaption><strong>Figure 4. Spiked large events and the evidence layer that reported them.</strong> CNVkit 1.0.2 and 1.1.0 differ only in the exclusion of bins without coverage. Single-sample depth methods are not expected to resolve events of one or a few 1 kb bins; n/a marks layers that cannot apply.</figcaption></figure>
+
+<figure><div class="frame">{fig_depth(d)}</div>
+<figcaption><strong>Figure 5. Read-depth signal of spiked heterozygous deletions.</strong> Each point is a 1 kb bin (CNVkit log2 ratio). The dashed line marks the expected value for one copy (−1). Shaded: spiked interval. The signal is present in the bins; whether it is reported depends on the segmentation.</figcaption></figure>
+
+<div class="cols">
+<h3>3.4 Real structural variants</h3>
+<p>The phased SNV, indel and SV panel of the 1000 Genomes Project [20] contains two Alu insertions in <i>BRCA2</i> and two deletions in <i>BRCA1</i>, all intronic or otherwise not disease-causing. They allow the same kind of event to be tested in real reads (Table 3). Carriers and six samples that are homozygous reference at all four sites were processed as in Section 3.2, with one addition: mates that the original alignment had placed elsewhere in the genome were retrieved as well, because without them Manta received no discordant pairs and reported only {{SV_NOMATES}}. The panel calls are short-read calls and serve as a comparison, not as truth.</p>
+
+<table><caption><strong>Table 3.</strong> Real structural variants in 1000 Genomes samples. Reported: by Manta or the small-variant caller at the site.</caption>
+<tr><th>Gene</th><th>Event</th><th>Position</th><th>Panel caller</th><th>Carriers</th><th>Controls</th></tr>
+{sv_rows}
+</table>
+<p>{{SV_TEXT}}</p>
+
+<h3>3.5 Limits of this validation</h3>
+<ul>
+<li>Reads for Sections 3.1, 3.2 and 3.4 were taken from existing alignments near the genes and realigned against chr13 and chr17 only. This removes competition from paralogous sequence elsewhere, which may overstate precision. A whole-genome run against the complete reference is the next step.</li>
+<li>Spiked variants are synthetic. They test whether a variant that is present in the reads is called and reported, not how real pathogenic rearrangements look. The spiked Alu element was copied from the reduced reference, which makes its detection easier than a real mobile element insertion.</li>
+<li>No Ensembl VEP cache was available on the validation machine, so annotation and the ACMG/AMP hints were not part of these runs. In Sections 3.1, 3.2 and 3.4 CNVkit was replaced by a neutral stand-in.</li>
+<li>Numbers are small. Ten carriers and twelve large events give wide confidence intervals (Figure 3).</li>
+<li>No real sample with a pathogenic exon deletion, duplication or Alu insertion was tested.</li>
+</ul>
+
+<h2>4 Comparison with existing workflows</h2>
+<table><caption><strong>Table 4.</strong> Feature comparison with BRCA-analyzer [14].</caption>
+<tr><th></th><th>brca12-wgs</th><th>BRCA-analyzer</th></tr>
+<tr><td>Data type</td><td>WGS (FASTQ or BAM/CRAM)</td><td>Amplicon panels</td></tr>
+<tr><td>Assembly</td><td>GRCh38, enforced</td><td>hg19</td></tr>
+<tr><td>Small variants</td><td>GATK 4 HaplotypeCaller or DeepVariant</td><td>GATK 3.6/3.7</td></tr>
+<tr><td>Copy number / SV</td><td>CNVkit + exon dosage / Manta</td><td>Not included</td></tr>
+<tr><td>Annotation</td><td>VEP, MANE Select, gnomAD, user ClinVar</td><td>ANNOVAR, snpEff, ClinVar 2018</td></tr>
+<tr><td>Interpretation support</td><td>ACMG/AMP criterion hints (ENIGMA v1.2), no classification</td><td>Not included</td></tr>
+<tr><td>Published validation</td><td>GIAB, real carriers, spike-ins</td><td>Not stated</td></tr>
+<tr><td>Licence</td><td>MIT</td><td>GPL-3.0</td></tr>
+</table>
+
+<h2>5 Limitations</h2>
+<ul>
+<li>Short-read WGS has limited sensitivity for mosaic variants below about 15 % allele fraction, for complex rearrangements and in regions with pseudogene homology such as <i>BRCA1</i> exons 1–2.</li>
+<li>Copy-number results come from a single sample with a flat reference and are candidates only. In the spike-in experiment CNVkit alone missed every event below {cnv_min}; detection of exon-level events currently rests on Manta, which needs breakpoints inside mappable sequence.</li>
+<li>Mobile element insertions are reported only as breakends or as insertions without a dedicated caller, and were missed in some real carriers (Section 3.4).</li>
+<li>The ACMG/AMP hints cover a subset of criteria. The PVS1 decision tree, functional (PS3/BS3), segregation (PP1), case-control (PS4) and same-codon (PS1/PM5) evidence are not evaluated.</li>
+<li>The pipeline has not been validated for clinical use.</li>
+</ul>
+
+<h2>6 Availability and requirements</h2>
+<p><strong>Repository:</strong> https://github.com/pjlabsdev/brca12-wgs · <strong>Archived version:</strong> DOI {esc(doi)} · <strong>Operating systems:</strong> Linux, macOS · <strong>Requirements:</strong> Nextflow ≥ 23.10, Java 17, conda/mamba or the listed tools, GRCh38 FASTA with index and dictionary, Ensembl VEP GRCh38 cache, ClinVar VCF · <strong>Licence:</strong> MIT.</p>
+<pre>nextflow run main.nf -profile conda \\
+  --sample S --reads_r1 S_R1.fastq.gz --reads_r2 S_R2.fastq.gz \\
+  --reference GRCh38.fa --vep_cache ~/.vep --clinvar_vcf clinvar.vcf.gz</pre>
+
+<h2>Acknowledgements</h2>
+<p>The software and this report were developed with the assistance of an AI coding assistant (Claude, Anthropic). The author reviewed the design and is responsible for the content. This work used data of the Genome in a Bottle Consortium and of the 1000 Genomes Project (New York Genome Center high-coverage sequencing).</p>
+<h2>Conflict of interest</h2>
+<p>None declared.</p>
+
+<h2>References</h2>
+<ol class="refs">
+<li>Li H. Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. arXiv:1303.3997; 2013.</li>
+<li>Danecek P, Bonfield JK, Liddle J, et al. Twelve years of SAMtools and BCFtools. GigaScience. 2021;10(2):giab008.</li>
+<li>Poplin R, Ruano-Rubio V, DePristo MA, et al. Scaling accurate genetic variant discovery to tens of thousands of samples. bioRxiv 201178; 2018.</li>
+<li>Poplin R, Chang PC, Alexander D, et al. A universal SNP and small-indel variant caller using deep neural networks. Nat Biotechnol. 2018;36:983–987.</li>
+<li>Chen X, Schulz-Trieglaff O, Shaw R, et al. Manta: rapid detection of structural variants and indels for germline and cancer sequencing applications. Bioinformatics. 2016;32(8):1220–1222.</li>
+<li>Talevich E, Shain AH, Botton T, Bastian BC. CNVkit: genome-wide copy number detection and visualization from targeted DNA sequencing. PLoS Comput Biol. 2016;12(4):e1004873.</li>
+<li>McLaren W, Gil L, Hunt SE, et al. The Ensembl Variant Effect Predictor. Genome Biol. 2016;17:122.</li>
+<li>Pedersen BS, Quinlan AR. Mosdepth: quick coverage calculation for genomes and exomes. Bioinformatics. 2018;34(5):867–868.</li>
+<li>Di Tommaso P, Chatzou M, Floden EW, et al. Nextflow enables reproducible computational workflows. Nat Biotechnol. 2017;35:316–319.</li>
+<li>Richards S, Aziz N, Bale S, et al. Standards and guidelines for the interpretation of sequence variants. Genet Med. 2015;17(5):405–424.</li>
+<li>Landrum MJ, Lee JM, Benson M, et al. ClinVar: improving access to variant interpretations and supporting evidence. Nucleic Acids Res. 2018;46(D1):D1062–D1067.</li>
+<li>Morales J, Pujar S, Loveland JE, et al. A joint NCBI and EMBL-EBI transcript set for clinical genomics and research. Nature. 2022;604:310–315.</li>
+<li>Karczewski KJ, Francioli LC, Tiao G, et al. The mutational constraint spectrum quantified from variation in 141,456 humans. Nature. 2020;581:434–443.</li>
+<li>Kechin A. BRCA-analyzer: automatic workflow for analysis of BRCA1/2 NGS data. https://github.com/aakechin/BRCA-analyzer (accessed 12 November 2026).</li>
+<li>Parsons MT, de la Hoya M, Richardson ME, et al. Evidence-based recommendations for gene-specific ACMG/AMP variant classification from the ClinGen ENIGMA BRCA1 and BRCA2 Variant Curation Expert Panel. Am J Hum Genet. 2024;111(9):2044–2058.</li>
+<li>Abou Tayoun AN, Pesaran T, DiStefano MT, et al. Recommendations for interpreting the loss of function PVS1 ACMG/AMP variant criterion. Hum Mutat. 2018;39(11):1517–1524.</li>
+<li>Zook JM, Chapman B, Wang J, et al. Integrating human sequence data sets provides a resource of benchmark SNP and indel genotype calls. Nat Biotechnol. 2014;32:246–251.</li>
+<li>Wagner J, Olson ND, Harris L, et al. Benchmarking challenging small variants with linked and long reads. Cell Genomics. 2022;2(5):100128.</li>
+<li>Cleary JG, Braithwaite R, Gaastra K, et al. Comparing variant call files for performance benchmarking of next-generation sequencing variant calling pipelines. bioRxiv 023754; 2015.</li>
+<li>Byrska-Bishop M, Evani US, Zhao X, et al. High-coverage whole-genome sequencing of the expanded 1000 Genomes Project cohort including 602 trios. Cell. 2022;185(18):3426–3440.</li>
+<li>Barker SD, Bale S, Booker J, et al. Development and characterization of reference materials for MTHFR, SERPINA1, RET, BRCA1, and BRCA2 genetic testing. J Mol Diagn. 2009;11(6):553–561.</li>
+</ol>
+</div>
+</body></html>
+"""
+
+
+def sv_text(d):
+    """Sentences of Section 3.4 that depend on the outcome."""
+    big, small = d.sv_site("HGSV_216998"), d.sv_site("HGSV_216996")
+    alu_c, alu_r = d.sv_site("HGSV_181048"), d.sv_site("HGSV_181052")
+    controls_hit = sum(s["controlsReported"] for s in d.sv["bySite"].values())
+    rows = [r for r in d.sv["rows"] if r["site"] == "HGSV_216998" and r["manta"]]
+    shift = sorted({m.get("startDifference") for r in rows for m in r["manta"] if m.get("startDifference") is not None})
+    parts = [f"The 1,081 bp deletion was reported by Manta in {big['carriersReported']} of {big['carriers']} carriers"
+             + (", with the genotype of the panel including the homozygous carrier" if big["carriersReported"] == big["carriers"] else "")
+             + (f"; its start lies {abs(shift[0])} bp from the panel coordinate, whose breakpoints are not base-exact" if shift else "") + ".",
+             f"The 271 bp deletion was reported in {small['carriersReported']} of {small['carriers']} carriers.",
+             f"The Alu insertions were reported in {alu_c['carriersReported']} of {alu_c['carriers']} carriers of the common and "
+             f"{alu_r['carriersReported']} of {alu_r['carriers']} carriers of the rare insertion.",
+             ("No control sample had a call at any of the four sites." if controls_hit == 0 else
+              f"{controls_hit} control calls were made at the four sites.")]
+    return " ".join(parts)
+
+
+def main(argv=None):
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--fonts")
+    p.add_argument("--version", default="1.1.0 (in preparation)")
+    p.add_argument("--date", default="13 November 2026")
+    p.add_argument("--doi", default="10.5281/zenodo.24173638 (version 1.0.1)")
+    args = p.parse_args(argv)
+    d = Data()
+    page = build(d, args.fonts, args.version, args.date, args.doi)
+    nomates = load(os.path.join(RES, "sv_carriers_summary.without_mates.json"))["bySite"]
+    alu_nomates = sum(nomates[s]["carriersReported"] for s in ("HGSV_181048", "HGSV_181052"))
+    alu_total = sum(nomates[s]["carriers"] for s in ("HGSV_181048", "HGSV_181052"))
+    page = page.replace("{SV_NOMATES}", f"{alu_nomates} of {alu_total} Alu insertions")
+    page = page.replace("{SV_TEXT}", sv_text(d))
+    sys.stdout.write(page)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
