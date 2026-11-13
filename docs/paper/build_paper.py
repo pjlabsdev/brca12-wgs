@@ -159,17 +159,17 @@ def fig_workflow():
         arrow(236, 120, 267, y + 24)
     box(428, 8, 128, 48, "Annotation", ["VEP 113, MANE Select,", "ClinVar"])
     arrow(396, 32, 427, 32)
-    box(428, 68, 128, 48, "ACMG/AMP hints", ["ClinGen ENIGMA v1.2,", "single criteria only"])
-    arrow(492, 56, 492, 67)
-    box(588, 96, 124, 48, "Report", ["HTML, Markdown, JSON", "no classification"], fill="#F3F1EA")
-    arrow(556, 92, 587, 112)
-    for y in (92, 152, 212):
-        arrow(396, y, 587, 120 + (y - 152) * 0.12)
-    b.append(f'<rect x="428" y="172" width="284" height="64" rx="5" fill="none" stroke="{WARN}" stroke-dasharray="3 2"/>')
-    b.append(text(438, 188, "Research use only", 8.5, mono=True, weight=500, fill=WARN))
-    b.append(text(438, 201, "Findings are candidates. Confirmation in an accredited", 7.2, fill=SUB))
-    b.append(text(438, 211, "laboratory (Sanger, MLPA) is required before any medical", 7.2, fill=SUB))
-    b.append(text(438, 221, "interpretation.", 7.2, fill=SUB))
+    box(588, 8, 124, 48, "ACMG/AMP hints", ["ClinGen ENIGMA v1.2,", "single criteria only"])
+    arrow(556, 32, 587, 32)
+    box(588, 128, 124, 48, "Report", ["HTML, Markdown, JSON", "no classification"], fill="#F3F1EA")
+    arrow(650, 56, 650, 127)
+    for y, ty in ((92, 140), (152, 152), (212, 164)):
+        arrow(396, y, 587, ty)
+    b.append(f'<rect x="8" y="176" width="228" height="62" rx="5" fill="none" stroke="{WARN}" stroke-dasharray="3 2"/>')
+    b.append(text(18, 192, "Research use only", 8.5, mono=True, weight=500, fill=WARN))
+    b.append(text(18, 205, "Findings are candidates. Confirmation in an", 7.2, fill=SUB))
+    b.append(text(18, 215, "accredited laboratory (Sanger, MLPA) is required", 7.2, fill=SUB))
+    b.append(text(18, 225, "before any medical interpretation.", 7.2, fill=SUB))
     return svg(w, h, b)
 
 
@@ -612,7 +612,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <div class="cols">
 <h3>3.3 Spike-in experiment</h3>
 <p>No openly available short-read WGS data set of a carrier of a pathogenic exon deletion, duplication or Alu insertion was found; the GeT-RM reference materials [21] are distributed as DNA. We therefore spiked synthetic heterozygous variants into real reads. The background was GIAB HG002 on chr13 and chr17 at about 30×, which gives CNVkit a real chromosome-wide baseline. Inside both genes ±20 kb every real read pair was replaced by a pair with the same position, fragment length, read lengths and base qualities, read from one of two haplotypes: the reference, or the reference with the spiked events. Sequencing errors were drawn from the real base qualities. Coverage profile and fragment sizes therefore stayed those of the real run. The replaced pairs were aligned with BWA-MEM and merged with the untouched background, and the pipeline was run with real Manta and CNVkit.</p>
-<p>Two samples carried {small_total} small variants: one per coding exon segment with rotating types, SNVs at canonical splice sites, and five variants modelled on well-known pathogenic alleles (<i>BRCA1</i> c.68_69del, c.181T&gt;G, c.5266dup; <i>BRCA2</i> c.771_775del, c.5946del), whose coordinates were derived from a coding-sequence model that is checked by translation. All {small_found} were called with the correct genotype, with {fp_exon} false positive in the exons (Figure 3). Outside the exons, each sample showed short artefactual calls directly at the breakpoints of spiked large deletions.</p>
+<p>Two samples carried {small_total} small variants: one per coding exon segment with rotating types, SNVs at canonical splice sites, and five variants modelled on well-known pathogenic alleles (<i>BRCA1</i> c.68_69del, c.181T&gt;G, c.5266dup; <i>BRCA2</i> c.771_775del, c.5946del), whose coordinates were derived from a coding-sequence model that is checked by translation. All {small_found} were called with the correct genotype, with {fp_exon} false positive in the exons (Figure 3). Outside the exons, every sample including the negative control showed the same two calls at one intronic <i>BRCA2</i> site, which come from real HG002 reads with an unmapped mate that the replacement does not cover, and the samples with large deletions showed short artefactual calls directly at some breakpoints.</p>
 <p>Six samples carried {n_large} large events from 120 bp to a whole-gene deletion, two tandem duplications and an Alu insertion in <i>BRCA2</i> exon 3 (Figure 4). Manta reported {manta} of {n_large} with exact breakpoints and heterozygous genotype; the Alu insertion appeared as a pair of breakends. With the settings of version 1.0.2, CNVkit reported {cnv_before} of {n_large}: bins without coverage dominated the segmentation statistics, and even whole-gene deletions with a clear half-depth signal were merged into their neighbours (Figure 5). Excluding such bins (<code>--drop-low-coverage</code>) raised this to {cnv_after} of {n_large}; the smallest event reported by CNVkit was {cnv_min}. In addition, exon dosage hints had been suppressed for exactly the affected exons, because a heterozygous deletion also makes an exon fall below the depth threshold. After the correction, {hints} of the {n_large - 1} deletions and duplications produced a dosage hint for an affected exon. A third defect stopped the pipeline when the input BAM was named like the sample.</p>
 </div>
 

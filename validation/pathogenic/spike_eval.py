@@ -60,7 +60,9 @@ def evaluate_large(event, report, calls_vcf):
                 if (kind == "LDEL" and abs(-delta - size) <= 0.1 * size) or (kind == "ALU" and delta >= 50):
                     res["smallVariantCaller"] = {"pos": int(pos), "refLength": len(ref), "altLength": len(a), "genotype": gt}
     want_hint = "möglicher Verlust" if kind == "LDEL" else "möglicher Zugewinn" if kind == "LDUP" else None
-    res["exonDosageHints"] = [h["exon"] for h in report.get("exonDosageHints", []) if h["gene"] == gene and h["type"] == want_hint]
+    affected = {x["label"] for x in report.get("exonCoverage", []) if x["gene"] == gene and x["start"] <= end and x["end"] >= start}
+    res["exonDosageHints"] = [h["exon"] for h in report.get("exonDosageHints", [])
+                              if h["gene"] == gene and h["type"] == want_hint and h["exon"] in affected]
     res["affectedExonDepthRatios"] = {x["label"]: x["dosageRatio"] for x in report.get("exonCoverage", [])
                                       if x["gene"] == gene and x["start"] <= end and x["end"] >= start}
     res["affectedExonStatus"] = sorted({x["status"] for x in report.get("exonCoverage", [])

@@ -1,0 +1,1000 @@
+{
+  "samples": [
+    {
+      "sample": "SPIKE_L1",
+      "simulation": {
+        "sample": "SPIKE_L1",
+        "pairs": 31279,
+        "hapA": 15513,
+        "hapB": 15754,
+        "skippedInDeletion": 25,
+        "extraForInsertions": 12
+      },
+      "smallSpiked": 0,
+      "smallFalsePositivesGeneLoci": 2,
+      "largeSpiked": 2,
+      "svCount": 3,
+      "cnvCandidates": 0,
+      "exonDosageHintCount": 5,
+      "uncertainExons": 2,
+      "toolVersions": {
+        "nextflow": "24.10.4",
+        "bwa": "0.7.18-r1243-dirty",
+        "samtools": "1.21",
+        "bcftools": "1.21",
+        "gatk": "v4.6.1.0",
+        "manta": "1.6.0",
+        "cnvkit": "0.9.11",
+        "ensembl-vep": "passthrough-benchmark-only",
+        "mosdepth": "0.3.10",
+        "python": "3.11.18"
+      }
+    },
+    {
+      "sample": "SPIKE_L2",
+      "simulation": {
+        "sample": "SPIKE_L2",
+        "pairs": 30625,
+        "hapA": 15513,
+        "hapB": 15112,
+        "skippedInDeletion": 667,
+        "extraForInsertions": 0
+      },
+      "smallSpiked": 0,
+      "smallFalsePositivesGeneLoci": 9,
+      "largeSpiked": 2,
+      "svCount": 2,
+      "cnvCandidates": 0,
+      "exonDosageHintCount": 8,
+      "uncertainExons": 7,
+      "toolVersions": {
+        "nextflow": "24.10.4",
+        "bwa": "0.7.18-r1243-dirty",
+        "samtools": "1.21",
+        "bcftools": "1.21",
+        "gatk": "v4.6.1.0",
+        "manta": "1.6.0",
+        "cnvkit": "0.9.11",
+        "ensembl-vep": "passthrough-benchmark-only",
+        "mosdepth": "0.3.10",
+        "python": "3.11.18"
+      }
+    },
+    {
+      "sample": "SPIKE_L3",
+      "simulation": {
+        "sample": "SPIKE_L3",
+        "pairs": 31537,
+        "hapA": 15513,
+        "hapB": 15690,
+        "skippedInDeletion": 89,
+        "extraForInsertions": 334
+      },
+      "smallSpiked": 0,
+      "smallFalsePositivesGeneLoci": 2,
+      "largeSpiked": 2,
+      "svCount": 2,
+      "cnvCandidates": 0,
+      "exonDosageHintCount": 7,
+      "uncertainExons": 3,
+      "toolVersions": {
+        "nextflow": "24.10.4",
+        "bwa": "0.7.18-r1243-dirty",
+        "samtools": "1.21",
+        "bcftools": "1.21",
+        "gatk": "v4.6.1.0",
+        "manta": "1.6.0",
+        "cnvkit": "0.9.11",
+        "ensembl-vep": "passthrough-benchmark-only",
+        "mosdepth": "0.3.10",
+        "python": "3.11.18"
+      }
+    },
+    {
+      "sample": "SPIKE_L4",
+      "simulation": {
+        "sample": "SPIKE_L4",
+        "pairs": 30740,
+        "hapA": 15513,
+        "hapB": 15227,
+        "skippedInDeletion": 552,
+        "extraForInsertions": 0
+      },
+      "smallSpiked": 0,
+      "smallFalsePositivesGeneLoci": 3,
+      "largeSpiked": 2,
+      "svCount": 2,
+      "cnvCandidates": 1,
+      "exonDosageHintCount": 7,
+      "uncertainExons": 4,
+      "toolVersions": {
+        "nextflow": "24.10.4",
+        "bwa": "0.7.18-r1243-dirty",
+        "samtools": "1.21",
+        "bcftools": "1.21",
+        "gatk": "v4.6.1.0",
+        "manta": "1.6.0",
+        "cnvkit": "0.9.11",
+        "ensembl-vep": "passthrough-benchmark-only",
+        "mosdepth": "0.3.10",
+        "python": "3.11.18"
+      }
+    },
+    {
+      "sample": "SPIKE_L5",
+      "simulation": {
+        "sample": "SPIKE_L5",
+        "pairs": 24338,
+        "hapA": 15513,
+        "hapB": 8553,
+        "skippedInDeletion": 7226,
+        "extraForInsertions": 272
+      },
+      "smallSpiked": 0,
+      "smallFalsePositivesGeneLoci": 2,
+      "largeSpiked": 2,
+      "svCount": 2,
+      "cnvCandidates": 1,
+      "exonDosageHintCount": 20,
+      "uncertainExons": 18,
+      "toolVersions": {
+        "nextflow": "24.10.4",
+        "bwa": "0.7.18-r1243-dirty",
+        "samtools": "1.21",
+        "bcftools": "1.21",
+        "gatk": "v4.6.1.0",
+        "manta": "1.6.0",
+        "cnvkit": "0.9.11",
+        "ensembl-vep": "passthrough-benchmark-only",
+        "mosdepth": "0.3.10",
+        "python": "3.11.18"
+      }
+    },
+    {
+      "sample": "SPIKE_L6",
+      "simulation": {
+        "sample": "SPIKE_L6",
+        "pairs": 25859,
+        "hapA": 15513,
+        "hapB": 10346,
+        "skippedInDeletion": 5433,
+        "extraForInsertions": 0
+      },
+      "smallSpiked": 0,
+      "smallFalsePositivesGeneLoci": 2,
+      "largeSpiked": 2,
+      "svCount": 2,
+      "cnvCandidates": 1,
+      "exonDosageHintCount": 27,
+      "uncertainExons": 28,
+      "toolVersions": {
+        "nextflow": "24.10.4",
+        "bwa": "0.7.18-r1243-dirty",
+        "samtools": "1.21",
+        "bcftools": "1.21",
+        "gatk": "v4.6.1.0",
+        "manta": "1.6.0",
+        "cnvkit": "0.9.11",
+        "ensembl-vep": "passthrough-benchmark-only",
+        "mosdepth": "0.3.10",
+        "python": "3.11.18"
+      }
+    },
+    {
+      "sample": "SPIKE_NEG",
+      "simulation": {
+        "sample": "SPIKE_NEG",
+        "pairs": 31292,
+        "hapA": 15513,
+        "hapB": 15779,
+        "skippedInDeletion": 0,
+        "extraForInsertions": 0
+      },
+      "smallSpiked": 0,
+      "smallFalsePositivesGeneLoci": 2,
+      "largeSpiked": 0,
+      "svCount": 0,
+      "cnvCandidates": 0,
+      "exonDosageHintCount": 5,
+      "uncertainExons": 2,
+      "toolVersions": {
+        "nextflow": "24.10.4",
+        "bwa": "0.7.18-r1243-dirty",
+        "samtools": "1.21",
+        "bcftools": "1.21",
+        "gatk": "v4.6.1.0",
+        "manta": "1.6.0",
+        "cnvkit": "0.9.11",
+        "ensembl-vep": "passthrough-benchmark-only",
+        "mosdepth": "0.3.10",
+        "python": "3.11.18"
+      }
+    },
+    {
+      "sample": "SPIKE_S1",
+      "simulation": {
+        "sample": "SPIKE_S1",
+        "pairs": 31276,
+        "hapA": 15513,
+        "hapB": 15748,
+        "skippedInDeletion": 31,
+        "extraForInsertions": 15
+      },
+      "smallSpiked": 94,
+      "smallFalsePositivesGeneLoci": 2,
+      "largeSpiked": 0,
+      "svCount": 0,
+      "cnvCandidates": 0,
+      "exonDosageHintCount": 5,
+      "uncertainExons": 6,
+      "toolVersions": {
+        "nextflow": "24.10.4",
+        "bwa": "0.7.18-r1243-dirty",
+        "samtools": "1.21",
+        "bcftools": "1.21",
+        "gatk": "v4.6.1.0",
+        "manta": "1.6.0",
+        "cnvkit": "0.9.11",
+        "ensembl-vep": "passthrough-benchmark-only",
+        "mosdepth": "0.3.10",
+        "python": "3.11.18"
+      }
+    },
+    {
+      "sample": "SPIKE_S2",
+      "simulation": {
+        "sample": "SPIKE_S2",
+        "pairs": 31280,
+        "hapA": 15513,
+        "hapB": 15754,
+        "skippedInDeletion": 25,
+        "extraForInsertions": 13
+      },
+      "smallSpiked": 91,
+      "smallFalsePositivesGeneLoci": 2,
+      "largeSpiked": 0,
+      "svCount": 0,
+      "cnvCandidates": 0,
+      "exonDosageHintCount": 4,
+      "uncertainExons": 6,
+      "toolVersions": {
+        "nextflow": "24.10.4",
+        "bwa": "0.7.18-r1243-dirty",
+        "samtools": "1.21",
+        "bcftools": "1.21",
+        "gatk": "v4.6.1.0",
+        "manta": "1.6.0",
+        "cnvkit": "0.9.11",
+        "ensembl-vep": "passthrough-benchmark-only",
+        "mosdepth": "0.3.10",
+        "python": "3.11.18"
+      }
+    }
+  ],
+  "smallByClass": {
+    "deletion 6-20 bp": {
+      "spiked": 16,
+      "found": 16
+    },
+    "SNV": {
+      "spiked": 90,
+      "found": 90
+    },
+    "insertion/duplication 2-5 bp": {
+      "spiked": 16,
+      "found": 16
+    },
+    "insertion/duplication 1 bp": {
+      "spiked": 10,
+      "found": 10
+    },
+    "deletion 2-5 bp": {
+      "spiked": 18,
+      "found": 18
+    },
+    "insertion/duplication 6-20 bp": {
+      "spiked": 8,
+      "found": 8
+    },
+    "insertion/duplication 21-50 bp": {
+      "spiked": 8,
+      "found": 8
+    },
+    "deletion 21-50 bp": {
+      "spiked": 8,
+      "found": 8
+    },
+    "deletion 1 bp": {
+      "spiked": 11,
+      "found": 11
+    }
+  },
+  "smallMissed": [],
+  "largeEvents": [
+    {
+      "sample": "SPIKE_L1",
+      "gene": "BRCA1",
+      "kind": "LDEL",
+      "chrom": "chr17",
+      "start": 43048950,
+      "end": 43049459,
+      "size": 510,
+      "note": "deletion of exon 21 (legacy exon 22), modelled on the 510 bp founder deletion; synthetic breakpoints",
+      "manta": {
+        "type": "DEL",
+        "pos": 43048949,
+        "end": 43049459,
+        "length": 510,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "20,11",
+        "splitReads": "27,17",
+        "affectedExons": [
+          "Exon 21 (Legacy 22)"
+        ]
+      },
+      "cnvkit": null,
+      "smallVariantCaller": null,
+      "exonDosageHints": [
+        "Exon 21 (Legacy 22)"
+      ],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 21 (Legacy 22)": 0.21
+      },
+      "affectedExonStatus": [
+        "unsicher"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L1",
+      "gene": "BRCA2",
+      "kind": "ALU",
+      "chrom": "chr13",
+      "start": 32319165,
+      "end": 32319165,
+      "size": 327,
+      "note": "Alu insertion in exon 3 between c.156 and c.157, modelled on c.156_157insAlu",
+      "aluSource": "chr17:43152573-43152885",
+      "targetSiteDuplication": 14,
+      "manta": {
+        "type": "BND",
+        "pos": 32319152,
+        "end": null,
+        "length": null,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "53,11",
+        "splitReads": "33,12",
+        "affectedExons": [
+          "Exon 3"
+        ]
+      },
+      "cnvkit": null,
+      "smallVariantCaller": null,
+      "exonDosageHints": [],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 3": 0.94
+      },
+      "affectedExonStatus": [
+        "ok"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L2",
+      "gene": "BRCA1",
+      "kind": "LDEL",
+      "chrom": "chr17",
+      "start": 43080500,
+      "end": 43084334,
+      "size": 3835,
+      "note": "deletion of exon 12 (legacy exon 13), modelled on the 3.8 kb founder deletion; synthetic breakpoints",
+      "manta": {
+        "type": "DEL",
+        "pos": 43080499,
+        "end": 43084334,
+        "length": 3835,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "22,22",
+        "splitReads": "17,8",
+        "affectedExons": [
+          "Exon 12 (Legacy 13)"
+        ]
+      },
+      "cnvkit": null,
+      "smallVariantCaller": null,
+      "exonDosageHints": [
+        "Exon 12 (Legacy 13)"
+      ],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 12 (Legacy 13)": 0.55
+      },
+      "affectedExonStatus": [
+        "unsicher"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L2",
+      "gene": "BRCA2",
+      "kind": "LDEL",
+      "chrom": "chr13",
+      "start": 32352000,
+      "end": 32360499,
+      "size": 8500,
+      "note": "deletion of exons 14 to 16",
+      "manta": {
+        "type": "DEL",
+        "pos": 32351999,
+        "end": 32360499,
+        "length": 8500,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "42,26",
+        "splitReads": "24,15",
+        "affectedExons": [
+          "Exon 14",
+          "Exon 15",
+          "Exon 16"
+        ]
+      },
+      "cnvkit": null,
+      "smallVariantCaller": null,
+      "exonDosageHints": [
+        "Exon 15",
+        "Exon 16"
+      ],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 14": 0.7,
+        "Exon 15": 0.49,
+        "Exon 16": 0.57
+      },
+      "affectedExonStatus": [
+        "unsicher"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L3",
+      "gene": "BRCA1",
+      "kind": "LDUP",
+      "chrom": "chr17",
+      "start": 43079800,
+      "end": 43085799,
+      "size": 6000,
+      "note": "tandem duplication of exon 12 (legacy exon 13), modelled on the 6 kb founder duplication; synthetic breakpoints",
+      "manta": {
+        "type": "DUP",
+        "pos": 43079798,
+        "end": 43085798,
+        "length": 6000,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "72,14",
+        "splitReads": "52,11",
+        "affectedExons": [
+          "Exon 12 (Legacy 13)"
+        ]
+      },
+      "cnvkit": null,
+      "smallVariantCaller": null,
+      "exonDosageHints": [
+        "Exon 12 (Legacy 13)"
+      ],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 12 (Legacy 13)": 1.63
+      },
+      "affectedExonStatus": [
+        "ok"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L3",
+      "gene": "BRCA2",
+      "kind": "LDEL",
+      "chrom": "chr13",
+      "start": 32376000,
+      "end": 32377499,
+      "size": 1500,
+      "note": "deletion of exon 21",
+      "manta": {
+        "type": "DEL",
+        "pos": 32375999,
+        "end": 32377499,
+        "length": 1500,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "19,16",
+        "splitReads": "16,12",
+        "affectedExons": [
+          "Exon 21"
+        ]
+      },
+      "cnvkit": null,
+      "smallVariantCaller": null,
+      "exonDosageHints": [
+        "Exon 21"
+      ],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 21": 0.5
+      },
+      "affectedExonStatus": [
+        "unsicher"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L4",
+      "gene": "BRCA1",
+      "kind": "LDEL",
+      "chrom": "chr17",
+      "start": 43120000,
+      "end": 43130999,
+      "size": 11000,
+      "note": "deletion of exons 1 and 2 including the promoter",
+      "manta": {
+        "type": "DEL",
+        "pos": 43119996,
+        "end": 43130996,
+        "length": 11000,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "35,28",
+        "splitReads": "22,16",
+        "affectedExons": [
+          "Exon 1",
+          "Exon 2"
+        ]
+      },
+      "cnvkit": {
+        "start": 43119851,
+        "end": 43130850,
+        "log2": -0.817,
+        "copyNumber": 1,
+        "type": "Deletion",
+        "probes": 11,
+        "affectedExons": [
+          "Exon 1",
+          "Exon 2"
+        ]
+      },
+      "smallVariantCaller": null,
+      "exonDosageHints": [
+        "Exon 1",
+        "Exon 2"
+      ],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 1": 0.36,
+        "Exon 2": 0.57
+      },
+      "affectedExonStatus": [
+        "unsicher"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L4",
+      "gene": "BRCA2",
+      "kind": "LDEL",
+      "chrom": "chr13",
+      "start": 32338000,
+      "end": 32338119,
+      "size": 120,
+      "note": "120 bp deletion inside exon 11",
+      "manta": {
+        "type": "DEL",
+        "pos": 32337999,
+        "end": 32338119,
+        "length": 120,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "7,0",
+        "splitReads": "19,15",
+        "affectedExons": [
+          "Exon 11"
+        ]
+      },
+      "cnvkit": null,
+      "smallVariantCaller": {
+        "pos": 32337999,
+        "refLength": 121,
+        "altLength": 1,
+        "genotype": "0/1"
+      },
+      "exonDosageHints": [],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 11": 1.23
+      },
+      "affectedExonStatus": [
+        "ok"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L5",
+      "gene": "BRCA1",
+      "kind": "LDEL",
+      "chrom": "chr17",
+      "start": 43040000,
+      "end": 43174999,
+      "size": 135000,
+      "note": "deletion of the whole gene",
+      "manta": {
+        "type": "DEL",
+        "pos": 43039999,
+        "end": 43174999,
+        "length": 135000,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "38,19",
+        "splitReads": "32,17",
+        "affectedExons": [
+          "Exon 1",
+          "Exon 2",
+          "Exon 3",
+          "Exon 4 (Legacy 5)",
+          "Exon 5 (Legacy 6)",
+          "Exon 6 (Legacy 7)",
+          "Exon 7 (Legacy 8)",
+          "Exon 8 (Legacy 9)",
+          "Exon 9 (Legacy 10)",
+          "Exon 10 (Legacy 11)",
+          "Exon 11 (Legacy 12)",
+          "Exon 12 (Legacy 13)",
+          "Exon 13 (Legacy 14)",
+          "Exon 14 (Legacy 15)",
+          "Exon 15 (Legacy 16)",
+          "Exon 16 (Legacy 17)",
+          "Exon 17 (Legacy 18)",
+          "Exon 18 (Legacy 19)",
+          "Exon 19 (Legacy 20)",
+          "Exon 20 (Legacy 21)",
+          "Exon 21 (Legacy 22)",
+          "Exon 22 (Legacy 23)",
+          "Exon 23 (Legacy 24)"
+        ]
+      },
+      "cnvkit": {
+        "start": 43039852,
+        "end": 43174850,
+        "log2": -0.906,
+        "copyNumber": 1,
+        "type": "Deletion",
+        "probes": 134,
+        "affectedExons": [
+          "Exon 1",
+          "Exon 2",
+          "Exon 3",
+          "Exon 4 (Legacy 5)",
+          "Exon 5 (Legacy 6)",
+          "Exon 6 (Legacy 7)",
+          "Exon 7 (Legacy 8)",
+          "Exon 8 (Legacy 9)",
+          "Exon 9 (Legacy 10)",
+          "Exon 10 (Legacy 11)",
+          "Exon 11 (Legacy 12)",
+          "Exon 12 (Legacy 13)",
+          "Exon 13 (Legacy 14)",
+          "Exon 14 (Legacy 15)",
+          "Exon 15 (Legacy 16)",
+          "Exon 16 (Legacy 17)",
+          "Exon 17 (Legacy 18)",
+          "Exon 18 (Legacy 19)",
+          "Exon 19 (Legacy 20)",
+          "Exon 20 (Legacy 21)",
+          "Exon 21 (Legacy 22)",
+          "Exon 22 (Legacy 23)",
+          "Exon 23 (Legacy 24)"
+        ]
+      },
+      "smallVariantCaller": null,
+      "exonDosageHints": [
+        "Exon 1",
+        "Exon 2",
+        "Exon 4 (Legacy 5)",
+        "Exon 7 (Legacy 8)",
+        "Exon 8 (Legacy 9)",
+        "Exon 9 (Legacy 10)",
+        "Exon 10 (Legacy 11)",
+        "Exon 11 (Legacy 12)",
+        "Exon 12 (Legacy 13)",
+        "Exon 13 (Legacy 14)",
+        "Exon 14 (Legacy 15)",
+        "Exon 17 (Legacy 18)",
+        "Exon 19 (Legacy 20)",
+        "Exon 20 (Legacy 21)",
+        "Exon 21 (Legacy 22)",
+        "Exon 22 (Legacy 23)",
+        "Exon 23 (Legacy 24)"
+      ],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 1": 0.36,
+        "Exon 2": 0.57,
+        "Exon 3": 0.72,
+        "Exon 4 (Legacy 5)": 0.6,
+        "Exon 5 (Legacy 6)": 0.86,
+        "Exon 6 (Legacy 7)": 0.96,
+        "Exon 7 (Legacy 8)": 0.45,
+        "Exon 8 (Legacy 9)": 0.56,
+        "Exon 9 (Legacy 10)": 0.6,
+        "Exon 10 (Legacy 11)": 0.61,
+        "Exon 11 (Legacy 12)": 0.52,
+        "Exon 12 (Legacy 13)": 0.55,
+        "Exon 13 (Legacy 14)": 0.57,
+        "Exon 14 (Legacy 15)": 0.51,
+        "Exon 15 (Legacy 16)": 0.74,
+        "Exon 16 (Legacy 17)": 0.73,
+        "Exon 17 (Legacy 18)": 0.59,
+        "Exon 18 (Legacy 19)": 0.76,
+        "Exon 19 (Legacy 20)": 0.45,
+        "Exon 20 (Legacy 21)": 0.5,
+        "Exon 21 (Legacy 22)": 0.21,
+        "Exon 22 (Legacy 23)": 0.38,
+        "Exon 23 (Legacy 24)": 0.57
+      },
+      "affectedExonStatus": [
+        "ok",
+        "unsicher"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L5",
+      "gene": "BRCA2",
+      "kind": "LDUP",
+      "chrom": "chr13",
+      "start": 32369000,
+      "end": 32373999,
+      "size": 5000,
+      "note": "tandem duplication of exons 19 and 20",
+      "manta": {
+        "type": "DUP",
+        "pos": 32368999,
+        "end": 32373999,
+        "length": 5000,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "61,14",
+        "splitReads": "39,10",
+        "affectedExons": [
+          "Exon 19",
+          "Exon 20"
+        ]
+      },
+      "cnvkit": null,
+      "smallVariantCaller": null,
+      "exonDosageHints": [
+        "Exon 19",
+        "Exon 20"
+      ],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 19": 2.19,
+        "Exon 20": 1.68
+      },
+      "affectedExonStatus": [
+        "ok"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L6",
+      "gene": "BRCA1",
+      "kind": "LDEL",
+      "chrom": "chr17",
+      "start": 43093000,
+      "end": 43093299,
+      "size": 300,
+      "note": "300 bp deletion inside exon 10 (legacy exon 11)",
+      "manta": {
+        "type": "DEL",
+        "pos": 43092999,
+        "end": 43093299,
+        "length": 300,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "28,11",
+        "splitReads": "27,11",
+        "affectedExons": [
+          "Exon 10 (Legacy 11)"
+        ]
+      },
+      "cnvkit": null,
+      "smallVariantCaller": null,
+      "exonDosageHints": [],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 10 (Legacy 11)": 1.13
+      },
+      "affectedExonStatus": [
+        "unsicher"
+      ],
+      "needsAttention": true,
+      "detected": true
+    },
+    {
+      "sample": "SPIKE_L6",
+      "gene": "BRCA2",
+      "kind": "LDEL",
+      "chrom": "chr13",
+      "start": 32310000,
+      "end": 32404999,
+      "size": 95000,
+      "note": "deletion of the whole gene",
+      "manta": {
+        "type": "DEL",
+        "pos": 32309999,
+        "end": 32404999,
+        "length": 95000,
+        "genotype": "0/1",
+        "filter": "PASS",
+        "pairedReads": "37,14",
+        "splitReads": "21,9",
+        "affectedExons": [
+          "Exon 1",
+          "Exon 2",
+          "Exon 3",
+          "Exon 4",
+          "Exon 5",
+          "Exon 6",
+          "Exon 7",
+          "Exon 8",
+          "Exon 9",
+          "Exon 10",
+          "Exon 11",
+          "Exon 12",
+          "Exon 13",
+          "Exon 14",
+          "Exon 15",
+          "Exon 16",
+          "Exon 17",
+          "Exon 18",
+          "Exon 19",
+          "Exon 20",
+          "Exon 21",
+          "Exon 22",
+          "Exon 23",
+          "Exon 24",
+          "Exon 25",
+          "Exon 26",
+          "Exon 27"
+        ]
+      },
+      "cnvkit": {
+        "start": 32310080,
+        "end": 32405079,
+        "log2": -0.99,
+        "copyNumber": 1,
+        "type": "Deletion",
+        "probes": 93,
+        "affectedExons": [
+          "Exon 1",
+          "Exon 2",
+          "Exon 3",
+          "Exon 4",
+          "Exon 5",
+          "Exon 6",
+          "Exon 7",
+          "Exon 8",
+          "Exon 9",
+          "Exon 10",
+          "Exon 11",
+          "Exon 12",
+          "Exon 13",
+          "Exon 14",
+          "Exon 15",
+          "Exon 16",
+          "Exon 17",
+          "Exon 18",
+          "Exon 19",
+          "Exon 20",
+          "Exon 21",
+          "Exon 22",
+          "Exon 23",
+          "Exon 24",
+          "Exon 25",
+          "Exon 26",
+          "Exon 27"
+        ]
+      },
+      "smallVariantCaller": null,
+      "exonDosageHints": [
+        "Exon 1",
+        "Exon 2",
+        "Exon 3",
+        "Exon 4",
+        "Exon 5",
+        "Exon 6",
+        "Exon 7",
+        "Exon 9",
+        "Exon 10",
+        "Exon 11",
+        "Exon 12",
+        "Exon 13",
+        "Exon 15",
+        "Exon 16",
+        "Exon 17",
+        "Exon 18",
+        "Exon 20",
+        "Exon 21",
+        "Exon 22",
+        "Exon 23",
+        "Exon 24",
+        "Exon 25",
+        "Exon 26",
+        "Exon 27"
+      ],
+      "notes": [],
+      "affectedExonDepthRatios": {
+        "Exon 1": 0.38,
+        "Exon 2": 0.34,
+        "Exon 3": 0.41,
+        "Exon 4": 0.58,
+        "Exon 5": 0.63,
+        "Exon 6": 0.61,
+        "Exon 7": 0.56,
+        "Exon 8": 0.86,
+        "Exon 9": 0.53,
+        "Exon 10": 0.52,
+        "Exon 11": 0.56,
+        "Exon 12": 0.6,
+        "Exon 13": 0.54,
+        "Exon 14": 0.7,
+        "Exon 15": 0.49,
+        "Exon 16": 0.57,
+        "Exon 17": 0.48,
+        "Exon 18": 0.41,
+        "Exon 19": 0.84,
+        "Exon 20": 0.61,
+        "Exon 21": 0.5,
+        "Exon 22": 0.62,
+        "Exon 23": 0.59,
+        "Exon 24": 0.5,
+        "Exon 25": 0.62,
+        "Exon 26": 0.52,
+        "Exon 27": 0.54
+      },
+      "affectedExonStatus": [
+        "ok",
+        "unsicher"
+      ],
+      "needsAttention": true,
+      "detected": true
+    }
+  ],
+  "unexpected": [
+    {
+      "sample": "SPIKE_L1",
+      "caller": "Manta",
+      "inGeneWithSpikedEvent": true,
+      "gene": "BRCA2",
+      "type": "BND",
+      "pos": 32319164,
+      "end": null,
+      "length": null,
+      "filter": "PASS"
+    }
+  ]
+}

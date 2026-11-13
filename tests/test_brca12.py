@@ -354,3 +354,15 @@ class SpikeInFindingsTest(unittest.TestCase):
             found = structural.structural_variants(path, regions, [])
         flagged = [sv["pos"] for sv in found if any("mögliche Insertion" in f for f in sv["flags"])]
         self.assertEqual(flagged, [32319152, 32319164])
+
+    def test_inserted_alu_sequence_is_flagged(self):
+        header = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS\n"
+        rows = ("chr13\t32348302\ti1\tT\tTTTGGCCGGGCGCGGTGGCTCACGCCTGTAATCC\t500\tPASS\tEND=32348302;SVTYPE=INS;SVLEN=33\tGT:PR:SR\t1/1:0,28:4,24\n"
+                "chr13\t32350000\ti2\tT\tTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT\t500\tPASS\tEND=32350000;SVTYPE=INS;SVLEN=52\tGT:PR:SR\t0/1:9,4:3,2\n")
+        with tempfile.TemporaryDirectory() as d:
+            path = f"{d}/sv.vcf"
+            with open(path, "w") as handle:
+                handle.write(header + rows)
+            found = structural.structural_variants(path, [("chr13", 32315076, 32400268, "BRCA2")], [])
+        flagged = [sv["pos"] for sv in found if any("Alu-Signatur" in f for f in sv["flags"])]
+        self.assertEqual(flagged, [32348302])

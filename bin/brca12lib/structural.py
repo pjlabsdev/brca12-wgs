@@ -73,6 +73,8 @@ def exon_dosage_hints(exons, low=0.65, high=1.35):
     return hints
 
 
+# start of the Alu consensus (left monomer) and its reverse complement
+_ALU_MOTIFS = ("GGCCGGGCGCGGTGGCTCA", "TGAGCCACCGCGCCCGGCC")
 _BND_MATE = re.compile(r"[\[\]]([^:\[\]]+):(\d+)[\[\]]")
 
 
@@ -117,6 +119,9 @@ def structural_variants(path, regions, exons):
                 flags.append(f"FILTER={record['filter']}")
             if "IMPRECISE" in info:
                 flags.append("unpräzise Bruchpunkte")
+            inserted = " ".join([alt, str(info.get("LEFT_SVINSSEQ", "")), str(info.get("RIGHT_SVINSSEQ", ""))]).upper()
+            if svtype == "INS" and any(motif in inserted for motif in _ALU_MOTIFS):
+                flags.append("eingefügte Sequenz mit Alu-Signatur: mögliche Alu-Insertion")
             flags.append("Bestätigung mit orthogonaler Methode nötig")
             results.append({
                 "gene": gene, "id": record["id"], "type": svtype, "chrom": chrom, "pos": pos,

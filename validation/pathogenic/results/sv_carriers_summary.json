@@ -1,0 +1,607 @@
+{
+  "rows": [
+    {
+      "sample": "HG01274",
+      "population": "CLM",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|1",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG01922",
+      "population": "PEL",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|1",
+      "reported": true,
+      "manta": [],
+      "smallVariantCaller": [
+        {
+          "pos": 32348302,
+          "refLength": 1,
+          "altLength": 55,
+          "genotype": "0/1"
+        }
+      ]
+    },
+    {
+      "sample": "HG02856",
+      "population": "GWD",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|1",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG00117",
+      "population": "GBR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|1",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG00122",
+      "population": "GBR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG00145",
+      "population": "GBR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG00559",
+      "population": "CHS",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|1",
+      "reported": true,
+      "manta": [],
+      "smallVariantCaller": [
+        {
+          "pos": 32392272,
+          "refLength": 1,
+          "altLength": 60,
+          "genotype": "0/1"
+        }
+      ]
+    },
+    {
+      "sample": "HG02392",
+      "population": "CDX",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG01796",
+      "population": "CDX",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|1",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG02601",
+      "population": "PJL",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "1|0",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43045922,
+          "end": 43046229,
+          "length": 307,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": -36,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG02602",
+      "population": "PJL",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|1",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43045922,
+          "end": 43046229,
+          "length": 307,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": -36,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG02322",
+      "population": "ACB",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "1|1",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "1/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG00637",
+      "population": "PUR",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|1",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG01323",
+      "population": "PUR",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "1|0",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG01393",
+      "population": "PUR",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|1",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG01395",
+      "population": "PUR",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "1|0",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG01990",
+      "population": "ACB",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "1|0",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG00096",
+      "population": "GBR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG00096",
+      "population": "GBR",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG00096",
+      "population": "GBR",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG00096",
+      "population": "GBR",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG01369",
+      "population": "CLM",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG01369",
+      "population": "CLM",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG01369",
+      "population": "CLM",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG01369",
+      "population": "CLM",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG02348",
+      "population": "PEL",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG02348",
+      "population": "PEL",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG02348",
+      "population": "PEL",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG02348",
+      "population": "PEL",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG03519",
+      "population": "ESN",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG03519",
+      "population": "ESN",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG03519",
+      "population": "ESN",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "HG03519",
+      "population": "ESN",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "NA18489",
+      "population": "YRI",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "NA18489",
+      "population": "YRI",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "NA18489",
+      "population": "YRI",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "NA18489",
+      "population": "YRI",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "NA19776",
+      "population": "MXL",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "NA19776",
+      "population": "MXL",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "NA19776",
+      "population": "MXL",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    },
+    {
+      "sample": "NA19776",
+      "population": "MXL",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": []
+    }
+  ],
+  "bySite": {
+    "HGSV_181048": {
+      "carriers": 6,
+      "carriersReported": 1,
+      "controls": 6,
+      "controlsReported": 0
+    },
+    "HGSV_181052": {
+      "carriers": 2,
+      "carriersReported": 1,
+      "controls": 6,
+      "controlsReported": 0
+    },
+    "HGSV_216996": {
+      "carriers": 3,
+      "carriersReported": 2,
+      "controls": 6,
+      "controlsReported": 0
+    },
+    "HGSV_216998": {
+      "carriers": 6,
+      "carriersReported": 6,
+      "controls": 6,
+      "controlsReported": 0
+    }
+  }
+}
