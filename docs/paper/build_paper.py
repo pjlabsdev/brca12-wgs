@@ -17,6 +17,7 @@ import html
 import json
 import math
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -348,6 +349,7 @@ def fig_large(d):
             b.append(f'<rect x="4" y="{y - rh / 2:.1f}" width="{w - 8}" height="{rh}" fill="#F3F1EA"/>')
         kind = {"LDEL": "Deletion", "LDUP": "Tandem duplication", "ALU": "Alu insertion"}[e["kind"]]
         note = e["note"].split(",")[0].split(";")[0]
+        note = re.sub(r" \(legacy exon \d+\)", "", note)
         note = note.replace("deletion of ", "").replace("tandem duplication of ", "").replace("Alu insertion in ", "")
         b.append(text(8, y + 2.6, f"{e['gene']}  {kind}", 7.6, mono=True))
         b.append(text(150, y + 2.6, note[:44], 7.2, fill=SUB))
@@ -427,6 +429,59 @@ def fig_depth(d):
             b.append(f'<circle cx="{X((int(r["start"]) + int(r["end"])) / 2):.1f}" cy="{Y(v):.1f}" r="1.1" fill="{BAD if inside else GREY}"/>')
         b.append(text(right, y1 + 17, f"{rows[0]['chrom']}:{lo / 1e6:.2f}–{hi / 1e6:.2f} Mb", 6.8, "end", SUB, mono=True))
     b.append(text(10, 12 + ph * len(panels) / 2, "log2 depth ratio (1 kb bins)", 7.2, "middle", SUB, rotate=-90))
+    return svg(w, h, b)
+
+
+# ------------------------------------------------------------------ figure 6: read ends at the Alu sites
+def fig_alu(d):
+    rows = [r for r in d.sv["rows"] if r["type"] == "ALU" and r.get("readsAtSite") and r["readsAtSite"]["reads"]]
+    groups = [("0|0", "Panel: no insertion (0|0)"), ("het", "Panel: heterozygous"), ("hom", "Panel: homozygous")]
+
+    def group(r):
+        g = r["panelGenotype"]
+        return "0|0" if g == "0|0" else "hom" if g == "1|1" else "het"
+
+    w, h = 720, 196
+    left, right, top, bottom = 58, 560, 16, 150
+    b = []
+
+    def Y(v):
+        return bottom - v * (bottom - top)
+
+    for v in (0, 0.25, 0.5, 0.75, 1.0):
+        b.append(f'<line x1="{left}" y1="{Y(v):.1f}" x2="{right}" y2="{Y(v):.1f}" stroke="{LINE}" stroke-width="0.6"/>')
+        b.append(text(left - 6, Y(v) + 2.5, f"{v:.2f}", 6.8, "end", SUB, mono=True))
+    b.append(text(14, (top + bottom) / 2, "fraction of reads clipped at the site", 7.2, "middle", SUB, rotate=-90))
+    step = (right - left) / len(groups)
+    for i, (key, label) in enumerate(groups):
+        members = sorted((r for r in rows if group(r) == key), key=lambda r: (r["site"], r["sample"]))
+        cx = left + step * (i + 0.5)
+        b.append(text(cx, bottom + 14, label, 7.4, "middle"))
+        found = sum(1 for r in members if r["readEndSignal"])
+        b.append(text(cx, bottom + 25, f"{len(members)} evaluations, signature in {found}", 6.8, "middle", SUB, mono=True))
+        n = len(members)
+        for j, r in enumerate(members):
+            x = cx + ((j + 0.5) / n - 0.5) * step * 0.72
+            y = Y(r["readsAtSite"]["clippedAtSite"] / r["readsAtSite"]["reads"])
+            rare = r["site"] == "HGSV_181052"
+            fill = BLUE if r["readEndSignal"] else "#FFFFFF"
+            stroke = BLUE if r["readEndSignal"] else (BAD if key != "0|0" else GREY)
+            if rare:
+                b.append(f'<rect x="{x - 2.6:.1f}" y="{y - 2.6:.1f}" width="5.2" height="5.2" fill="{fill}" stroke="{stroke}" stroke-width="1"/>')
+            else:
+                b.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.8" fill="{fill}" stroke="{stroke}" stroke-width="1"/>')
+            if key != "0|0" and not r["readEndSignal"]:
+                b.append(text(x + 5, y + 2.5, r["sample"], 6.4, "start", BAD, mono=True))
+    lx, ly = right + 14, top + 40
+    for k, (shape, fill, stroke, lab) in enumerate((("c", BLUE, BLUE, "signature reported"), ("c", "#FFFFFF", GREY, "no signature, panel 0|0"),
+                                                    ("c", "#FFFFFF", BAD, "no signature, panel carrier"),
+                                                    ("c", "#FFFFFF", SUB, "circle: chr13:32,348,302"), ("r", "#FFFFFF", SUB, "square: chr13:32,392,272"))):
+        y = ly + 12 * k
+        if shape == "c":
+            b.append(f'<circle cx="{lx + 3}" cy="{y}" r="2.8" fill="{fill}" stroke="{stroke}" stroke-width="1"/>')
+        else:
+            b.append(f'<rect x="{lx + 0.4}" y="{y - 2.6}" width="5.2" height="5.2" fill="{fill}" stroke="{stroke}" stroke-width="1"/>')
+        b.append(text(lx + 11, y + 2.5, lab, 6.8, "start", SUB))
     return svg(w, h, b)
 
 
@@ -635,10 +690,17 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <h3>3.4 Real structural variants</h3>
 <p>The phased SNV, indel and SV panel of the 1000 Genomes Project [20] contains two Alu insertions in <i>BRCA2</i> and two deletions in <i>BRCA1</i>, all intronic or otherwise not disease-causing. They allow the same kind of event to be tested in real reads (Table 3). Carriers and six samples that are homozygous reference at all four sites were processed as in Section 3.2, with one addition: mates that the original alignment had placed elsewhere in the genome were retrieved as well, because without them Manta received no discordant pairs and reported only {{SV_NOMATES}}. At the two Alu sites the panel genotypes were looked up for all 33 samples of Sections 3.2 and 3.4, which added three heterozygous carriers of the common insertion; the ten samples of Section 3.2 were evaluated there without retrieved mates. The panel calls are statistically phased short-read calls and serve as a comparison, not as truth.</p>
 
+</div>
+
 <table><caption><strong>Table 3.</strong> Real structural variants in 1000 Genomes samples. Called: by Manta or the small-variant caller at the site. Signature: insertion signature from clipped read ends. Controls: samples with panel genotype 0|0 and any call or signature at the site.</caption>
 <tr><th>Gene</th><th>Event</th><th>Position</th><th>Panel caller</th><th>Called</th><th>Signature</th><th>Controls</th></tr>
 {sv_rows}
 </table>
+
+<figure><div class="frame">{fig_alu(d)}</div>
+<figcaption><strong>Figure 6. Read ends at the two real Alu insertion sites.</strong> Each symbol is one sample at one site: the fraction of reads over the site that are clipped there by at least 10 bases, grouped by the genotype in the 1000 Genomes panel. Filled: the pipeline listed an insertion signature with Alu sequence. The raw fraction counts every read within 15 bp of the site and is therefore lower than the clipped fraction computed by the detector.</figcaption></figure>
+
+<div class="cols">
 <p>{{SV_TEXT}}</p>
 
 <h3>3.5 Limits of this validation</h3>
@@ -721,9 +783,10 @@ def missed_text(d):
     counts = ", ".join(f"{r['readsAtSite']['clippedAtSite']} of {r['readsAtSite']['reads']} reads in {r['sample']}" for r in missed)
     zero = [r for r in d.sv["rows"] if r["type"] == "ALU" and r["panelGenotype"] == "0|0"]
     top = max(r["readsAtSite"]["clippedAtSite"] for r in zero)
-    return (f"The {len(missed)} carriers without a signature are listed as heterozygous in the panel, but only few reads are clipped at "
+    who = "The one carrier without a signature is" if len(missed) == 1 else f"The {len(missed)} carriers without a signature are"
+    return (f"{who} listed as heterozygous in the panel, but only few reads are clipped at "
             f"the site ({counts}), below the threshold of three per side and far from the half expected for a heterozygous insertion; "
-            f"samples with panel genotype 0|0 had at most {top} such reads. Whether the panel genotype or the reads are right "
+            f"samples with panel genotype 0|0 had at most {top}. Whether the panel genotype or the reads are right "
             "cannot be decided here.")
 
 
