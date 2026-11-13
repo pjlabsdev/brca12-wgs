@@ -285,7 +285,10 @@ def recall_rows(d):
     for sid, label in (("HGSV_216998", "Deletion 1,081 bp (BRCA1)"), ("HGSV_216996", "Deletion 271 bp (BRCA1)"),
                        ("HGSV_181048", "Alu insertion, common (BRCA2)"), ("HGSV_181052", "Alu insertion, rare (BRCA2)")):
         s = d.sv_site(sid)
-        rows.append(("Real SVs (1000 Genomes)" if sid == "HGSV_216998" else "", label, s["carriersReported"], s["carriers"]))
+        alu = "Alu" in label
+        rows.append(("Real SVs (1000 Genomes)" if sid == "HGSV_216998" else "", label + (", called" if alu else ""), s["carriersReported"], s["carriers"]))
+        if alu:
+            rows.append(("", label + ", read-end signature", s["carriersWithReadEndSignal"], s["carriers"]))
     return rows
 
 
@@ -470,6 +473,9 @@ def build(d, fonts, version, date, doi):
     del_big, del_small = d.sv_site("HGSV_216998"), d.sv_site("HGSV_216996")
     alu_c, alu_r = d.sv_site("HGSV_181048"), d.sv_site("HGSV_181052")
     alu_k, alu_n = alu_c["carriersReported"] + alu_r["carriersReported"], alu_c["carriers"] + alu_r["carriers"]
+    alu_sig = alu_c["carriersWithReadEndSignal"] + alu_r["carriersWithReadEndSignal"]
+    alu_ctrl = alu_c["controls"] + alu_r["controls"]
+    alu_ctrl_sig = alu_c["controlsWithReadEndSignal"] + alu_r["controlsWithReadEndSignal"]
     controls = max(s["controls"] for s in d.sv["bySite"].values())
     control_hits = sum(s["controlsReported"] for s in d.sv["bySite"].values())
     cs_k, cs_n, cs_fp = d.concordance("exons_pm20", "SNV")
@@ -485,7 +491,9 @@ def build(d, fonts, version, date, doi):
         t = d.sv_site(s["id"])
         kind = "Alu insertion" if s["type"] == "ALU" else "Deletion"
         sv_rows += (f"<tr><td><i>{esc(s['gene'])}</i></td><td>{kind}, {int(s['length']):,} bp</td><td><code>{esc(s['chrom'])}:{int(s['pos']):,}</code></td>"
-                    f"<td>{esc(s['callers_in_panel'])}</td><td>{t['carriersReported']} / {t['carriers']}</td><td>{t['controlsReported']} / {t['controls']}</td></tr>")
+                    f"<td>{esc(s['callers_in_panel'])}</td><td>{t['carriersReported']} / {t['carriers']}</td>"
+                    f"<td>{(str(t['carriersWithReadEndSignal']) + ' / ' + str(t['carriers'])) if s['type'] == 'ALU' else 'n/a'}</td>"
+                    f"<td>{t['controlsReported'] + (t['controlsWithReadEndSignal'] if s['type'] == 'ALU' else 0)} / {t['controls']}</td></tr>")
     style = f"""
 {fonts_css(fonts)}
 @page {{ size: A4; margin: 17mm 16mm 18mm 16mm; }}
@@ -534,13 +542,14 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 
 <div class="top">
 <div class="summary">
-<p><strong>Summary.</strong> Germline pathogenic variants in <i>BRCA1</i> and <i>BRCA2</i> cause hereditary breast and ovarian cancer syndrome. The relevant spectrum spans single-nucleotide variants, small insertions and deletions, exon-level copy-number changes and larger rearrangements, yet many open BRCA workflows target amplicon panels on GRCh37 and report small variants only. <i>brca12-wgs</i> is a Nextflow pipeline that takes paired-end FASTQ files or a BAM/CRAM from whole-genome sequencing and produces a structured BRCA1/BRCA2 report on GRCh38. It combines BWA-MEM, GATK HaplotypeCaller or DeepVariant, Manta, CNVkit with per-exon depth ratios, Ensembl VEP with MANE Select transcripts, ClinVar and mosdepth, and lists automated hints on single ACMG/AMP criteria following the ClinGen ENIGMA specification without assigning a classification. We measured performance on four kinds of data: Genome in a Bottle truth sets ({snv_k} of {snv_n} SNVs and {ind_k} of {ind_n} indels), ten 1000 Genomes carriers of pathogenic variants ({c['detected']} of {c['total']} detected), {small_total} small and {n_large} large variants spiked into real reads, and real Alu insertions and deletions in 1000 Genomes samples. Manta reported all {n_large} spiked large events, whereas single-sample CNVkit segmentation reported {cnv_after} of {n_large} after a correction made during this work ({cnv_before} before). The software is for research use; results require confirmation by a clinically validated method.</p>
+<p><strong>Summary.</strong> Germline pathogenic variants in <i>BRCA1</i> and <i>BRCA2</i> cause hereditary breast and ovarian cancer syndrome. The relevant spectrum spans single-nucleotide variants, small insertions and deletions, exon-level copy-number changes and larger rearrangements, yet many open BRCA workflows target amplicon panels on GRCh37 and report small variants only. <i>brca12-wgs</i> is a Nextflow pipeline that takes paired-end FASTQ files or a BAM/CRAM from whole-genome sequencing and produces a structured BRCA1/BRCA2 report on GRCh38. It combines BWA-MEM, GATK HaplotypeCaller or DeepVariant, Manta, CNVkit with per-exon depth ratios, Ensembl VEP with MANE Select transcripts, ClinVar and mosdepth, and lists automated hints on single ACMG/AMP criteria following the ClinGen ENIGMA specification without assigning a classification. We measured performance on four kinds of data: Genome in a Bottle truth sets ({snv_k} of {snv_n} SNVs and {ind_k} of {ind_n} indels), ten 1000 Genomes carriers of pathogenic variants ({c['detected']} of {c['total']} detected), {small_total} small and {n_large} large variants spiked into real reads, and real Alu insertions and deletions in 1000 Genomes samples. Real Alu insertions were called in only {alu_k} of {alu_n} carriers, but an insertion signature from clipped read ends, added for this reason, was present in {alu_sig} of {alu_n}. Manta reported all {n_large} spiked large events, whereas single-sample CNVkit segmentation reported {cnv_after} of {n_large} after a correction made during this work ({cnv_before} before). The software is for research use; results require confirmation by a clinically validated method.</p>
 <p><strong>Availability.</strong> Source code, test data, validation scripts and results are available under the MIT licence at https://github.com/pjlabsdev/brca12-wgs.</p>
 </div>
 <div class="highlights"><h2>Highlights</h2><ul>
 <li>One command from WGS reads to a BRCA1/BRCA2 report with small variants, structural variants, copy number and exon coverage on GRCh38.</li>
 <li>{c['detected']} of {c['total']} real carriers of pathogenic variants from the 1000 Genomes Project were detected with the correct genotype.</li>
 <li>{small_found} of {small_total} spiked SNVs and indels up to 40 bp and {manta} of {n_large} spiked deletions, duplications and an Alu insertion were reported.</li>
+<li>Real Alu insertions were called in {alu_k} of {alu_n} carriers; a read-end signature added for this reason was present in {alu_sig} of {alu_n} and in {alu_ctrl_sig} of {alu_ctrl} non-carrier evaluations.</li>
 <li>The validation exposed and fixed three defects, including missed copy-number segments.</li>
 <li>Research use only. No classification is assigned.</li>
 </ul></div>
@@ -576,7 +585,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <p>The input check reads the FASTA index and accepts the reference only if chr13 and chr17 have the GRCh38 lengths; GRCh37 is rejected with an explicit message. Gene loci are fixed to chr17:43,044,295–43,170,327 (<i>BRCA1</i>) and chr13:32,315,077–32,400,268 (<i>BRCA2</i>). Exons are taken from the MANE Select transcripts NM_007294.4 (23 exons) and NM_000059.4 (27 exons). For <i>BRCA1</i> the report also shows the legacy exon numbering, which omits exon 4.</p>
 
 <h3>2.2 Variant calling</h3>
-<p>Small variants are called with GATK HaplotypeCaller restricted to the padded gene regions, or optionally with DeepVariant. Manta is run with call regions extending 1 Mb around both genes, so that rearrangements with one breakpoint inside a gene are retained, including breakend (BND) pairs. Two breakends a few bases apart whose mates lie elsewhere are flagged as a possible insertion of foreign sequence such as a mobile element. For copy number, CNVkit is run in WGS mode with 1 kb bins over chr13 and chr17 and a flat reference; bins with almost no coverage are excluded from segmentation (Section 3.3). Segments overlapping a gene with an estimated copy number different from two are reported as candidates with the affected exons. Independently, the mean depth of each exon is divided by the median depth of 100 kb windows on the same chromosome; ratios below 0.65 or above 1.35 are listed as dosage hints. Because only a single sample is available, both are labelled as candidates that require MLPA or another validated method.</p>
+<p>Small variants are called with GATK HaplotypeCaller restricted to the padded gene regions, or optionally with DeepVariant. Manta is run with call regions extending 1 Mb around both genes, so that rearrangements with one breakpoint inside a gene are retained, including breakend (BND) pairs. Two breakends a few bases apart whose mates lie elsewhere are flagged as a possible insertion of foreign sequence such as a mobile element. In addition, soft-clipped read ends inside the genes are searched for the signature of an insertion: reads from the left clipped at one position, reads from the right clipped at a position up to 30 bp before it (the target-site duplication), at least three clipped reads on each side and a clipped fraction of at least 15 %. Such a pair is listed as an insertion signature when the clipped sequence contains k-mers of the Alu consensus; it is a hint from the reads, not a variant call. For copy number, CNVkit is run in WGS mode with 1 kb bins over chr13 and chr17 and a flat reference; bins with almost no coverage are excluded from segmentation (Section 3.3). Segments overlapping a gene with an estimated copy number different from two are reported as candidates with the affected exons. Independently, the mean depth of each exon is divided by the median depth of 100 kb windows on the same chromosome; ratios below 0.65 or above 1.35 are listed as dosage hints. Because only a single sample is available, both are labelled as candidates that require MLPA or another validated method.</p>
 
 <h3>2.3 Annotation and ACMG/AMP hints</h3>
 <p>VEP annotates consequences, HGVS notation and exon or intron number on the MANE Select transcript. ClinVar significance, review status and condition come from a user-supplied ClinVar VCF, so that the ClinVar version is under the user's control. The pipeline then evaluates single ACMG/AMP criteria [10] following version 1.2 of the ClinGen ENIGMA BRCA1/BRCA2 specification [15]: BA1, BS1 and BS1_Supporting from gnomAD non-cancer filtering allele frequencies in non-founder populations, PM2_Supporting for substitutions absent from both gnomAD data sets, PP3 and BP4 from BayesDel and SpliceAI inside the defined functional domains, BP1_Strong outside them and BP7 for silent and deep intronic variants. The gnomAD, SpliceAI and BayesDel files are supplied by the user; without them the corresponding hints are reported as open or as approximations. Truncating and canonical splice variants are reported as PVS1 candidates, restricted in the last exon [16]; the exon-specific PVS1 decision tree is not yet applied. No combination rule is used and no classification is assigned; the JSON field <code>clinicalClassification</code> is always null.</p>
@@ -624,10 +633,10 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 
 <div class="cols">
 <h3>3.4 Real structural variants</h3>
-<p>The phased SNV, indel and SV panel of the 1000 Genomes Project [20] contains two Alu insertions in <i>BRCA2</i> and two deletions in <i>BRCA1</i>, all intronic or otherwise not disease-causing. They allow the same kind of event to be tested in real reads (Table 3). Carriers and six samples that are homozygous reference at all four sites were processed as in Section 3.2, with one addition: mates that the original alignment had placed elsewhere in the genome were retrieved as well, because without them Manta received no discordant pairs and reported only {{SV_NOMATES}}. The panel calls are short-read calls and serve as a comparison, not as truth.</p>
+<p>The phased SNV, indel and SV panel of the 1000 Genomes Project [20] contains two Alu insertions in <i>BRCA2</i> and two deletions in <i>BRCA1</i>, all intronic or otherwise not disease-causing. They allow the same kind of event to be tested in real reads (Table 3). Carriers and six samples that are homozygous reference at all four sites were processed as in Section 3.2, with one addition: mates that the original alignment had placed elsewhere in the genome were retrieved as well, because without them Manta received no discordant pairs and reported only {{SV_NOMATES}}. At the two Alu sites the panel genotypes were looked up for all 33 samples of Sections 3.2 and 3.4, which added three heterozygous carriers of the common insertion; the ten samples of Section 3.2 were evaluated there without retrieved mates. The panel calls are statistically phased short-read calls and serve as a comparison, not as truth.</p>
 
-<table><caption><strong>Table 3.</strong> Real structural variants in 1000 Genomes samples. Reported: by Manta or the small-variant caller at the site.</caption>
-<tr><th>Gene</th><th>Event</th><th>Position</th><th>Panel caller</th><th>Carriers</th><th>Controls</th></tr>
+<table><caption><strong>Table 3.</strong> Real structural variants in 1000 Genomes samples. Called: by Manta or the small-variant caller at the site. Signature: insertion signature from clipped read ends. Controls: samples with panel genotype 0|0 and any call or signature at the site.</caption>
+<tr><th>Gene</th><th>Event</th><th>Position</th><th>Panel caller</th><th>Called</th><th>Signature</th><th>Controls</th></tr>
 {sv_rows}
 </table>
 <p>{{SV_TEXT}}</p>
@@ -638,6 +647,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <li>Spiked variants are synthetic. They test whether a variant that is present in the reads is called and reported, not how real pathogenic rearrangements look. The spiked Alu element was copied from the reduced reference, which makes its detection easier than a real mobile element insertion.</li>
 <li>No Ensembl VEP cache was available on the validation machine, so annotation and the ACMG/AMP hints were not part of these runs. In Sections 3.1, 3.2 and 3.4 CNVkit was replaced by a neutral stand-in.</li>
 <li>Numbers are small. Ten carriers and twelve large events give wide confidence intervals (Figure 3).</li>
+<li>The read-end signature was written after the missed Alu insertions had been inspected, so its result on these carriers is not an independent test.</li>
 <li>No real sample with a pathogenic exon deletion, duplication or Alu insertion was tested.</li>
 </ul>
 
@@ -658,7 +668,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <ul>
 <li>Short-read WGS has limited sensitivity for mosaic variants below about 15 % allele fraction, for complex rearrangements and in regions with pseudogene homology such as <i>BRCA1</i> exons 1–2.</li>
 <li>Copy-number results come from a single sample with a flat reference and are candidates only. In the spike-in experiment CNVkit alone missed every event below {cnv_min}; detection of exon-level events currently rests on Manta, which needs breakpoints inside mappable sequence.</li>
-<li>Mobile element insertions are reported only as breakends or as insertions without a dedicated caller, and were missed in some real carriers (Section 3.4).</li>
+<li>Mobile element insertions have no dedicated caller. Manta missed real Alu insertions in several carriers; the read-end signature recognises Alu sequence only, was developed on the same two insertion sites it is reported for here, and has not been tested on an independent set or on L1 and SVA elements (Section 3.4).</li>
 <li>The ACMG/AMP hints cover a subset of criteria. The PVS1 decision tree, functional (PS3/BS3), segregation (PP1), case-control (PS4) and same-codon (PS1/PM5) evidence are not evaluated.</li>
 <li>The pipeline has not been validated for clinical use.</li>
 </ul>
@@ -703,21 +713,40 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 """
 
 
+def missed_text(d):
+    """Carriers according to the panel without a read-end signature: say what the reads show."""
+    missed = [r for r in d.sv["rows"] if r["type"] == "ALU" and r["panelGenotype"] != "0|0" and not r["readEndSignal"]]
+    if not missed:
+        return ""
+    counts = ", ".join(f"{r['readsAtSite']['clippedAtSite']} of {r['readsAtSite']['reads']} reads in {r['sample']}" for r in missed)
+    zero = [r for r in d.sv["rows"] if r["type"] == "ALU" and r["panelGenotype"] == "0|0"]
+    top = max(r["readsAtSite"]["clippedAtSite"] for r in zero)
+    return (f"The {len(missed)} carriers without a signature are listed as heterozygous in the panel, but only few reads are clipped at "
+            f"the site ({counts}), below the threshold of three per side and far from the half expected for a heterozygous insertion; "
+            f"samples with panel genotype 0|0 had at most {top} such reads. Whether the panel genotype or the reads are right "
+            "cannot be decided here.")
+
+
 def sv_text(d):
     """Sentences of Section 3.4 that depend on the outcome."""
     big, small = d.sv_site("HGSV_216998"), d.sv_site("HGSV_216996")
     alu_c, alu_r = d.sv_site("HGSV_181048"), d.sv_site("HGSV_181052")
-    controls_hit = sum(s["controlsReported"] for s in d.sv["bySite"].values())
+    controls_hit = sum(s["controlsReported"] + s["controlsWithReadEndSignal"] for s in d.sv["bySite"].values())
     rows = [r for r in d.sv["rows"] if r["site"] == "HGSV_216998" and r["manta"]]
     shift = sorted({m.get("startDifference") for r in rows for m in r["manta"] if m.get("startDifference") is not None})
     parts = [f"The 1,081 bp deletion was reported by Manta in {big['carriersReported']} of {big['carriers']} carriers"
              + (", with the genotype of the panel including the homozygous carrier" if big["carriersReported"] == big["carriers"] else "")
              + (f"; its start lies {abs(shift[0])} bp from the panel coordinate, whose breakpoints are not base-exact" if shift else "") + ".",
              f"The 271 bp deletion was reported in {small['carriersReported']} of {small['carriers']} carriers.",
-             f"The Alu insertions were reported in {alu_c['carriersReported']} of {alu_c['carriers']} carriers of the common and "
-             f"{alu_r['carriersReported']} of {alu_r['carriers']} carriers of the rare insertion.",
-             ("No control sample had a call at any of the four sites." if controls_hit == 0 else
-              f"{controls_hit} control calls were made at the four sites.")]
+             f"The Alu insertions were called in {alu_c['carriersReported']} of {alu_c['carriers']} carriers of the common and "
+             f"{alu_r['carriersReported']} of {alu_r['carriers']} carriers of the rare insertion, by Manta as insertions of about 320 bp "
+             "or by the small-variant caller as a partial insertion.",
+             f"The read-end signature was present in {alu_c['carriersWithReadEndSignal']} of {alu_c['carriers']} and "
+             f"{alu_r['carriersWithReadEndSignal']} of {alu_r['carriers']} carriers, with clipped fractions near one half in heterozygous "
+             "and above 0.85 in homozygous carriers according to the panel.",
+             missed_text(d),
+             ("No sample with panel genotype 0|0 had a call or signature at any of the four sites." if controls_hit == 0 else
+              f"{controls_hit} calls or signatures were made in samples with panel genotype 0|0.")]
     return " ".join(parts)
 
 

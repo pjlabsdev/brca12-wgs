@@ -125,8 +125,10 @@ are noted.
 ## Limitations
 
 - Single sample: CNVs are candidates only (no cohort for GATK gCNV); confirm by MLPA.
-- Mosaics below ~15 %, Alu insertions (BRCA2 exon 3) and complex rearrangements are not reliably
-  detected by short-read WGS.
+- Mosaics below ~15 % and complex rearrangements are not reliably detected by short-read WGS.
+- Mobile element insertions have no dedicated caller. Manta missed real Alu insertions in several
+  1000 Genomes carriers; the read-end signature recognises Alu sequence only and gives hints, not
+  calls (see `validation/pathogenic/README.md`).
 - DeepVariant on macOS is only available via Docker; the default is GATK HaplotypeCaller.
 
 ## Tests
