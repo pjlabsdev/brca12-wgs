@@ -44,7 +44,8 @@ def sections(result, lang="en"):
     cnv_rows = [[c["gene"], c["type"], f"{c['chrom']}:{c['start']}-{c['end']}", c["copyNumber"], c["log2"],
                  ", ".join(tr(e, lang) for e in c["affectedExons"]), _join(c["flags"], lang)]
                 for c in result["cnvs"]]
-    cnv_rows += [[d["gene"], d["type"], tr(d["exon"], lang), None, d["ratio"], tr(d["exon"], lang), d["note"]]
+    cnv_rows += [[d["gene"], d["type"], tr(d["exon"], lang), None, d["ratio"], tr(d["exon"], lang),
+                  _join([d["note"]] + d.get("flags", []), lang)]
                  for d in result["exonDosageHints"]]
     out.append((ui("cnv_title", lang), _table(ui("cnv_headers", lang), cnv_rows, lang), ui("no_entries", lang)))
     sv_rows = [[s["gene"], s["type"], f"{s['chrom']}:{s['pos']}" + (f"-{s['end']}" if s["end"] else ""),

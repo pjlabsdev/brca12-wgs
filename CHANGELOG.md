@@ -25,6 +25,13 @@
 - Manta insertions whose inserted sequence carries an Alu signature, and pairs of breakends at the
   same site, are flagged as possible mobile element insertions.
 - `--bam` input whose file name equals `<sample>.bam` no longer fails in the CNVkit step.
+- PVS1 and PM5_PTC from the ENIGMA decision trees (Table 4) per exon, splice site and initiation
+  codon instead of a generic candidate; PS3/BS3 from calibrated functional assays (Table 9); PP4/BP5
+  from published combined likelihood ratios. Tables bundled in `assets/enigma` with source and
+  checksums (`bin/brca12_make_enigma.py`).
+- Exon deletions and duplications (CNV candidates, exon dosage hints) show the Table 4 code.
+- Conda environments could not be solved: CNVkit 0.9.11 needs Python 3.10 (was 3.11), and the Manta
+  environment no longer pins htslib (conflicts with Python 2.7).
 
 ## 1.0.2 (2026-11-13)
 

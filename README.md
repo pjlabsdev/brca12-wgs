@@ -97,7 +97,10 @@ significance and review status (stars) are shown separately.
 | PP3 (splicing) | SpliceAI ≥ 0.2 for silent, missense, in-frame and intronic variants outside the ±1,2 sites | `--spliceai_vcf` |
 | BP1_Strong | silent, missense or in-frame outside the functional domains and SpliceAI ≤ 0.1 | `--spliceai_vcf` |
 | BP4 / BP7 | silent inside a domain, or intronic outside ±1,2, with SpliceAI ≤ 0.1; BP7 for silent in a domain and for intronic at or beyond +7/−21 | `--spliceai_vcf` |
-| PVS1 | candidate only (stop, frameshift, canonical splice site, start loss), marked as restricted in the last exon | VEP |
+| PVS1, PM5_PTC | ENIGMA decision trees, Table 4: strength per exon for termination codons (including the NMD boundaries), per splice-site substitution (±1,2) and for the initiation codon; a candidate hint only where no row applies (e.g. indels at a splice site) | bundled `assets/enigma/pvs1.tsv` |
+| PS3 / BS3 | calibrated functional assays, Table 9 (4,729 variants) | bundled `assets/enigma/functional.tsv` |
+| PP4 / BP5 | published combined likelihood ratios (multifactorial analysis) | bundled `assets/enigma/multifactorial.tsv` |
+| exon DEL / DUP | Table 4 code next to CNV candidates and exon dosage hints (tandem status unknown) | bundled `assets/enigma/pvs1.tsv` |
 
 Functional domains: BRCA1 RING 2-101, coiled-coil 1391-1424, BRCT 1650-1857; BRCA2 PALB2 binding
 10-40, DNA binding 2481-3186 (amino acids).
@@ -109,8 +112,12 @@ chrom, pos, ref, alt, BayesDel no-AF score. Without the gnomAD files the frequen
 to the highest VEP population frequency and are labelled as approximations. Without SpliceAI the
 predictor criteria are reported as open.
 
-Not implemented: the PVS1 flowchart with exon-specific weights, PM5_PTC, PS1, functional evidence
-(PS3/BS3) and clinical evidence. The gnomAD read-depth conditions (at least 20x for BA1/BS1, 25x
+The bundled tables come from the [ENIGMA track hub](https://hgdownload.soe.ucsc.edu/hubs/enigma/enigma.html)
+(specifications v1.2, ClinGen data, research use only) and are rebuilt with
+`bin/brca12_make_enigma.py`; `assets/enigma/SOURCE.json` holds URLs, row counts and checksums. Check
+the version against the ClinGen CSpec registry before use.
+
+Not implemented: PS1, PM3, BS2, BS4 and RNA evidence of the sample itself. The gnomAD read-depth conditions (at least 20x for BA1/BS1, 25x
 for PM2_Supporting) are not checked; each hint says so. Known exceptions such as BRCA2 p.Lys3326Ter
 are noted.
 

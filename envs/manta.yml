@@ -1,4 +1,5 @@
-# Manta 1.6 requires Python 2.7, therefore it runs in its own environment.
+# Manta 1.6 requires Python 2.7, therefore it runs in its own environment. No htslib pin here:
+# the Python 2.7 builds need an older zlib/openssl than htslib 1.21 allows.
 name: genome-brca12-manta
 channels:
   - conda-forge
@@ -6,4 +7,3 @@ channels:
 dependencies:
   - python=2.7
   - manta=1.6.0
-  - htslib=1.21

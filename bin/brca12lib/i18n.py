@@ -81,6 +81,7 @@ PATTERNS = [
     (re.compile(r"^(.+) % der Reads mit MAPQ < 20 \(Pseudogen/Repeat\)$"), r"\1% of reads with MAPQ < 20 (pseudogene/repeat)"),
     (re.compile(r"^liegt in unsicher abgedecktem Bereich (.+)$"), r"located in uncertain region \1"),
     (re.compile(r"^Exon (\d+) \(Legacy (\d+)\)$"), r"Exon \1 (legacy \2)"),
+    (re.compile(r"^ENIGMA Tabelle 4 \(falls bestätigt\): (.+)$"), r"ENIGMA Table 4 (if confirmed): \1"),
 ]
 
 
