@@ -9,6 +9,7 @@ import argparse
 import json
 import math
 import os
+import shutil
 import subprocess
 import sys
 
@@ -73,6 +74,7 @@ def evaluate(args, label, regions, outdir):
     bed = os.path.join(outdir, f"{label}.eval.bed")
     bases = write_bed(bed, regions)
     run = os.path.join(outdir, f"vcfeval_{label}")
+    shutil.rmtree(run, ignore_errors=True)        # vcfeval refuses an existing output directory
     subprocess.run(["rtg", "vcfeval", "-b", args.truth, "-c", args.calls, "-t", args.sdf,
                     "-e", bed, "-o", run, "--threads", str(args.threads)],
                    check=True, capture_output=True, text=True)

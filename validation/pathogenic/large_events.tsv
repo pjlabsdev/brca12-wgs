@@ -1,0 +1,13 @@
+#sample	gene	kind	chrom	start	end	size	note
+SPIKE_L1	BRCA1	LDEL	chr17	43048950	43049459	510	deletion of exon 21 (legacy exon 22), modelled on the 510 bp founder deletion; synthetic breakpoints
+SPIKE_L1	BRCA2	ALU	chr13	32319165	32319165	327	Alu insertion in exon 3 between c.156 and c.157, modelled on c.156_157insAlu
+SPIKE_L2	BRCA1	LDEL	chr17	43080500	43084334	3835	deletion of exon 12 (legacy exon 13), modelled on the 3.8 kb founder deletion; synthetic breakpoints
+SPIKE_L2	BRCA2	LDEL	chr13	32352000	32360499	8500	deletion of exons 14 to 16
+SPIKE_L3	BRCA1	LDUP	chr17	43079800	43085799	6000	tandem duplication of exon 12 (legacy exon 13), modelled on the 6 kb founder duplication; synthetic breakpoints
+SPIKE_L3	BRCA2	LDEL	chr13	32376000	32377499	1500	deletion of exon 21
+SPIKE_L4	BRCA1	LDEL	chr17	43120000	43130999	11000	deletion of exons 1 and 2 including the promoter
+SPIKE_L4	BRCA2	LDEL	chr13	32338000	32338119	120	120 bp deletion inside exon 11
+SPIKE_L5	BRCA1	LDEL	chr17	43040000	43174999	135000	deletion of the whole gene
+SPIKE_L5	BRCA2	LDUP	chr13	32369000	32373999	5000	tandem duplication of exons 19 and 20
+SPIKE_L6	BRCA1	LDEL	chr17	43093000	43093299	300	300 bp deletion inside exon 10 (legacy exon 11)
+SPIKE_L6	BRCA2	LDEL	chr13	32310000	32404999	95000	deletion of the whole gene

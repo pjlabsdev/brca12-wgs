@@ -215,8 +215,11 @@ process CALL_CNV_CNVKIT {
     ${params.cnvkit} batch ${bam} --method wgs --normal --fasta ${reference} \\
       --targets wgs_regions.bed --access wgs_regions.bed --target-avg-size 1000 \\
       --output-reference flat_reference.cnn --output-dir cnvkit -p ${task.cpus}
-    mv cnvkit/${bam.baseName}.call.cns cnvkit/${params.sample}.call.cns
-    mv cnvkit/${bam.baseName}.cnr cnvkit/${params.sample}.cnr
+    # CNVkit names its output after the BAM; rename unless the BAM is already called like the sample.
+    if [ "${bam.baseName}" != "${params.sample}" ]; then
+      mv cnvkit/${bam.baseName}.call.cns cnvkit/${params.sample}.call.cns
+      mv cnvkit/${bam.baseName}.cnr cnvkit/${params.sample}.cnr
+    fi
     cp .command.sh cnv.command.sh
     """
 }
