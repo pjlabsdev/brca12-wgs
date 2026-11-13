@@ -202,10 +202,12 @@ process CALL_CNV_CNVKIT {
     // would need a trained cohort model.
     """
     set -euo pipefail
-    ${params.python} ${projectDir}/bin/brca12_prepare.py --cnv-targets ${reference_check} --out-cnv-targets cnv_targets.bed
     ${params.cnvkit} access ${reference} -o access.bed
+    ${params.python} ${projectDir}/bin/brca12_prepare.py --cnv-targets ${reference_check} \\
+      --cnv-access access.bed --out-cnv-targets wgs_regions.bed
+    # In WGS mode CNVkit requires the same BED for --targets and --access.
     ${params.cnvkit} batch ${bam} --method wgs --normal --fasta ${reference} \\
-      --targets cnv_targets.bed --access access.bed --target-avg-size 1000 \\
+      --targets wgs_regions.bed --access wgs_regions.bed --target-avg-size 1000 \\
       --output-reference flat_reference.cnn --output-dir cnvkit -p ${task.cpus}
     mv cnvkit/${bam.baseName}.call.cns cnvkit/${params.sample}.call.cns
     mv cnvkit/${bam.baseName}.cnr cnvkit/${params.sample}.cnr

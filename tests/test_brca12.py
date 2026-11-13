@@ -14,7 +14,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BIN = os.path.join(ROOT, "bin")
 sys.path.insert(0, BIN)
 
-from brca12lib import variants  # noqa: E402
+from brca12lib import structural, variants  # noqa: E402
+from brca12lib.vcf import genotype_label  # noqa: E402
 
 CSQ_FIELDS = ("Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|"
               "VARIANT_CLASS|CANONICAL|MANE_SELECT|PICK|MAX_AF|gnomADe_AF|gnomADg_AF|"
@@ -197,3 +198,33 @@ class PipelineScriptsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReviewFixesTest(unittest.TestCase):
+    def test_partial_genotypes_are_undetermined(self):
+        for gt in ("0/.", "./1", ".|1", "1/."):
+            self.assertEqual(genotype_label(gt), "nicht bestimmt", gt)
+        self.assertEqual(genotype_label("0/1"), "heterozygot")
+        self.assertEqual(genotype_label("1/2"), "compound/multiallelisch")
+
+    def test_manta_breakend_pair_reported_once_from_gene_end(self):
+        d = tempfile.mkdtemp()
+        header = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS\n"
+        rows = ("chr17\t43100000\tMantaBND:1:0\tA\tA]chr2:5000]\t100\tPASS\tSVTYPE=BND;MATEID=MantaBND:1:1\tGT:PR:SR\t0/1:20,5:20,4\n"
+                "chr2\t5000\tMantaBND:1:1\tC\tC]chr17:43100000]\t100\tPASS\tSVTYPE=BND;MATEID=MantaBND:1:0\tGT:PR:SR\t0/1:20,5:20,4\n"
+                "chr17\t43050000\tMantaBND:2:0\tA\tA[chr17:43060000[\t100\tPASS\tSVTYPE=BND;MATEID=MantaBND:2:1\tGT:PR:SR\t0/1:20,5:20,4\n"
+                "chr17\t43060000\tMantaBND:2:1\tA\t]chr17:43050000]A\t100\tPASS\tSVTYPE=BND;MATEID=MantaBND:2:0\tGT:PR:SR\t0/1:20,5:20,4\n")
+        path = write(f"{d}/sv.vcf", header + rows)
+        regions = [("chr17", 43044294, 43170327, "BRCA1"), ("chr13", 32315076, 32400268, "BRCA2")]
+        svs = structural.structural_variants(path, regions, [])
+        self.assertEqual([(s["id"], s["chrom"]) for s in svs], [("MantaBND:1:0", "chr17"), ("MantaBND:2:0", "chr17")])
+
+    def test_cnv_targets_equal_access_on_brca_chromosomes(self):
+        d = tempfile.mkdtemp()
+        check = write(f"{d}/check.json", json.dumps({"chromLengths": {"chr13": 114364328, "chr17": 83257441}}))
+        access = write(f"{d}/access.bed", "chr1\t0\t100\nchr13\t10\t200\nchr17\t5\t50\n")
+        r = subprocess.run([sys.executable, f"{BIN}/brca12_prepare.py", "--cnv-targets", check,
+                            "--cnv-access", access, "--out-cnv-targets", f"{d}/wgs.bed"], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        chroms = [line.split("\t")[0] for line in open(f"{d}/wgs.bed")]
+        self.assertEqual(chroms, ["chr13", "chr17"])

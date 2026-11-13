@@ -148,10 +148,22 @@ def prepare(args):
         json.dump(report, handle, indent=2, ensure_ascii=False)
 
 
-def cnv_targets(check_path, out_path):
+def cnv_targets(check_path, out_path, access_path=None):
+    """CNVkit WGS mode needs one BED for --targets and --access: the accessible part of chr13/chr17."""
     with open(check_path) as handle:
         check = json.load(handle)
-    rows = [(c, 0, length, "chrom") for c, length in check["chromLengths"].items()]
+    lengths = check["chromLengths"]
+    if not access_path:
+        write_bed(out_path, [(c, 0, length, "chrom") for c, length in lengths.items()])
+        return
+    rows = []
+    with open(access_path) as handle:
+        for line in handle:
+            fields = line.rstrip("\n").split("\t")
+            if len(fields) >= 3 and fields[0] in lengths:
+                rows.append((fields[0], int(fields[1]), int(fields[2]), "access"))
+    if not rows:
+        raise InputError("CNVkit access BED has no intervals on chr13/chr17")
     write_bed(out_path, rows)
 
 
@@ -183,12 +195,13 @@ def main(argv=None):
     parser.add_argument("--out-exons")
     parser.add_argument("--cnv-targets")
     parser.add_argument("--out-cnv-targets")
+    parser.add_argument("--cnv-access")
     parser.add_argument("--chrom-median", nargs="+")
     parser.add_argument("--out-chrom-median")
     args = parser.parse_args(argv)
     try:
         if args.cnv_targets:
-            cnv_targets(args.cnv_targets, args.out_cnv_targets)
+            cnv_targets(args.cnv_targets, args.out_cnv_targets, args.cnv_access)
         elif args.chrom_median:
             chrom_median(args.chrom_median, args.out_chrom_median)
         else:
