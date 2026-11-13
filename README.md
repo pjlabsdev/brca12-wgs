@@ -1,5 +1,7 @@
 # brca12-wgs
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24173638.svg)](https://doi.org/10.5281/zenodo.24173638)
+
 **BRCA1/BRCA2 germline analysis from whole-genome sequencing, GRCh38 only.**
 One Nextflow pipeline from FASTQ (or an existing BAM/CRAM) to a readable report: SNVs and small
 indels, copy-number changes, structural variants, ClinVar, ACMG/AMP hints and exon-level coverage
@@ -136,6 +138,12 @@ BRCA1/BRCA2-Keimbahnauswertung aus WGS, nur GRCh38: BWA-MEM, samtools, GATK Hapl
 Manta, CNVkit, VEP mit ClinVar und mosdepth je Exon, Bericht als HTML/Markdown/JSON
 (`--report_lang de` für Deutsch). Nur für Forschung (RUO). Ergebnisse dürfen nicht ohne klinisch
 validierte Bestätigung medizinisch interpretiert werden.
+
+## Citation
+
+Jungwirth P. brca12-wgs: BRCA1/BRCA2 germline analysis from whole-genome sequencing (GRCh38),
+version 1.0.1. Zenodo, 2026. https://doi.org/10.5281/zenodo.24173638
+(see also [CITATION.cff](CITATION.cff)).
 
 ## Licence
 
