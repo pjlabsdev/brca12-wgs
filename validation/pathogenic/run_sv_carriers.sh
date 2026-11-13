@@ -24,7 +24,8 @@ S3=https://1000genomes.s3.amazonaws.com/1000G_2504_high_coverage
 REG="chr17:43034295-43180327 chr13:32305077-32410268"
 mkdir -p "$KG" && cd "$KG"
 
-grep -v '^#' "$TABLE" | while IFS=$'\t' read -r s run prefix _; do
+# The samples of run_carriers.sh are run as well: at the Alu sites all samples are evaluated.
+grep -hv '^#' "$TABLE" "$HERE/carriers_1000g.tsv" | while IFS=$'\t' read -r s run prefix _; do
   out="$WORK/sv_carriers$SUFFIX/$s"
   [[ -s $out/brca12_results.json ]] && continue
   if [[ ! -s ${s}_R1.fastq.gz ]]; then
@@ -38,8 +39,11 @@ grep -v '^#' "$TABLE" | while IFS=$'\t' read -r s run prefix _; do
       samtools view "$s.region.bam" | awk -v OFS='\t' '{c=($7=="="?$3:$7); out=($7!="=") || ($3=="chr13" && ($8<32305077 || $8>32410268)) || ($3=="chr17" && ($8<43034295 || $8>43180327)); if (out && $7!="*") {print c,$8-1,$8 > "'"$s"'.mates.bed"; print $1 > "'"$s"'.names.txt"}}'
       sort -k1,1 -k2,2n -u "$s.mates.bed" -o "$s.mates.bed"
       # keep only reads whose names are wanted: some mate positions lie in very deep repeats
-      timeout "${MATES_TIMEOUT:-3600}" samtools view -@2 -b -M -L "$s.mates.bed" -N "$s.names.txt" -T "$FULLREF" \
-        -o "$s.mates.bam" "$S3/$prefix/$run/$s.final.cram"
+      for attempt in 1 2 3 4; do   # remote reads of CRAM and reference are sometimes reset
+        timeout "${MATES_TIMEOUT:-3600}" samtools view -@2 -b -M -L "$s.mates.bed" -N "$s.names.txt" -T "$FULLREF" \
+          -o "$s.mates.bam" "$S3/$prefix/$run/$s.final.cram" && break
+        [[ $attempt -lt 4 ]] || exit 1
+      done
       samtools cat -o "$s.both.bam" "$s.region.bam" "$s.mates.bam" && mv "$s.both.bam" "$s.region.bam"
     fi
     samtools collate -@2 -u -O "$s.region.bam" | samtools fastq -@2 -1 "${s}_R1.fastq.gz" -2 "${s}_R2.fastq.gz" -0 /dev/null -s /dev/null -n -
@@ -51,8 +55,6 @@ grep -v '^#' "$TABLE" | while IFS=$'\t' read -r s run prefix _; do
      --threads "$THREADS" --outdir "$out" < /dev/null)
   rm -rf "$WORK/work_$s"
 done
-# At the Alu sites the samples of run_carriers.sh are evaluated too (panel genotypes for all samples).
-MORE=(); [[ -d $WORK/carriers ]] && MORE=(--more-workdir "$WORK/carriers")
 python3 "$HERE/sv_carriers_eval.py" --sites "$HERE/sv_sites_1000g.tsv" --carriers "$HERE/sv_carriers_1000g.tsv" \
-  --alu-genotypes "$HERE/alu_genotypes_1000g.tsv" "${MORE[@]}" \
+  --alu-genotypes "$HERE/alu_genotypes_1000g.tsv" --more-workdir "$WORK/sv_carriers$SUFFIX" \
   --workdir "$WORK/sv_carriers$SUFFIX" --out "$WORK/sv_carriers$SUFFIX/sv_carriers_summary"
