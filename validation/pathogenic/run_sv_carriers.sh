@@ -37,8 +37,9 @@ grep -v '^#' "$TABLE" | while IFS=$'\t' read -r s run prefix _; do
       # reference to decode other contigs; slow, several minutes per sample)
       samtools view "$s.region.bam" | awk -v OFS='\t' '{c=($7=="="?$3:$7); out=($7!="=") || ($3=="chr13" && ($8<32305077 || $8>32410268)) || ($3=="chr17" && ($8<43034295 || $8>43180327)); if (out && $7!="*") {print c,$8-1,$8 > "'"$s"'.mates.bed"; print $1 > "'"$s"'.names.txt"}}'
       sort -k1,1 -k2,2n -u "$s.mates.bed" -o "$s.mates.bed"
-      timeout 1500 samtools view -@2 -b -M -L "$s.mates.bed" -T "$FULLREF" -o "$s.matesall.bam" "$S3/$prefix/$run/$s.final.cram"
-      samtools view -b -N "$s.names.txt" -o "$s.mates.bam" "$s.matesall.bam" && rm -f "$s.matesall.bam"
+      # keep only reads whose names are wanted: some mate positions lie in very deep repeats
+      timeout "${MATES_TIMEOUT:-3600}" samtools view -@2 -b -M -L "$s.mates.bed" -N "$s.names.txt" -T "$FULLREF" \
+        -o "$s.mates.bam" "$S3/$prefix/$run/$s.final.cram"
       samtools cat -o "$s.both.bam" "$s.region.bam" "$s.mates.bam" && mv "$s.both.bam" "$s.region.bam"
     fi
     samtools collate -@2 -u -O "$s.region.bam" | samtools fastq -@2 -1 "${s}_R1.fastq.gz" -2 "${s}_R2.fastq.gz" -0 /dev/null -s /dev/null -n -
@@ -50,5 +51,8 @@ grep -v '^#' "$TABLE" | while IFS=$'\t' read -r s run prefix _; do
      --threads "$THREADS" --outdir "$out" < /dev/null)
   rm -rf "$WORK/work_$s"
 done
-python3 "$HERE/sv_carriers_eval.py" --sites "$HERE/sv_sites_1000g.tsv" --carriers "$TABLE" \
+# At the Alu sites the samples of run_carriers.sh are evaluated too (panel genotypes for all samples).
+MORE=(); [[ -d $WORK/carriers ]] && MORE=(--more-workdir "$WORK/carriers")
+python3 "$HERE/sv_carriers_eval.py" --sites "$HERE/sv_sites_1000g.tsv" --carriers "$HERE/sv_carriers_1000g.tsv" \
+  --alu-genotypes "$HERE/alu_genotypes_1000g.tsv" "${MORE[@]}" \
   --workdir "$WORK/sv_carriers$SUFFIX" --out "$WORK/sv_carriers$SUFFIX/sv_carriers_summary"
