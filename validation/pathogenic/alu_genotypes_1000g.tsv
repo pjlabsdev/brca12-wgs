@@ -1,0 +1,37 @@
+# Genotypes at the two Alu insertion sites in BRCA2 for every 1000 Genomes sample used in this validation.
+# Source: 1kGP_high_coverage_Illumina.chr13.filtered.SNV_INDEL_SV_phased_panel.vcf.gz (Byrska-Bishop et al. 2022). '.' = not looked up.
+# The panel genotypes are statistically phased calls; HGSV_181048 deviates from Hardy-Weinberg equilibrium in the panel.
+#sample	HGSV_181048	HGSV_181052
+HG01274	1|1	.
+HG01922	1|1	.
+HG02856	1|1	.
+HG00117	0|1	.
+HG00122	1|0	.
+HG00145	1|0	.
+HG00559	.	0|1
+HG02392	.	1|0
+HG02601	1|0	0|0
+HG02602	0|0	0|0
+HG01796	0|0	0|0
+HG02322	0|0	0|0
+HG00637	1|0	0|0
+HG01323	0|0	0|0
+HG01393	0|0	0|0
+HG01395	0|0	0|0
+HG01990	0|0	0|0
+HG00096	0|0	0|0
+HG01369	0|0	0|0
+HG02348	0|0	0|0
+HG03519	0|0	0|0
+NA18489	0|0	0|0
+NA19776	0|0	0|0
+HG02164	0|0	0|0
+HG03929	0|0	0|0
+HG00365	0|0	0|0
+NA19397	0|0	0|0
+HG02274	0|0	0|0
+NA19130	0|0	0|0
+NA19132	0|0	0|0
+HG01377	0|1	0|0
+HG00611	0|0	0|0
+HG00612	0|0	0|0

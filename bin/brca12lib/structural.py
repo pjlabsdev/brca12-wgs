@@ -1,4 +1,5 @@
 """CNV-Kandidaten (CNVkit) und strukturelle Varianten (Manta) in BRCA1/BRCA2."""
+import json
 import re
 
 from .vcf import VCF, to_int
@@ -140,4 +141,24 @@ def structural_variants(path, regions, exons):
         if any(b is not a and b["gene"] == a["gene"] and b["chrom"] == a["chrom"] and abs(b["pos"] - a["pos"]) <= 50
                for b in bnds):
             a["flags"].insert(0, "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)")
+    return results
+
+
+def insertion_signals(path, exons):
+    """Insertionssignaturen aus abgeschnittenen Leseenden (brca12_insertion_signals.py)."""
+    if not path:
+        return []
+    with open(path) as handle:
+        rows = json.load(handle)
+    results = []
+    for row in rows:
+        flags = []
+        if "Alu" in row.get("signature", []):
+            flags.append("abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion")
+        else:
+            flags.append("abgeschnittene Leseenden von beiden Seiten: mögliche Insertion")
+        flags.append("Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig")
+        results.append(dict(row, type="Insertionssignatur",
+                            affectedExons=_affected_exons(row["chrom"], row["pos"], row["end"], exons, row["gene"]),
+                            caller="brca12_insertion_signals (Leseenden)", flags=flags))
     return results
