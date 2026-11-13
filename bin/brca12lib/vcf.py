@@ -82,6 +82,8 @@ def genotype_label(gt):
     if not gt or gt in (".", "./.", ".|."):
         return "nicht bestimmt"
     alleles = re.split(r"[/|]", gt)
+    if "." in alleles:
+        return "nicht bestimmt"
     if all(a == "0" for a in alleles):
         return "homozygot Referenz"
     if len(set(alleles)) == 1:

@@ -74,6 +74,8 @@ _BND_MATE = re.compile(r"[\[\]]([^:\[\]]+):(\d+)[\[\]]")
 def structural_variants(path, regions, exons):
     vcf = VCF(path)
     results = []
+    ids = {record["id"] for record in vcf.records}
+    reported_bnd = set()
     for record in vcf.records:
         info = record["info"]
         svtype = str(info.get("SVTYPE", "SV"))
@@ -86,8 +88,19 @@ def structural_variants(path, regions, exons):
             if match:
                 mate_chrom, mate_pos = match.group(1), int(match.group(2))
         genes = set(_gene_for(chrom, pos - 1, end, regions))
-        if mate_chrom:
-            genes |= set(_gene_for(mate_chrom, mate_pos - 1, mate_pos, regions))
+        mate_id = str(info.get("MATEID", "")) or None
+        if svtype == "BND":
+            # Manta writes one BND record per junction end, linked by MATEID. Report each
+            # junction once, from its in-gene end; the outside end only stands in when its
+            # in-gene mate record is missing from the VCF.
+            if mate_id and mate_id in reported_bnd:
+                continue
+            if not genes and mate_chrom:
+                mate_genes = set(_gene_for(mate_chrom, mate_pos - 1, mate_pos, regions))
+                if not mate_genes or (mate_id and mate_id in ids):
+                    continue
+                genes = mate_genes
+            reported_bnd.add(record["id"])
         if not genes:
             continue
         sample = record["sample"]

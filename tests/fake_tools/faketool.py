@@ -51,7 +51,9 @@ elif name=="configManta.py":
     os.chmod(w,0o755)
 elif name=="cnvkit.py":
     if a[0]=="version": print("0.9.11"); sys.exit(0)
-    if a[0]=="access": touch(opt("-o")); sys.exit(0)
+    if a[0]=="access":
+        open(opt("-o"),"w").write("chr1\t0\t1000\nchr13\t10000\t114000000\nchr17\t60000\t83000000\n"); sys.exit(0)
+    if opt("--access") != opt("--targets"): sys.exit("cnvkit: WGS mode needs the same --targets and --access")
     d=opt("--output-dir"); os.makedirs(d,exist_ok=True); stem=os.path.basename(a[1])[:-4]
     open(f"{d}/{stem}.call.cns","w").write("chromosome\tstart\tend\tgene\tlog2\tcn\tdepth\tprobes\tweight\nchr17\t40000000\t46000000\t-\t0.0\t2\t30\t6000\t1\nchr13\t30000000\t35000000\t-\t0.01\t2\t30\t5000\t1\n")
     open(f"{d}/{stem}.cnr","w").write("chromosome\tstart\tend\tgene\tdepth\tlog2\tweight\nchr17\t43090000\t43091000\t-\t30\t0.0\t1\n")
