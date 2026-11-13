@@ -25,7 +25,7 @@ amplicon panels on hg19 and call SNVs/indels only. brca12-wgs is built for WGS o
 | CNVs | CNVkit + per-exon dosage | none |
 | Structural variants | Manta | none |
 | Annotation | Ensembl VEP, MANE Select, gnomAD, your ClinVar VCF | ANNOVAR (licence required) |
-| ACMG/AMP | ENIGMA-threshold hints, clearly not a classification | none |
+| ACMG/AMP | hints per ENIGMA v1.2 criterion, clearly not a classification | none |
 | Coverage | per exon at 10/20/30x, MAPQ-0 fraction, low-depth intervals | per amplicon |
 | Reproducibility | pinned conda envs, every command logged, tool versions in report | manual |
 | Output | HTML, Markdown and machine-readable JSON | Excel, Word |
@@ -85,11 +85,34 @@ generated from Ensembl with `bin/brca12_make_exons.py`.
 
 ## ACMG/AMP hints
 
-Automated pre-checks of single criteria using ClinGen ENIGMA BRCA1/2 VCEP thresholds: PVS1
-candidate (stop, frameshift, canonical splice site; restricted in the last exon), PM2_Supporting
-(absent from gnomAD), BA1 (> 0.1 %), BS1 (> 0.01 %), open PP3/BP4 for missense, splice warnings,
-BP4/BP7 candidates, and known exceptions such as BRCA2 p.Lys3326Ter. ClinVar significance and
-review status (stars) are shown separately. **No classification is assigned.**
+Automated pre-checks of single criteria following the ClinGen ENIGMA BRCA1/BRCA2 VCEP specifications
+v1.2 (Criteria Specification Registry GN092 and GN097). **No classification is assigned.** ClinVar
+significance and review status (stars) are shown separately.
+
+| Criterion | Rule as implemented | Needs |
+|---|---|---|
+| BA1 / BS1 / BS1_Supporting | filtering allele frequency above 0.1 % / above 0.01 % / above 0.002 % in a non-founder population of gnomAD non-cancer, exomes and genomes considered separately | `--gnomad_exomes_vcf`, `--gnomad_genomes_vcf` |
+| PM2_Supporting | absent from gnomAD non-cancer exomes and genomes; not for insertions, deletions or delins | both gnomAD files |
+| PP3 / BP4 (protein) | missense or in-frame inside a functional domain: BayesDel no-AF ≥ 0.28 (BRCA1) or ≥ 0.30 (BRCA2) for PP3; ≤ 0.15 or ≤ 0.18 together with SpliceAI ≤ 0.1 for BP4 | `--bayesdel_tsv`, `--spliceai_vcf` |
+| PP3 (splicing) | SpliceAI ≥ 0.2 for silent, missense, in-frame and intronic variants outside the ±1,2 sites | `--spliceai_vcf` |
+| BP1_Strong | silent, missense or in-frame outside the functional domains and SpliceAI ≤ 0.1 | `--spliceai_vcf` |
+| BP4 / BP7 | silent inside a domain, or intronic outside ±1,2, with SpliceAI ≤ 0.1; BP7 for silent in a domain and for intronic at or beyond +7/−21 | `--spliceai_vcf` |
+| PVS1 | candidate only (stop, frameshift, canonical splice site, start loss), marked as restricted in the last exon | VEP |
+
+Functional domains: BRCA1 RING 2-101, coiled-coil 1391-1424, BRCT 1650-1857; BRCA2 PALB2 binding
+10-40, DNA binding 2481-3186 (amino acids).
+
+The four evidence files are optional, bgzip-compressed and tabix-indexed, and you download them
+yourself: gnomAD is open; SpliceAI scores and BayesDel (for example from dbNSFP) are free for
+non-commercial research only and are not redistributed here. `--bayesdel_tsv` expects the columns
+chrom, pos, ref, alt, BayesDel no-AF score. Without the gnomAD files the frequency hints fall back
+to the highest VEP population frequency and are labelled as approximations. Without SpliceAI the
+predictor criteria are reported as open.
+
+Not implemented: the PVS1 flowchart with exon-specific weights, PM5_PTC, PS1, functional evidence
+(PS3/BS3) and clinical evidence. The gnomAD read-depth conditions (at least 20x for BA1/BS1, 25x
+for PM2_Supporting) are not checked; each hint says so. Known exceptions such as BRCA2 p.Lys3326Ter
+are noted.
 
 ## Reproducibility
 

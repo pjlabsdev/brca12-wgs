@@ -1,18 +1,14 @@
 """SNV/Indel-Aufbereitung: VEP-Konsequenz, ClinVar, ACMG/AMP-Hinweise und Qualitätsmarken.
 
-Die ACMG/AMP-Hinweise sind maschinelle Vorprüfungen einzelner Kriterien. Sie ergeben
+Die ACMG/AMP-Hinweise (brca12lib.enigma) sind maschinelle Vorprüfungen einzelner Kriterien. Sie ergeben
 bewusst KEINE Klassifikation (pathogen, VUS, benigne). Massgeblich sind die Spezifikationen
 des ClinGen ENIGMA BRCA1/BRCA2 Variant Curation Expert Panel und eine Bewertung in einem
 akkreditierten Labor.
 """
 import re
 
+from .enigma import acmg_hints
 from .vcf import VCF, genotype_label, to_float, to_int
-
-LOF_CONSEQUENCES = ("stop_gained", "frameshift_variant", "splice_acceptor_variant",
-                    "splice_donor_variant", "start_lost", "transcript_ablation")
-SPLICE_NEAR = ("splice_region_variant", "splice_donor_5th_base_variant",
-               "splice_donor_region_variant", "splice_polypyrimidine_tract_variant")
 
 CLINVAR_STARS = {
     "practice_guideline": 4,
@@ -22,10 +18,6 @@ CLINVAR_STARS = {
     "criteria_provided,_conflicting_interpretations": 1,
     "criteria_provided,_single_submitter": 1,
 }
-
-
-def hint(code, de, en, direction):
-    return {"code": code, "textDE": de, "textEN": en, "direction": direction}
 
 
 def pick_consequence(record, allele, gene):
@@ -47,63 +39,6 @@ def max_af(csq):
     values = [to_float(csq.get(k)) for k in ("MAX_AF", "gnomADe_AF", "gnomADg_AF")]
     values = [v for v in values if v is not None]
     return max(values) if values else None
-
-
-def is_last_exon(exon_field):
-    match = re.match(r"(\d+)(?:-\d+)?/(\d+)", exon_field or "")
-    return bool(match) and match.group(1) == match.group(2)
-
-
-def acmg_hints(gene, csq, af):
-    consequences = (csq.get("Consequence") or "").split("&")
-    hints = []
-    if any(c in LOF_CONSEQUENCES for c in consequences):
-        if is_last_exon(csq.get("EXON")):
-            hints.append(hint("PVS1 (eingeschränkt)",
-                              "Loss-of-Function-Konsequenz im letzten Exon: NMD-Escape möglich, PVS1-Stärke nach dem ENIGMA-Entscheidungsbaum prüfen.",
-                              "Loss-of-function consequence in the last exon: NMD escape possible, check PVS1 strength with the ENIGMA decision tree.",
-                              "pathogenic"))
-        else:
-            hints.append(hint("PVS1 (Kandidat)",
-                              "Vorzeitiger Stopp, Leserasterverschiebung oder kanonische Spleißstelle im MANE-Transkript. PVS1 nach ENIGMA-Spezifikation prüfen.",
-                              "Premature stop, frameshift or canonical splice site in the MANE transcript. Check PVS1 against the ENIGMA specification.",
-                              "pathogenic"))
-        if gene == "BRCA2" and "Lys3326Ter" in (csq.get("HGVSp") or ""):
-            hints.append(hint("Bekannte Ausnahme",
-                              "BRCA2 p.Lys3326Ter (c.9976A>T) gilt trotz Stoppcodon als benigne für hohes HBOC-Risiko.",
-                              "BRCA2 p.Lys3326Ter (c.9976A>T) is considered benign for high HBOC risk despite the stop codon.",
-                              "benign"))
-    if af is None or af == 0:
-        hints.append(hint("PM2_Supporting (Kandidat)",
-                          "In gnomAD nicht beobachtet.", "Not observed in gnomAD.", "pathogenic"))
-    elif af > 0.001:
-        hints.append(hint("BA1 (Kandidat)",
-                          f"Höchste gnomAD-Populationsfrequenz {af:.4g} liegt über 0,1 % (ENIGMA-Schwelle; Filterfrequenz prüfen).",
-                          f"Highest gnomAD population frequency {af:.4g} is above 0.1% (ENIGMA threshold; verify filtering allele frequency).",
-                          "benign"))
-    elif af > 0.0001:
-        hints.append(hint("BS1 (Kandidat)",
-                          f"Höchste gnomAD-Populationsfrequenz {af:.4g} liegt über 0,01 %.",
-                          f"Highest gnomAD population frequency {af:.4g} is above 0.01%.",
-                          "benign"))
-    if "missense_variant" in consequences:
-        hints.append(hint("PP3/BP4 offen",
-                          "Missense: nur mit kalibrierten Vorhersagen (BayesDel, SpliceAI) bewerten. SIFT/PolyPhen sind hier nur informativ.",
-                          "Missense: assess only with calibrated predictors (BayesDel, SpliceAI). SIFT/PolyPhen are informative only.",
-                          "neutral"))
-    if any(c in SPLICE_NEAR for c in consequences):
-        hints.append(hint("Spleißeffekt prüfen",
-                          "Nahe einer Spleißstelle: Spleißvorhersage (SpliceAI) und gegebenenfalls RNA-Analyse nötig.",
-                          "Near a splice site: splice prediction (SpliceAI) and possibly RNA analysis required.",
-                          "neutral"))
-    if consequences and set(consequences) <= {"synonymous_variant", "intron_variant", "3_prime_UTR_variant",
-                                              "5_prime_UTR_variant", "upstream_gene_variant",
-                                              "downstream_gene_variant"}:
-        hints.append(hint("BP4/BP7 (Kandidat)",
-                          "Keine Proteinänderung vorhergesagt; BP7/BP4 nur nach Ausschluss eines Spleißeffekts.",
-                          "No protein change predicted; BP7/BP4 only after excluding a splicing effect.",
-                          "benign"))
-    return hints
 
 
 def clinvar_entry(csq):
@@ -137,7 +72,7 @@ def quality_flags(record, depth, gq, fraction, genotype, low_exons, mq):
     return flags
 
 
-def small_variants(path, gene, low_exons=()):
+def small_variants(path, gene, low_exons=(), evidence=None):
     vcf = VCF(path)
     rows = []
     for record in vcf.records:
@@ -156,6 +91,8 @@ def small_variants(path, gene, low_exons=()):
                 continue
             csq = pick_consequence(record, alt, gene)
             af = max_af(csq)
+            found = evidence.for_variant(record["chrom"], record["pos"], record["ref"], alt, gene) if evidence else {}
+            gnomad = found.get("gnomad")
             rows.append({
                 "gene": gene, "chrom": record["chrom"], "pos": record["pos"],
                 "ref": record["ref"], "alt": alt,
@@ -170,8 +107,10 @@ def small_variants(path, gene, low_exons=()):
                 "hgvsc": csq.get("HGVSc") or None, "hgvsp": csq.get("HGVSp") or None,
                 "exon": csq.get("EXON") or None, "intron": csq.get("INTRON") or None,
                 "maxAF": af,
+                "gnomadFAF": gnomad["best"] if gnomad else None,
+                "spliceAI": found.get("spliceai"), "bayesDel": found.get("bayesdel"),
                 "clinvar": clinvar_entry(csq),
-                "acmgHints": acmg_hints(gene, csq, af),
+                "acmgHints": acmg_hints(gene, csq, af, record["ref"], alt, found),
                 "qualityFlags": quality_flags(record, depth, gq, fraction, genotype, low_exons,
                                               to_float(record["info"].get("MQ"))),
             })
