@@ -1169,6 +1169,24 @@ def founder_text(d):
             f"These are simulated carriers, so the numbers show that the evidence is used, not how a real carrier sample behaves.</p>")
 
 
+def tandem_dup_text(d):
+    """Tandem duplications from outward-facing read pairs (validation/tandem_dup)."""
+    rows = tsv(os.path.join(VAL, "tandem_dup", "results", "tandem_dup_test.tsv"))
+    car = [r for r in rows if r["truth"] == "carrier"]
+    sim = [r for r in rows if r["set"] == "simulated"]
+    real = [r for r in rows if r["set"] != "simulated"]
+    k = lambda sub, col: sum(r[col] not in ("no", "n/a") for r in sub)
+    lo = [r for r in car if r["reads"] == "1/3"]
+    false_sim = sum(int(r["falseCalls"]) for r in sim)
+    real_calls = sum(int(r["falseCalls"]) > 0 for r in real)
+    return (f"<p>Depth alone finds only part of the duplications, and the allele catalog only known ones. A tandem duplication of any size also leaves read pairs that face outward, "
+            f"with the reverse read at the start of the copied segment and its mate at the end, and split reads across the new junction. "
+            f"A scan for clusters of at least four such reads (mapping quality 20 or more, span 1 to 200 kb) was frozen before a test with {len(car) // 3} simulated exon-spanning duplications of 1 to 20 kb at random positions in both genes, "
+            f"spiked into the HG002 reads and analysed at three depths: {k(car, 'called')} of {len(car)} were found ({k(lo, 'called')} of {len(lo)} with a third of the reads), Manta found {k(car, 'manta')} of {len(car)} ({k(lo, 'manta')} of {len(lo)}). "
+            f"There were {false_sim} false calls in {len(sim)} simulated analyses. In the 200 real 1000 Genomes genomes the scan made {real_calls} call; the long reads of that sample span the segment without a duplication, so it is counted as false. "
+            f"Real duplications often join two Alu elements, which leaves fewer uniquely mapped pairs than these clean simulated copies.</p>")
+
+
 def ont_all_text(d):
     """Discovery of all events of 50 bp or more in the long reads of the whole cohort."""
     a = d.ont_all
@@ -1208,7 +1226,7 @@ def main(argv=None):
     page = page.replace("{SV_TEXT}", sv_text(d))
     page = page.replace("{ONT_PANEL}", ont_panel_text(d))
     page = page.replace("{ONT_ALL}", ont_all_text(d))
-    page = page.replace("{FOUNDER}", founder_text(d))
+    page = page.replace("{FOUNDER}", founder_text(d) + tandem_dup_text(d))
     page = page.replace("{TANDEM_IND}", tandem_ind_text(d) + frozen_text(d))
     page = number_citations(page)
     sys.stdout.write(page)

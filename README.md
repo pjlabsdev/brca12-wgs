@@ -30,7 +30,7 @@ validation (last row).
 | SNVs/indels | GATK 4 HaplotypeCaller or DeepVariant | Pisces (default), GATK 3 UnifiedGenotyper or FreeBayes, GATK 3 realignment/BQSR |
 | Low allele fraction | mosaic candidates with GATK Mutect2 (`--mosaic`), validated by spike-ins | Pisces calls low fractions |
 | CNVs | CNVkit (WGS, hybrid or amplicon mode, optional pooled normal reference) and per-exon dosage | none |
-| Structural variants | Manta, plus read-end signatures for Alu insertions and extra tandem repeat copies | none |
+| Structural variants | Manta, plus read-end signatures for Alu insertions and extra tandem repeat copies, and read-pair tandem duplications | none |
 | Annotation | Ensembl VEP (MANE Select, HGVS, gnomAD, SIFT/PolyPhen), your ClinVar VCF, optional SpliceAI/BayesDel | ANNOVAR (licence required), snpEff, ClinVar 2016 bundled |
 | Legacy names | BIC-style names (e.g. 185delAG, 5382insC, 6174delT) computed from the MANE CDS | BIC names from the bundled BIC database |
 | ACMG/AMP | hints per ClinGen ENIGMA v1.2 criterion incl. ENIGMA tables 4 and 9, never a classification | class from ClinVar/BIC |
@@ -258,6 +258,9 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
 - Mobile element insertions have no dedicated caller. Manta missed real Alu insertions in several
   1000 Genomes carriers; the Alu read-end signature recognises Alu sequence only and gives hints, not
   calls (see `validation/pathogenic/README.md`).
+- Tandem duplications of 1 to 200 kb found by outward-facing read pairs and split reads are hints
+  with approximate breakpoints. Tested on simulated duplications only; real ones between Alu
+  elements can give fewer uniquely mapped pairs (`validation/tandem_dup/`).
 - Extra copies of a tandem repeat unit are reported as hints from read ends, not as calls. For the
   common 126 bp copy upstream of BRCA1 exon 1 a marker base and the linked haplotype are checked as
   well, and 2 of the 3 signals are required (tuning set: 24 of 25 carriers, 0 of 25 non-carriers;
@@ -308,6 +311,7 @@ Three further experiments, all for research use and none a clinical validation:
 | 12 large events spiked into real reads (120 bp to whole gene, 2 duplications, 1 Alu) | Manta 12 of 12; CNVkit 3 of 12 (0 of 12 before a fix in 1.1.0); exon dosage hint 9 of 11 |
 | Real deletions in BRCA1 (1000 Genomes, not disease-causing) | 1,081 bp: 6 of 6 carriers; 271 bp: 2 of 3 |
 | Real Alu insertions in BRCA2 (1000 Genomes, not disease-causing) | called in 4 of 11 carriers; read-end signature in 11 of 11 and in 0 of 47 non-carrier evaluations |
+| 40 tandem duplications of 1 to 20 kb spiked into real reads, 3 depths (preregistered) | outward read pairs 119 of 120 (Manta 109 of 120), no false call in 147 simulated analyses; 1 unconfirmed call in 200 real genomes ([validation/tandem_dup](validation/tandem_dup/README.md)) |
 
 Spiked variants are simulated variants in real reads, not patient samples. Single-sample CNVkit
 does not find events below about 10 kb; exon-level events currently rest on Manta. No real sample

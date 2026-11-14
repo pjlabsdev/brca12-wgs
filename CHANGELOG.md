@@ -2,6 +2,12 @@
 
 ## Unreleased (1.1.0)
 
+- Tandem duplications from outward-facing read pairs (`insertionSignals[]`, type
+  Tandemduplikation (Lesepaare)): at least 4 outward pairs or joining split reads, MAPQ >= 20,
+  span 1 to 200 kb, independent of read depth. Preregistered test with 40 simulated exon-spanning
+  duplications (1-20 kb) in real HG002 reads at three depths: 119/120 found (Manta 109/120), no false
+  call in 147 simulated analyses, one call in 200 real 1000 Genomes genomes that the ONT reads do not
+  confirm. `validation/tandem_dup/`.
 - Exon copy number against a reference cohort (`exonCopyNumber`, `--exon_cnv_panel`): depth over
   each exon +/- 200 bp relative to eight single-copy control windows, compared with a panel of 80
   1000 Genomes 30x genomes (`assets/exon_cnv_panel_1kg30x.json`, WGS default), hidden Markov model

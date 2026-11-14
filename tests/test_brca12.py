@@ -515,6 +515,10 @@ class InsertionSignalTest(unittest.TestCase):
         self.assertEqual(mod.tandem_duplications([pair(i, 20100 + i, 20500) for i in range(4)], regions), [])
         normal = [pair(i, 20100 + i, 20400, flag=33) for i in range(10)]                 # inward pairs
         self.assertEqual(mod.tandem_duplications(normal, regions), [])
+        exons = [{"gene": "BRCA2", "chrom": "chr13", "start": 22000, "end": 22100, "label": "Exon 5"}]
+        rows = structural.insertion_signals(self._dump(found), exons)
+        self.assertEqual((rows[0]["type"], rows[0]["affectedExons"]), ("Tandemduplikation (Lesepaare)", ["Exon 5"]))
+        self.assertTrue(rows[0]["flags"][0].startswith("4 nach außen gerichtete Lesepaare"))
 
     @staticmethod
     def _dump(rows):
