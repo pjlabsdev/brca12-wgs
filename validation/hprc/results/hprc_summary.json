@@ -1,0 +1,2552 @@
+{
+ "samples": [
+  "HG00438",
+  "HG00621",
+  "HG00673",
+  "HG00733",
+  "HG00735",
+  "HG00741",
+  "HG01071",
+  "HG01106",
+  "HG01109",
+  "HG01175",
+  "HG01243",
+  "HG01258",
+  "HG01358",
+  "HG01361",
+  "HG01891",
+  "HG01928",
+  "HG01952",
+  "HG01978",
+  "HG02055",
+  "HG02080",
+  "HG02145",
+  "HG02148",
+  "HG02257",
+  "HG02572",
+  "HG02622",
+  "HG02630",
+  "HG02717",
+  "HG02723",
+  "HG02818",
+  "HG02886",
+  "HG03098",
+  "HG03453",
+  "HG03486",
+  "HG03492",
+  "HG03516",
+  "HG03540",
+  "HG03579",
+  "NA18906",
+  "NA20129"
+ ],
+ "sites": [
+  {
+   "chrom": "chr13",
+   "start": 32348295,
+   "end": 32348295,
+   "lengths": [
+    318,
+    319
+   ],
+   "id": "chr13:32348295",
+   "gene": "BRCA2"
+  },
+  {
+   "chrom": "chr17",
+   "start": 43100595,
+   "end": 43100695,
+   "lengths": [
+    -80,
+    -77,
+    -56,
+    -55,
+    -53,
+    52,
+    67,
+    68,
+    72,
+    76,
+    102,
+    109,
+    111,
+    113
+   ],
+   "id": "chr17:43100595",
+   "gene": "BRCA1"
+  },
+  {
+   "chrom": "chr17",
+   "start": 43128264,
+   "end": 43128264,
+   "lengths": [
+    126
+   ],
+   "id": "chr17:43128264",
+   "gene": "BRCA1"
+  }
+ ],
+ "bySite": {
+  "chr13:32348295": {
+   "carriers": 6,
+   "carriersCalled": 0,
+   "carriersWithReadEndSignal": 6,
+   "reference": 33,
+   "referenceCalled": 0,
+   "referenceWithReadEndSignal": 0,
+   "unknown": 0
+  },
+  "chr17:43100595": {
+   "carriers": 14,
+   "carriersCalled": 8,
+   "carriersWithReadEndSignal": 0,
+   "reference": 25,
+   "referenceCalled": 5,
+   "referenceWithReadEndSignal": 0,
+   "unknown": 0
+  },
+  "chr17:43128264": {
+   "carriers": 19,
+   "carriersCalled": 0,
+   "carriersWithReadEndSignal": 0,
+   "reference": 20,
+   "referenceCalled": 0,
+   "referenceWithReadEndSignal": 0,
+   "unknown": 0
+  }
+ },
+ "small": [
+  {
+   "region": "exons_pm20",
+   "type": "INDEL",
+   "truthTotal": 86,
+   "TP": 68,
+   "FP": 10,
+   "FN": 18,
+   "perSample": {
+    "HG00438": {
+     "truthTotal": 3,
+     "TP": 3,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG00621": {
+     "truthTotal": 3,
+     "TP": 3,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG00673": {
+     "truthTotal": 0,
+     "TP": 0,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG00733": {
+     "truthTotal": 3,
+     "TP": 3,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG00735": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG00741": {
+     "truthTotal": 4,
+     "TP": 2,
+     "FP": 1,
+     "FN": 2
+    },
+    "HG01071": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01106": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01109": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01175": {
+     "truthTotal": 0,
+     "TP": 0,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01243": {
+     "truthTotal": 3,
+     "TP": 1,
+     "FP": 1,
+     "FN": 2
+    },
+    "HG01258": {
+     "truthTotal": 3,
+     "TP": 3,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01358": {
+     "truthTotal": 1,
+     "TP": 1,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01361": {
+     "truthTotal": 4,
+     "TP": 2,
+     "FP": 1,
+     "FN": 2
+    },
+    "HG01891": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01928": {
+     "truthTotal": 1,
+     "TP": 1,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01952": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01978": {
+     "truthTotal": 1,
+     "TP": 1,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02055": {
+     "truthTotal": 5,
+     "TP": 4,
+     "FP": 1,
+     "FN": 1
+    },
+    "HG02080": {
+     "truthTotal": 0,
+     "TP": 0,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02145": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02148": {
+     "truthTotal": 1,
+     "TP": 1,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02257": {
+     "truthTotal": 1,
+     "TP": 1,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02572": {
+     "truthTotal": 3,
+     "TP": 1,
+     "FP": 1,
+     "FN": 2
+    },
+    "HG02622": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02630": {
+     "truthTotal": 3,
+     "TP": 3,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02717": {
+     "truthTotal": 1,
+     "TP": 1,
+     "FP": 1,
+     "FN": 0
+    },
+    "HG02723": {
+     "truthTotal": 3,
+     "TP": 3,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02818": {
+     "truthTotal": 1,
+     "TP": 1,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02886": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03098": {
+     "truthTotal": 1,
+     "TP": 1,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03453": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03486": {
+     "truthTotal": 2,
+     "TP": 2,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03492": {
+     "truthTotal": 3,
+     "TP": 0,
+     "FP": 1,
+     "FN": 3
+    },
+    "HG03516": {
+     "truthTotal": 3,
+     "TP": 1,
+     "FP": 1,
+     "FN": 2
+    },
+    "HG03540": {
+     "truthTotal": 3,
+     "TP": 1,
+     "FP": 1,
+     "FN": 2
+    },
+    "HG03579": {
+     "truthTotal": 3,
+     "TP": 3,
+     "FP": 0,
+     "FN": 0
+    },
+    "NA18906": {
+     "truthTotal": 3,
+     "TP": 1,
+     "FP": 1,
+     "FN": 2
+    },
+    "NA20129": {
+     "truthTotal": 4,
+     "TP": 4,
+     "FP": 0,
+     "FN": 0
+    }
+   }
+  },
+  {
+   "region": "exons_pm20",
+   "type": "SNV",
+   "truthTotal": 590,
+   "TP": 590,
+   "FP": 0,
+   "FN": 0,
+   "perSample": {
+    "HG00438": {
+     "truthTotal": 19,
+     "TP": 19,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG00621": {
+     "truthTotal": 22,
+     "TP": 22,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG00673": {
+     "truthTotal": 7,
+     "TP": 7,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG00733": {
+     "truthTotal": 11,
+     "TP": 11,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG00735": {
+     "truthTotal": 15,
+     "TP": 15,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG00741": {
+     "truthTotal": 22,
+     "TP": 22,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01071": {
+     "truthTotal": 10,
+     "TP": 10,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01106": {
+     "truthTotal": 17,
+     "TP": 17,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01109": {
+     "truthTotal": 14,
+     "TP": 14,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01175": {
+     "truthTotal": 8,
+     "TP": 8,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01243": {
+     "truthTotal": 20,
+     "TP": 20,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01258": {
+     "truthTotal": 18,
+     "TP": 18,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01358": {
+     "truthTotal": 9,
+     "TP": 9,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01361": {
+     "truthTotal": 18,
+     "TP": 18,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01891": {
+     "truthTotal": 17,
+     "TP": 17,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01928": {
+     "truthTotal": 15,
+     "TP": 15,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01952": {
+     "truthTotal": 20,
+     "TP": 20,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01978": {
+     "truthTotal": 13,
+     "TP": 13,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02055": {
+     "truthTotal": 20,
+     "TP": 20,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02080": {
+     "truthTotal": 7,
+     "TP": 7,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02145": {
+     "truthTotal": 8,
+     "TP": 8,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02148": {
+     "truthTotal": 12,
+     "TP": 12,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02257": {
+     "truthTotal": 13,
+     "TP": 13,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02572": {
+     "truthTotal": 16,
+     "TP": 16,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02622": {
+     "truthTotal": 8,
+     "TP": 8,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02630": {
+     "truthTotal": 22,
+     "TP": 22,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02717": {
+     "truthTotal": 11,
+     "TP": 11,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02723": {
+     "truthTotal": 12,
+     "TP": 12,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02818": {
+     "truthTotal": 14,
+     "TP": 14,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG02886": {
+     "truthTotal": 12,
+     "TP": 12,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03098": {
+     "truthTotal": 12,
+     "TP": 12,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03453": {
+     "truthTotal": 10,
+     "TP": 10,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03486": {
+     "truthTotal": 12,
+     "TP": 12,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03492": {
+     "truthTotal": 23,
+     "TP": 23,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03516": {
+     "truthTotal": 18,
+     "TP": 18,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03540": {
+     "truthTotal": 24,
+     "TP": 24,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG03579": {
+     "truthTotal": 21,
+     "TP": 21,
+     "FP": 0,
+     "FN": 0
+    },
+    "NA18906": {
+     "truthTotal": 22,
+     "TP": 22,
+     "FP": 0,
+     "FN": 0
+    },
+    "NA20129": {
+     "truthTotal": 18,
+     "TP": 18,
+     "FP": 0,
+     "FN": 0
+    }
+   }
+  },
+  {
+   "region": "gene_loci",
+   "type": "INDEL",
+   "truthTotal": 3312,
+   "TP": 2494,
+   "FP": 392,
+   "FN": 818,
+   "perSample": {
+    "HG00438": {
+     "truthTotal": 100,
+     "TP": 77,
+     "FP": 12,
+     "FN": 23
+    },
+    "HG00621": {
+     "truthTotal": 116,
+     "TP": 93,
+     "FP": 6,
+     "FN": 23
+    },
+    "HG00673": {
+     "truthTotal": 29,
+     "TP": 19,
+     "FP": 8,
+     "FN": 10
+    },
+    "HG00733": {
+     "truthTotal": 52,
+     "TP": 42,
+     "FP": 5,
+     "FN": 10
+    },
+    "HG00735": {
+     "truthTotal": 70,
+     "TP": 49,
+     "FP": 10,
+     "FN": 21
+    },
+    "HG00741": {
+     "truthTotal": 103,
+     "TP": 84,
+     "FP": 8,
+     "FN": 19
+    },
+    "HG01071": {
+     "truthTotal": 64,
+     "TP": 37,
+     "FP": 8,
+     "FN": 27
+    },
+    "HG01106": {
+     "truthTotal": 97,
+     "TP": 77,
+     "FP": 6,
+     "FN": 20
+    },
+    "HG01109": {
+     "truthTotal": 106,
+     "TP": 81,
+     "FP": 11,
+     "FN": 25
+    },
+    "HG01175": {
+     "truthTotal": 41,
+     "TP": 18,
+     "FP": 8,
+     "FN": 23
+    },
+    "HG01243": {
+     "truthTotal": 106,
+     "TP": 78,
+     "FP": 11,
+     "FN": 28
+    },
+    "HG01258": {
+     "truthTotal": 117,
+     "TP": 84,
+     "FP": 9,
+     "FN": 33
+    },
+    "HG01358": {
+     "truthTotal": 50,
+     "TP": 32,
+     "FP": 9,
+     "FN": 18
+    },
+    "HG01361": {
+     "truthTotal": 113,
+     "TP": 85,
+     "FP": 8,
+     "FN": 28
+    },
+    "HG01891": {
+     "truthTotal": 110,
+     "TP": 88,
+     "FP": 13,
+     "FN": 22
+    },
+    "HG01928": {
+     "truthTotal": 50,
+     "TP": 38,
+     "FP": 6,
+     "FN": 12
+    },
+    "HG01952": {
+     "truthTotal": 86,
+     "TP": 74,
+     "FP": 9,
+     "FN": 12
+    },
+    "HG01978": {
+     "truthTotal": 55,
+     "TP": 34,
+     "FP": 8,
+     "FN": 21
+    },
+    "HG02055": {
+     "truthTotal": 135,
+     "TP": 98,
+     "FP": 11,
+     "FN": 37
+    },
+    "HG02080": {
+     "truthTotal": 35,
+     "TP": 23,
+     "FP": 2,
+     "FN": 12
+    },
+    "HG02145": {
+     "truthTotal": 65,
+     "TP": 44,
+     "FP": 14,
+     "FN": 21
+    },
+    "HG02148": {
+     "truthTotal": 41,
+     "TP": 27,
+     "FP": 4,
+     "FN": 14
+    },
+    "HG02257": {
+     "truthTotal": 66,
+     "TP": 53,
+     "FP": 7,
+     "FN": 13
+    },
+    "HG02572": {
+     "truthTotal": 102,
+     "TP": 78,
+     "FP": 14,
+     "FN": 24
+    },
+    "HG02622": {
+     "truthTotal": 80,
+     "TP": 65,
+     "FP": 8,
+     "FN": 15
+    },
+    "HG02630": {
+     "truthTotal": 114,
+     "TP": 98,
+     "FP": 8,
+     "FN": 16
+    },
+    "HG02717": {
+     "truthTotal": 64,
+     "TP": 52,
+     "FP": 9,
+     "FN": 12
+    },
+    "HG02723": {
+     "truthTotal": 65,
+     "TP": 52,
+     "FP": 4,
+     "FN": 13
+    },
+    "HG02818": {
+     "truthTotal": 80,
+     "TP": 63,
+     "FP": 17,
+     "FN": 17
+    },
+    "HG02886": {
+     "truthTotal": 83,
+     "TP": 67,
+     "FP": 7,
+     "FN": 16
+    },
+    "HG03098": {
+     "truthTotal": 73,
+     "TP": 50,
+     "FP": 9,
+     "FN": 23
+    },
+    "HG03453": {
+     "truthTotal": 54,
+     "TP": 39,
+     "FP": 13,
+     "FN": 15
+    },
+    "HG03486": {
+     "truthTotal": 90,
+     "TP": 63,
+     "FP": 13,
+     "FN": 27
+    },
+    "HG03492": {
+     "truthTotal": 106,
+     "TP": 83,
+     "FP": 15,
+     "FN": 23
+    },
+    "HG03516": {
+     "truthTotal": 123,
+     "TP": 83,
+     "FP": 21,
+     "FN": 40
+    },
+    "HG03540": {
+     "truthTotal": 110,
+     "TP": 89,
+     "FP": 19,
+     "FN": 21
+    },
+    "HG03579": {
+     "truthTotal": 131,
+     "TP": 98,
+     "FP": 15,
+     "FN": 33
+    },
+    "NA18906": {
+     "truthTotal": 120,
+     "TP": 88,
+     "FP": 20,
+     "FN": 32
+    },
+    "NA20129": {
+     "truthTotal": 110,
+     "TP": 91,
+     "FP": 7,
+     "FN": 19
+    }
+   }
+  },
+  {
+   "region": "gene_loci",
+   "type": "SNV",
+   "truthTotal": 8095,
+   "TP": 8026,
+   "FP": 100,
+   "FN": 69,
+   "perSample": {
+    "HG00438": {
+     "truthTotal": 288,
+     "TP": 287,
+     "FP": 2,
+     "FN": 1
+    },
+    "HG00621": {
+     "truthTotal": 300,
+     "TP": 298,
+     "FP": 1,
+     "FN": 2
+    },
+    "HG00673": {
+     "truthTotal": 62,
+     "TP": 60,
+     "FP": 4,
+     "FN": 2
+    },
+    "HG00733": {
+     "truthTotal": 126,
+     "TP": 126,
+     "FP": 2,
+     "FN": 0
+    },
+    "HG00735": {
+     "truthTotal": 169,
+     "TP": 167,
+     "FP": 2,
+     "FN": 2
+    },
+    "HG00741": {
+     "truthTotal": 296,
+     "TP": 293,
+     "FP": 2,
+     "FN": 3
+    },
+    "HG01071": {
+     "truthTotal": 110,
+     "TP": 109,
+     "FP": 0,
+     "FN": 1
+    },
+    "HG01106": {
+     "truthTotal": 267,
+     "TP": 265,
+     "FP": 2,
+     "FN": 2
+    },
+    "HG01109": {
+     "truthTotal": 261,
+     "TP": 259,
+     "FP": 1,
+     "FN": 2
+    },
+    "HG01175": {
+     "truthTotal": 61,
+     "TP": 58,
+     "FP": 2,
+     "FN": 3
+    },
+    "HG01243": {
+     "truthTotal": 265,
+     "TP": 263,
+     "FP": 1,
+     "FN": 2
+    },
+    "HG01258": {
+     "truthTotal": 294,
+     "TP": 292,
+     "FP": 3,
+     "FN": 2
+    },
+    "HG01358": {
+     "truthTotal": 98,
+     "TP": 96,
+     "FP": 2,
+     "FN": 2
+    },
+    "HG01361": {
+     "truthTotal": 287,
+     "TP": 286,
+     "FP": 1,
+     "FN": 1
+    },
+    "HG01891": {
+     "truthTotal": 271,
+     "TP": 270,
+     "FP": 1,
+     "FN": 1
+    },
+    "HG01928": {
+     "truthTotal": 146,
+     "TP": 146,
+     "FP": 0,
+     "FN": 0
+    },
+    "HG01952": {
+     "truthTotal": 255,
+     "TP": 254,
+     "FP": 1,
+     "FN": 1
+    },
+    "HG01978": {
+     "truthTotal": 109,
+     "TP": 109,
+     "FP": 1,
+     "FN": 0
+    },
+    "HG02055": {
+     "truthTotal": 335,
+     "TP": 333,
+     "FP": 3,
+     "FN": 2
+    },
+    "HG02080": {
+     "truthTotal": 53,
+     "TP": 52,
+     "FP": 3,
+     "FN": 1
+    },
+    "HG02145": {
+     "truthTotal": 135,
+     "TP": 132,
+     "FP": 6,
+     "FN": 3
+    },
+    "HG02148": {
+     "truthTotal": 76,
+     "TP": 74,
+     "FP": 6,
+     "FN": 2
+    },
+    "HG02257": {
+     "truthTotal": 137,
+     "TP": 136,
+     "FP": 2,
+     "FN": 1
+    },
+    "HG02572": {
+     "truthTotal": 258,
+     "TP": 257,
+     "FP": 3,
+     "FN": 1
+    },
+    "HG02622": {
+     "truthTotal": 153,
+     "TP": 151,
+     "FP": 4,
+     "FN": 2
+    },
+    "HG02630": {
+     "truthTotal": 308,
+     "TP": 307,
+     "FP": 3,
+     "FN": 1
+    },
+    "HG02717": {
+     "truthTotal": 146,
+     "TP": 145,
+     "FP": 2,
+     "FN": 1
+    },
+    "HG02723": {
+     "truthTotal": 154,
+     "TP": 154,
+     "FP": 2,
+     "FN": 0
+    },
+    "HG02818": {
+     "truthTotal": 195,
+     "TP": 191,
+     "FP": 4,
+     "FN": 4
+    },
+    "HG02886": {
+     "truthTotal": 146,
+     "TP": 144,
+     "FP": 5,
+     "FN": 2
+    },
+    "HG03098": {
+     "truthTotal": 128,
+     "TP": 127,
+     "FP": 3,
+     "FN": 1
+    },
+    "HG03453": {
+     "truthTotal": 116,
+     "TP": 114,
+     "FP": 3,
+     "FN": 2
+    },
+    "HG03486": {
+     "truthTotal": 183,
+     "TP": 182,
+     "FP": 0,
+     "FN": 1
+    },
+    "HG03492": {
+     "truthTotal": 322,
+     "TP": 319,
+     "FP": 3,
+     "FN": 3
+    },
+    "HG03516": {
+     "truthTotal": 299,
+     "TP": 296,
+     "FP": 3,
+     "FN": 3
+    },
+    "HG03540": {
+     "truthTotal": 331,
+     "TP": 326,
+     "FP": 8,
+     "FN": 5
+    },
+    "HG03579": {
+     "truthTotal": 318,
+     "TP": 316,
+     "FP": 2,
+     "FN": 2
+    },
+    "NA18906": {
+     "truthTotal": 347,
+     "TP": 344,
+     "FP": 6,
+     "FN": 3
+    },
+    "NA20129": {
+     "truthTotal": 290,
+     "TP": 288,
+     "FP": 1,
+     "FN": 2
+    }
+   }
+  }
+ ],
+ "svRows": [
+  {
+   "sample": "HG00438",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00438",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    -77
+   ],
+   "manta": [
+    {
+     "type": "DEL",
+     "pos": 43100609,
+     "end": 43100686,
+     "length": 77,
+     "genotype": "1/1",
+     "filter": "PASS"
+    }
+   ],
+   "smallVariantCaller": [
+    {
+     "pos": 43100609,
+     "lengthDifference": -77,
+     "genotype": "1/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00438",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00621",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00621",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00621",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00673",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00673",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00673",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00733",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00733",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00733",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00735",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "carrier",
+   "truthLengths": [
+    318
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": [
+    {
+     "pos": 32348296,
+     "end": 32348302,
+     "targetSiteDuplication": 7,
+     "clippedReadsLeftJunction": 3,
+     "clippedReadsRightJunction": 3,
+     "clippedFraction": 0.18,
+     "signature": [
+      "Alu",
+      "poly-A"
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "HG00735",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00735",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00741",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00741",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    -80
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG00741",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01071",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01071",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01071",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01106",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01106",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    52,
+    -53
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01106",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01109",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01109",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    52,
+    113,
+    -53
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01109",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01175",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01175",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01175",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01243",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01243",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    -56
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01243",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01258",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01258",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01258",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01358",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01358",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01358",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01361",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01361",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01361",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01891",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01891",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    111
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01891",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01928",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "carrier",
+   "truthLengths": [
+    319
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": [
+    {
+     "pos": 32348296,
+     "end": 32348302,
+     "targetSiteDuplication": 7,
+     "clippedReadsLeftJunction": 7,
+     "clippedReadsRightJunction": 4,
+     "clippedFraction": 0.42,
+     "signature": [
+      "Alu",
+      "poly-A"
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "HG01928",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01928",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01952",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01952",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    -55
+   ],
+   "manta": [
+    {
+     "type": "DEL",
+     "pos": 43100606,
+     "end": 43100657,
+     "length": 51,
+     "genotype": "0/1",
+     "filter": "PASS"
+    }
+   ],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01952",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01978",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01978",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG01978",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02055",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02055",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02055",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02080",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02080",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02080",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02145",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02145",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [
+    {
+     "pos": 43100644,
+     "lengthDifference": 35,
+     "genotype": "0/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02145",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02148",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02148",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02148",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02257",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02257",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    76
+   ],
+   "manta": [],
+   "smallVariantCaller": [
+    {
+     "pos": 43100558,
+     "lengthDifference": 35,
+     "genotype": "0/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02257",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02572",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02572",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02572",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02622",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02622",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    68,
+    76
+   ],
+   "manta": [],
+   "smallVariantCaller": [
+    {
+     "pos": 43100558,
+     "lengthDifference": 35,
+     "genotype": "1/2"
+    },
+    {
+     "pos": 43100622,
+     "lengthDifference": 31,
+     "genotype": "0/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02622",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02630",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02630",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    68
+   ],
+   "manta": [],
+   "smallVariantCaller": [
+    {
+     "pos": 43100622,
+     "lengthDifference": 31,
+     "genotype": "1/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02630",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02717",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02717",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    76,
+    72
+   ],
+   "manta": [
+    {
+     "type": "INS",
+     "pos": 43100558,
+     "end": 43100558,
+     "length": 70,
+     "genotype": "1/1",
+     "filter": "PASS"
+    }
+   ],
+   "smallVariantCaller": [
+    {
+     "pos": 43100558,
+     "lengthDifference": 35,
+     "genotype": "1/2"
+    },
+    {
+     "pos": 43100558,
+     "lengthDifference": 70,
+     "genotype": "1/2"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02717",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02723",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02723",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    109
+   ],
+   "manta": [
+    {
+     "type": "INS",
+     "pos": 43100628,
+     "end": 43100632,
+     "length": 187,
+     "genotype": "0/1",
+     "filter": "PASS"
+    }
+   ],
+   "smallVariantCaller": [
+    {
+     "pos": 43100622,
+     "lengthDifference": 35,
+     "genotype": "0/1"
+    },
+    {
+     "pos": 43100686,
+     "lengthDifference": 61,
+     "genotype": "0/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02723",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02818",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "carrier",
+   "truthLengths": [
+    318
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": [
+    {
+     "pos": 32348296,
+     "end": 32348302,
+     "targetSiteDuplication": 7,
+     "clippedReadsLeftJunction": 6,
+     "clippedReadsRightJunction": 4,
+     "clippedFraction": 0.3,
+     "signature": [
+      "Alu",
+      "poly-A"
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "HG02818",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02818",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02886",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02886",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG02886",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03098",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03098",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    72
+   ],
+   "manta": [],
+   "smallVariantCaller": [
+    {
+     "pos": 43100622,
+     "lengthDifference": 33,
+     "genotype": "0/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03098",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03453",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03453",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03453",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03486",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03486",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03486",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03492",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "carrier",
+   "truthLengths": [
+    319
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": [
+    {
+     "pos": 32348296,
+     "end": 32348302,
+     "targetSiteDuplication": 7,
+     "clippedReadsLeftJunction": 7,
+     "clippedReadsRightJunction": 4,
+     "clippedFraction": 0.34,
+     "signature": [
+      "Alu",
+      "poly-A"
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "HG03492",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [
+    {
+     "pos": 43100560,
+     "lengthDifference": 35,
+     "genotype": "1/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03492",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03516",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03516",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [
+    {
+     "pos": 43100560,
+     "lengthDifference": 35,
+     "genotype": "1/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03516",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03540",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "carrier",
+   "truthLengths": [
+    318
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": [
+    {
+     "pos": 32348296,
+     "end": 32348302,
+     "targetSiteDuplication": 7,
+     "clippedReadsLeftJunction": 6,
+     "clippedReadsRightJunction": 9,
+     "clippedFraction": 0.47,
+     "signature": [
+      "Alu",
+      "poly-A"
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "HG03540",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [
+    {
+     "pos": 43100560,
+     "lengthDifference": 35,
+     "genotype": "0/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03540",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03579",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03579",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "HG03579",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "NA18906",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "carrier",
+   "truthLengths": [
+    319
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": [
+    {
+     "pos": 32348296,
+     "end": 32348302,
+     "targetSiteDuplication": 7,
+     "clippedReadsLeftJunction": 5,
+     "clippedReadsRightJunction": 9,
+     "clippedFraction": 0.47,
+     "signature": [
+      "Alu",
+      "poly-A"
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "NA18906",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [
+    {
+     "pos": 43100560,
+     "lengthDifference": 35,
+     "genotype": "0/1"
+    }
+   ],
+   "readEndSignal": []
+  },
+  {
+   "sample": "NA18906",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "NA20129",
+   "site": "chr13:32348295",
+   "gene": "BRCA2",
+   "truth": "reference",
+   "truthLengths": [],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "NA20129",
+   "site": "chr17:43100595",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    67
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  },
+  {
+   "sample": "NA20129",
+   "site": "chr17:43128264",
+   "gene": "BRCA1",
+   "truth": "carrier",
+   "truthLengths": [
+    126
+   ],
+   "manta": [],
+   "smallVariantCaller": [],
+   "readEndSignal": []
+  }
+ ]
+}

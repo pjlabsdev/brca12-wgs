@@ -1,0 +1,5 @@
+region	type	truth	TP	FP	FN
+exons_pm20	INDEL	86	68	10	18
+exons_pm20	SNV	590	590	0	0
+gene_loci	INDEL	3312	2494	392	818
+gene_loci	SNV	8095	8026	100	69
