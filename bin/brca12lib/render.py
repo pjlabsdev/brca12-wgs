@@ -1,6 +1,7 @@
 """Standalone report as Markdown and HTML, in German (`de`) or English (`en`)."""
 import html
 
+from . import figures
 from .i18n import tr, ui
 
 DISCLAIMER_DE = ("Nur für Forschung und persönliche Information (RUO). Diese Ergebnisse dürfen nicht ohne "
@@ -14,8 +15,14 @@ DISCLAIMER_EN = ("Research use only (RUO). These results must not be interpreted
                  "result does not rule out a hereditary BRCA1/BRCA2 predisposition.")
 
 
+DISCLAIMER_RU = ("Только для исследований (RUO). Эти результаты нельзя интерпретировать в медицинских целях без "
+                 "клинически валидированного подтверждения (аккредитованная лаборатория, например секвенирование по "
+                 "Сэнгеру или MLPA). Указания ACMG/AMP являются автоматическими подсказками по отдельным критериям, "
+                 "а не классификацией. Отсутствие находок не исключает наследственную предрасположенность BRCA1/BRCA2.")
+
+
 def disclaimer(lang):
-    return DISCLAIMER_DE if lang == "de" else DISCLAIMER_EN
+    return {"de": DISCLAIMER_DE, "ru": DISCLAIMER_RU}.get(lang, DISCLAIMER_EN)
 
 
 def _table(headers, rows, lang):
@@ -28,19 +35,37 @@ def _join(items, lang):
     return "; ".join(tr(i, lang) for i in items)
 
 
+def _hgvs_legacy(v):
+    """HGVS c. with BIC legacy names and the GRCh37 position for comparison with older reports."""
+    text = v.get("hgvsc") or ""
+    extra = []
+    if v.get("bicNames"):
+        extra.append("BIC " + " / ".join(v["bicNames"]))
+    if v.get("grch37Pos"):
+        extra.append(f"GRCh37 {v['chrom']}:{v['grch37Pos']}")
+    return f"{text} ({'; '.join(extra)})" if extra and text else (text or "; ".join(extra))
+
+
 def sections(result, lang="en"):
     out = []
     for gene in ("BRCA1", "BRCA2"):
         info = result["genes"][gene]
         hint_key = "textDE" if lang == "de" else "textEN"
         rows = [[v["pos"], v["ref"], v["alt"], v["genotype"], v["consequence"], v["transcript"],
-                 v["hgvsc"], v["hgvsp"], v["clinvar"]["significance"],
+                 _hgvs_legacy(v), v["hgvsp"], v["clinvar"]["significance"],
                  "; ".join(f"{h['code']}: {h[hint_key]}" for h in v["acmgHints"]),
                  _join(v["qualityFlags"], lang) or "ok"] for v in info["smallVariants"]]
         strand = ui("strand_minus" if info["strand"] == "-" else "strand_plus", lang)
         out.append((ui("small_title", lang, gene=gene, chrom=info["chrom"], strand=strand,
                        transcript=info["transcript"]),
                     _table(ui("small_headers", lang), rows, lang), ui("no_small", lang)))
+    if result.get("mosaicCalling", {}).get("enabled"):
+        mc = result["mosaicCalling"]
+        rows = [[v["gene"], v["pos"], v["ref"], v["alt"], v["alleleFraction"], v["altDepth"], v["depth"],
+                 v["consequence"], v["hgvsc"], v["hgvsp"], v["clinvar"]["significance"],
+                 _join(v["qualityFlags"], lang)] for v in result.get("mosaicCandidates", [])]
+        out.append((ui("mosaic_title", lang, lo=100 * mc["minAlleleFraction"], hi=100 * mc["maxAlleleFraction"]),
+                    _table(ui("mosaic_headers", lang), rows, lang), ui("no_mosaic", lang)))
     cnv_rows = [[c["gene"], c["type"], f"{c['chrom']}:{c['start']}-{c['end']}", c["copyNumber"], c["log2"],
                  ", ".join(tr(e, lang) for e in c["affectedExons"]), _join(c["flags"], lang)]
                 for c in result["cnvs"]]
@@ -59,6 +84,33 @@ def sections(result, lang="en"):
                   e["pct10x"], e["pct20x"], e["pct30x"], e["lowMapqFraction"], e["status"],
                   _join(e["reasons"], lang)] for e in result["exonCoverage"]]
     out.append((ui("exon_title", lang), _table(ui("exon_headers", lang), exon_rows, lang), ui("no_entries", lang)))
+    qc = result.get("readQC")
+    if qc:
+        rs = qc.get("regionStats", {})
+        items = [("qc_reads", rs.get("readsInRegions")), ("qc_mapped", rs.get("mappedPct")),
+                 ("qc_paired", rs.get("properlyPairedPct")), ("qc_dup", rs.get("duplicatePct")),
+                 ("qc_mapq0", rs.get("mapq0Pct")), ("qc_insert", rs.get("medianInsertSize")),
+                 ("qc_error", None if rs.get("errorRate") is None else round(100 * rs["errorRate"], 3)),
+                 ("qc_readlen", rs.get("averageReadLength")), ("qc_basequal", rs.get("averageBaseQuality"))]
+        ts = qc.get("targetSummary") or {}
+        if ts:
+            items += [("qc_targets", ts.get("targetCount")), ("qc_target_mean", ts.get("meanDepth")),
+                      ("qc_target_pct20", ts.get("pct20x")), ("qc_uniformity", ts.get("uniformityPct")),
+                      ("qc_fold80", ts.get("fold80BasePenalty")), ("qc_ontarget", ts.get("onTargetReadPct")),
+                      ("qc_weak", ts.get("weakTargetCount"))]
+        clip = qc.get("primerClipping")
+        if clip:
+            items += [("qc_clipped", clip.get("clippedPct")), ("qc_short", clip.get("readsFilteredTooShort"))]
+        rows = [[ui(k, lang), v] for k, v in items]
+        rows += [[ui("qc_flag", lang), f] for f in qc.get("flags", [])]
+        out.append((ui("qc_title", lang, assay=result.get("assay", "wgs")),
+                    _table(ui("qc_headers", lang), rows, lang), ui("no_entries", lang)))
+        weak = [t for t in qc.get("targets", []) if t["status"] != "ok"]
+        if qc.get("targets"):
+            rows = [[t["name"], f"{t['chrom']}:{t['start']}-{t['end']}", t["meanDepth"], t["minDepth"], t["pct20x"]]
+                    for t in weak]
+            out.append((ui("weak_title", lang, depth=ts.get("minTargetDepth", 30)),
+                        _table(ui("weak_headers", lang), rows, lang), ui("no_weak", lang)))
     low_rows = [[i["gene"], f"{i['chrom']}:{i['start']}-{i['end']}", i["length"], i["minDepth"]]
                 for i in result["lowCoverageIntervals"]]
     out.append((ui("low_title", lang, depth=result["thresholds"]["lowDepth"]),
@@ -67,7 +119,11 @@ def sections(result, lang="en"):
 
 
 def _limitations(result, lang):
-    return result["limitations"] if lang == "de" else result.get("limitationsEN", result["limitations"])
+    if lang == "de":
+        return result["limitations"]
+    if lang == "ru" and result.get("limitationsRU"):
+        return result["limitationsRU"]
+    return result.get("limitationsEN", result["limitations"])
 
 
 def markdown(result, lang="en"):
@@ -98,6 +154,11 @@ def markdown(result, lang="en"):
 
 
 CSS = """
+.report-figure{margin:12px 0 22px;padding:10px 12px;background:#fff;border:1px solid #e5e5ea;border-radius:8px;page-break-inside:avoid}
+.figure-note{font-size:12px;color:#636366;margin:4px 0 0}
+@page{size:A4;margin:16mm 12mm}
+@media print{body{margin:0;max-width:none;font-size:10px;background:#fff;color:#1d1d1f} h2{break-after:avoid} .report-figure,table{break-inside:avoid-page} table{break-inside:auto} tr{break-inside:avoid} thead{display:table-header-group} .disclaimer{break-inside:avoid;background:#fff8ec}}
+
 body{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:#1d1d1f;margin:32px;max-width:1200px}
 h1{font-weight:500;font-size:20px} h2{font-weight:500;font-size:15px;margin-top:28px}
 .disclaimer{border:1px solid #c7c7cc;border-left:4px solid #ff9500;background:#fff8ec;padding:10px 14px;border-radius:8px}
@@ -112,7 +173,7 @@ def html_report(result, lang="en"):
     esc = html.escape
     uncertain = tr("unsicher", lang)
     parts = [f"<!DOCTYPE html><html lang='{lang}'><head><meta charset='utf-8'>"
-             f"<title>{esc(ui('title', lang))} · {esc(result['sample'])}</title>",
+             f"<title>{esc(ui('title', lang))} · {esc(result['sample'])} · RUO</title>",
              f"<style>{CSS}</style></head><body>",
              f"<h1>{esc(ui('title', lang))} · {esc(result['sample'])}</h1>",
              f"<p class='disclaimer'><strong>{esc(ui('important', lang))}:</strong> {esc(disclaimer(lang))}</p>",
@@ -121,6 +182,7 @@ def html_report(result, lang="en"):
              f"<li>{esc(ui('input', lang))}: {esc(result['input']['mode'])} · {esc(', '.join(result['input']['files']))}</li>",
              f"<li>{esc(ui('snv_caller', lang))}: {esc(result['snvCaller'])}</li>",
              f"<li>{esc(ui('created', lang))}: {esc(result['generatedAt'])}</li></ul>"]
+    parts.append(figures.figures_html(result, lang))
     for title, table, empty in sections(result, lang):
         parts.append(f"<h2>{esc(title)}</h2>")
         if not table["rows"]:

@@ -307,7 +307,10 @@ def load_events(args, sample):
 
 
 def simulate(args):
-    edits, small, large = load_events(args, args.sample)
+    edits, small, large = load_events(args, args.event_set or args.sample)
+    fraction = args.fraction
+    if not 0 < fraction <= 0.5:
+        raise SystemExit("--fraction must be in (0, 0.5]")
     rng = random.Random(args.seed)
     os.makedirs(args.outdir, exist_ok=True)
     stats = {"sample": args.sample, "pairs": 0, "hapA": 0, "hapB": 0, "skippedInDeletion": 0, "extraForInsertions": 0}
@@ -338,12 +341,13 @@ def simulate(args):
         pos, flen, first = int(pos), int(flen), int(first)
         gene = next(g for g, (c, ws, we) in WINDOWS.items() if ws <= pos <= we)
         chrom, ws, we, ref, hap = haps[gene]
-        if stable_random(name, args.seed) < 0.5:
+        if stable_random(name, args.seed) < 1 - fraction:
             emit(name, ref, pos - ws, flen, first, qf, qr)
             stats["hapA"] += 1
             # positions of haplotype-A fragments are reused for sequence that only exists on B
             for off, hoff, length in hap.inserts:
-                if off - length <= pos - ws < off:
+                # B-only sequence keeps the same share of reads as the rest of haplotype B
+                if off - length <= pos - ws < off and stable_random(name, "ins", args.seed) < fraction / (1 - fraction):
                     emit(name + ":ins", hap.seq, hoff + (pos - ws) - (off - length), flen, first, qf, qr)
                     stats["extraForInsertions"] += 1
         else:
@@ -361,8 +365,8 @@ def simulate(args):
             handle.write(f"##contig=<ID={chrom},length={length}>\n")
         handle.write(f"#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{args.sample}\n")
         for chrom, pos, ref, alt in sorted(small):
-            handle.write(f"{chrom}\t{pos}\t.\t{ref}\t{alt}\t.\tPASS\t.\tGT\t0/1\n")
-    json.dump({"stats": stats, "largeEvents": large, "smallVariants": len(small)},
+            handle.write(f"{chrom}\t{pos}\t.\t{ref}\t{alt}\t.\tPASS\t.\tGT\t0/1\n")  # 0/1 also for mosaics
+    json.dump({"stats": stats, "alleleFraction": fraction, "largeEvents": large, "smallVariants": len(small)},
               open(os.path.join(args.outdir, f"{args.sample}.truth.json"), "w"), indent=2)
     print(json.dumps(stats))
 
@@ -387,6 +391,10 @@ def main(argv=None):
     s.add_argument("--reference", required=True)
     s.add_argument("--outdir", required=True)
     s.add_argument("--seed", type=int, default=1)
+    s.add_argument("--fraction", type=float, default=0.5,
+                   help="share of read pairs drawn from the haplotype with the events (0.5 = heterozygous; "
+                        "below 0.5 = mosaic)")
+    s.add_argument("--event-set", default=None, help="take the events of this sample name (default: --sample)")
     args = p.parse_args(argv)
     return {"design": design, "prepare": prepare, "simulate": simulate}[args.cmd](args)
 

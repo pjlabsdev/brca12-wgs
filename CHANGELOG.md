@@ -2,6 +2,39 @@
 
 ## Unreleased (1.1.0)
 
+- Exome, hybrid-capture panel and amplicon data (`--assay`, `--targets_bed`): no duplicate marking
+  and no per-start downsampling for amplicons, primer clipping with `samtools ampliconclip`
+  (`--primers_bed`), CNVkit hybrid/amplicon modes, optional pooled CNV reference
+  (`--cnv_reference`, also for WGS), Manta exome mode, exons outside the targets marked uncertain.
+- Read and target QC (`qc/read_qc.json`, report section, Excel sheets): reads, mapping, pairing,
+  duplicates, insert size, error rate; per target depth, uniformity, fold-80, on-target rate,
+  weakly covered targets; share of reads with a clipped primer.
+- Mosaic candidates (`--mosaic`): GATK Mutect2 tumour-only with FilterMutectCalls, allele fraction
+  limits, minimum supporting reads and depth; VEP-annotated; validated with spike-ins at 5 to 30 %.
+- Single-end FASTQ (only `--reads_r1`; Manta skipped) and `--platform iontorrent` (indels flagged,
+  mosaic candidates SNVs only).
+- Container: `Dockerfile` with all tools at the pinned versions, profiles `docker` and
+  `singularity`, image built and smoke-tested in CI. `perl-list-moreutils` added to the conda
+  environment (missing VEP dependency).
+- Validation on exome and amplicon data (`validation/targeted/`): GIAB HG002 Agilent exome, HG001
+  TruSeq exome and HG002 Ion AmpliSeq exome against GIAB v4.2.1; mosaic spike-ins
+  (`validation/pathogenic/run_mosaic.sh`, `mosaic_eval.py`).
+- README: feature comparison with BRCA-analyzer.
+
+- GRCh37 position and BIC-style legacy names for every small variant (`grch37Pos`, `bicNames`,
+  shown next to HGVS), for comparison with older reports; checked against 4,464 BRCA Exchange BIC
+  names (89.3 % identical, 96.9 % same position and type).
+- Several samples per run: `bin/brca12_batch.py` reads a sample sheet (FASTQ pair or BAM/CRAM per
+  sample), runs each sample and writes a cohort summary (`bin/brca12_cohort.py`: samples, all calls
+  with carrier counts, contamination hints when a low-fraction call is clearly present in another
+  sample of the batch, `cohort.xlsx`).
+- Excel export of every result (`brca12_report.xlsx`, process `XLSX_EXPORT`, no extra packages).
+- HTML report with figures per gene: mean depth per exon with threshold lines and an exon dosage
+  plot (MLPA-like view of possible exon losses or gains), inline SVG.
+- Russian report language (`--report_lang ru`; machine-assisted, not reviewed by a native speaker).
+- Optional PDF report (`--report_pdf`, `--chrome`): the HTML report printed with headless
+  Chrome/Chromium, A4 with header (sample, RUO) and page numbers; skipped with a note when no
+  browser is available.
 - ACMG/AMP hints now follow the ClinGen ENIGMA BRCA1/BRCA2 specifications v1.2:
   - BA1, BS1 and the new BS1_Supporting use the filtering allele frequency of gnomAD non-cancer
     non-founder populations (`--gnomad_exomes_vcf`, `--gnomad_genomes_vcf`). Without these files

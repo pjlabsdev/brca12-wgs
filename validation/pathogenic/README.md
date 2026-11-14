@@ -189,3 +189,25 @@ MATES=1 validation/pathogenic/run_sv_carriers.sh WORKDIR                  # expe
   sequencing applications. Bioinformatics 2016;32:1220-1222.
 - Talevich E et al. CNVkit: genome-wide copy number detection and visualization from targeted DNA
   sequencing. PLoS Comput Biol 2016;12:e1004873.
+
+## Mosaic spike-ins (`run_mosaic.sh`, `mosaic_eval.py`)
+
+The 94 small events of SPIKE_S1 were spiked into real HG002 reads (about 30x) with a given share of
+read pairs drawn from the event haplotype (`spike.py simulate --fraction`), at 5, 10, 15, 20 and
+30 %, plus a negative control. The pipeline ran from FASTQ with `--mosaic`. Results
+(`results/mosaic_summary.tsv`):
+
+| Allele fraction | Mosaic candidates | Germline caller | Either | False positives |
+|---|---|---|---|---|
+| 5 % | 16 | 12 | 28/94 | 0 |
+| 10 % | 19 | 46 | 65/94 | 0 |
+| 15 % | 15 | 70 | 85/94 | 0 |
+| 20 % | 4 | 90 | 94/94 | 0 |
+| 30 % | 2 | 92 | 94/94 | 0 |
+| negative control | 0 | 0 | - | 0 |
+
+At 30x a 5 % variant is carried by about 1.5 reads on average, which limits detection; deeper data
+(panels, exomes) are needed for low fractions. Germline calls at low fractions carry the
+allele-balance flag. The background sample's own variants are not part of the simulated windows, so
+every non-spiked call counts as a false positive.
+

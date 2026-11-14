@@ -1,0 +1,22 @@
+{
+  "source": "Ensembl REST /sequence/id/{id}?type=cds",
+  "retrieved": "2026-11-14",
+  "genes": {
+    "BRCA1": {
+      "transcript": "ENST00000357654",
+      "refseq": "NM_007294.4",
+      "cds_length": 5592,
+      "starts_ATG": true,
+      "stop": "TGA",
+      "sha256": "2a8bfbf3a33c29bc232c0624f2e685fbe1ca2f114d7e452e1e09d87c597e1929"
+    },
+    "BRCA2": {
+      "transcript": "ENST00000380152",
+      "refseq": "NM_000059.4",
+      "cds_length": 10257,
+      "starts_ATG": true,
+      "stop": "TAA",
+      "sha256": "6a4585fe48cb975fe30eac1e509a8868df3e04d7fd0f7cbc8c01debe1e136d94"
+    }
+  }
+}
