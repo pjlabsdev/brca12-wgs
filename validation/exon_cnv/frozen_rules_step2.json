@@ -1,0 +1,60 @@
+{
+ "frozen_at_utc": "2026-11-14T21:50:50Z",
+ "status": "frozen before any data of test2.tsv were fetched; test2.tsv = positions 160-219 of the 2504 index shuffled with seed 20261114, disjoint from panel, tuning and the step-3 test",
+ "parameters": {
+  "pad_bp": 200,
+  "p_change": 0.05,
+  "call_min_q": 10,
+  "hint_min_q": 5,
+  "min_sd_log2": 0.07,
+  "het_site_min_reads_per_allele": 2,
+  "het_site_min_maf": 0.15
+ },
+ "arms": {
+  "primary": "depth only (pipeline default)",
+  "secondary": "depth + allele balance at heterozygous sites"
+ },
+ "test_protocol": {
+  "commands": [
+   "evaluate_ab.py ../../assets/brca12_exons.bed DATA panel.tsv test2.tsv 3 --no-ab --min-q 10",
+   "evaluate_ab.py ../../assets/brca12_exons.bed DATA panel.tsv test2.tsv 3 --no-ab --min-q 5",
+   "evaluate_ab.py ../../assets/brca12_exons.bed DATA panel.tsv test2.tsv 3 --min-q 10",
+   "evaluate_ab.py ../../assets/brca12_exons.bed DATA panel.tsv test2.tsv 3 --min-q 5"
+  ],
+  "simulated_events": "per sample and gene: DEL 1,2,3,5 exons and whole gene, DUP 1,2,3 exons, BRCA1 exon 1-2 DEL/DUP through BRCA1P1; one real haplotype (phased 1000 Genomes genotypes) removed or duplicated; simulated, not patient samples",
+  "primary_endpoints": [
+   "sensitivity for deletions and duplications at call (Q>=10) and hint (Q>=5) level",
+   "false calls per genome (unmodified samples and outside the event)"
+  ],
+  "not_tested_here": "breakpoint reads (Manta) need sequence-level simulation"
+ },
+ "tuning_result": {
+  "samples": 20,
+  "depth_q10": {
+   "del": "193/200",
+   "dup": "76/120",
+   "false": 0
+  },
+  "depth_q5": {
+   "del": "197/200",
+   "dup": "91/120",
+   "false": "17 in 380 sample-scenarios"
+  },
+  "ab_q10": {
+   "del": "193/200",
+   "dup": "78/120",
+   "false": 0
+  },
+  "gc_correction": "tested, no gain (per-sample SD 0.155 -> 0.154), not used"
+ },
+ "sha256": {
+  "../../bin/brca12lib/exon_cnv.py": "74d07ccde8c81c273ecd6780b051260e3124356cbabbc3a7b6eda7ff888dcf96",
+  "evaluate_ab.py": "538d16127020c5dab442ba18164ca5b7aa475de0c662f67ca9129fce3b66c466",
+  "fetch_alleles.py": "97193e2fa85fa5508cec643e801bfdbd2802d91d938e543e9d27267c79c4afb8",
+  "fetch_controls.py": "2656f66612f27a160bc5b0063a88b15d4a0093c1be87d2f7830179ecf196729c",
+  "panel.tsv": "179633c6c5e2cb7f69765dde22352070fbfa0f602ca93f4a7786cc2a6712f5c6",
+  "tuning.tsv": "7c2cb3cdfea180a788defd8df2d75ec6d196bbeb90bb4a0fa062a4e94cb92250",
+  "test2.tsv": "0fd049c9dd947e929eb1c9a1c32acf8dbe45542f28c22392fc156bd981e130db",
+  "../../assets/exon_cnv_panel_1kg30x.json": "0dd9632cc912703ddc017657cd4bbed943aa7f036497c75d28a003fca805cf7f"
+ }
+}
