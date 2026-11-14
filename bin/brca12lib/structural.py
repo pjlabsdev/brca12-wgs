@@ -164,6 +164,9 @@ def insertion_signals(path, exons):
             flags.append("Zygotie aus Lesungen nicht bestimmbar (alle Referenzübergänge bleiben erhalten)")
         elif "deletion" in row.get("signature", []):
             kind = "Bekanntes Deletionsallel"
+            if row.get("clinicalSignificance") == "pathogenic":
+                kind = "Bekannte pathogene Deletion"
+                flags.append("bekannte pathogene Gründermutation: Bestätigung mit Labormethode nötig")
             flags.append(row.get("label") or "bekanntes Deletionsallel")
             flags.append("Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)")
             if row.get("zygosity") == "homozygous":

@@ -98,7 +98,14 @@ KNOWN_ALLELES = KNOWN_ALLELES + (
     ("dup13_brca1", "chr17", 43084362, ("dup", 43078282, 43084362), False,
      "BRCA1 Duplikation Exon 13 (alte Zählung; Gründermutation)"),
 )
-PATHOGENIC = frozenset({"alu_brca2_c156", "dup13_brca1"})
+# BRCA1 exon 12 (legacy exon 13) deletion of 3,835 bp, Dutch founder allele (Petrij-Bosch et al. 1997;
+# "IVS12-1643del3835" in Zeegers et al. 2004, = c.4186-1643_4357+2020del). On GRCh38 the deleted segment
+# is chr17:43080384-43084218; both ends lie in antisense Alu elements, as described for this
+# Alu-mediated deletion.
+KNOWN_ALLELES = KNOWN_ALLELES + (
+    ("del3835_brca1", "chr17", 43080383, "", False, "BRCA1 Deletion Exon 13 (alte Zählung; 3.835 bp, Gründermutation)", 3835),
+)
+PATHOGENIC = frozenset({"alu_brca2_c156", "dup13_brca1", "del3835_brca1"})
 # realigned tandem-copy allele -> marker position of the same copy in KNOWN_COPIES
 ALLELE_MARKER = {"tandem126": 43128365}
 # marker position of a known copy -> SNPs on the same haplotype (chrom, position, reference, alternative)
