@@ -1,0 +1,7 @@
+tandem126 called: sensitivity 116/116 (95 % CI 0.969-1.000), specificity 80/84 (95 % CI 0.883-0.987)
+tandem126 readEndSignature: sensitivity 97/116 (95 % CI 0.756-0.898), specificity 82/84 (95 % CI 0.917-0.997)
+tandem126 zygosity agreement with long reads: 113/116
+alu_brca2 called: sensitivity 25/25 (95 % CI 0.863-1.000), specificity 175/175 (95 % CI 0.979-1.000)
+alu_brca2 readEndSignature: sensitivity 19/25 (95 % CI 0.549-0.906), specificity 175/175 (95 % CI 0.979-1.000)
+alu_brca2 zygosity agreement with long reads: 25/25
+samples without short reads: 0

@@ -1,0 +1,601 @@
+sample	site	truth	ontSpanning	ontSupporting	paragraphGT	paragraphFT	oursCalled	oursZygosity
+NA12890	alu_brca2	non-carrier			0/0	PASS	no	
+HG02429	alu_brca2	non-carrier			0/0	PASS	no	
+HG03548	alu_brca2	non-carrier			0/0	PASS	no	
+HG01058	alu_brca2	non-carrier			0/0	PASS	no	
+HG01384	alu_brca2	non-carrier			0/0	PASS	no	
+NA18592	alu_brca2	carrier	15	8	0/1	CONFLICT	yes	heterozygous
+HG01107	alu_brca2	non-carrier			0/0	PASS	no	
+NA19207	alu_brca2	non-carrier			0/0	PASS	no	
+HG02445	alu_brca2	non-carrier			0/0	PASS	no	
+HG01506	alu_brca2	non-carrier			0/0	PASS	no	
+HG01773	alu_brca2	non-carrier			0/0	PASS	no	
+HG01935	alu_brca2	non-carrier			0/0	PASS	no	
+HG02768	alu_brca2	non-carrier			0/0	PASS	no	
+HG03973	alu_brca2	non-carrier			0/0	PASS	no	
+NA19734	alu_brca2	carrier	17	7	0/1	GQ	yes	heterozygous
+HG02285	alu_brca2	non-carrier			0/0	PASS	no	
+HG01375	alu_brca2	non-carrier			0/0	PASS	no	
+NA20357	alu_brca2	non-carrier			0/0	PASS	no	
+HG03781	alu_brca2	non-carrier			0/0	PASS	no	
+NA20540	alu_brca2	non-carrier			0/0	PASS	no	
+HG01347	alu_brca2	non-carrier			0/0	PASS	no	
+HG00334	alu_brca2	non-carrier			0/0	PASS	no	
+HG02970	alu_brca2	non-carrier			0/0	PASS	no	
+HG02064	alu_brca2	non-carrier			0/0	PASS	no	
+NA18552	alu_brca2	carrier	7	4	0/1	CONFLICT	yes	heterozygous
+HG03372	alu_brca2	non-carrier			0/0	PASS	no	
+NA18940	alu_brca2	non-carrier			0/0	PASS	no	
+NA20846	alu_brca2	non-carrier			0/0	PASS	no	
+HG03746	alu_brca2	non-carrier			0/0	PASS	no	
+NA20775	alu_brca2	non-carrier			0/0	PASS	no	
+NA20813	alu_brca2	non-carrier			0/0	PASS	no	
+HG01577	alu_brca2	carrier	16	4	0/1	PASS	yes	heterozygous
+HG02180	alu_brca2	non-carrier			0/0	PASS	no	
+HG00513	alu_brca2	non-carrier			0/0	PASS	no	
+NA19818	alu_brca2	non-carrier			0/0	PASS	no	
+HG00313	alu_brca2	non-carrier			0/0	PASS	no	
+HG04227	alu_brca2	non-carrier			0/0	PASS	no	
+HG03048	alu_brca2	non-carrier			0/0	PASS	no	
+HG00530	alu_brca2	non-carrier			0/0	PASS	no	
+HG01948	alu_brca2	non-carrier			0/0	PASS	no	
+HG03708	alu_brca2	non-carrier			0/0	PASS	no	
+HG01997	alu_brca2	non-carrier			0/0	PASS	no	
+NA20348	alu_brca2	non-carrier			0/0	PASS	no	
+NA18953	alu_brca2	non-carrier			0/0	PASS	no	
+HG01551	alu_brca2	non-carrier			0/0	PASS	no	
+HG04147	alu_brca2	non-carrier			0/0	PASS	no	
+HG03821	alu_brca2	non-carrier			0/0	PASS	no	
+HG02611	alu_brca2	non-carrier			0/0	PASS	no	
+HG03793	alu_brca2	non-carrier			0/0	PASS	no	
+HG03722	alu_brca2	non-carrier			0/0	PASS	no	
+HG01853	alu_brca2	non-carrier			0/0	PASS	no	
+HG01136	alu_brca2	carrier	14	4	0/1	PASS	yes	heterozygous
+NA18570	alu_brca2	non-carrier			0/0	PASS	no	
+NA06989	alu_brca2	non-carrier			0/0	PASS	no	
+HG01608	alu_brca2	non-carrier			0/0	PASS	no	
+NA19017	alu_brca2	non-carrier			0/0	PASS	no	
+NA18941	alu_brca2	carrier	25	9	0/1	PASS	yes	heterozygous
+NA18528	alu_brca2	non-carrier			0/0	PASS	no	
+HG02944	alu_brca2	non-carrier			0/0	PASS	no	
+HG02657	alu_brca2	non-carrier			0/0	PASS	no	
+HG01873	alu_brca2	non-carrier			0/0	PASS	no	
+HG02976	alu_brca2	non-carrier			0/0	PASS	no	
+HG00427	alu_brca2	non-carrier			0/0	PASS	no	
+HG01344	alu_brca2	carrier	13	6	0/1	GQ	yes	heterozygous
+NA21114	alu_brca2	non-carrier			0/0	PASS	no	
+HG03600	alu_brca2	non-carrier			0/0	PASS	no	
+HG01694	alu_brca2	non-carrier			0/0	PASS	no	
+NA19003	alu_brca2	non-carrier			0/0	PASS	no	
+HG02224	alu_brca2	non-carrier			0/0	PASS	no	
+HG01286	alu_brca2	non-carrier			0/0	PASS	no	
+HG02496	alu_brca2	non-carrier			0/0	PASS	no	
+HG03439	alu_brca2	non-carrier			0/0	PASS	no	
+HG01137	alu_brca2	non-carrier			0/0	PASS	no	
+HG01932	alu_brca2	non-carrier			0/0	PASS	no	
+HG00409	alu_brca2	non-carrier			0/0	PASS	no	
+HG01474	alu_brca2	non-carrier			0/0	PASS	no	
+HG01284	alu_brca2	non-carrier			0/0	PASS	no	
+NA21117	alu_brca2	non-carrier			0/0	PASS	no	
+HG01589	alu_brca2	non-carrier			0/0	PASS	no	
+HG02522	alu_brca2	non-carrier			0/0	PASS	no	
+NA07014	alu_brca2	non-carrier			0/0	PASS	no	
+HG03086	alu_brca2	non-carrier			0/0	PASS	no	
+NA18868	alu_brca2	non-carrier			0/0	PASS	no	
+HG00149	alu_brca2	non-carrier			0/0	PASS	no	
+HG02737	alu_brca2	non-carrier			0/0	PASS	no	
+NA19351	alu_brca2	non-carrier			0/0	PASS	no	
+HG01779	alu_brca2	non-carrier			0/0	PASS	no	
+HG02938	alu_brca2	non-carrier			0/0	PASS	no	
+HG00368	alu_brca2	non-carrier			0/0	PASS	no	
+HG03844	alu_brca2	carrier	4	2	0/0	CONFLICT	yes	heterozygous
+HG03870	alu_brca2	non-carrier			0/0	PASS	no	
+HG02688	alu_brca2	non-carrier			0/0	PASS	no	
+HG02031	alu_brca2	carrier	9	3	0/1	GQ	yes	heterozygous
+HG01806	alu_brca2	non-carrier			0/0	PASS	no	
+HG03730	alu_brca2	non-carrier			0/0	PASS	no	
+NA19819	alu_brca2	non-carrier			0/0	PASS	no	
+HG01676	alu_brca2	non-carrier			0/0	PASS	no	
+HG01348	alu_brca2	non-carrier			0/0	PASS	no	
+HG03009	alu_brca2	non-carrier			0/0	PASS	no	
+NA19789	alu_brca2	non-carrier			0/0	PASS	no	
+HG04200	alu_brca2	non-carrier			0/0	PASS	no	
+HG03904	alu_brca2	carrier	15	7	0/1	GQ	yes	heterozygous
+HG00378	alu_brca2	non-carrier			0/0	PASS	no	
+NA20298	alu_brca2	non-carrier			0/0	PASS	no	
+NA20530	alu_brca2	non-carrier			0/0	PASS	no	
+HG01527	alu_brca2	non-carrier			0/0	PASS	no	
+NA19385	alu_brca2	non-carrier			0/0	PASS	no	
+HG03888	alu_brca2	non-carrier			0/0	PASS	no	
+HG00255	alu_brca2	non-carrier			0/0	PASS	no	
+NA18520	alu_brca2	non-carrier			0/0	PASS	no	
+HG01356	alu_brca2	non-carrier			0/0	PASS	no	
+NA19393	alu_brca2	non-carrier			0/0	PASS	no	
+NA20764	alu_brca2	non-carrier			0/0	PASS	no	
+HG03871	alu_brca2	non-carrier			0/0	PASS	no	
+HG03097	alu_brca2	non-carrier			0/0	PASS	no	
+HG01942	alu_brca2	non-carrier			0/0	PASS	no	
+HG03461	alu_brca2	non-carrier			0/0	PASS	no	
+NA18965	alu_brca2	carrier	19	9	0/1	PASS	yes	heterozygous
+NA19909	alu_brca2	non-carrier			0/0	PASS	no	
+HG03388	alu_brca2	non-carrier			0/0	PASS	no	
+NA20896	alu_brca2	non-carrier			0/0	PASS	no	
+NA18544	alu_brca2	non-carrier			0/0	PASS	no	
+NA19900	alu_brca2	carrier	10	6	0/1	CONFLICT	yes	heterozygous
+HG03593	alu_brca2	non-carrier			0/0	PASS	no	
+NA19153	alu_brca2	non-carrier			0/0	PASS	no	
+HG02069	alu_brca2	non-carrier			0/0	PASS	no	
+HG02182	alu_brca2	non-carrier			0/0	PASS	no	
+HG00252	alu_brca2	non-carrier			0/0	PASS	no	
+NA19001	alu_brca2	carrier	6	2	0/1	PASS	yes	heterozygous
+HG02728	alu_brca2	non-carrier			0/0	PASS	no	
+HG02017	alu_brca2	non-carrier			0/0	PASS	no	
+HG03848	alu_brca2	non-carrier			0/0	PASS	no	
+NA10859	alu_brca2	non-carrier			0/0	PASS	no	
+HG03802	alu_brca2	non-carrier			0/0	PASS	no	
+NA20278	alu_brca2	non-carrier			0/0	PASS	no	
+HG01988	alu_brca2	non-carrier			0/0	PASS	no	
+HG03247	alu_brca2	non-carrier			0/0	PASS	no	
+HG01345	alu_brca2	non-carrier			0/0	PASS	no	
+HG01278	alu_brca2	non-carrier			0/0	PASS	no	
+NA19043	alu_brca2	non-carrier			0/0	PASS	no	
+HG02789	alu_brca2	non-carrier			0/0	PASS	no	
+HG03111	alu_brca2	non-carrier			0/0	PASS	no	
+NA20289	alu_brca2	non-carrier			0/0	PASS	no	
+HG01028	alu_brca2	non-carrier			0/0	PASS	no	
+HG02410	alu_brca2	non-carrier			0/0	PASS	no	
+HG02721	alu_brca2	carrier	18	14	0/1	GQ	yes	heterozygous
+HG03499	alu_brca2	non-carrier			0/0	PASS	no	
+HG00188	alu_brca2	non-carrier			0/0	PASS	no	
+NA18565	alu_brca2	non-carrier			0/0	PASS	no	
+HG02895	alu_brca2	non-carrier			0/0	PASS	no	
+NA20761	alu_brca2	non-carrier			0/0	PASS	no	
+HG04180	alu_brca2	carrier	14	7	0/1	GQ	yes	heterozygous
+HG01174	alu_brca2	non-carrier			0/0	PASS	no	
+HG00242	alu_brca2	non-carrier			0/0	PASS	no	
+HG03784	alu_brca2	carrier	27	16	0/1	PASS	yes	heterozygous
+HG04177	alu_brca2	carrier	15	6	0/1	PASS	yes	heterozygous
+HG03437	alu_brca2	non-carrier			0/0	PASS	no	
+NA20359	alu_brca2	non-carrier			0/0	PASS	no	
+HG03114	alu_brca2	non-carrier			0/0	PASS	no	
+HG01072	alu_brca2	non-carrier			0/0	PASS	no	
+NA19449	alu_brca2	non-carrier			0/0	PASS	no	
+HG02111	alu_brca2	non-carrier			0/0	PASS	no	
+HG01617	alu_brca2	non-carrier			0/0	PASS	no	
+HG01086	alu_brca2	non-carrier			0/0	PASS	no	
+HG03240	alu_brca2	non-carrier			0/0	PASS	no	
+HG00651	alu_brca2	non-carrier			0/0	PASS	no	
+HG03518	alu_brca2	non-carrier			0/0	PASS	no	
+HG02184	alu_brca2	non-carrier			0/0	PASS	no	
+NA18947	alu_brca2	non-carrier			0/0	PASS	no	
+HG03742	alu_brca2	non-carrier			0/0	PASS	no	
+HG01786	alu_brca2	non-carrier			0/0	PASS	no	
+HG01513	alu_brca2	carrier	11	3	0/0	GQ	yes	heterozygous
+HG01923	alu_brca2	carrier	9	3	0/1	PASS	yes	heterozygous
+HG03074	alu_brca2	non-carrier			0/0	PASS	no	
+NA19391	alu_brca2	non-carrier			0/0	PASS	no	
+HG00130	alu_brca2	non-carrier			0/0	PASS	no	
+HG03311	alu_brca2	non-carrier			0/0	PASS	no	
+HG02156	alu_brca2	non-carrier			0/0	PASS	no	
+HG00235	alu_brca2	carrier	30	14	0/1	PASS	yes	heterozygous
+HG01595	alu_brca2	carrier	15	12	0/1	GQ	yes	heterozygous
+NA18595	alu_brca2	non-carrier			0/0	PASS	no	
+NA21103	alu_brca2	non-carrier			0/0	PASS	no	
+HG02067	alu_brca2	non-carrier			0/0	PASS	no	
+HG03228	alu_brca2	non-carrier			0/0	PASS	no	
+HG03836	alu_brca2	non-carrier			0/0	PASS	no	
+HG02128	alu_brca2	non-carrier			0/0	PASS	no	
+HG01566	alu_brca2	non-carrier			0/0	PASS	no	
+HG03212	alu_brca2	non-carrier			0/0	PASS	no	
+HG00114	alu_brca2	non-carrier			0/0	PASS	no	
+HG04014	alu_brca2	non-carrier			0/0	PASS	no	
+HG03780	alu_brca2	carrier	11	3	0/1	PASS	yes	heterozygous
+HG02277	alu_brca2	non-carrier			0/0	PASS	no	
+NA19144	alu_brca2	non-carrier			0/0	PASS	no	
+HG03577	alu_brca2	non-carrier			0/0	PASS	no	
+NA18960	alu_brca2	non-carrier			0/0	PASS	no	
+HG01550	alu_brca2	carrier	23	10	0/1	CONFLICT	yes	heterozygous
+HG01859	alu_brca2	carrier	16	9	0/1	PASS	yes	heterozygous
+NA20888	alu_brca2	carrier	37	16	0/1	PASS	yes	heterozygous
+HG03442	alu_brca2	non-carrier			0/0	PASS	no	
+NA19128	alu_brca2	non-carrier			0/0	PASS	no	
+NA12890	del980_brca1	non-carrier			0/0	PASS	no	
+HG02429	del980_brca1	non-carrier			0/0	PASS	no	
+HG03548	del980_brca1	non-carrier			0/0	PASS	no	
+HG01058	del980_brca1	non-carrier			0/0	PASS	no	
+HG01384	del980_brca1	non-carrier			0/0	PASS	no	
+NA18592	del980_brca1	non-carrier			0/0	PASS	no	
+HG01107	del980_brca1	non-carrier			0/0	PASS	no	
+NA19207	del980_brca1	non-carrier			0/0	PASS	no	
+HG02445	del980_brca1	non-carrier			0/0	PASS	no	
+HG01506	del980_brca1	non-carrier			0/0	PASS	no	
+HG01773	del980_brca1	non-carrier			0/0	PASS	no	
+HG01935	del980_brca1	non-carrier			0/0	PASS	no	
+HG02768	del980_brca1	non-carrier			0/0	PASS	no	
+HG03973	del980_brca1	non-carrier			0/0	PASS	no	
+NA19734	del980_brca1	non-carrier			0/0	PASS	no	
+HG02285	del980_brca1	non-carrier			0/0	PASS	no	
+HG01375	del980_brca1	non-carrier			0/0	PASS	no	
+NA20357	del980_brca1	non-carrier			0/0	PASS	no	
+HG03781	del980_brca1	non-carrier			0/0	PASS	no	
+NA20540	del980_brca1	non-carrier			0/0	PASS	no	
+HG01347	del980_brca1	non-carrier			0/0	PASS	no	
+HG00334	del980_brca1	non-carrier			0/0	PASS	no	
+HG02970	del980_brca1	non-carrier			0/0	PASS	no	
+HG02064	del980_brca1	non-carrier			0/0	PASS	no	
+NA18552	del980_brca1	non-carrier			0/0	PASS	no	
+HG03372	del980_brca1	non-carrier			0/0	PASS	no	
+NA18940	del980_brca1	non-carrier			0/0	PASS	no	
+NA20846	del980_brca1	non-carrier			0/0	PASS	no	
+HG03746	del980_brca1	non-carrier			0/0	PASS	no	
+NA20775	del980_brca1	non-carrier			0/0	PASS	no	
+NA20813	del980_brca1	non-carrier			0/0	PASS	no	
+HG01577	del980_brca1	non-carrier			0/0	PASS	no	
+HG02180	del980_brca1	non-carrier			0/0	PASS	no	
+HG00513	del980_brca1	non-carrier			0/0	PASS	no	
+NA19818	del980_brca1	non-carrier			0/0	PASS	no	
+HG00313	del980_brca1	non-carrier			0/0	PASS	no	
+HG04227	del980_brca1	non-carrier			0/0	PASS	no	
+HG03048	del980_brca1	non-carrier			0/0	PASS	no	
+HG00530	del980_brca1	non-carrier			0/0	PASS	no	
+HG01948	del980_brca1	non-carrier			0/0	PASS	no	
+HG03708	del980_brca1	non-carrier			0/0	PASS	no	
+HG01997	del980_brca1	non-carrier			0/0	PASS	no	
+NA20348	del980_brca1	non-carrier			0/0	PASS	no	
+NA18953	del980_brca1	non-carrier			0/0	PASS	no	
+HG01551	del980_brca1	non-carrier			0/0	PASS	no	
+HG04147	del980_brca1	non-carrier			0/0	PASS	no	
+HG03821	del980_brca1	non-carrier			0/0	PASS	no	
+HG02611	del980_brca1	non-carrier			0/0	PASS	no	
+HG03793	del980_brca1	non-carrier			0/0	PASS	no	
+HG03722	del980_brca1	non-carrier			0/0	PASS	no	
+HG01853	del980_brca1	non-carrier			0/0	PASS	no	
+HG01136	del980_brca1	non-carrier			0/0	PASS	no	
+NA18570	del980_brca1	non-carrier			0/0	PASS	no	
+NA06989	del980_brca1	non-carrier			0/0	PASS	no	
+HG01608	del980_brca1	non-carrier			0/0	PASS	no	
+NA19017	del980_brca1	non-carrier			0/0	PASS	no	
+NA18941	del980_brca1	non-carrier			0/0	PASS	no	
+NA18528	del980_brca1	non-carrier			0/0	PASS	no	
+HG02944	del980_brca1	non-carrier			0/0	PASS	no	
+HG02657	del980_brca1	non-carrier			0/0	PASS	no	
+HG01873	del980_brca1	non-carrier			0/0	PASS	no	
+HG02976	del980_brca1	non-carrier			0/0	PASS	no	
+HG00427	del980_brca1	non-carrier			0/0	PASS	no	
+HG01344	del980_brca1	non-carrier			0/0	PASS	no	
+NA21114	del980_brca1	non-carrier			0/0	PASS	no	
+HG03600	del980_brca1	non-carrier			0/0	PASS	no	
+HG01694	del980_brca1	non-carrier			0/0	PASS	no	
+NA19003	del980_brca1	non-carrier			0/0	PASS	no	
+HG02224	del980_brca1	non-carrier			0/0	PASS	no	
+HG01286	del980_brca1	non-carrier			0/0	PASS	no	
+HG02496	del980_brca1	non-carrier			0/0	PASS	no	
+HG03439	del980_brca1	carrier	15	6	0/1	PASS	yes	heterozygous
+HG01137	del980_brca1	non-carrier			0/0	PASS	no	
+HG01932	del980_brca1	non-carrier			0/0	PASS	no	
+HG00409	del980_brca1	non-carrier			0/0	PASS	no	
+HG01474	del980_brca1	non-carrier			0/0	PASS	no	
+HG01284	del980_brca1	non-carrier			0/0	PASS	no	
+NA21117	del980_brca1	non-carrier			0/0	PASS	no	
+HG01589	del980_brca1	non-carrier			0/0	PASS	no	
+HG02522	del980_brca1	non-carrier			0/0	PASS	no	
+NA07014	del980_brca1	non-carrier			0/0	PASS	no	
+HG03086	del980_brca1	non-carrier			0/0	PASS	no	
+NA18868	del980_brca1	non-carrier			0/0	PASS	no	
+HG00149	del980_brca1	non-carrier			0/0	PASS	no	
+HG02737	del980_brca1	non-carrier			0/0	PASS	no	
+NA19351	del980_brca1	non-carrier			0/0	PASS	no	
+HG01779	del980_brca1	non-carrier			0/0	PASS	no	
+HG02938	del980_brca1	non-carrier			0/0	PASS	no	
+HG00368	del980_brca1	non-carrier			0/0	PASS	no	
+HG03844	del980_brca1	non-carrier			0/0	PASS	no	
+HG03870	del980_brca1	non-carrier			0/0	PASS	no	
+HG02688	del980_brca1	non-carrier			0/0	PASS	no	
+HG02031	del980_brca1	non-carrier			0/0	PASS	no	
+HG01806	del980_brca1	non-carrier			0/0	PASS	no	
+HG03730	del980_brca1	non-carrier			0/0	PASS	no	
+NA19819	del980_brca1	carrier	7	4	0/1	PASS	yes	heterozygous
+HG01676	del980_brca1	non-carrier			0/0	PASS	no	
+HG01348	del980_brca1	non-carrier			0/0	PASS	no	
+HG03009	del980_brca1	non-carrier			0/0	PASS	no	
+NA19789	del980_brca1	non-carrier			0/0	PASS	no	
+HG04200	del980_brca1	non-carrier			0/0	PASS	no	
+HG03904	del980_brca1	non-carrier			0/0	PASS	no	
+HG00378	del980_brca1	non-carrier			0/0	PASS	no	
+NA20298	del980_brca1	non-carrier			0/0	PASS	no	
+NA20530	del980_brca1	non-carrier			0/0	PASS	no	
+HG01527	del980_brca1	non-carrier			0/0	PASS	no	
+NA19385	del980_brca1	non-carrier			0/0	PASS	no	
+HG03888	del980_brca1	non-carrier			0/0	PASS	no	
+HG00255	del980_brca1	non-carrier			0/0	BP_DEPTH	no	
+NA18520	del980_brca1	non-carrier			0/0	PASS	no	
+HG01356	del980_brca1	non-carrier			0/0	PASS	no	
+NA19393	del980_brca1	non-carrier			0/0	PASS	no	
+NA20764	del980_brca1	non-carrier			0/0	PASS	no	
+HG03871	del980_brca1	non-carrier			0/0	PASS	no	
+HG03097	del980_brca1	non-carrier			0/0	PASS	no	
+HG01942	del980_brca1	non-carrier			0/0	PASS	no	
+HG03461	del980_brca1	non-carrier			0/0	PASS	no	
+NA18965	del980_brca1	non-carrier			0/0	PASS	no	
+NA19909	del980_brca1	non-carrier			0/0	PASS	no	
+HG03388	del980_brca1	non-carrier			0/0	PASS	no	
+NA20896	del980_brca1	non-carrier			0/0	PASS	no	
+NA18544	del980_brca1	non-carrier			0/0	PASS	no	
+NA19900	del980_brca1	non-carrier			0/0	PASS	no	
+HG03593	del980_brca1	non-carrier			0/0	PASS	no	
+NA19153	del980_brca1	non-carrier			0/0	PASS	no	
+HG02069	del980_brca1	non-carrier			0/0	PASS	no	
+HG02182	del980_brca1	non-carrier			0/0	PASS	no	
+HG00252	del980_brca1	non-carrier			0/0	PASS	no	
+NA19001	del980_brca1	non-carrier			0/0	PASS	no	
+HG02728	del980_brca1	non-carrier			0/0	PASS	no	
+HG02017	del980_brca1	non-carrier			0/0	PASS	no	
+HG03848	del980_brca1	non-carrier			0/0	PASS	no	
+NA10859	del980_brca1	non-carrier			0/0	PASS	no	
+HG03802	del980_brca1	non-carrier			0/0	PASS	no	
+NA20278	del980_brca1	non-carrier			0/0	PASS	no	
+HG01988	del980_brca1	non-carrier			0/0	PASS	no	
+HG03247	del980_brca1	non-carrier			0/0	PASS	no	
+HG01345	del980_brca1	non-carrier			0/0	PASS	no	
+HG01278	del980_brca1	non-carrier			0/0	PASS	no	
+NA19043	del980_brca1	non-carrier			0/0	BP_DEPTH	no	
+HG02789	del980_brca1	non-carrier			0/0	PASS	no	
+HG03111	del980_brca1	non-carrier			0/0	PASS	no	
+NA20289	del980_brca1	non-carrier			0/0	PASS	no	
+HG01028	del980_brca1	non-carrier			0/0	PASS	no	
+HG02410	del980_brca1	non-carrier			0/0	PASS	no	
+HG02721	del980_brca1	non-carrier			0/0	PASS	no	
+HG03499	del980_brca1	non-carrier			0/0	PASS	no	
+HG00188	del980_brca1	non-carrier			0/0	PASS	no	
+NA18565	del980_brca1	non-carrier			0/0	PASS	no	
+HG02895	del980_brca1	non-carrier			0/0	PASS	no	
+NA20761	del980_brca1	non-carrier			0/0	PASS	no	
+HG04180	del980_brca1	non-carrier			0/0	PASS	no	
+HG01174	del980_brca1	non-carrier			0/0	PASS	no	
+HG00242	del980_brca1	non-carrier			0/0	PASS	no	
+HG03784	del980_brca1	non-carrier			0/0	PASS	no	
+HG04177	del980_brca1	non-carrier			0/0	PASS	no	
+HG03437	del980_brca1	non-carrier			0/0	PASS	no	
+NA20359	del980_brca1	non-carrier			0/0	PASS	no	
+HG03114	del980_brca1	non-carrier			0/0	PASS	no	
+HG01072	del980_brca1	non-carrier			0/0	PASS	no	
+NA19449	del980_brca1	non-carrier			0/0	PASS	no	
+HG02111	del980_brca1	non-carrier			0/0	PASS	no	
+HG01617	del980_brca1	non-carrier			0/0	PASS	no	
+HG01086	del980_brca1	non-carrier			0/0	PASS	no	
+HG03240	del980_brca1	non-carrier			0/0	PASS	no	
+HG00651	del980_brca1	non-carrier			0/0	PASS	no	
+HG03518	del980_brca1	non-carrier			0/0	PASS	no	
+HG02184	del980_brca1	non-carrier			0/0	PASS	no	
+NA18947	del980_brca1	non-carrier			0/0	PASS	no	
+HG03742	del980_brca1	non-carrier			0/0	PASS	no	
+HG01786	del980_brca1	non-carrier			0/0	BP_DEPTH	no	
+HG01513	del980_brca1	non-carrier			0/0	PASS	no	
+HG01923	del980_brca1	non-carrier			0/0	PASS	no	
+HG03074	del980_brca1	non-carrier			0/0	PASS	no	
+NA19391	del980_brca1	non-carrier			0/0	PASS	no	
+HG00130	del980_brca1	non-carrier			0/0	PASS	no	
+HG03311	del980_brca1	non-carrier			0/0	PASS	no	
+HG02156	del980_brca1	non-carrier			0/0	PASS	no	
+HG00235	del980_brca1	non-carrier			0/0	PASS	no	
+HG01595	del980_brca1	non-carrier			0/0	PASS	no	
+NA18595	del980_brca1	non-carrier			0/0	PASS	no	
+NA21103	del980_brca1	non-carrier			0/0	PASS	no	
+HG02067	del980_brca1	non-carrier			0/0	PASS	no	
+HG03228	del980_brca1	non-carrier			0/0	PASS	no	
+HG03836	del980_brca1	non-carrier			0/0	PASS	no	
+HG02128	del980_brca1	non-carrier			0/0	PASS	no	
+HG01566	del980_brca1	non-carrier			0/0	PASS	no	
+HG03212	del980_brca1	non-carrier			0/0	PASS	no	
+HG00114	del980_brca1	non-carrier			0/0	PASS	no	
+HG04014	del980_brca1	non-carrier			0/0	PASS	no	
+HG03780	del980_brca1	non-carrier			0/0	PASS	no	
+HG02277	del980_brca1	non-carrier			0/0	PASS	no	
+NA19144	del980_brca1	non-carrier			0/0	PASS	no	
+HG03577	del980_brca1	non-carrier			0/0	PASS	no	
+NA18960	del980_brca1	non-carrier			0/0	PASS	no	
+HG01550	del980_brca1	non-carrier			0/0	PASS	no	
+HG01859	del980_brca1	non-carrier			0/0	PASS	no	
+NA20888	del980_brca1	non-carrier			0/0	PASS	no	
+HG03442	del980_brca1	non-carrier			0/0	PASS	no	
+NA19128	del980_brca1	non-carrier			0/0	PASS	no	
+NA12890	tandem126	non-carrier			0/0	PASS	no	
+HG02429	tandem126	non-carrier			0/0	PASS	no	
+HG03548	tandem126	carrier	20	10	0/1	PASS	yes	heterozygous
+HG01058	tandem126	non-carrier			0/0	PASS	no	
+HG01384	tandem126	carrier	31	13	0/1	PASS	yes	heterozygous
+NA18592	tandem126	carrier	13	6	0/1	PASS	yes	heterozygous
+HG01107	tandem126	carrier	19	19	1/1	PASS	yes	homozygous
+NA19207	tandem126	carrier	9	4	0/1	PASS	yes	heterozygous
+HG02445	tandem126	non-carrier			0/0	PASS	no	
+HG01506	tandem126	carrier	21	21	1/1	PASS	yes	homozygous
+HG01773	tandem126	carrier	9	5	0/1	PASS	yes	heterozygous
+HG01935	tandem126	carrier	16	11	0/1	PASS	yes	heterozygous
+HG02768	tandem126	non-carrier			0/0	PASS	no	
+HG03973	tandem126	carrier	15	15	1/1	PASS	yes	homozygous
+NA19734	tandem126	carrier	7	7	1/1	PASS	yes	heterozygous
+HG02285	tandem126	carrier	11	6	0/1	PASS	yes	heterozygous
+HG01375	tandem126	non-carrier			0/0	PASS	no	
+NA20357	tandem126	carrier	20	7	0/1	PASS	yes	heterozygous
+HG03781	tandem126	non-carrier			0/0	PASS	no	
+NA20540	tandem126	carrier	11	7	0/1	PASS	yes	heterozygous
+HG01347	tandem126	carrier	19	19	1/1	PASS	yes	homozygous
+HG00334	tandem126	carrier	24	11	0/1	PASS	yes	heterozygous
+HG02970	tandem126	carrier	8	8	1/1	PASS	yes	homozygous
+HG02064	tandem126	non-carrier			0/0	PASS	no	
+NA18552	tandem126	carrier	9	5	0/1	PASS	yes	heterozygous
+HG03372	tandem126	non-carrier			0/0	PASS	no	
+NA18940	tandem126	non-carrier			0/1	PASS	yes	heterozygous
+NA20846	tandem126	carrier	27	13	0/1	PASS	yes	heterozygous
+HG03746	tandem126	non-carrier			0/0	PASS	no	
+NA20775	tandem126	non-carrier			0/0	PASS	no	
+NA20813	tandem126	carrier	12	7	0/1	PASS	yes	heterozygous
+HG01577	tandem126	carrier	9	3	0/1	PASS	yes	heterozygous
+HG02180	tandem126	carrier	33	19	0/1	PASS	yes	heterozygous
+HG00513	tandem126	non-carrier			0/0	PASS	no	
+NA19818	tandem126	carrier	13	8	0/1	PASS	yes	heterozygous
+HG00313	tandem126	non-carrier			0/0	PASS	no	
+HG04227	tandem126	carrier	15	5	0/1	PASS	yes	heterozygous
+HG03048	tandem126	non-carrier			0/0	PASS	no	
+HG00530	tandem126	non-carrier			0/0	PASS	no	
+HG01948	tandem126	carrier	12	5	0/1	PASS	yes	heterozygous
+HG03708	tandem126	carrier	7	7	1/1	PASS	yes	homozygous
+HG01997	tandem126	carrier	6	3	0/1	PASS	yes	heterozygous
+NA20348	tandem126	carrier	17	9	0/1	PASS	yes	heterozygous
+NA18953	tandem126	non-carrier			0/0	PASS	no	
+HG01551	tandem126	carrier	23	13	0/1	PASS	yes	homozygous
+HG04147	tandem126	carrier	18	5	0/1	PASS	yes	heterozygous
+HG03821	tandem126	non-carrier			0/0	PASS	no	
+HG02611	tandem126	non-carrier			0/0	PASS	no	
+HG03793	tandem126	carrier	10	3	0/1	PASS	yes	heterozygous
+HG03722	tandem126	carrier	10	10	1/1	PASS	yes	homozygous
+HG01853	tandem126	non-carrier			0/0	PASS	no	
+HG01136	tandem126	carrier	22	10	0/1	PASS	yes	heterozygous
+NA18570	tandem126	carrier	17	16	1/1	PASS	yes	homozygous
+NA06989	tandem126	non-carrier			0/0	PASS	no	
+HG01608	tandem126	non-carrier			0/0	PASS	no	
+NA19017	tandem126	non-carrier			0/0	PASS	no	
+NA18941	tandem126	non-carrier			0/0	PASS	no	
+NA18528	tandem126	carrier	12	10	0/1	PASS	yes	heterozygous
+HG02944	tandem126	non-carrier			0/0	PASS	no	
+HG02657	tandem126	non-carrier			0/0	PASS	no	
+HG01873	tandem126	carrier	11	4	0/1	PASS	yes	heterozygous
+HG02976	tandem126	carrier	41	21	0/1	PASS	yes	heterozygous
+HG00427	tandem126	non-carrier			0/0	PASS	no	
+HG01344	tandem126	carrier	22	11	0/1	PASS	yes	heterozygous
+NA21114	tandem126	carrier	20	20	1/1	PASS	yes	homozygous
+HG03600	tandem126	carrier	9	2	0/1	PASS	yes	heterozygous
+HG01694	tandem126	non-carrier			0/0	PASS	no	
+NA19003	tandem126	carrier	11	5	0/1	PASS	yes	heterozygous
+HG02224	tandem126	carrier	13	6	0/1	PASS	yes	heterozygous
+HG01286	tandem126	non-carrier			0/0	PASS	no	
+HG02496	tandem126	carrier	33	20	0/1	PASS	yes	heterozygous
+HG03439	tandem126	carrier	21	13	0/0	CONFLICT	yes	heterozygous
+HG01137	tandem126	carrier	8	8	1/1	PASS	yes	homozygous
+HG01932	tandem126	carrier	46	19	0/1	GQ	yes	heterozygous
+HG00409	tandem126	carrier	8	4	0/1	PASS	yes	heterozygous
+HG01474	tandem126	non-carrier			0/0	PASS	no	
+HG01284	tandem126	non-carrier			0/0	PASS	no	
+NA21117	tandem126	carrier	13	7	0/1	PASS	yes	heterozygous
+HG01589	tandem126	carrier	16	7	0/1	PASS	yes	heterozygous
+HG02522	tandem126	carrier	15	6	0/1	GQ	yes	heterozygous
+NA07014	tandem126	carrier	13	8	0/1	PASS	yes	heterozygous
+HG03086	tandem126	carrier	18	18	1/1	PASS	yes	homozygous
+NA18868	tandem126	carrier	14	6	0/1	PASS	yes	heterozygous
+HG00149	tandem126	carrier	51	29	0/1	PASS	yes	heterozygous
+HG02737	tandem126	carrier	21	7	0/1	PASS	yes	heterozygous
+NA19351	tandem126	non-carrier			0/0	PASS	no	
+HG01779	tandem126	carrier	20	20	1/1	PASS	yes	homozygous
+HG02938	tandem126	non-carrier			0/0	PASS	no	
+HG00368	tandem126	carrier	32	14	0/1	GQ	yes	heterozygous
+HG03844	tandem126	non-carrier			0/0	PASS	no	
+HG03870	tandem126	carrier	14	13	1/1	PASS	yes	homozygous
+HG02688	tandem126	carrier	17	17	1/1	PASS	yes	homozygous
+HG02031	tandem126	non-carrier			0/0	PASS	no	
+HG01806	tandem126	carrier	8	4	0/1	PASS	yes	heterozygous
+HG03730	tandem126	carrier	13	7	0/1	PASS	yes	heterozygous
+NA19819	tandem126	carrier	21	8	0/1	GQ	yes	heterozygous
+HG01676	tandem126	carrier	35	17	0/1	PASS	yes	heterozygous
+HG01348	tandem126	carrier	13	8	0/1	PASS	yes	heterozygous
+HG03009	tandem126	carrier	36	17	0/1	PASS	yes	heterozygous
+NA19789	tandem126	non-carrier			0/1	PASS	yes	heterozygous
+HG04200	tandem126	carrier	19	12	0/1	PASS	yes	heterozygous
+HG03904	tandem126	carrier	20	20	1/1	PASS	yes	homozygous
+HG00378	tandem126	non-carrier			0/0	PASS	no	
+NA20298	tandem126	non-carrier			0/0	PASS	no	
+NA20530	tandem126	non-carrier			0/0	PASS	no	
+HG01527	tandem126	non-carrier			0/1	PASS	yes	heterozygous
+NA19385	tandem126	non-carrier			0/0	PASS	no	
+HG03888	tandem126	carrier	15	15	1/1	PASS	yes	homozygous
+HG00255	tandem126	carrier	25	25	1/1	PASS	yes	homozygous
+NA18520	tandem126	carrier	11	6	0/1	PASS	yes	heterozygous
+HG01356	tandem126	carrier	15	6	0/1	PASS	yes	heterozygous
+NA19393	tandem126	carrier	10	3	0/0	PASS	yes	heterozygous
+NA20764	tandem126	non-carrier			0/0	PASS	no	
+HG03871	tandem126	carrier	11	11	1/1	GQ	yes	homozygous
+HG03097	tandem126	non-carrier			0/0	PASS	no	
+HG01942	tandem126	carrier	8	8	1/1	PASS	yes	homozygous
+HG03461	tandem126	carrier	14	6	0/1	CONFLICT	yes	heterozygous
+NA18965	tandem126	non-carrier			0/0	PASS	no	
+NA19909	tandem126	carrier	21	12	0/1	PASS	yes	heterozygous
+HG03388	tandem126	non-carrier			0/0	PASS	no	
+NA20896	tandem126	non-carrier			0/0	PASS	no	
+NA18544	tandem126	non-carrier			0/0	PASS	no	
+NA19900	tandem126	carrier	20	11	0/1	PASS	yes	heterozygous
+HG03593	tandem126	carrier	22	22	1/1	PASS	yes	homozygous
+NA19153	tandem126	non-carrier			0/0	PASS	no	
+HG02069	tandem126	carrier	6	3	0/1	PASS	yes	heterozygous
+HG02182	tandem126	non-carrier			0/0	PASS	no	
+HG00252	tandem126	non-carrier			0/0	PASS	no	
+NA19001	tandem126	carrier	10	9	0/1	GQ	yes	heterozygous
+HG02728	tandem126	carrier	11	8	0/1	PASS	yes	heterozygous
+HG02017	tandem126	carrier	16	7	0/1	PASS	yes	heterozygous
+HG03848	tandem126	carrier	9	9	1/1	PASS	yes	homozygous
+NA10859	tandem126	carrier	5	3	0/1	PASS	yes	heterozygous
+HG03802	tandem126	non-carrier			0/0	PASS	no	
+NA20278	tandem126	non-carrier			0/0	PASS	no	
+HG01988	tandem126	non-carrier			0/0	PASS	no	
+HG03247	tandem126	carrier	8	2	0/1	PASS	yes	heterozygous
+HG01345	tandem126	carrier	22	9	0/1	CONFLICT	yes	heterozygous
+HG01278	tandem126	non-carrier			0/0	PASS	no	
+NA19043	tandem126	carrier	9	9	1/1	PASS	yes	homozygous
+HG02789	tandem126	carrier	8	4	0/1	GQ	yes	heterozygous
+HG03111	tandem126	carrier	34	18	0/1	PASS	yes	heterozygous
+NA20289	tandem126	carrier	17	6	0/1	PASS	yes	heterozygous
+HG01028	tandem126	carrier	24	14	0/1	PASS	yes	heterozygous
+HG02410	tandem126	non-carrier			0/0	PASS	no	
+HG02721	tandem126	carrier	17	9	0/1	GQ	yes	heterozygous
+HG03499	tandem126	carrier	17	7	0/1	PASS	yes	heterozygous
+HG00188	tandem126	carrier	13	7	0/1	PASS	yes	heterozygous
+NA18565	tandem126	non-carrier			0/0	PASS	no	
+HG02895	tandem126	carrier	10	5	0/1	PASS	yes	heterozygous
+NA20761	tandem126	carrier	15	5	0/1	PASS	yes	heterozygous
+HG04180	tandem126	carrier	19	7	0/1	PASS	yes	heterozygous
+HG01174	tandem126	non-carrier			0/0	PASS	no	
+HG00242	tandem126	non-carrier			0/0	PASS	no	
+HG03784	tandem126	non-carrier			0/0	PASS	no	
+HG04177	tandem126	non-carrier			0/0	PASS	no	
+HG03437	tandem126	non-carrier			0/0	PASS	no	
+NA20359	tandem126	carrier	11	7	0/1	PASS	yes	heterozygous
+HG03114	tandem126	non-carrier			0/0	PASS	no	
+HG01072	tandem126	non-carrier			0/0	PASS	no	
+NA19449	tandem126	non-carrier			0/0	PASS	no	
+HG02111	tandem126	carrier	20	10	0/1	CONFLICT	yes	heterozygous
+HG01617	tandem126	carrier	14	9	0/1	PASS	yes	heterozygous
+HG01086	tandem126	non-carrier			0/0	PASS	no	
+HG03240	tandem126	non-carrier			0/0	PASS	no	
+HG00651	tandem126	carrier	19	10	0/1	PASS	yes	heterozygous
+HG03518	tandem126	non-carrier			0/0	PASS	no	
+HG02184	tandem126	carrier	18	9	0/1	PASS	yes	heterozygous
+NA18947	tandem126	carrier	9	7	0/1	GQ	yes	heterozygous
+HG03742	tandem126	carrier	19	11	0/1	PASS	yes	heterozygous
+HG01786	tandem126	non-carrier			0/0	PASS	no	
+HG01513	tandem126	non-carrier			0/0	PASS	no	
+HG01923	tandem126	non-carrier			0/0	PASS	no	
+HG03074	tandem126	non-carrier			0/0	PASS	no	
+NA19391	tandem126	non-carrier			0/0	PASS	no	
+HG00130	tandem126	non-carrier			0/0	PASS	no	
+HG03311	tandem126	non-carrier			0/0	PASS	no	
+HG02156	tandem126	carrier	8	8	1/1	PASS	yes	homozygous
+HG00235	tandem126	non-carrier			0/0	PASS	no	
+HG01595	tandem126	non-carrier			0/0	PASS	no	
+NA18595	tandem126	non-carrier			0/0	PASS	no	
+NA21103	tandem126	carrier	32	32	1/1	PASS	yes	homozygous
+HG02067	tandem126	non-carrier			0/0	PASS	no	
+HG03228	tandem126	carrier	17	4	0/1	PASS	yes	heterozygous
+HG03836	tandem126	carrier	21	14	0/1	PASS	yes	heterozygous
+HG02128	tandem126	carrier	35	13	0/1	PASS	yes	heterozygous
+HG01566	tandem126	non-carrier			0/1	PASS	yes	heterozygous
+HG03212	tandem126	non-carrier			0/0	PASS	no	
+HG00114	tandem126	carrier	23	23	1/1	PASS	yes	homozygous
+HG04014	tandem126	carrier	8	8	1/1	PASS	yes	homozygous
+HG03780	tandem126	carrier	18	11	0/1	PASS	yes	heterozygous
+HG02277	tandem126	carrier	33	14	0/1	PASS	yes	heterozygous
+NA19144	tandem126	non-carrier			0/0	PASS	no	
+HG03577	tandem126	non-carrier			0/0	PASS	no	
+NA18960	tandem126	carrier	13	9	0/1	PASS	yes	heterozygous
+HG01550	tandem126	carrier	34	34	1/1	PASS	yes	homozygous
+HG01859	tandem126	carrier	20	6	0/1	PASS	yes	heterozygous
+NA20888	tandem126	non-carrier			0/0	PASS	no	
+HG03442	tandem126	carrier	14	14	1/1	PASS	yes	homozygous
+NA19128	tandem126	non-carrier			0/0	PASS	no	

@@ -1,0 +1,6 @@
+sample	site	type	status	call	spanningReads	supportingReads	supportingFraction	medianLength
+HG01527	TR126	INS	ok	absent	6	1	0.17	126
+HG01566	TR126	INS	ok	not evaluable	3	1	0.33	127
+NA18940	TR126	INS	ok	absent	4	0	0.0	-
+NA19789	TR126	INS	ok	not evaluable	3	2	0.67	128
+HG02687	TR126	INS	ok	absent	8	1	0.12	130

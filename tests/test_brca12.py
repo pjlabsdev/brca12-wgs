@@ -392,6 +392,44 @@ class InsertionSignalTest(unittest.TestCase):
         self.assertEqual(rows[0]["type"], "Tandemkopie-Signatur")
         self.assertTrue(rows[0]["flags"][0].startswith("abgeschnittene Leseenden an beiden Grenzen"))
 
+    def test_allele_realignment(self):
+        import random
+        import brca12_insertion_signals as mod
+        random.seed(3)
+        self.assertEqual(mod.infix_distance("ACGT", "TTACGTTT"), 0)
+        self.assertEqual(mod.infix_distance("ACGT", "TTACTTT"), 1)
+        for _ in range(200):                     # free start and end: never above the plain distance
+            t = "".join(random.choice("ACGT") for _ in range(60))
+            p = "".join(random.choice("ACGT") for _ in range(20))
+            self.assertLessEqual(mod.infix_distance(p, t), len(p))
+        seq = "".join(random.choice("ACGT") for _ in range(3000))
+        ins = "".join(random.choice("ACGT") for _ in range(300))
+        start, pos = 1001, 2500                  # site 2500: anchor base at index 1499
+        fasta = {"chr13": (start, seq)}
+        alt = seq[:pos - start + 1] + ins + seq[pos - start + 1:]
+        allele = (("alu_test", "chr13", pos, ins, False, "test allele"),)
+        def sam(name, p, s, flag=0):
+            return "\t".join([name, str(flag), "chr13", str(p), "60", f"{len(s)}M", "*", "0", "0", s, "I" * len(s)])
+        lines = [sam(f"a{i}", pos - 100 + i, alt[pos - start - 100 + i:pos - start + 50 + i]) for i in range(0, 60, 10)]
+        lines += [sam(f"r{i}", pos - 100 + i, seq[pos - start - 100 + i:pos - start + 50 + i]) for i in range(0, 40, 10)]
+        lines.append(sam("far", pos + 900, seq[pos - start + 900:pos - start + 1050]))
+        counts = mod.realign_known(lines, fasta, allele)
+        self.assertEqual(counts["alu_test"], [4, 6])
+        regions = [("chr13", 0, 5000, "BRCA2")]
+        saved = mod.KNOWN_ALLELES
+        try:
+            mod.KNOWN_ALLELES = allele
+            found = mod.realigned_alleles(counts, regions)
+            self.assertEqual((found[0]["zygosity"], found[0]["realignedReads"]), ("heterozygous", "6 allele / 4 reference"))
+            self.assertEqual(mod.realigned_alleles({"alu_test": [0, 6]}, regions)[0]["zygosity"], "homozygous")
+            self.assertEqual(mod.realigned_alleles({"alu_test": [9, 1]}, regions), [])
+        finally:
+            mod.KNOWN_ALLELES = saved
+        # tandem copy: realignment alone is enough
+        found = mod.known_copies({mod.KNOWN_COPIES[0]: [30, 0]}, [("chr17", 43044294, 43170327, "BRCA1")],
+                                 realigned={43128365: (0, 5)})
+        self.assertEqual((found[0]["evidence"], found[0]["realignedReads"]), (["allele realignment"], "5 allele"))
+
     def test_known_copy_marker_and_nearby_clip_positions(self):
         import brca12_insertion_signals as mod
         def read(name, base, mapq=0):
