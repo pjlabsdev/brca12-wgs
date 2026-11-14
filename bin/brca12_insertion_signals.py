@@ -234,13 +234,15 @@ def realign_known(lines, fasta, alleles=KNOWN_ALLELES, flank=700, before=400, af
         if i - flank < 0 or i + deleted + flank > len(seq):
             continue
         if isinstance(a[3], str):
-            inserted = a[3]
-        elif a[3][1] - start < 0:
+            inserted, left = a[3], i - flank
+        elif a[3][1] - start - flank < 0:
             continue
         else:                                     # ("dup", start, end): copy of a reference segment
             inserted = seq[a[3][1] - start:a[3][2] - start + 1]
-        ref = seq[i - flank:i + deleted + flank]
-        sites.append((a, chrom.replace("chr", ""), ref, seq[i - flank:i + 1] + inserted + seq[i + 1 + deleted:i + deleted + flank]))
+            left = a[3][1] - start - flank        # both haplotypes span the whole segment, so every
+                                                  # reference junction is in both and only the new one differs
+        ref = seq[left:i + deleted + flank]
+        sites.append((a, chrom.replace("chr", ""), ref, seq[left:i + 1] + inserted + seq[i + 1 + deleted:i + deleted + flank]))
     counts = {a[0]: [0, 0] for a, *_ in sites}
     seen = set()
     for line in lines:
@@ -252,8 +254,11 @@ def realign_known(lines, fasta, alleles=KNOWN_ALLELES, flank=700, before=400, af
         chrom, pos = f[2].replace("chr", ""), int(f[3])
         for a, c, ref, alt in sites:
             deleted = a[6] if len(a) > 6 else 0
+            # a duplication junction read can be placed at either end of the duplicated segment
+            dup_start = a[3][1] if not isinstance(a[3], str) else 0
             if c != chrom or not (a[2] - before < pos < a[2] + after or
-                                  deleted and a[2] + deleted - before < pos < a[2] + deleted + after):
+                                  deleted and a[2] + deleted - before < pos < a[2] + deleted + after or
+                                  dup_start and dup_start - before < pos < dup_start + after):
                 continue
             key = (a[0], f[0], int(f[1]) & 0xC0)
             if key in seen:
@@ -271,14 +276,40 @@ def realign_known(lines, fasta, alleles=KNOWN_ALLELES, flank=700, before=400, af
     return counts
 
 
-def realigned_alleles(counts, regions, haplotypes=None, min_reads=2):
+def duplication_pairs(lines, alleles=KNOWN_ALLELES, reach=700, min_mapq=20):
+    """{allele id: read pairs that face outward across a known tandem duplication}.
+
+    A fragment across the new junction (segment end joined to segment start) has its reverse read near
+    the segment start and its forward mate near the segment end, the opposite of a normal pair."""
+    sites = [(a[0], a[1].replace("chr", ""), a[3][1], a[3][2]) for a in alleles if not isinstance(a[3], str)]
+    names = {s[0]: set() for s in sites}
+    for line in lines:
+        if line.startswith("@"):
+            continue
+        f = line.split("\t", 10)
+        if len(f) < 10:
+            continue
+        flag = int(f[1])
+        if flag & 0xF0C or int(f[4]) < min_mapq or f[6] != "=" or not flag & 16 or flag & 32:
+            continue
+        chrom, pos, mpos = f[2].replace("chr", ""), int(f[3]), int(f[7])
+        for allele, c, start, end in sites:
+            if c == chrom and start - 50 <= pos <= start + reach and end - reach - 150 <= mpos <= end:
+                names[allele].add(f[0])
+    return {a: len(n) for a, n in names.items()}
+
+
+def realigned_alleles(counts, regions, haplotypes=None, min_reads=2, pairs=None, min_pairs=3):
     """Report entries for known alleles found by realignment (non-tandem insertions and deletions)."""
     out = []
     for a in KNOWN_ALLELES:
         if a[0] not in counts or a[4]:
             continue
         n_ref, n_alt = counts[a[0]]
-        if n_alt < min_reads:
+        n_pairs = (pairs or {}).get(a[0], 0)
+        # duplication: the Alu homology at the junction leaves few informative reads, so outward-facing
+        # pairs plus one junction read also count
+        if n_alt < min_reads and not (not isinstance(a[3], str) and n_pairs >= min_pairs and n_alt >= 1):
             continue
         chrom = next((c for c, s, e, g in regions if c.replace("chr", "") == a[1].replace("chr", "")), a[1])
         gene = next((g for c, s, e, g in regions if c == chrom and s < a[2] <= e), "")
@@ -295,8 +326,10 @@ def realigned_alleles(counts, regions, haplotypes=None, min_reads=2):
                     "targetSiteDuplication": 0, "clippedReadsLeftJunction": 0, "clippedReadsRightJunction": 0,
                     "spanningReads": n_ref, "clippedFraction": 0.0, "label": a[5],
                     "signature": kind,
-                    "clipsWithAluSequence": 0, "clipsWithPolyA": 0, "evidence": ["allele realignment"],
+                    "clipsWithAluSequence": 0, "clipsWithPolyA": 0,
+                    "evidence": ["allele realignment"] + (["read pairs"] if n_pairs >= min_pairs else []),
                     "realignedReads": f"{n_alt} allele / {n_ref} reference",
+                    **({"discordantPairs": n_pairs} if not isinstance(a[3], str) else {}),
                     "clinicalSignificance": "pathogenic" if a[0] in PATHOGENIC else "",
                     # a tandem duplication keeps every reference junction, so no read is reference-specific
                     "zygosity": "unknown" if duplicated else
@@ -531,7 +564,7 @@ def main(argv=None):
                 dups.append(known)
         found += dups
         # known non-tandem alleles: replace a matching Alu read-end signature, else add the entry
-        for known in realigned_alleles(realigned, regions):
+        for known in realigned_alleles(realigned, regions, pairs=duplication_pairs(lines)):
             same = [d for d in found if d["chrom"] == known["chrom"] and "tandem copy" not in d["signature"]
                     and "deletion" not in known["signature"] and "duplication" not in known["signature"]
                     and abs(d["pos"] - known["pos"]) <= 30]

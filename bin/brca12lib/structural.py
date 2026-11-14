@@ -161,6 +161,8 @@ def insertion_signals(path, exons):
                 flags.append("bekannte pathogene Gründermutation: Bestätigung mit Labormethode nötig")
             flags.append(row.get("label") or "bekanntes Duplikationsallel")
             flags.append("Lesungen über die neue Verbindungsstelle passen zur bekannten Allelsequenz (Neuausrichtung)")
+            if "read pairs" in row.get("evidence", []):
+                flags.append("nach außen gerichtete Lesepaare über die neue Verbindungsstelle")
             flags.append("Zygotie aus Lesungen nicht bestimmbar (alle Referenzübergänge bleiben erhalten)")
         elif "deletion" in row.get("signature", []):
             kind = "Bekanntes Deletionsallel"

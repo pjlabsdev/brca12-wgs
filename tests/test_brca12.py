@@ -425,6 +425,25 @@ class InsertionSignalTest(unittest.TestCase):
             self.assertEqual(mod.realigned_alleles({"alu_test": [9, 1]}, regions), [])
         finally:
             mod.KNOWN_ALLELES = saved
+        # known tandem duplication: junction reads in a haplotype spanning the whole segment, outward pairs
+        dup = (("dup_test", "chr13", 2200, ("dup", 1700, 2200), False, "test duplication"),)
+        dalt = seq[:2200 - start + 1] + seq[1700 - start:2200 - start + 1] + seq[2200 - start + 1:]
+        jl = [sam(f"j{i}", 2100 + i, dalt[2100 - start + i:2250 - start + i]) for i in range(0, 60, 20)]
+        jl += [sam(f"n{i}", 1650 + i, seq[1650 - start + i:1800 - start + i]) for i in range(0, 60, 20)]
+        self.assertEqual(mod.realign_known(jl, fasta, dup, flank=500)["dup_test"], [0, 3])
+        pairs = ["\t".join([f"p{i}", "81", "chr13", str(1720 + i), "60", "150M", "=", str(2000 + i), "0", "A" * 150, "I" * 150])
+                 for i in range(3)]
+        pairs.append("\t".join(["q", "115", "chr13", "1720", "60", "150M", "=", "2000", "0", "A" * 150, "I" * 150]))
+        self.assertEqual(mod.duplication_pairs(pairs, dup), {"dup_test": 3})
+        saved = mod.KNOWN_ALLELES
+        try:
+            mod.KNOWN_ALLELES = dup
+            one = mod.realigned_alleles({"dup_test": [0, 1]}, regions, pairs={"dup_test": 3})
+            self.assertEqual((one[0]["zygosity"], one[0]["pos"], one[0]["end"]), ("unknown", 1700, 2200))
+            self.assertIn("read pairs", one[0]["evidence"])
+            self.assertEqual(mod.realigned_alleles({"dup_test": [0, 1]}, regions, pairs={"dup_test": 2}), [])
+        finally:
+            mod.KNOWN_ALLELES = saved
         # tandem copy: realignment alone is enough
         found = mod.known_copies({mod.KNOWN_COPIES[0]: [30, 0]}, [("chr17", 43044294, 43170327, "BRCA1")],
                                  realigned={43128365: (0, 5)})

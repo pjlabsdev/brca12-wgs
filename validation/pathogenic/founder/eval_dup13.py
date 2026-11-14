@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate the frozen BRCA1 exon 13 duplication test (see ADDENDUM_dup13.md).
+"""Evaluate the frozen BRCA1 exon 13 duplication test (see ADDENDUM_dup13.md and ADDENDUM_dup13_confirm.md).
 
 Usage: eval_dup13.py OUTDIR  (written by run_dup13.sh and realneg_dup13.sh)
 Writes results/dup13_test.tsv and results/dup13_test_summary.txt.
@@ -41,6 +41,7 @@ def manta(path):
 
 def main():
     out = sys.argv[1]
+    tag = sys.argv[2] if len(sys.argv) > 2 else "dup13_test"   # dup13_confirm for the confirmation set
     here = os.path.dirname(os.path.abspath(__file__))
     rows = []
     for path in sorted(glob.glob(os.path.join(out, "res", "*.json"))):
@@ -49,7 +50,7 @@ def main():
         call = ours(path)
         rows.append({"test": t, "sample": name, "set": "simulated", "reads": {"f1": "all", "f2": "1/2", "f3": "1/3"}[f],
                      "depthAtSite": open(os.path.join(out, "res", t + ".depth")).read().strip() or "0",
-                     "truth": "carrier" if name.startswith("DUP13_") else "non-carrier",
+                     "truth": "carrier" if name.startswith(("DUP13_", "DUP13C_")) else "non-carrier",
                      "catalogCall": "yes" if call else "no", "realignedReads": call["realignedReads"] if call else "",
                      "manta": manta(os.path.join(out, "res", t + ".manta.vcf.gz")) or "no"})
     for path in sorted(glob.glob(os.path.join(out, "real", "*.json"))):
@@ -62,7 +63,7 @@ def main():
                      "realignedReads": call["realignedReads"] if call else "", "manta": "not run"})
     cols = list(rows[0])
     os.makedirs(os.path.join(here, "results"), exist_ok=True)
-    with open(os.path.join(here, "results", "dup13_test.tsv"), "w") as handle:
+    with open(os.path.join(here, "results", tag + ".tsv"), "w") as handle:
         handle.write("\t".join(cols) + "\n")
         for r in rows:
             handle.write("\t".join(str(r[c]) for c in cols) + "\n")
@@ -90,7 +91,7 @@ def main():
     if real:
         lines.append(f"real non-carriers: catalog {rate(real, 'catalogCall')}")
     text = "\n".join(lines) + "\n"
-    open(os.path.join(here, "results", "dup13_test_summary.txt"), "w").write(text)
+    open(os.path.join(here, "results", tag + "_summary.txt"), "w").write(text)
     print(text)
 
 
