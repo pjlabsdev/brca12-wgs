@@ -76,7 +76,36 @@ KNOWN_ALLELES = (
     # 980 bp deletion in BRCA1 intron (1KG-ONT: 13 of 993 samples; breakpoints from 38 of 49 long reads
     # of 5 carriers; listed as 1,081 bp in the 1000 Genomes short-read panel)
     ("del980_brca1", "chr17", 43071727, "", False, "bekannte intronische 980-bp-Deletion in BRCA1 (seltenes Allel)", 980),
+    # BRCA2 c.156_157insAlu, pathogenic founder allele (Portugal; Teugels et al. 2005, Hum Mutat,
+    # Mutation in Brief 837; Peixoto et al. 2009): AluYa5 in the same orientation as BRCA2, flanked by the 14 bp target site
+    # duplication AAGAATCTGAACAT (chr13:32319152-32319165, ending at c.156). The exact element sequence is not
+    # published; the Dfam AluYa5 consensus with its poly-A tail stands in for it.
+    ("alu_brca2_c156", "chr13", 32319165,
+     "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACGAGGTCAGGAGATCGAGACCATCCCGGCTAAAACGG"
+     "TGAAACCCCGTCTCTACTAAAAATACAAAAAATTAGCCGGGCGTAGTGGCGGGCGCCTGTAGTCCCAGCTACTTGGGAGGCTGAGGCAGGAGAATGGCGT"
+     "GAACCCGGGAGGCGGAGCTTGCAGTGAGCCGAGATCCCGCCACTGCACTCCAGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAAAAAAAAAAAAAAAA"
+     "AAAAAAAAAAA"
+     "AAGAATCTGAACAT", False, "BRCA2 c.156_157insAlu (Gründermutation, Exon 3)"),
 )
+# known alleles that are pathogenic (the report flags them for laboratory confirmation)
+# BRCA1 exon 12 (legacy exon 13) duplication, pathogenic founder allele (Northern Europe and elsewhere;
+# The BRCA1 Exon 13 Duplication Screening Group 2000; Edwinsdotter Ardnor et al. 2019:
+# NM_007294 c.4186-1787_4357+4122dup). On GRCh38 c.4186 = chr17:43082575 and c.4357 = chr17:43082404
+# (exon boundaries, ../validation/pathogenic/cds.py), so the duplicated segment is chr17:43078282-43084362
+# (6,081 bp). Both ends lie in antisense Alu elements with long homology, as expected for the published
+# Alu-Alu recombination. Inserted sequence: ("dup", start, end) = the reference segment, after its end.
+KNOWN_ALLELES = KNOWN_ALLELES + (
+    ("dup13_brca1", "chr17", 43084362, ("dup", 43078282, 43084362), False,
+     "BRCA1 Duplikation Exon 13 (alte Zählung; Gründermutation)"),
+)
+# BRCA1 exon 12 (legacy exon 13) deletion of 3,835 bp, Dutch founder allele (Petrij-Bosch et al. 1997;
+# "IVS12-1643del3835" in Zeegers et al. 2004, = c.4186-1643_4357+2020del). On GRCh38 the deleted segment
+# is chr17:43080384-43084218; both ends lie in antisense Alu elements, as described for this
+# Alu-mediated deletion.
+KNOWN_ALLELES = KNOWN_ALLELES + (
+    ("del3835_brca1", "chr17", 43080383, "", False, "BRCA1 Deletion Exon 13 (alte Zählung; 3.835 bp, Gründermutation)", 3835),
+)
+PATHOGENIC = frozenset({"alu_brca2_c156", "dup13_brca1", "del3835_brca1"})
 # realigned tandem-copy allele -> marker position of the same copy in KNOWN_COPIES
 ALLELE_MARKER = {"tandem126": 43128365}
 # marker position of a known copy -> SNPs on the same haplotype (chrom, position, reference, alternative)
@@ -204,8 +233,16 @@ def realign_known(lines, fasta, alleles=KNOWN_ALLELES, flank=700, before=400, af
         deleted = a[6] if len(a) > 6 else 0
         if i - flank < 0 or i + deleted + flank > len(seq):
             continue
-        ref = seq[i - flank:i + deleted + flank]
-        sites.append((a, chrom.replace("chr", ""), ref, seq[i - flank:i + 1] + a[3] + seq[i + 1 + deleted:i + deleted + flank]))
+        if isinstance(a[3], str):
+            inserted, left = a[3], i - flank
+        elif a[3][1] - start - flank < 0:
+            continue
+        else:                                     # ("dup", start, end): copy of a reference segment
+            inserted = seq[a[3][1] - start:a[3][2] - start + 1]
+            left = a[3][1] - start - flank        # both haplotypes span the whole segment, so every
+                                                  # reference junction is in both and only the new one differs
+        ref = seq[left:i + deleted + flank]
+        sites.append((a, chrom.replace("chr", ""), ref, seq[left:i + 1] + inserted + seq[i + 1 + deleted:i + deleted + flank]))
     counts = {a[0]: [0, 0] for a, *_ in sites}
     seen = set()
     for line in lines:
@@ -217,8 +254,11 @@ def realign_known(lines, fasta, alleles=KNOWN_ALLELES, flank=700, before=400, af
         chrom, pos = f[2].replace("chr", ""), int(f[3])
         for a, c, ref, alt in sites:
             deleted = a[6] if len(a) > 6 else 0
+            # a duplication junction read can be placed at either end of the duplicated segment
+            dup_start = a[3][1] if not isinstance(a[3], str) else 0
             if c != chrom or not (a[2] - before < pos < a[2] + after or
-                                  deleted and a[2] + deleted - before < pos < a[2] + deleted + after):
+                                  deleted and a[2] + deleted - before < pos < a[2] + deleted + after or
+                                  dup_start and dup_start - before < pos < dup_start + after):
                 continue
             key = (a[0], f[0], int(f[1]) & 0xC0)
             if key in seen:
@@ -236,14 +276,40 @@ def realign_known(lines, fasta, alleles=KNOWN_ALLELES, flank=700, before=400, af
     return counts
 
 
-def realigned_alleles(counts, regions, haplotypes=None, min_reads=2):
+def duplication_pairs(lines, alleles=KNOWN_ALLELES, reach=700, min_mapq=20):
+    """{allele id: read pairs that face outward across a known tandem duplication}.
+
+    A fragment across the new junction (segment end joined to segment start) has its reverse read near
+    the segment start and its forward mate near the segment end, the opposite of a normal pair."""
+    sites = [(a[0], a[1].replace("chr", ""), a[3][1], a[3][2]) for a in alleles if not isinstance(a[3], str)]
+    names = {s[0]: set() for s in sites}
+    for line in lines:
+        if line.startswith("@"):
+            continue
+        f = line.split("\t", 10)
+        if len(f) < 10:
+            continue
+        flag = int(f[1])
+        if flag & 0xF0C or int(f[4]) < min_mapq or f[6] != "=" or not flag & 16 or flag & 32:
+            continue
+        chrom, pos, mpos = f[2].replace("chr", ""), int(f[3]), int(f[7])
+        for allele, c, start, end in sites:
+            if c == chrom and start - 50 <= pos <= start + reach and end - reach - 150 <= mpos <= end:
+                names[allele].add(f[0])
+    return {a: len(n) for a, n in names.items()}
+
+
+def realigned_alleles(counts, regions, haplotypes=None, min_reads=2, pairs=None, min_pairs=3):
     """Report entries for known alleles found by realignment (non-tandem insertions and deletions)."""
     out = []
     for a in KNOWN_ALLELES:
         if a[0] not in counts or a[4]:
             continue
         n_ref, n_alt = counts[a[0]]
-        if n_alt < min_reads:
+        n_pairs = (pairs or {}).get(a[0], 0)
+        # duplication: the Alu homology at the junction leaves few informative reads, so outward-facing
+        # pairs plus one junction read also count
+        if n_alt < min_reads and not (not isinstance(a[3], str) and n_pairs >= min_pairs and n_alt >= 1):
             continue
         chrom = next((c for c, s, e, g in regions if c.replace("chr", "") == a[1].replace("chr", "")), a[1])
         gene = next((g for c, s, e, g in regions if c == chrom and s < a[2] <= e), "")
@@ -251,14 +317,23 @@ def realigned_alleles(counts, regions, haplotypes=None, min_reads=2):
         kind = ["Alu", "known allele"] if a[0].startswith("alu") else ["known allele"]
         if deleted:
             kind.append("deletion")
-        out.append({"gene": gene, "chrom": chrom, "pos": a[2] + (1 if deleted else 0), "end": a[2] + max(deleted, 1),
-                    "insertedLength": len(a[3]), "deletedLength": deleted,
+        duplicated = 0 if isinstance(a[3], str) else a[3][2] - a[3][1] + 1
+        if duplicated:
+            kind.append("duplication")
+        out.append({"gene": gene, "chrom": chrom, "pos": a[3][1] if duplicated else a[2] + (1 if deleted else 0),
+                    "end": a[3][2] if duplicated else a[2] + max(deleted, 1),
+                    "insertedLength": duplicated or len(a[3]), "deletedLength": deleted,
                     "targetSiteDuplication": 0, "clippedReadsLeftJunction": 0, "clippedReadsRightJunction": 0,
                     "spanningReads": n_ref, "clippedFraction": 0.0, "label": a[5],
                     "signature": kind,
-                    "clipsWithAluSequence": 0, "clipsWithPolyA": 0, "evidence": ["allele realignment"],
+                    "clipsWithAluSequence": 0, "clipsWithPolyA": 0,
+                    "evidence": ["allele realignment"] + (["read pairs"] if n_pairs >= min_pairs else []),
                     "realignedReads": f"{n_alt} allele / {n_ref} reference",
-                    "zygosity": "homozygous" if n_ref <= 0.1 * (n_ref + n_alt) and n_alt >= 2 * min_reads
+                    **({"discordantPairs": n_pairs} if not isinstance(a[3], str) else {}),
+                    "clinicalSignificance": "pathogenic" if a[0] in PATHOGENIC else "",
+                    # a tandem duplication keeps every reference junction, so no read is reference-specific
+                    "zygosity": "unknown" if duplicated else
+                    "homozygous" if n_ref <= 0.1 * (n_ref + n_alt) and n_alt >= 2 * min_reads
                     else "heterozygous"})
     return out
 
@@ -489,12 +564,13 @@ def main(argv=None):
                 dups.append(known)
         found += dups
         # known non-tandem alleles: replace a matching Alu read-end signature, else add the entry
-        for known in realigned_alleles(realigned, regions):
+        for known in realigned_alleles(realigned, regions, pairs=duplication_pairs(lines)):
             same = [d for d in found if d["chrom"] == known["chrom"] and "tandem copy" not in d["signature"]
-                    and "deletion" not in known["signature"] and abs(d["pos"] - known["pos"]) <= 30]
+                    and "deletion" not in known["signature"] and "duplication" not in known["signature"]
+                    and abs(d["pos"] - known["pos"]) <= 30]
             if same:
                 same[0].update({k: known[k] for k in ("label", "evidence", "realignedReads", "zygosity",
-                                                      "insertedLength")})
+                                                      "insertedLength", "clinicalSignificance")})
                 same[0]["evidence"] = ["allele realignment", "clipped reads"]
                 same[0]["signature"] = sorted(set(same[0]["signature"]) | {"known allele"})
             else:

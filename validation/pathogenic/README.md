@@ -156,6 +156,16 @@ every sample (up to 8 per sample here) and are not listed unless
 
 Files: `results/sv_carriers_summary.{tsv,json}`.
 
+## 4. Pathogenic founder rearrangements in the allele catalog (`founder/`)
+
+Three founder alleles with published base-pair breakpoints are genotyped by allele-aware
+realignment: BRCA2 c.156_157insAlu, the BRCA1 exon 13 duplication and the Dutch BRCA1 exon 13
+deletion of 3,835 bp. Preregistered tests with simulated carriers in real HG002 reads (three
+depths) and 200 real 1000 Genomes genomes as non-carriers: c.156_157insAlu 89/90 carriers (Manta
+5/90), exon 13 deletion 29/30 (Manta 27/30), exon 13 duplication 9/30 in the frozen test and 58/60
+in a registered confirmation after a fix (Manta 37/60); no call in any simulated or real
+non-carrier. Details, the excluded 510 bp exon 22 deletion and limits: `founder/README.md`.
+
 ## Limits
 
 - Reads were taken from existing alignments near the genes and realigned against chr13 and chr17
@@ -163,7 +173,8 @@ Files: `results/sv_carriers_summary.{tsv,json}`.
   precision. A whole-genome run against the complete reference is still missing.
 - Spiked variants are synthetic. They show whether a variant that is present in the reads is called
   and reported, not how real pathogenic rearrangements look.
-- No real sample with a pathogenic exon deletion, duplication or Alu insertion was tested.
+- No real sample with a pathogenic exon deletion, duplication or Alu insertion was tested (also
+  not in `founder/`, where the carriers are simulated).
 - VEP annotation and the ACMG/AMP hints were not part of these runs (no VEP cache on the validation
   machine). In experiments 1 and 3 CNVkit was replaced by a neutral stand-in.
 - The numbers are small: ten carriers, twelve large events, eleven Alu carriers at two sites.

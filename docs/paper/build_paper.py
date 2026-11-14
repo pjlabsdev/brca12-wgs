@@ -81,6 +81,11 @@ REFS = {
     'danbing': 'Lu TY, Human Genome Structural Variation Consortium, Chaisson MJP. Profiling variable-number tandem repeat variation across populations using repeat-pangenome graphs. Nat Commun. 2021;12:4250.',
     'expansionhunter': 'Dolzhenko E, Deshpande V, Schlesinger F, et al. ExpansionHunter: a sequence-graph-based tool to analyze variation in short tandem repeat regions. Bioinformatics. 2019;35(22):4754–4756.',
     'myers': 'Myers G. A fast bit-vector algorithm for approximate string matching based on dynamic programming. J ACM. 1999;46(3):395–415.',
+    'petrij': 'Petrij-Bosch A, Peelen T, van Vliet M, et al. BRCA1 genomic deletions are major founder mutations in Dutch breast cancer patients. Nat Genet. 1997;17(3):341–345.',
+    'dup13group': 'The BRCA1 Exon 13 Duplication Screening Group. The exon 13 duplication in the BRCA1 gene is a founder mutation present in geographically diverse populations. Am J Hum Genet. 2000;67(1):207–212.',
+    'ardnor': 'Edwinsdotter Ardnor C, Rosén A, Ljuslinder I, Melin B. The BRCA1 exon 13 duplication: clinical characteristics of 22 families in Northern Sweden. Fam Cancer. 2019;18(1):37–42.',
+    'zeegers': 'Zeegers MP, van Poppel F, Vlietinck R, Spruijt L, Ostrer H. Founder mutations among the Dutch. Eur J Hum Genet. 2004;12(7):591–600.',
+    'dfam': 'Storer J, Hubley R, Rosen J, Wheeler TJ, Smit AF. The Dfam community resource of transposable element families, sequence models, and genome annotation. Mob DNA. 2021;12:2.',
     'ont1kg': 'Schloissnig S, Pani S, Ebler J, et al. Structural variation in 1,019 diverse humans based on long-read sequencing. Nature. 2025;644(8076):442–452.',
     'wilson': 'Wilson EB. Probable inference, the law of succession, and statistical inference. J Am Stat Assoc. 1927;22(158):209–212.',
 }
@@ -860,6 +865,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <p>No openly available short-read WGS data set of a carrier of a pathogenic exon deletion, duplication or Alu insertion was found; the GeT-RM reference materials [@getrm] are distributed as DNA. We therefore spiked synthetic heterozygous variants into real reads. The background was GIAB HG002 on chr13 and chr17 at about 30×, which gives CNVkit a real chromosome-wide baseline. Inside both genes ±20 kb every real read pair was replaced by a pair with the same position, fragment length, read lengths and base qualities, read from one of two haplotypes: the reference, or the reference with the spiked events. Sequencing errors were drawn from the real base qualities. Coverage profile and fragment sizes therefore stayed those of the real run. The replaced pairs were aligned with BWA-MEM and merged with the untouched background, and the pipeline was run with real Manta and CNVkit.</p>
 <p>Two samples carried {small_total} small variants: one per coding exon segment with rotating types, SNVs at canonical splice sites, and five variants modelled on well-known pathogenic alleles (<i>BRCA1</i> c.68_69del, c.181T&gt;G, c.5266dup; <i>BRCA2</i> c.771_775del, c.5946del), whose coordinates were derived from a coding-sequence model that is checked by translation. All {small_found} were called with the correct genotype, with {fp_exon} false positive in the exons (Figure 3). Outside the exons, every sample including the negative control showed the same two calls at one intronic <i>BRCA2</i> site, which come from real HG002 reads with an unmapped mate that the replacement does not cover, and the samples with large deletions showed short artefactual calls directly at some breakpoints.</p>
 <p>Six samples carried {n_large} large events from 120 bp to a whole-gene deletion, two tandem duplications and an Alu insertion in <i>BRCA2</i> exon 3 (Figure 4). Manta reported {manta} of {n_large} with exact breakpoints and heterozygous genotype; the Alu insertion appeared as a pair of breakends. The read-end signature (Section 2.2) listed the spiked Alu insertion and nothing in the other eight spike-in samples. With the settings of version 1.0.2, CNVkit reported {cnv_before} of {n_large}: bins without coverage dominated the segmentation statistics, and even whole-gene deletions with a clear half-depth signal were merged into their neighbours (Figure 5). Excluding such bins (<code>--drop-low-coverage</code>) raised this to {cnv_after} of {n_large}; the smallest event reported by CNVkit was {cnv_min}. In addition, exon dosage hints had been suppressed for exactly the affected exons, because a heterozygous deletion also makes an exon fall below the depth threshold. After the correction, {hints} of the {n_large - 1} deletions and duplications produced a dosage hint for an affected exon. A third defect stopped the pipeline when the input BAM was named like the sample.</p>
+{{FOUNDER}}
 </div>
 
 <figure><div class="frame">{fig_large(d)}</div>
@@ -931,7 +937,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <li>No Ensembl VEP cache was available on the validation machine, so annotation and the ACMG/AMP hints were not part of these runs. In Sections 3.1, 3.2 and 3.4 CNVkit was replaced by a neutral stand-in.</li>
 <li>Numbers are small. Ten carriers and twelve large events give wide confidence intervals (Figure 3). The mosaic filters were tuned on the data of Section 3.5.</li>
 <li>The read-end signature was written after the missed Alu insertions had been inspected, so its result on these carriers is not an independent test.</li>
-<li>No real sample with a pathogenic exon deletion, duplication or Alu insertion was tested.</li>
+<li>No real sample with a pathogenic exon deletion, duplication or Alu insertion was tested; the founder alleles in the catalog were tested on simulated carriers only.</li>
 </ul>
 
 <h2>4 Comparison with existing workflows</h2>
@@ -1131,6 +1137,38 @@ def frozen_text(d):
             f"ExpansionHunter [@expansionhunter] with a locus definition for the tandem array found the copy in {eh[0]} of {eh[1]} HPRC carriers and {eh[2]} of {eh[3]} carriers of the independent set.</p>")
 
 
+def founder_text(d):
+    """Pathogenic founder rearrangements in the known-allele catalog (validation/pathogenic/founder)."""
+    base = os.path.join(PATHO, "founder", "results")
+    def rows(name):
+        return tsv(os.path.join(base, name))
+    def k(sub, col, any_=False):
+        return sum((r[col] != "no") if any_ else (r[col] == "yes") for r in sub)
+    alu = rows("founder_test.tsv")
+    acar = [r for r in alu if r["truth"] == "carrier" and r["sample"].startswith("FOUNDER_")]
+    aneg = [r for r in alu if r["truth"] == "non-carrier"]
+    areal = [r for r in alu if r["set"] != "simulated"]
+    out = []
+    for name in ("del3835_test.tsv", "dup13_test.tsv", "dup13_confirm.tsv"):
+        rr = rows(name)
+        car = [r for r in rr if r["truth"] == "carrier"]
+        neg = [r for r in rr if r["truth"] != "carrier"]
+        out.append((k(car, "catalogCall"), len(car), k(car, "manta", True), k(neg, "catalogCall"), len(neg)))
+    de, d0, d1 = out
+    lo = [r for r in acar if r["reads"] == "1/3"]
+    return (f"<p>Three pathogenic founder rearrangements have published base-pair breakpoints that we could check against GRCh38: "
+            f"the <i>BRCA2</i> Alu insertion c.156_157insAlu (AluYa5 in gene orientation with a 14 bp target site duplication [@teugels, @machado]), "
+            f"the <i>BRCA1</i> exon 13 duplication c.4186-1787_4357+4122dup [@dup13group, @ardnor] and the Dutch exon 13 deletion IVS12-1643del3835 [@petrij, @zeegers]. "
+            f"Both ends of the two exon 13 rearrangements lie in antisense Alu elements, as expected for Alu-mediated recombination; a published 510 bp exon 22 deletion failed this check and was left out. "
+            f"The element of c.156_157insAlu is not published, so the catalog carries the Dfam AluYa5 consensus [@dfam]. "
+            f"All three were added to the allele catalog of Section 3.7 and tested before the results were seen, with simulated heterozygous carriers spiked into the HG002 reads, analysed with all reads (about 30×), half and a third of them, and the 200 1000 Genomes genomes of Section 3.7 as real non-carriers. "
+            f"For c.156_157insAlu each carrier had its own element, 0 to 10 % divergent from the consensus: {k(acar, 'catalogCall')} of {len(acar)} were found ({k(lo, 'catalogCall')} of {len(lo)} with a third of the reads), the read-end signature found {k(acar, 'readEndSignature')} and Manta {k(acar, 'manta', True)}, with no call in {len(aneg)} simulated and {len(areal)} real non-carriers. "
+            f"The exon 13 deletion was found in {de[0]} of {de[1]} (Manta {de[2]}), with {de[3]} calls in {de[4]} non-carriers, and a deletion of the same size 116 bp away was not mistaken for it. "
+            f"The exon 13 duplication was found in only {d0[0]} of {d0[1]} in the frozen test: junction reads were placed at the segment start, outside the read window, and the Alu homology leaves few informative bases. "
+            f"After reading both ends, spanning the whole segment and counting outward-facing read pairs, a registered confirmation on new simulated carriers found {d1[0]} of {d1[1]} (Manta {d1[2]}), with {d1[3]} calls in {d1[4]} simulated and real non-carriers (frozen test: {d0[3]} in {d0[4]}). "
+            f"These are simulated carriers, so the numbers show that the evidence is used, not how a real carrier sample behaves.</p>")
+
+
 def ont_all_text(d):
     """Discovery of all events of 50 bp or more in the long reads of the whole cohort."""
     a = d.ont_all
@@ -1170,6 +1208,7 @@ def main(argv=None):
     page = page.replace("{SV_TEXT}", sv_text(d))
     page = page.replace("{ONT_PANEL}", ont_panel_text(d))
     page = page.replace("{ONT_ALL}", ont_all_text(d))
+    page = page.replace("{FOUNDER}", founder_text(d))
     page = page.replace("{TANDEM_IND}", tandem_ind_text(d) + frozen_text(d))
     page = number_citations(page)
     sys.stdout.write(page)

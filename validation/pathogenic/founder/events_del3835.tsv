@@ -1,0 +1,11 @@
+#sample	gene	kind	chrom	start	end	size	note
+DEL3835_r01	BRCA1	LDEL	chr17	43080384	43084218	3835	simulated BRCA1 exon 13 deletion, published breakpoints IVS12-1643del3835
+DEL3835_r02	BRCA1	LDEL	chr17	43080384	43084218	3835	simulated BRCA1 exon 13 deletion, published breakpoints IVS12-1643del3835
+DEL3835_r03	BRCA1	LDEL	chr17	43080384	43084218	3835	simulated BRCA1 exon 13 deletion, published breakpoints IVS12-1643del3835
+DEL3835_r04	BRCA1	LDEL	chr17	43080384	43084218	3835	simulated BRCA1 exon 13 deletion, published breakpoints IVS12-1643del3835
+DEL3835_r05	BRCA1	LDEL	chr17	43080384	43084218	3835	simulated BRCA1 exon 13 deletion, published breakpoints IVS12-1643del3835
+DEL3835_r06	BRCA1	LDEL	chr17	43080384	43084218	3835	simulated BRCA1 exon 13 deletion, published breakpoints IVS12-1643del3835
+DEL3835_r07	BRCA1	LDEL	chr17	43080384	43084218	3835	simulated BRCA1 exon 13 deletion, published breakpoints IVS12-1643del3835
+DEL3835_r08	BRCA1	LDEL	chr17	43080384	43084218	3835	simulated BRCA1 exon 13 deletion, published breakpoints IVS12-1643del3835
+DEL3835_r09	BRCA1	LDEL	chr17	43080384	43084218	3835	simulated BRCA1 exon 13 deletion, published breakpoints IVS12-1643del3835
+DEL3835_r10	BRCA1	LDEL	chr17	43080384	43084218	3835	simulated BRCA1 exon 13 deletion, published breakpoints IVS12-1643del3835

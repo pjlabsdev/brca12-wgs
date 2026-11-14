@@ -154,8 +154,21 @@ def insertion_signals(path, exons):
     for row in rows:
         flags = []
         kind = "Insertionssignatur"
-        if "deletion" in row.get("signature", []):
+        if "duplication" in row.get("signature", []):
+            kind = "Bekannte pathogene Duplikation" if row.get("clinicalSignificance") == "pathogenic" \
+                else "Bekanntes Duplikationsallel"
+            if row.get("clinicalSignificance") == "pathogenic":
+                flags.append("bekannte pathogene Gründermutation: Bestätigung mit Labormethode nötig")
+            flags.append(row.get("label") or "bekanntes Duplikationsallel")
+            flags.append("Lesungen über die neue Verbindungsstelle passen zur bekannten Allelsequenz (Neuausrichtung)")
+            if "read pairs" in row.get("evidence", []):
+                flags.append("nach außen gerichtete Lesepaare über die neue Verbindungsstelle")
+            flags.append("Zygotie aus Lesungen nicht bestimmbar (alle Referenzübergänge bleiben erhalten)")
+        elif "deletion" in row.get("signature", []):
             kind = "Bekanntes Deletionsallel"
+            if row.get("clinicalSignificance") == "pathogenic":
+                kind = "Bekannte pathogene Deletion"
+                flags.append("bekannte pathogene Gründermutation: Bestätigung mit Labormethode nötig")
             flags.append(row.get("label") or "bekanntes Deletionsallel")
             flags.append("Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)")
             if row.get("zygosity") == "homozygous":
@@ -180,6 +193,9 @@ def insertion_signals(path, exons):
                 elif row.get("haplotypeCopies") == 1:
                     flags.append("Haplotyp heterozygot: vermutlich ein Allel mit der zusätzlichen Kopie")
         elif "known allele" in row.get("signature", []):
+            if row.get("clinicalSignificance") == "pathogenic":
+                kind = "Bekannte pathogene Insertion"
+                flags.append("bekannte pathogene Gründermutation: Bestätigung mit Labormethode nötig")
             flags.append(row.get("label") or "bekanntes Insertionsallel")
             if row.get("clippedReadsLeftJunction") or row.get("clippedReadsRightJunction"):
                 flags.append("abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion")

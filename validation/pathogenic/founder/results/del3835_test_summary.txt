@@ -1,0 +1,11 @@
+BRCA1 exon 13 deletion (3,835 bp), frozen test. Simulated sets are SIMULATED reads (real HG002 positions,
+fragment sizes and base qualities); the 1000 Genomes samples are real reads.
+
+simulated carriers: catalog 29/30 (82.8-99.9 %), Manta 27/30 (73.5-97.9 %)
+  reads all (median depth 38): catalog 10/10 (69.2-100.0 %), Manta 10/10 (69.2-100.0 %)
+  reads 1/2 (median depth 22): catalog 10/10 (69.2-100.0 %), Manta 9/10 (55.5-99.7 %)
+  reads 1/3 (median depth 13): catalog 9/10 (55.5-99.7 %), Manta 8/10 (44.4-97.5 %)
+  zygosity heterozygous (truth): 29/29 calls
+simulated non-carriers: catalog 0/27 (0.0-12.8 %), Manta 0/27 (0.0-12.8 %)
+  of these SPIKE_L2 (3,835 bp exon deletion, synthetic breakpoints 116 bp away): catalog 0/3 (0.0-70.8 %)
+real non-carriers: catalog 0/200 (0.0-1.8 %)
