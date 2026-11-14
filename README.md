@@ -96,6 +96,13 @@ chr13:32315077-32400268 (plus strand). Exons: MANE Select ENST00000357654 / NM_0
 BRCA1 also shows the legacy numbering without exon 4) and ENST00000380152 / NM_000059.4 (27 exons),
 generated from Ensembl with `bin/brca12_make_exons.py`.
 
+## Figures in the report
+
+The HTML report shows two figures per gene: mean depth per exon with the 10x and minimum-depth lines
+(uncertain exons in orange) and the exon dosage relative to the chromosome median with the no-hint
+band 0.65 to 1.35, an MLPA-like view of possible exon losses or gains. Plain inline SVG, readable in
+print; dosage outliers are candidates, not CNV calls.
+
 ## Flagging uncertain results
 
 - Exon **uncertain** if mean depth < 20x, fewer than 95 % of bases ≥ 20x, or more than 10 % of reads

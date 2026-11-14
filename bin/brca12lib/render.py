@@ -1,6 +1,7 @@
 """Standalone report as Markdown and HTML, in German (`de`) or English (`en`)."""
 import html
 
+from . import figures
 from .i18n import tr, ui
 
 DISCLAIMER_DE = ("Nur für Forschung und persönliche Information (RUO). Diese Ergebnisse dürfen nicht ohne "
@@ -109,6 +110,9 @@ def markdown(result, lang="en"):
 
 
 CSS = """
+.report-figure{margin:12px 0 22px;padding:10px 12px;background:#fff;border:1px solid #e5e5ea;border-radius:8px;page-break-inside:avoid}
+.figure-note{font-size:12px;color:#636366;margin:4px 0 0}
+
 body{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:#1d1d1f;margin:32px;max-width:1200px}
 h1{font-weight:500;font-size:20px} h2{font-weight:500;font-size:15px;margin-top:28px}
 .disclaimer{border:1px solid #c7c7cc;border-left:4px solid #ff9500;background:#fff8ec;padding:10px 14px;border-radius:8px}
@@ -132,6 +136,7 @@ def html_report(result, lang="en"):
              f"<li>{esc(ui('input', lang))}: {esc(result['input']['mode'])} · {esc(', '.join(result['input']['files']))}</li>",
              f"<li>{esc(ui('snv_caller', lang))}: {esc(result['snvCaller'])}</li>",
              f"<li>{esc(ui('created', lang))}: {esc(result['generatedAt'])}</li></ul>"]
+    parts.append(figures.figures_html(result, lang))
     for title, table, empty in sections(result, lang):
         parts.append(f"<h2>{esc(title)}</h2>")
         if not table["rows"]:
