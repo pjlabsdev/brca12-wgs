@@ -50,6 +50,28 @@ Requirements: Nextflow ≥ 23.10, Java 17, conda/mamba (or the tools on `PATH`).
 `.fai`, `.dict` and the BWA index next to the FASTA. VEP needs an offline GRCh38 cache
 (`vep_install -a cf -s homo_sapiens -y GRCh38`). ClinVar: `clinvar.vcf.gz` + `.tbi` from NCBI (GRCh38).
 
+## Several samples (batch) and Excel
+
+Every run also writes `brca12_report.xlsx` (overview with the research-use note, small variants with
+GRCh38/GRCh37 positions, HGVS, BIC names, ClinVar, ACMG/AMP hints and quality flags, CNV, SV, exon
+coverage, low-depth intervals, tool versions; no extra Python packages).
+
+For a batch, list the samples in a sample sheet and start them together:
+
+```bash
+# samples.csv: sample,reads_r1,reads_r2,bam   (FASTQ pair or BAM/CRAM per line)
+python3 bin/brca12_batch.py --samplesheet samples.csv --outdir batch --run-name RUN01 --jobs 2 -- \
+  -profile conda --reference GRCh38.fa --vep_cache ~/.vep --clinvar_vcf clinvar.vcf.gz
+```
+
+Each sample runs as its own Nextflow run in `batch/<sample>/` (resumable alone with `--resume`).
+`bin/brca12_cohort.py` then writes `batch/cohort/`: `cohort_samples.tsv` (one line per sample with
+variant counts, uncertain exons, median exon depth), `cohort_variants.tsv` (all calls with the number
+of carriers in the batch), `cohort_contamination.tsv` and `cohort.xlsx`. A **contamination hint**
+is given when a variant has a low allele fraction (3 to 25 %) in one sample but is clearly
+heterozygous or homozygous in another sample of the batch; the hint names the possible source. It is
+a reason to check (identity SNPs, repeated library), not a finding.
+
 ## What it does
 
 | Step | Tool | Output |
@@ -156,6 +178,7 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
 ```bash
 python3 -m unittest discover -s tests   # report logic on synthetic data
 bash tests/run_stub_pipeline.sh         # full Nextflow run with stand-in tools
+bash tests/run_stub_batch.sh            # two samples from a sample sheet, then the cohort summary
 ```
 
 Both run in GitHub Actions on every push. They check the pipeline wiring and the reporting logic,

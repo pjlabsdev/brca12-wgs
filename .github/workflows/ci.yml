@@ -19,3 +19,4 @@ jobs:
       - uses: nf-core/setup-nextflow@v2
         with: { version: "24.10.4" }
       - run: bash tests/run_stub_pipeline.sh
+      - run: bash tests/run_stub_batch.sh
