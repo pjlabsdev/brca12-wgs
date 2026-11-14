@@ -1,0 +1,11 @@
+#sample	gene	kind	chrom	start	end	size	note
+DUP13_r01	BRCA1	LDUP	chr17	43078282	43084362	6081	simulated BRCA1 exon 13 duplication, published breakpoints c.4186-1787_4357+4122dup
+DUP13_r02	BRCA1	LDUP	chr17	43078282	43084362	6081	simulated BRCA1 exon 13 duplication, published breakpoints c.4186-1787_4357+4122dup
+DUP13_r03	BRCA1	LDUP	chr17	43078282	43084362	6081	simulated BRCA1 exon 13 duplication, published breakpoints c.4186-1787_4357+4122dup
+DUP13_r04	BRCA1	LDUP	chr17	43078282	43084362	6081	simulated BRCA1 exon 13 duplication, published breakpoints c.4186-1787_4357+4122dup
+DUP13_r05	BRCA1	LDUP	chr17	43078282	43084362	6081	simulated BRCA1 exon 13 duplication, published breakpoints c.4186-1787_4357+4122dup
+DUP13_r06	BRCA1	LDUP	chr17	43078282	43084362	6081	simulated BRCA1 exon 13 duplication, published breakpoints c.4186-1787_4357+4122dup
+DUP13_r07	BRCA1	LDUP	chr17	43078282	43084362	6081	simulated BRCA1 exon 13 duplication, published breakpoints c.4186-1787_4357+4122dup
+DUP13_r08	BRCA1	LDUP	chr17	43078282	43084362	6081	simulated BRCA1 exon 13 duplication, published breakpoints c.4186-1787_4357+4122dup
+DUP13_r09	BRCA1	LDUP	chr17	43078282	43084362	6081	simulated BRCA1 exon 13 duplication, published breakpoints c.4186-1787_4357+4122dup
+DUP13_r10	BRCA1	LDUP	chr17	43078282	43084362	6081	simulated BRCA1 exon 13 duplication, published breakpoints c.4186-1787_4357+4122dup

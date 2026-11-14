@@ -154,7 +154,15 @@ def insertion_signals(path, exons):
     for row in rows:
         flags = []
         kind = "Insertionssignatur"
-        if "deletion" in row.get("signature", []):
+        if "duplication" in row.get("signature", []):
+            kind = "Bekannte pathogene Duplikation" if row.get("clinicalSignificance") == "pathogenic" \
+                else "Bekanntes Duplikationsallel"
+            if row.get("clinicalSignificance") == "pathogenic":
+                flags.append("bekannte pathogene Gründermutation: Bestätigung mit Labormethode nötig")
+            flags.append(row.get("label") or "bekanntes Duplikationsallel")
+            flags.append("Lesungen über die neue Verbindungsstelle passen zur bekannten Allelsequenz (Neuausrichtung)")
+            flags.append("Zygotie aus Lesungen nicht bestimmbar (alle Referenzübergänge bleiben erhalten)")
+        elif "deletion" in row.get("signature", []):
             kind = "Bekanntes Deletionsallel"
             flags.append(row.get("label") or "bekanntes Deletionsallel")
             flags.append("Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)")
