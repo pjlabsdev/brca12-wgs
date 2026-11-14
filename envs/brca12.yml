@@ -14,3 +14,4 @@ dependencies:
   - cnvkit=0.9.11
   - mosdepth=0.3.10
   - ensembl-vep=113.0
+  - perl-list-moreutils    # missing VEP dependency in some ensembl-vep 113 builds

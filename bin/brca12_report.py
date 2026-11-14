@@ -82,6 +82,49 @@ def add_exon_event_codes(event, kind, labels):
         event.setdefault("flags", []).append(f"ENIGMA Tabelle 4 (falls bestätigt): {text}")
 
 
+ASSAY_LIMITATIONS = {
+    "exome": ("Exom-/Panel-Daten (Hybrid-Capture): Introns und Promotor sind nur am Rand der Ziele abgedeckt; CNVs aus CNVkit hybrid mit flacher Referenz sind ohne --cnv_reference (Normalproben derselben Methode) unsicher; Manta läuft im Exom-Modus.",
+              "Exome/panel data (hybrid capture): introns and the promoter are covered only at the edges of the targets; CNVs from CNVkit hybrid with a flat reference are unreliable without --cnv_reference (normal samples of the same assay); Manta runs in exome mode."),
+    "amplicon": ("Amplikon-Daten: Duplikate werden nicht markiert; Varianten unter Primern sind ohne Primer-Abschnitt (--primers_bed) unzuverlässig; Allelausfall durch Varianten in Primerbindestellen ist möglich; große Deletionen und Strukturvarianten sind mit Amplikons kaum erkennbar; CNVs aus CNVkit amplicon brauchen eine Referenz aus Normalproben (--cnv_reference).",
+                 "Amplicon data: duplicates are not marked; variants under primers are unreliable without primer clipping (--primers_bed); allele dropout from variants in primer binding sites is possible; large deletions and structural variants are hardly detectable with amplicons; CNVs from CNVkit amplicon need a reference from normal samples (--cnv_reference)."),
+}
+ASSAY_LIMITATIONS["panel"] = ASSAY_LIMITATIONS["exome"]
+
+
+def mosaic_candidates(paths, germline, low_exons, sources, min_af, max_af, min_alt=3, min_depth=20,
+                      snv_only=False):
+    """Mutect2 PASS calls with an allele fraction in [min_af, max_af], at least `min_alt` supporting reads
+    and `min_depth` reads in total, that the germline caller did not report. With `snv_only` (Ion Torrent)
+    insertions and deletions are left out: homopolymer errors of the platform look like low-fraction indels."""
+    known = {(v["chrom"], v["pos"], v["ref"], v["alt"]) for v in germline}
+    rows = []
+    for gene, path in paths.items():
+        for v in variants.small_variants(path, gene, low_exons, sources):
+            fraction = v["alleleFraction"]
+            if (v["chrom"], v["pos"], v["ref"], v["alt"]) in known or fraction is None:
+                continue
+            if not min_af <= fraction <= max_af:
+                continue
+            if (v["altDepth"] or 0) < min_alt or (v["depth"] or 0) < min_depth:
+                continue
+            if snv_only and len(v["ref"]) != len(v["alt"]):
+                continue
+            v["genotype"] = "Mosaik-Kandidat"
+            v["qualityFlags"] = [f for f in v["qualityFlags"]
+                                 if not f.startswith(("Allelverhältnis", "geringe Genotypqualität"))]
+            v["qualityFlags"].append("niedriger Allelanteil: Bestätigung mit orthogonaler Methode nötig")
+            rows.append(v)
+    return rows
+
+
+def mark_untargeted(exons, untargeted):
+    names = set(untargeted or [])
+    for exon in exons:
+        if exon["exon"] is not None and f"{exon['gene']}_ex{exon['exon']:02d}" in names:
+            exon["status"] = "unsicher"
+            exon["reasons"].append("nicht im Zielbereich des Panels")
+
+
 def build(args):
     with open(args.reference_check) as handle:
         check = json.load(handle)
@@ -89,6 +132,12 @@ def build(args):
     medians = coverage.read_chrom_median(args.chrom_median)
     exons = coverage.exon_table(args.cov_q20, args.cov_thresholds, args.cov_q0, medians,
                                 args.min_exon_depth, args.min_exon_pct20, args.max_mapq0)
+    read_qc = None
+    if args.read_qc and os.path.exists(args.read_qc) and os.path.getsize(args.read_qc):
+        with open(args.read_qc) as handle:
+            read_qc = json.load(handle)
+    if args.assay != "wgs":
+        mark_untargeted(exons, (check.get("targets") or {}).get("exonsWithoutTarget"))
     uncertain = [e for e in exons if e["status"] != "ok"]
     small = dict(item.split("=", 1) for item in args.small)
     sources = evidence.Evidence(args.gnomad_exomes, args.gnomad_genomes, args.spliceai, args.bayesdel, args.tabix)
@@ -108,13 +157,23 @@ def build(args):
     for item in dosage_hints:
         add_exon_event_codes(item, "DEL" if item["type"] == "möglicher Verlust" else "DUP", [item["exon"]])
     svs = structural.structural_variants(args.sv, regions, exons)
+    mosaic_paths = dict(item.split("=", 1) for item in args.mosaic)
+    germline = [v for g in genes.values() for v in g["smallVariants"]]
+    ion = args.platform == "iontorrent"
+    mosaic = mosaic_candidates(mosaic_paths, germline, uncertain, sources, args.mosaic_min_af, args.mosaic_max_af,
+                               args.mosaic_min_alt_reads, args.mosaic_min_depth, snv_only=ion) if mosaic_paths else []
+    if ion:
+        for v in germline:
+            if len(v["ref"]) != len(v["alt"]):
+                v["qualityFlags"].append("Ion Torrent: Insertionen/Deletionen in Homopolymeren unzuverlässig")
     versions = read_versions(args.versions)
     versions.setdefault("nextflow", args.nextflow_version)
     invocation = " ".join(["nextflow run main.nf", f"--sample {args.sample}",
                            f"--reference {args.reference}",
                            (f"--bam {args.inputs}" if args.input_mode == "bam"
-                            else "--reads_r1 {} --reads_r2 {}".format(*args.inputs.split(",", 1))),
-                           f"--snv_caller {args.snv_caller}", "-profile <conda|standard>"])
+                            else " ".join(f"--reads_r{i} {p}" for i, p in enumerate(args.inputs.split(","), 1) if p)),
+                           f"--snv_caller {args.snv_caller}", f"--assay {args.assay}",
+                           "-profile <conda|docker|standard>"])
     result = {
         "schema": SCHEMA,
         "sample": args.sample,
@@ -123,9 +182,18 @@ def build(args):
         "researchUseOnly": True,
         "disclaimer": {"de": render.DISCLAIMER_DE, "en": render.DISCLAIMER_EN},
         "clinicalClassification": None,
-        "input": {"mode": args.input_mode, "files": [os.path.basename(p) for p in args.inputs.split(",")]},
+        "input": {"mode": args.input_mode, "files": [os.path.basename(p) for p in args.inputs.split(",") if p],
+                  "singleEnd": args.input_mode == "fastq" and len([p for p in args.inputs.split(",") if p]) == 1},
         "reference": {"path": args.reference, "assembly": check.get("assembly"), "check": check},
+        "assay": args.assay,
         "snvCaller": "GATK HaplotypeCaller" if args.snv_caller == "haplotypecaller" else "DeepVariant",
+        "readQC": read_qc,
+        "platform": args.platform,
+        "mosaicCalling": {"enabled": bool(mosaic_paths), "caller": "GATK Mutect2 (tumour-only)" if mosaic_paths else None,
+                          "minAlleleFraction": args.mosaic_min_af, "maxAlleleFraction": args.mosaic_max_af,
+                          "minAltReads": args.mosaic_min_alt_reads, "minDepth": args.mosaic_min_depth,
+                          "snvOnly": ion},
+        "mosaicCandidates": mosaic,
         "evidenceSources": dict(sources.configured(), specification="ClinGen ENIGMA BRCA1/BRCA2 VCEP v1.2"),
         "thresholds": {"minExonDepth": args.min_exon_depth, "minExonPct20x": args.min_exon_pct20,
                        "lowDepth": args.low_depth, "maxLowMapqFraction": args.max_mapq0},
@@ -140,9 +208,15 @@ def build(args):
         "toolVersions": versions,
         "invocation": invocation,
         "nextflowSession": args.session_id,
-        "limitations": LIMITATIONS,
-        "limitationsEN": LIMITATIONS_EN,
+        "limitations": LIMITATIONS + ([ASSAY_LIMITATIONS[args.assay][0]] if args.assay in ASSAY_LIMITATIONS else []),
+        "limitationsEN": LIMITATIONS_EN + ([ASSAY_LIMITATIONS[args.assay][1]] if args.assay in ASSAY_LIMITATIONS else []),
     }
+    if ion:
+        result["limitations"].append("Ion Torrent: Insertionen und Deletionen in Homopolymeren sind mit GATK HaplotypeCaller unzuverlässig (plattformtypische Lesefehler); Mosaik-Kandidaten werden nur für SNVs gemeldet.")
+        result["limitationsEN"].append("Ion Torrent: insertions and deletions in homopolymers are unreliable with GATK HaplotypeCaller (platform-specific read errors); mosaic candidates are reported for SNVs only.")
+    if result["input"]["singleEnd"]:
+        result["limitations"].append("Einzel-Reads (single-end): Manta wurde übersprungen, strukturelle Varianten werden nicht gesucht; Duplikate lassen sich nur nach Startposition erkennen.")
+        result["limitationsEN"].append("Single-end reads: Manta was skipped, structural variants are not searched; duplicates can only be recognised by start position.")
     result["summary"] = summarize(result)
     return result
 
@@ -161,9 +235,12 @@ def summarize(result):
         "exonDosageHintCount": len(result["exonDosageHints"]),
         "svCount": len(result["svs"]),
         "insertionSignalCount": len(result["insertionSignals"]),
+        "mosaicCandidateCount": len(result.get("mosaicCandidates", [])),
+        "readQCFlagCount": len((result.get("readQC") or {}).get("flags", [])),
         "uncertainExonCount": sum(1 for e in result["exonCoverage"] if e["status"] != "ok"),
         "lowCoverageIntervalCount": len(result["lowCoverageIntervals"]),
-        "needsAttention": bool(clinvar_plp or lof or result["cnvs"] or result["svs"] or result["insertionSignals"]),
+        "needsAttention": bool(clinvar_plp or lof or result["cnvs"] or result["svs"] or result["insertionSignals"]
+                               or result.get("mosaicCandidates")),
     }
 
 
@@ -176,6 +253,14 @@ def main(argv=None):
     p.add_argument("--small", action="append", default=[])
     p.add_argument("--insertion-signals", default=None)
     p.add_argument("--snv-caller", default="haplotypecaller")
+    p.add_argument("--assay", choices=("wgs", "exome", "panel", "amplicon"), default="wgs")
+    p.add_argument("--read-qc", default=None, help="read_qc.json from brca12_read_qc.py")
+    p.add_argument("--mosaic", action="append", default=[], help="GENE=mosaic.vep.vcf.gz (Mutect2, VEP)")
+    p.add_argument("--mosaic-min-af", type=float, default=0.02)
+    p.add_argument("--mosaic-max-af", type=float, default=0.30)
+    p.add_argument("--mosaic-min-alt-reads", type=int, default=3)
+    p.add_argument("--mosaic-min-depth", type=int, default=20)
+    p.add_argument("--platform", choices=("illumina", "iontorrent"), default="illumina")
     p.add_argument("--min-exon-depth", type=float, default=20)
     p.add_argument("--min-exon-pct20", type=float, default=95)
     p.add_argument("--low-depth", type=float, default=10)
