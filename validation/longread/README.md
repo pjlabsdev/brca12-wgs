@@ -66,6 +66,34 @@ of the 49 with one copy show it in 22 to 83 % of them.
 Sites outside the gene loci (reads reach beyond them) are dropped, and a shorter insertion cluster
 with the same carriers next to a longer one (an insertion aligned in two pieces) is merged into it.
 
+## Preregistered test of known-allele genotyping (`frozen/`, `results/frozen_*`)
+
+Known alleles from the assemblies (the 126 bp copy and the intronic BRCA2 Alu insertion) are also
+genotyped by allele-aware realignment (`bin/brca12_insertion_signals.py`): each read near the site
+is aligned to the reference haplotype and to the haplotype with the allele, and two reads that fit
+the allele with at least 2 fewer edits make a call. Because all rules so far were developed on the
+samples above, the final method was frozen and the test written down and pushed before any data were
+fetched (`frozen/PREREGISTRATION.md`, commit 9acce4d): 200 further 1KG-ONT samples drawn with a fixed
+seed from the 834 not used before, original 1000 Genomes alignments, long-read genotypes of
+`results/all_disc.*` as truth. Evaluation: `frozen_eval.py`, per sample `results/frozen_test.tsv`.
+
+| Allele | Method | Carriers found | Non-carriers with a call |
+|---|---|---:|---:|
+| 126 bp tandem copy | frozen method | 116/116 (95 % CI 96.9-100 %) | 4/84 |
+| 126 bp tandem copy | read-end signature alone | 97/116 | 2/84 |
+| BRCA2 Alu insertion | frozen method | 25/25 (95 % CI 86.3-100 %) | 0/175 |
+| BRCA2 Alu insertion | read-end signature alone | 19/25 | 0/175 |
+
+Genotype agreement with the long reads (homozygous when at least 90 % of spanning long reads carry
+the insertion): Alu 25/25, tandem copy 113/116. Post hoc, the 4 non-carriers with a call were
+genotyped again from the long reads (`results/frozen_audit_ont.tsv`): they have only 3 to 6
+spanning long reads, and 3 of them have at least one long read with the insertion. They may be gaps
+in the truth, but the frozen result counts them as false calls.
+
+By superpopulation (1000 Genomes labels), carriers found for the tandem copy: AFR 27/27, AMR
+20/20, EAS 21/21, EUR 17/17, SAS 31/31 (non-carrier calls 0/29, 2/12, 1/17, 1/16, 0/10); for the Alu
+insertion every carrier in every group (2 to 8 per group) and no call in any non-carrier.
+
 ## Sources
 
 Schloissnig S et al. Structural variation in 1,019 diverse humans based on long-read sequencing.

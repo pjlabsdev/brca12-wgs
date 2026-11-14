@@ -1,30 +1,30 @@
 sample	truth	signature	knownAllele	evidence	haplotypeTags	haplotypeCopies	length	reads	markerReads	elsewhere
-HG00438	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	4+3	4/39	0
-HG00621	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	4+5	5/29	0
+HG00438	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	4+3	4/39	0
+HG00621	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	4+5	5/29	0
 HG00673	reference	no	no							0
 HG00733	reference	no	no							0
 HG00735	reference	no	no							0
-HG00741	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	2+3	4/30	0
+HG00741	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	2+3	4/30	0
 HG01071	reference	no	no							0
-HG01106	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	4+3	4/41	0
-HG01109	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	8+8	7/35	0
+HG01106	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	4+3	4/41	0
+HG01109	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	8+8	7/35	0
 HG01175	reference	no	no							0
-HG01243	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	3+6	3/38	0
-HG01258	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	3+4	5/27	0
+HG01243	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	3+6	3/38	0
+HG01258	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	3+4	5/27	0
 HG01358	reference	no	no							0
-HG01361	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	2+2	3/46	0
-HG01891	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	3+6	4/37	0
+HG01361	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	2+2	3/46	0
+HG01891	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	3+6	4/37	0
 HG01928	reference	no	no							0
-HG01952	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	5+2	5/42	0
+HG01952	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	5+2	5/42	0
 HG01978	reference	no	no							0
-HG02055	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	6+7	9/42	0
+HG02055	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	6+7	9/42	0
 HG02080	reference	no	no							0
 HG02145	reference	no	no							0
 HG02148	reference	no	no							0
 HG02257	reference	no	no							0
-HG02572	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	5+2	6/46	0
+HG02572	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	5+2	6/46	0
 HG02622	reference	no	no							0
-HG02630	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	4+3	6/41	0
+HG02630	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	4+3	6/41	0
 HG02717	reference	no	no							0
 HG02723	reference	no	no							0
 HG02818	reference	no	no							0
@@ -32,9 +32,9 @@ HG02886	reference	no	no							0
 HG03098	reference	no	no							0
 HG03453	reference	no	no							0
 HG03486	reference	no	no							0
-HG03492	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	3+6	3/36	0
-HG03516	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	2+2	2/34	0
-HG03540	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	5+5	5/33	0
-HG03579	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	2+2	3/30	0
-NA18906	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	6+4	7/43	0
-NA20129	carrier	yes	yes	clipped reads,marker base,haplotype	5/5	1	126	4+2	5/40	0
+HG03492	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	3+6	3/36	0
+HG03516	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	2+2	2/34	0
+HG03540	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	5+5	5/33	0
+HG03579	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	2+2	3/30	0
+NA18906	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	6+4	7/43	0
+NA20129	carrier	yes	yes	allele realignment,clipped reads,marker base,haplotype	5/5	1	126	4+2	5/40	0

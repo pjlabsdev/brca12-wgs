@@ -259,7 +259,10 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
 - Extra copies of a tandem repeat unit are reported as hints from read ends, not as calls. For the
   common 126 bp copy upstream of BRCA1 exon 1 a marker base and the linked haplotype are checked as
   well, and 2 of the 3 signals are required (tuning set: 24 of 25 carriers, 0 of 25 non-carriers;
-  independent set: 67 of 67 carriers, 1 of 53 non-carriers). Other tandem copies rely on clipped reads
+  independent set: 67 of 67 carriers, 1 of 53 non-carriers); together with allele realignment it
+  found 116 of 116 carriers in a preregistered test (4 calls in 84 non-carriers with thin long-read
+  coverage). Realignment needs the allele sequence and covers two known alleles so far. Other tandem
+  copies rely on clipped reads
   alone and can be missed at low depth. Indel lengths in long homopolymers can differ from
   assembly-based truth (BRCA1 3' UTR poly-T).
 - DeepVariant on macOS is only available via Docker; the default is GATK HaplotypeCaller.
@@ -368,6 +371,15 @@ confirmed by ONT long reads, with no signature in the 25 non-carriers
 1KG-ONT samples not used for tuning it finds 67 of 67 long-read carriers and 1 of 53 non-carriers;
 that sample (HG02687) shows all three signals and has only 8 spanning long reads, 1 with the
 insertion. The haplotype count agrees with the long-read zygosity in 66 of 67 carriers.
+
+Known alleles from the assemblies (the 126 bp copy and the common intronic BRCA2 Alu insertion) are
+also genotyped by allele-aware realignment of the reads near the site against the reference and the
+allele haplotype. This method was frozen and its test registered before the data were fetched
+(`validation/longread/frozen/`): in 200 new 1KG-ONT samples it found the tandem copy in 116 of 116
+long-read carriers (4 calls in 84 non-carriers, all with 3 to 6 spanning long reads) and the Alu
+insertion in 25 of 25 carriers with no call in 175 non-carriers and the right genotype in 25 of 25.
+Read-end signatures alone found 97 of 116 and 19 of 25. ExpansionHunter v5 with a locus definition
+for the tandem copy found 14 of 19 HPRC carriers and 54 of 64 independent carriers.
 
 Oxford Nanopore reads of the 1KG-ONT cohort (`validation/longread/`) confirm the short-read SV
 results: for the 11 tested samples the pipeline agrees with the long reads in 26 of 26 sample-site
