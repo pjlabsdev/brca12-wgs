@@ -1,0 +1,7 @@
+sample	spikedAlleleFraction	spikedEvents	reportedAsMosaicCandidate	calledByGermlineCaller	reportedEither	medianObservedFraction	falsePositiveMosaicCandidates	falsePositiveGermlineCalls
+MOSAIC_05	0.05	94	16	12	28	0.08	0	0
+MOSAIC_10	0.1	94	19	46	65	0.086	0	0
+MOSAIC_15	0.15	94	15	70	85	0.095	0	0
+MOSAIC_20	0.2	94	4	90	94	0.093	0	0
+MOSAIC_30	0.3	94	2	92	94	0.115	0	0
+MOSAIC_NEG	-	0	0	0	0	-	0	0

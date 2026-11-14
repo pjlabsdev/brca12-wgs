@@ -20,7 +20,8 @@ fi
 abs="$(cd "$(dirname "$html")" && pwd)/$(basename "$html")"
 profile="$(mktemp -d)"
 trap 'rm -rf "$profile"' EXIT
-"$chrome" --headless --disable-gpu --no-sandbox --no-first-run --user-data-dir="$profile" \
+# Some Chromium builds keep running after printing; the timeout ends them (the PDF is already written).
+timeout "${BRCA12_PDF_TIMEOUT:-120}" "$chrome" --headless --disable-gpu --no-sandbox --no-first-run --user-data-dir="$profile" \
   --print-to-pdf="$pdf" "file://$abs" >/dev/null 2>&1 || true
 if [ -s "$pdf" ]; then
   echo "[brca12] PDF report written: $pdf" >&2

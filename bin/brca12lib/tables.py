@@ -59,6 +59,27 @@ def sample_sheets(result):
     low += [[sample, i.get("gene"), i.get("chrom"), i.get("start"), i.get("end"), i.get("length"), i.get("minDepth")]
             for i in result.get("lowCoverageIntervals") or []]
     versions = [["tool", "version"]] + [[k, v] for k, v in (result.get("toolVersions") or {}).items()]
-    return [("Übersicht", overview), ("SNVs Indels", [SMALL_HEADER] + small_rows(result)),
-            ("CNV", cnv), ("SV", sv), ("Exon-Coverage", exons), ("Geringe Tiefe", low),
-            ("Tool-Versionen", versions)]
+    sheets = [("Übersicht", overview), ("SNVs Indels", [SMALL_HEADER] + small_rows(result)),
+              ("CNV", cnv), ("SV", sv), ("Exon-Coverage", exons), ("Geringe Tiefe", low)]
+    if (result.get("mosaicCalling") or {}).get("enabled"):
+        mosaic = [["sample", "gene", "chrom", "pos", "ref", "alt", "allele_fraction", "alt_reads", "depth",
+                   "consequence", "hgvsc", "hgvsp", "clinvar", "flags"]]
+        mosaic += [[sample, v.get("gene"), v.get("chrom"), v.get("pos"), v.get("ref"), v.get("alt"),
+                    v.get("alleleFraction"), v.get("altDepth"), v.get("depth"), v.get("consequence"), v.get("hgvsc"),
+                    v.get("hgvsp"), (v.get("clinvar") or {}).get("significance"), _join(v.get("qualityFlags") or [])]
+                   for v in result.get("mosaicCandidates") or []]
+        sheets.append(("Mosaik-Kandidaten", mosaic))
+    qc = result.get("readQC")
+    if qc:
+        rows = [["metric", "value"], ["assay", result.get("assay")], ["platform", result.get("platform")]]
+        rows += [[k, v] for k, v in (qc.get("regionStats") or {}).items()]
+        rows += [[f"target {k}", v] for k, v in (qc.get("targetSummary") or {}).items()]
+        rows += [[f"primer clipping {k}", v] for k, v in (qc.get("primerClipping") or {}).items()]
+        rows += [["warning", f] for f in qc.get("flags") or []]
+        sheets.append(("Lese-QC", rows))
+        if qc.get("targets"):
+            targets = [["sample", "target", "chrom", "start", "end", "mean_depth", "min_depth", "pct_20x", "status"]]
+            targets += [[sample, t.get("name"), t.get("chrom"), t.get("start"), t.get("end"), t.get("meanDepth"),
+                         t.get("minDepth"), t.get("pct20x"), t.get("status")] for t in qc["targets"]]
+            sheets.append(("Ziel-Coverage", targets))
+    return sheets + [("Tool-Versionen", versions)]

@@ -59,6 +59,13 @@ def sections(result, lang="en"):
         out.append((ui("small_title", lang, gene=gene, chrom=info["chrom"], strand=strand,
                        transcript=info["transcript"]),
                     _table(ui("small_headers", lang), rows, lang), ui("no_small", lang)))
+    if result.get("mosaicCalling", {}).get("enabled"):
+        mc = result["mosaicCalling"]
+        rows = [[v["gene"], v["pos"], v["ref"], v["alt"], v["alleleFraction"], v["altDepth"], v["depth"],
+                 v["consequence"], v["hgvsc"], v["hgvsp"], v["clinvar"]["significance"],
+                 _join(v["qualityFlags"], lang)] for v in result.get("mosaicCandidates", [])]
+        out.append((ui("mosaic_title", lang, lo=100 * mc["minAlleleFraction"], hi=100 * mc["maxAlleleFraction"]),
+                    _table(ui("mosaic_headers", lang), rows, lang), ui("no_mosaic", lang)))
     cnv_rows = [[c["gene"], c["type"], f"{c['chrom']}:{c['start']}-{c['end']}", c["copyNumber"], c["log2"],
                  ", ".join(tr(e, lang) for e in c["affectedExons"]), _join(c["flags"], lang)]
                 for c in result["cnvs"]]
@@ -77,6 +84,33 @@ def sections(result, lang="en"):
                   e["pct10x"], e["pct20x"], e["pct30x"], e["lowMapqFraction"], e["status"],
                   _join(e["reasons"], lang)] for e in result["exonCoverage"]]
     out.append((ui("exon_title", lang), _table(ui("exon_headers", lang), exon_rows, lang), ui("no_entries", lang)))
+    qc = result.get("readQC")
+    if qc:
+        rs = qc.get("regionStats", {})
+        items = [("qc_reads", rs.get("readsInRegions")), ("qc_mapped", rs.get("mappedPct")),
+                 ("qc_paired", rs.get("properlyPairedPct")), ("qc_dup", rs.get("duplicatePct")),
+                 ("qc_mapq0", rs.get("mapq0Pct")), ("qc_insert", rs.get("medianInsertSize")),
+                 ("qc_error", None if rs.get("errorRate") is None else round(100 * rs["errorRate"], 3)),
+                 ("qc_readlen", rs.get("averageReadLength")), ("qc_basequal", rs.get("averageBaseQuality"))]
+        ts = qc.get("targetSummary") or {}
+        if ts:
+            items += [("qc_targets", ts.get("targetCount")), ("qc_target_mean", ts.get("meanDepth")),
+                      ("qc_target_pct20", ts.get("pct20x")), ("qc_uniformity", ts.get("uniformityPct")),
+                      ("qc_fold80", ts.get("fold80BasePenalty")), ("qc_ontarget", ts.get("onTargetReadPct")),
+                      ("qc_weak", ts.get("weakTargetCount"))]
+        clip = qc.get("primerClipping")
+        if clip:
+            items += [("qc_clipped", clip.get("clippedPct")), ("qc_short", clip.get("readsFilteredTooShort"))]
+        rows = [[ui(k, lang), v] for k, v in items]
+        rows += [[ui("qc_flag", lang), f] for f in qc.get("flags", [])]
+        out.append((ui("qc_title", lang, assay=result.get("assay", "wgs")),
+                    _table(ui("qc_headers", lang), rows, lang), ui("no_entries", lang)))
+        weak = [t for t in qc.get("targets", []) if t["status"] != "ok"]
+        if qc.get("targets"):
+            rows = [[t["name"], f"{t['chrom']}:{t['start']}-{t['end']}", t["meanDepth"], t["minDepth"], t["pct20x"]]
+                    for t in weak]
+            out.append((ui("weak_title", lang, depth=ts.get("minTargetDepth", 30)),
+                        _table(ui("weak_headers", lang), rows, lang), ui("no_weak", lang)))
     low_rows = [[i["gene"], f"{i['chrom']}:{i['start']}-{i['end']}", i["length"], i["minDepth"]]
                 for i in result["lowCoverageIntervals"]]
     out.append((ui("low_title", lang, depth=result["thresholds"]["lowDepth"]),

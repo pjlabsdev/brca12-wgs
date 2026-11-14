@@ -131,6 +131,32 @@ def write_bed(path, rows):
             handle.write("\t".join(str(v) for v in row) + "\n")
 
 
+def gene_targets(path, style, windows, out_path, exons=None, keep_columns=False):
+    """Keep the target (or primer) intervals that overlap BRCA1/BRCA2 and harmonise contig names.
+
+    For targets the exons that no target covers are listed: their coverage cannot be judged.
+    """
+    rows = []
+    for fields in read_bed(path):
+        chrom = style + bare(fields[0])
+        start, end = int(fields[1]), int(fields[2])
+        if end <= start:
+            raise InputError(f"BED line with end <= start in {path}: {' '.join(fields)}")
+        if any(c == chrom and start < e and end > s for c, s, e, _ in windows):
+            name = fields[3] if len(fields) > 3 and fields[3] else f"{chrom}:{start + 1}-{end}"
+            extra = fields[4:6] if keep_columns and len(fields) >= 6 else []
+            rows.append((chrom, start, end, name, *extra))
+    if not rows:
+        raise InputError(f"{path} has no interval inside BRCA1/BRCA2 (GRCh38).")
+    write_bed(out_path, rows)
+    info = {"file": path, "intervalsInGenes": len(rows)}
+    if exons is not None:
+        info["exonsWithoutTarget"] = [e["name"] for e in exons
+                                      if not any(r[0] == e["chrom"] and r[1] < e["end"] and r[2] > e["start"]
+                                                 for r in rows)]
+    return info
+
+
 def prepare(args):
     lengths = read_fai(args.fai)
     style, report = check_reference(lengths)
@@ -142,6 +168,12 @@ def prepare(args):
     write_bed(args.out_sv, padded(exact, args.sv_padding, lengths))
     write_bed(args.out_exons, [(e["chrom"], e["start"], e["end"], e["name"], 0, e["strand"]) for e in exons])
     report["regions"] = [{"chrom": c, "start": s + 1, "end": e, "gene": g} for c, s, e, g in exact]
+    if args.targets and args.out_targets:
+        report["targets"] = gene_targets(args.targets, style, padded(exact, args.calling_padding, lengths),
+                                         args.out_targets, exons)
+    if args.primers and args.out_primers:
+        report["primers"] = gene_targets(args.primers, style, padded(exact, args.calling_padding, lengths),
+                                         args.out_primers, None, keep_columns=True)
     report["exonCount"] = {g: sum(1 for e in exons if e["gene"] == g) for g in GENE_LOCI}
     report["chromLengths"] = {style + n: lengths[style + n] for n in GRCH38_LENGTHS}
     with open(args.out_check, "w") as handle:
@@ -181,6 +213,22 @@ def chrom_median(paths, out_path):
                 out.write(f"{chrom}\t{statistics.median(values):.3f}\n")
 
 
+def exon_baseline(path, out_path):
+    """Targeted assays: the median of the per-exon mean depths (both genes) for every chromosome."""
+    means, chroms = [], set()
+    with gzip.open(path, "rt") as handle:
+        for line in handle:
+            fields = line.rstrip("\n").split("\t")
+            chroms.add(fields[0])
+            value = float(fields[-1])
+            if value > 0:
+                means.append(value)
+    baseline = statistics.median(means) if means else 0.0
+    with open(out_path, "w") as out:
+        for chrom in sorted(chroms):
+            out.write(f"{chrom}\t{baseline:.3f}\n")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fai")
@@ -193,15 +241,22 @@ def main(argv=None):
     parser.add_argument("--out-sv")
     parser.add_argument("--out-exact")
     parser.add_argument("--out-exons")
+    parser.add_argument("--targets", help="target BED of an exome, panel or amplicon assay")
+    parser.add_argument("--out-targets")
+    parser.add_argument("--primers", help="primer BED of an amplicon assay (samtools ampliconclip)")
+    parser.add_argument("--out-primers")
     parser.add_argument("--cnv-targets")
     parser.add_argument("--out-cnv-targets")
     parser.add_argument("--cnv-access")
     parser.add_argument("--chrom-median", nargs="+")
     parser.add_argument("--out-chrom-median")
+    parser.add_argument("--exon-baseline", help="mosdepth per-exon means (targeted assays)")
     args = parser.parse_args(argv)
     try:
         if args.cnv_targets:
             cnv_targets(args.cnv_targets, args.out_cnv_targets, args.cnv_access)
+        elif args.exon_baseline:
+            exon_baseline(args.exon_baseline, args.out_chrom_median)
         elif args.chrom_median:
             chrom_median(args.chrom_median, args.out_chrom_median)
         else:

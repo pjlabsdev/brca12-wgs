@@ -1,0 +1,828 @@
+{
+ "dataset": "HG002_exome_agilent",
+ "assay": "exome",
+ "platform": "illumina",
+ "readQC": {
+  "regionStats": {
+   "readsInRegions": 53428,
+   "mappedPct": 99.85,
+   "properlyPairedPct": 99.58,
+   "duplicatePct": 5.16,
+   "mapq0Pct": 0.0,
+   "medianInsertSize": 192,
+   "meanInsertSize": 204.3,
+   "errorRate": 0.00156,
+   "averageReadLength": 126.0,
+   "averageBaseQuality": 36.6
+  },
+  "targetSummary": {
+   "targetCount": 50,
+   "targetBases": 24042,
+   "meanDepth": 215.8,
+   "medianTargetDepth": 175.8,
+   "pct20x": 86.8,
+   "uniformityPct": 83.9,
+   "fold80BasePenalty": 3.43,
+   "weakTargetCount": 2,
+   "minTargetDepth": 30.0,
+   "onTargetReadPct": 76.9
+  },
+  "flags": [
+   "2 Ziel(e) mit mittlerer Tiefe < 30x",
+   "ungleichm\u00e4\u00dfige Abdeckung (nur 83.9 % der Zielbasen >= 0,2 x Mittel)"
+  ]
+ },
+ "mosaicCandidates": 0,
+ "uncertainExons": [
+  "Exon 23 (Legacy 24) BRCA1",
+  "Exon 1 BRCA2",
+  "Exon 5 BRCA2",
+  "Exon 27 BRCA2"
+ ],
+ "lowCoverageIntervals": [
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32315108,
+   "end": 32315109,
+   "minDepth": 9.0,
+   "length": 2
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32315111,
+   "end": 32316183,
+   "minDepth": 0.0,
+   "length": 1073
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32316657,
+   "end": 32319001,
+   "minDepth": 0.0,
+   "length": 2345
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32319479,
+   "end": 32319484,
+   "minDepth": 9.0,
+   "length": 6
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32319496,
+   "end": 32324915,
+   "minDepth": 0.0,
+   "length": 5420
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32325271,
+   "end": 32326073,
+   "minDepth": 0.0,
+   "length": 803
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32326883,
+   "end": 32329261,
+   "minDepth": 0.0,
+   "length": 2379
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32329670,
+   "end": 32330790,
+   "minDepth": 0.0,
+   "length": 1121
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32330803,
+   "end": 32330807,
+   "minDepth": 9.0,
+   "length": 5
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32331178,
+   "end": 32331180,
+   "minDepth": 9.0,
+   "length": 3
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32331318,
+   "end": 32332224,
+   "minDepth": 0.0,
+   "length": 907
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32333531,
+   "end": 32336180,
+   "minDepth": 0.0,
+   "length": 2650
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32341274,
+   "end": 32341277,
+   "minDepth": 0.0,
+   "length": 4
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32341364,
+   "end": 32344469,
+   "minDepth": 0.0,
+   "length": 3106
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32344754,
+   "end": 32344756,
+   "minDepth": 9.0,
+   "length": 3
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32344762,
+   "end": 32346708,
+   "minDepth": 0.0,
+   "length": 1947
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32346998,
+   "end": 32354716,
+   "minDepth": 0.0,
+   "length": 7719
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32355442,
+   "end": 32356271,
+   "minDepth": 0.0,
+   "length": 830
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32356830,
+   "end": 32357619,
+   "minDepth": 0.0,
+   "length": 790
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32358120,
+   "end": 32358145,
+   "minDepth": 9.0,
+   "length": 26
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32358148,
+   "end": 32358537,
+   "minDepth": 0.0,
+   "length": 390
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32358547,
+   "end": 32358556,
+   "minDepth": 9.0,
+   "length": 10
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32358583,
+   "end": 32362345,
+   "minDepth": 0.0,
+   "length": 3763
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32362349,
+   "end": 32362368,
+   "minDepth": 8.0,
+   "length": 20
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32362903,
+   "end": 32363037,
+   "minDepth": 1.0,
+   "length": 135
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32363688,
+   "end": 32364730,
+   "minDepth": 0.0,
+   "length": 1043
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32364745,
+   "end": 32364775,
+   "minDepth": 9.0,
+   "length": 31
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32364805,
+   "end": 32370217,
+   "minDepth": 0.0,
+   "length": 5413
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32371221,
+   "end": 32371238,
+   "minDepth": 8.0,
+   "length": 18
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32371243,
+   "end": 32375232,
+   "minDepth": 0.0,
+   "length": 3990
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32375586,
+   "end": 32376535,
+   "minDepth": 0.0,
+   "length": 950
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32377015,
+   "end": 32379092,
+   "minDepth": 0.0,
+   "length": 2078
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32380279,
+   "end": 32384494,
+   "minDepth": 0.0,
+   "length": 4216
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32385235,
+   "end": 32385237,
+   "minDepth": 9.0,
+   "length": 3
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32385240,
+   "end": 32385323,
+   "minDepth": 6.0,
+   "length": 84
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32386201,
+   "end": 32394575,
+   "minDepth": 0.0,
+   "length": 8375
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32395093,
+   "end": 32395987,
+   "minDepth": 0.0,
+   "length": 895
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32395989,
+   "end": 32395991,
+   "minDepth": 9.0,
+   "length": 3
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32396183,
+   "end": 32396735,
+   "minDepth": 0.0,
+   "length": 553
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32397221,
+   "end": 32398012,
+   "minDepth": 0.0,
+   "length": 792
+  },
+  {
+   "gene": "BRCA2",
+   "chrom": "chr13",
+   "start": 32398963,
+   "end": 32400268,
+   "minDepth": 0.0,
+   "length": 1306
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43044295,
+   "end": 43045542,
+   "minDepth": 0.0,
+   "length": 1248
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43046018,
+   "end": 43047401,
+   "minDepth": 0.0,
+   "length": 1384
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43047924,
+   "end": 43047931,
+   "minDepth": 9.0,
+   "length": 8
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43047934,
+   "end": 43047937,
+   "minDepth": 9.0,
+   "length": 4
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43047983,
+   "end": 43048908,
+   "minDepth": 0.0,
+   "length": 926
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43049646,
+   "end": 43049649,
+   "minDepth": 9.0,
+   "length": 4
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43049651,
+   "end": 43050861,
+   "minDepth": 0.0,
+   "length": 1211
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43051235,
+   "end": 43056834,
+   "minDepth": 0.0,
+   "length": 5600
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43057327,
+   "end": 43063195,
+   "minDepth": 0.0,
+   "length": 5869
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43063610,
+   "end": 43063754,
+   "minDepth": 0.0,
+   "length": 145
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43064234,
+   "end": 43064628,
+   "minDepth": 0.0,
+   "length": 395
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43064638,
+   "end": 43064685,
+   "minDepth": 8.0,
+   "length": 48
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43064691,
+   "end": 43067395,
+   "minDepth": 0.0,
+   "length": 2705
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43067814,
+   "end": 43067814,
+   "minDepth": 9.0,
+   "length": 1
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43067817,
+   "end": 43070737,
+   "minDepth": 0.0,
+   "length": 2921
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43071450,
+   "end": 43074136,
+   "minDepth": 0.0,
+   "length": 2687
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43074654,
+   "end": 43076283,
+   "minDepth": 0.0,
+   "length": 1630
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43076791,
+   "end": 43078058,
+   "minDepth": 0.0,
+   "length": 1268
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43078061,
+   "end": 43078078,
+   "minDepth": 9.0,
+   "length": 18
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43078086,
+   "end": 43079188,
+   "minDepth": 0.0,
+   "length": 1103
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43079834,
+   "end": 43082193,
+   "minDepth": 0.0,
+   "length": 2360
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43082784,
+   "end": 43084219,
+   "minDepth": 0.0,
+   "length": 1436
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43084321,
+   "end": 43090625,
+   "minDepth": 0.0,
+   "length": 6305
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43095052,
+   "end": 43095588,
+   "minDepth": 0.0,
+   "length": 537
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43096103,
+   "end": 43097128,
+   "minDepth": 0.0,
+   "length": 1026
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43097446,
+   "end": 43099582,
+   "minDepth": 0.0,
+   "length": 2137
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43099588,
+   "end": 43099588,
+   "minDepth": 9.0,
+   "length": 1
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43100186,
+   "end": 43104048,
+   "minDepth": 0.0,
+   "length": 3863
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43104374,
+   "end": 43104605,
+   "minDepth": 1.0,
+   "length": 232
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43105147,
+   "end": 43106348,
+   "minDepth": 0.0,
+   "length": 1202
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43106350,
+   "end": 43106353,
+   "minDepth": 9.0,
+   "length": 4
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43106681,
+   "end": 43106681,
+   "minDepth": 9.0,
+   "length": 1
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43106684,
+   "end": 43110108,
+   "minDepth": 0.0,
+   "length": 3425
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43110197,
+   "end": 43110622,
+   "minDepth": 0.0,
+   "length": 426
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43110629,
+   "end": 43110633,
+   "minDepth": 9.0,
+   "length": 5
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43110721,
+   "end": 43110725,
+   "minDepth": 9.0,
+   "length": 5
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43110740,
+   "end": 43112334,
+   "minDepth": 0.0,
+   "length": 1595
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43112365,
+   "end": 43115533,
+   "minDepth": 0.0,
+   "length": 3169
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43115932,
+   "end": 43116779,
+   "minDepth": 0.0,
+   "length": 848
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43116794,
+   "end": 43123835,
+   "minDepth": 0.0,
+   "length": 7042
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43124173,
+   "end": 43124777,
+   "minDepth": 0.0,
+   "length": 605
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43124781,
+   "end": 43124786,
+   "minDepth": 9.0,
+   "length": 6
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43125440,
+   "end": 43131257,
+   "minDepth": 0.0,
+   "length": 5818
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43131359,
+   "end": 43134862,
+   "minDepth": 0.0,
+   "length": 3504
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43134875,
+   "end": 43134875,
+   "minDepth": 9.0,
+   "length": 1
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43135296,
+   "end": 43139648,
+   "minDepth": 0.0,
+   "length": 4353
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43140203,
+   "end": 43140205,
+   "minDepth": 9.0,
+   "length": 3
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43140222,
+   "end": 43144102,
+   "minDepth": 0.0,
+   "length": 3881
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43144444,
+   "end": 43144826,
+   "minDepth": 3.0,
+   "length": 383
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43145380,
+   "end": 43168014,
+   "minDepth": 0.0,
+   "length": 22635
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43168332,
+   "end": 43169480,
+   "minDepth": 0.0,
+   "length": 1149
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43169732,
+   "end": 43169793,
+   "minDepth": 5.0,
+   "length": 62
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43169800,
+   "end": 43169804,
+   "minDepth": 9.0,
+   "length": 5
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43169806,
+   "end": 43169807,
+   "minDepth": 9.0,
+   "length": 2
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43169820,
+   "end": 43169854,
+   "minDepth": 8.0,
+   "length": 35
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43169881,
+   "end": 43169994,
+   "minDepth": 5.0,
+   "length": 114
+  },
+  {
+   "gene": "BRCA1",
+   "chrom": "chr17",
+   "start": 43170236,
+   "end": 43170327,
+   "minDepth": 2.0,
+   "length": 92
+  }
+ ]
+}
