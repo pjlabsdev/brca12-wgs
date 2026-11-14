@@ -76,7 +76,19 @@ KNOWN_ALLELES = (
     # 980 bp deletion in BRCA1 intron (1KG-ONT: 13 of 993 samples; breakpoints from 38 of 49 long reads
     # of 5 carriers; listed as 1,081 bp in the 1000 Genomes short-read panel)
     ("del980_brca1", "chr17", 43071727, "", False, "bekannte intronische 980-bp-Deletion in BRCA1 (seltenes Allel)", 980),
+    # BRCA2 c.156_157insAlu, pathogenic founder allele (Portugal; Teugels et al. 2005, Hum Mutat,
+    # Mutation in Brief 837; Peixoto et al. 2009): AluYa5 in the same orientation as BRCA2, flanked by the 14 bp target site
+    # duplication AAGAATCTGAACAT (chr13:32319152-32319165, ending at c.156). The exact element sequence is not
+    # published; the Dfam AluYa5 consensus with its poly-A tail stands in for it.
+    ("alu_brca2_c156", "chr13", 32319165,
+     "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACGAGGTCAGGAGATCGAGACCATCCCGGCTAAAACGG"
+     "TGAAACCCCGTCTCTACTAAAAATACAAAAAATTAGCCGGGCGTAGTGGCGGGCGCCTGTAGTCCCAGCTACTTGGGAGGCTGAGGCAGGAGAATGGCGT"
+     "GAACCCGGGAGGCGGAGCTTGCAGTGAGCCGAGATCCCGCCACTGCACTCCAGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAAAAAAAAAAAAAAAA"
+     "AAAAAAAAAAA"
+     "AAGAATCTGAACAT", False, "BRCA2 c.156_157insAlu (Gründermutation, Exon 3)"),
 )
+# known alleles that are pathogenic (the report flags them for laboratory confirmation)
+PATHOGENIC = frozenset({"alu_brca2_c156"})
 # realigned tandem-copy allele -> marker position of the same copy in KNOWN_COPIES
 ALLELE_MARKER = {"tandem126": 43128365}
 # marker position of a known copy -> SNPs on the same haplotype (chrom, position, reference, alternative)
@@ -258,6 +270,7 @@ def realigned_alleles(counts, regions, haplotypes=None, min_reads=2):
                     "signature": kind,
                     "clipsWithAluSequence": 0, "clipsWithPolyA": 0, "evidence": ["allele realignment"],
                     "realignedReads": f"{n_alt} allele / {n_ref} reference",
+                    "clinicalSignificance": "pathogenic" if a[0] in PATHOGENIC else "",
                     "zygosity": "homozygous" if n_ref <= 0.1 * (n_ref + n_alt) and n_alt >= 2 * min_reads
                     else "heterozygous"})
     return out
@@ -494,7 +507,7 @@ def main(argv=None):
                     and "deletion" not in known["signature"] and abs(d["pos"] - known["pos"]) <= 30]
             if same:
                 same[0].update({k: known[k] for k in ("label", "evidence", "realignedReads", "zygosity",
-                                                      "insertedLength")})
+                                                      "insertedLength", "clinicalSignificance")})
                 same[0]["evidence"] = ["allele realignment", "clipped reads"]
                 same[0]["signature"] = sorted(set(same[0]["signature"]) | {"known allele"})
             else:

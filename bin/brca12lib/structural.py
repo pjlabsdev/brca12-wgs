@@ -180,6 +180,9 @@ def insertion_signals(path, exons):
                 elif row.get("haplotypeCopies") == 1:
                     flags.append("Haplotyp heterozygot: vermutlich ein Allel mit der zusätzlichen Kopie")
         elif "known allele" in row.get("signature", []):
+            if row.get("clinicalSignificance") == "pathogenic":
+                kind = "Bekannte pathogene Insertion"
+                flags.append("bekannte pathogene Gründermutation: Bestätigung mit Labormethode nötig")
             flags.append(row.get("label") or "bekanntes Insertionsallel")
             if row.get("clippedReadsLeftJunction") or row.get("clippedReadsRightJunction"):
                 flags.append("abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion")

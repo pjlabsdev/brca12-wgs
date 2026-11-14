@@ -295,11 +295,16 @@ def load_events(args, sample):
                 elif kind == "LDUP":
                     edits[gene].append((end + 1 - ws, 0, fetch(args.reference, chrom, start, end)))
                 elif kind == "ALU":
-                    alu = fetch(args.reference, *ALU_SOURCE)
+                    if getattr(args, "alu_sequence", None):
+                        with open(args.alu_sequence) as handle:
+                            alu = "".join(l.strip() for l in handle if not l.startswith(">")).upper()
+                    else:
+                        alu = fetch(args.reference, *ALU_SOURCE)
                     tsd = fetch(args.reference, chrom, start - TSD + 1, start)
                     edits[gene].append((start + 1 - ws, 0, alu + tsd))
                     record.update({"end": start, "size": len(alu) + TSD,
-                                   "aluSource": "%s:%d-%d" % ALU_SOURCE, "targetSiteDuplication": TSD})
+                                   "aluSource": args.alu_sequence if getattr(args, "alu_sequence", None)
+                                   else "%s:%d-%d" % ALU_SOURCE, "targetSiteDuplication": TSD})
                 else:
                     raise ValueError(kind)
                 large.append(record)
@@ -394,6 +399,8 @@ def main(argv=None):
     s.add_argument("--fraction", type=float, default=0.5,
                    help="share of read pairs drawn from the haplotype with the events (0.5 = heterozygous; "
                         "below 0.5 = mosaic)")
+    s.add_argument("--alu-sequence", default=None,
+                   help="FASTA or plain file with the element inserted by ALU events (default: the reference copy ALU_SOURCE)")
     s.add_argument("--event-set", default=None, help="take the events of this sample name (default: --sample)")
     args = p.parse_args(argv)
     return {"design": design, "prepare": prepare, "simulate": simulate}[args.cmd](args)
