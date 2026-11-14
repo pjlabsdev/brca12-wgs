@@ -100,3 +100,104 @@ def tr(text, lang):
         if pattern.match(text):
             return pattern.sub(replacement, text)
     return text
+
+
+# --- Russian (ru) ----------------------------------------------------------------------------------
+# Machine-assisted translation, not reviewed by a native speaker (see README). Values without a
+# Russian entry fall back to English.
+UI_RU = {
+    "title": "Отчёт BRCA1/BRCA2",
+    "important": "Важно",
+    "reference": "Референс",
+    "input": "Входные данные",
+    "snv_caller": "Вызов SNV/инделов",
+    "created": "Создан",
+    "strand_minus": "минус-цепь",
+    "strand_plus": "плюс-цепь",
+    "small_title": "{gene}: SNV/инделы ({chrom}, {strand}, {transcript})",
+    "small_headers": ["POS", "REF", "ALT", "Генотип", "Последствие", "Транскрипт", "HGVSc", "HGVSp",
+                      "ClinVar", "Указания ACMG/AMP", "Качество"],
+    "no_small": "Вариантов относительно референса не найдено.",
+    "cnv_title": "BRCA1/BRCA2: CNV (делеции/дупликации)",
+    "cnv_headers": ["Ген", "Тип", "Область", "CN", "log2/отношение", "Экзоны", "Примечания"],
+    "sv_title": "BRCA1/BRCA2: структурные варианты",
+    "sv_headers": ["Ген", "Тип", "Позиция", "Партнёр", "GT", "PR", "SR", "FILTER", "Примечания"],
+    "no_sv": "Manta не сообщила о SV с точкой разрыва в BRCA1/BRCA2.",
+    "exon_title": "Покрытие по экзонам (MAPQ >= 20)",
+    "exon_headers": ["Ген", "Экзон", "Область", "Среднее", "% >=10x", "% >=20x", "% >=30x", "Доля MAPQ<20",
+                     "Статус", "Причина"],
+    "low_title": "Неопределённые области (глубина < {depth:g}x)",
+    "low_headers": ["Ген", "Область", "Длина (п. н.)", "Мин. глубина"],
+    "no_low": "Областей ниже порога нет.",
+    "no_entries": "Записей нет.",
+    "versions": "Версии инструментов",
+    "version": "Версия",
+    "unknown": "неизвестно",
+    "commands": "Воспроизводимые команды",
+    "commands_note": "Все выполненные команды полностью приведены в",
+    "limitations": "Ограничения",
+    "na": "н/д",
+}
+
+EXACT_RU = {
+    "nicht bestimmt": "не определён", "homozygot Referenz": "гомозигота по референсу",
+    "homozygot": "гомозигота", "heterozygot": "гетерозигота",
+    "compound/multiallelisch": "компаунд/мультиаллельный",
+    "unsicher": "неопределённый", "ok": "ok",
+    "Deletion": "Делеция", "Duplikation": "Дупликация",
+    "möglicher Verlust": "возможная потеря", "möglicher Zugewinn": "возможный прирост",
+    "geringe Tiefe (DP < 15)": "низкая глубина (DP < 15)",
+    "geringe Genotypqualität (GQ < 20)": "низкое качество генотипа (GQ < 20)",
+    "Allelverhältnis auffällig (mögliches Mosaik oder Artefakt)": "необычное соотношение аллелей (возможен мозаицизм или артефакт)",
+    "geringe Mapping-Qualität (MQ < 40)": "низкое качество картирования (MQ < 40)",
+    "unpräzise Bruchpunkte": "неточные точки разрыва",
+    "Bestätigung mit orthogonaler Methode nötig": "требуется подтверждение ортогональным методом",
+    "Kandidat, Bestätigung per MLPA oder validierter CNV-Analyse nötig":
+        "кандидат, требуется подтверждение методом MLPA или валидированным анализом CNV",
+    "eingefügte Sequenz mit Alu-Signatur: mögliche Alu-Insertion":
+        "вставленная последовательность с сигнатурой Alu: возможная вставка Alu",
+    "abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion":
+        "обрезанные концы прочтений с последовательностью Alu: возможная вставка Alu",
+    "abgeschnittene Leseenden von beiden Seiten: mögliche Insertion":
+        "обрезанные концы прочтений с обеих сторон: возможная вставка",
+    "Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig":
+        "указание по концам прочтений, не вызов варианта; требуется подтверждение ортогональным методом",
+    "Insertionssignatur": "сигнатура вставки",
+    "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)":
+        "пара точек разрыва в одном месте: возможная вставка (например, мобильного элемента, такого как Alu)",
+    "Exonweise Tiefe relativ zum Chromosomen-Median; nur ein Hinweis, kein CNV-Call. Exon ist zugleich als unsicher markiert: Verlust oder Abdeckungsproblem, nicht unterscheidbar.":
+        "Глубина экзона относительно медианы хромосомы; только указание, не вызов CNV. Экзон одновременно отмечен как неопределённый: потерю и проблему покрытия различить нельзя.",
+    "Exonweise Tiefe relativ zum Chromosomen-Median; nur ein Hinweis, kein CNV-Call.":
+        "Глубина экзона относительно медианы хромосомы; только указание, не вызов CNV.",
+}
+
+PATTERNS_RU = [
+    (re.compile(r"^mittlere Tiefe (.+)x < (.+)x$"), r"средняя глубина \1x < \2x"),
+    (re.compile(r"^nur (.+) % der Basen >= 20x$"), r"только \1 % оснований >= 20x"),
+    (re.compile(r"^(.+) % der Reads mit MAPQ < 20 \(Pseudogen/Repeat\)$"), r"\1 % прочтений с MAPQ < 20 (псевдоген/повтор)"),
+    (re.compile(r"^liegt in unsicher abgedecktem Bereich (.+)$"), r"находится в неопределённо покрытой области \1"),
+    (re.compile(r"^Exon (\d+) \(Legacy (\d+)\)$"), r"Экзон \1 (устар. нумерация \2)"),
+    (re.compile(r"^ENIGMA Tabelle 4 \(falls bestätigt\): (.+)$"), r"ENIGMA, таблица 4 (при подтверждении): \1"),
+]
+
+LANGUAGES = ("de", "en", "ru")
+_ui_de_en = ui
+_tr_de_en = tr
+
+
+def ui(key, lang, **kwargs):  # noqa: F811  (extends the de/en version above)
+    if lang == "ru" and key in UI_RU:
+        value = UI_RU[key]
+        return value.format(**kwargs) if kwargs and isinstance(value, str) else value
+    return _ui_de_en(key, "de" if lang == "de" else "en", **kwargs)
+
+
+def tr(text, lang):  # noqa: F811
+    if lang == "ru" and isinstance(text, str):
+        if text in EXACT_RU:
+            return EXACT_RU[text]
+        for pattern, replacement in PATTERNS_RU:
+            if pattern.match(text):
+                return pattern.sub(replacement, text)
+        return _tr_de_en(text, "en")
+    return _tr_de_en(text, lang)

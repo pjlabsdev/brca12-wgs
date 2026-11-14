@@ -40,3 +40,7 @@ downstream parsers do not depend on the report language. Main fields:
 
 - `brca12_report.xlsx`: sheets Übersicht, SNVs Indels, CNV, SV, Exon-Coverage, Geringe Tiefe, Tool-Versionen.
 - Batch (`bin/brca12_batch.py`): `cohort/cohort_samples.tsv`, `cohort/cohort_variants.tsv` (with `cohort_carriers`, `cohort_fraction`, `contamination_hint`), `cohort/cohort_contamination.tsv` (`sample`, variant, `allele_fraction`, `possible_source`), `cohort/cohort.xlsx`.
+## PDF and languages
+
+- `brca12_report.pdf` (only with `--report_pdf` and an available Chrome/Chromium).
+- JSON `disclaimer{de, en, ru}`, `limitations` (German), `limitationsEN`, `limitationsRU`.

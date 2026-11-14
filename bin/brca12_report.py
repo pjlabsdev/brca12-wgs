@@ -41,6 +41,17 @@ LIMITATIONS_EN = [
 ]
 
 
+# Russian limitations (not reviewed by a native speaker); keep in step with LIMITATIONS_EN.
+LIMITATIONS_RU = [
+    "Только GRCh38/hg38. Координаты BRCA1 chr17:43044295-43170327 (минус-цепь), BRCA2 chr13:32315077-32400268 (плюс-цепь).",
+    "Полногеномное секвенирование короткими прочтениями имеет ограниченную чувствительность к мозаицизму с долей аллеля ниже примерно 15 %, к сложным перестройкам и к областям с гомологией псевдогенов (экзоны 1-2 BRCA1 и BRCA1P1).",
+    "CNV получены по одному образцу с плоской референсной моделью CNVkit и являются только кандидатами. Делеции или дупликации одного экзона короче примерно 1 т. п. н. неопределённы; обычное подтверждение: MLPA.",
+    "Manta сообщает только о SV с точкой разрыва в окне поиска вокруг BRCA1/BRCA2. Вставки мобильных элементов надёжно не выявляются; дополнительный поиск сигнатур вставок по обрезанным концам прочтений распознаёт только последовательность Alu, требует не менее 3 прочтений на стык и даёт указания, а не вызовы.",
+    "ACMG/AMP: только автоматические указания по отдельным критериям согласно ClinGen ENIGMA v1.2. Без классификации; PVS1/PM5_PTC (таблица 4), PS3/BS3 (таблица 9) и PP4/BP5 взяты из прилагаемых таблиц ENIGMA, PS1, PM3, BS2, BS4, PP1, PS4 и РНК-данные образца отсутствуют. Глубина прочтения gnomAD не проверяется.",
+    "Данные ClinVar зависят от версии используемого ClinVar VCF.",
+]
+
+
 def read_versions(path):
     versions = {}
     with open(path) as handle:
@@ -121,7 +132,7 @@ def build(args):
         "generatedAt": datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat(),
         "assembly": "GRCh38",
         "researchUseOnly": True,
-        "disclaimer": {"de": render.DISCLAIMER_DE, "en": render.DISCLAIMER_EN},
+        "disclaimer": {"de": render.DISCLAIMER_DE, "en": render.DISCLAIMER_EN, "ru": render.DISCLAIMER_RU},
         "clinicalClassification": None,
         "input": {"mode": args.input_mode, "files": [os.path.basename(p) for p in args.inputs.split(",")]},
         "reference": {"path": args.reference, "assembly": check.get("assembly"), "check": check},
@@ -142,6 +153,7 @@ def build(args):
         "nextflowSession": args.session_id,
         "limitations": LIMITATIONS,
         "limitationsEN": LIMITATIONS_EN,
+        "limitationsRU": LIMITATIONS_RU,
     }
     result["summary"] = summarize(result)
     return result
@@ -187,7 +199,7 @@ def main(argv=None):
     p.add_argument("--spliceai", default=None, help="SpliceAI precomputed scores VCF (bgzip + tabix)")
     p.add_argument("--bayesdel", default=None, help="TSV chrom,pos,ref,alt,BayesDel_noAF (bgzip + tabix)")
     p.add_argument("--tabix", default="tabix")
-    p.add_argument("--lang", choices=("en", "de"), default="en", help="language of the HTML/Markdown report")
+    p.add_argument("--lang", choices=("en", "de", "ru"), default="en", help="language of the HTML/Markdown report (ru: not reviewed by a native speaker)")
     args = p.parse_args(argv)
     result = build(args)
     with open(args.out_json, "w") as handle:
