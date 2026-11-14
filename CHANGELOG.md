@@ -2,6 +2,8 @@
 
 ## Unreleased (1.1.0)
 
+- HTML report with figures per gene: mean depth per exon with threshold lines and an exon dosage
+  plot (MLPA-like view of possible exon losses or gains), inline SVG.
 - ACMG/AMP hints now follow the ClinGen ENIGMA BRCA1/BRCA2 specifications v1.2:
   - BA1, BS1 and the new BS1_Supporting use the filtering allele frequency of gnomAD non-cancer
     non-founder populations (`--gnomad_exomes_vcf`, `--gnomad_genomes_vcf`). Without these files
