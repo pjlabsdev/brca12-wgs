@@ -367,6 +367,38 @@ class InsertionSignalTest(unittest.TestCase):
         self.assertEqual(self.run_scan(clip), [])
         self.assertEqual(len(self.run_scan(clip, keep_all=True)), 1)
 
+    def test_extra_tandem_copy_from_clips_at_both_unit_borders(self):
+        import random
+        import brca12_insertion_signals as mod
+        rnd = random.Random(1)
+        unit = "".join(rnd.choice("ACGT") for _ in range(100))
+        ref = "".join(rnd.choice("ACGT") for _ in range(500)) + unit + unit + "".join(rnd.choice("ACGT") for _ in range(800))
+        fasta = {"chr13": (1, ref)}             # unit copies at 501-600 and 601-700
+        lines = []
+        for i in range(3):                      # aligned up to 700, clipped part starts the next copy
+            lines.append(self.sam(f"r{i}", 581 + i, f"{120 - i}M30S", ref[580 + i:700] + unit[:30]))
+        for i in range(3):                      # aligned from 601, clipped part ends the previous copy
+            lines.append(self.sam(f"l{i}", 601, f"30S{110 + i}M", unit[-30:] + ref[600:710 + i]))
+        lines += [self.sam(f"s{i}", 550 + i, "150M", ref[549 + i:699 + i]) for i in range(5)]
+        right, left, starts = mod.scan(lines)
+        regions = [("chr13", 0, 2000, "BRCA2")]
+        found = mod.duplications(right, left, starts, regions, fasta)
+        self.assertEqual(len(found), 1)
+        self.assertEqual((found[0]["pos"], found[0]["end"], found[0]["duplicatedLength"]), (601, 700, 100))
+        self.assertEqual(found[0]["signature"], ["tandem copy"])
+        # one junction alone is not enough
+        self.assertEqual(mod.duplications(right, {}, starts, regions, fasta), [])
+        rows = structural.insertion_signals(self._dump(found), [])
+        self.assertEqual(rows[0]["type"], "Tandemkopie-Signatur")
+        self.assertTrue(rows[0]["flags"][0].startswith("abgeschnittene Leseenden an beiden Grenzen"))
+
+    @staticmethod
+    def _dump(rows):
+        import json, tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
+            json.dump(rows, handle)
+        return handle.name
+
     def test_report_rows_carry_exon_and_flags(self):
         import json, tempfile
         found = self.run_scan(self.ALU)

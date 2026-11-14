@@ -38,8 +38,9 @@ site: 18 sites, none in an exon ±20 bp, 9 seen in a single sample.
 - BRCA1 1,081 bp intronic deletion (980 bp in the reads): 13 of 993.
 - BRCA1 VNTR at chr17:43100560-43100705: several alleles from -77 to +568 bp.
 - 126 bp tandem-repeat insertion upstream of BRCA1 exon 1 (chr17:43128267): 552 of 1,004. The
-  short-read pipeline did not detect it in any of 19 HPRC carriers (`../hprc/README.md`), so this is
-  a common allele in a blind spot of the method, not a rare miss.
+  short-read callers miss it; the tandem-copy read-end signature finds it in 4 of 6 long-read
+  carriers among the 11 tested samples and in none of the 5 non-carriers
+  (`results/tandem_copy.tsv`, `results/tandem_copy_truth.tsv`).
 
 Sites outside the gene loci (reads reach beyond them) are dropped, and a shorter insertion cluster
 with the same carriers next to a longer one (an insertion aligned in two pieces) is merged into it.

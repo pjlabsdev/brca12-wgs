@@ -13,6 +13,14 @@ By default only candidates whose clipped sequence carries Alu consensus k-mers a
 paired clip positions without such a signature also occur at alignment artefacts (every tested
 sample shows a few). --all keeps the others. Other element families (L1, SVA) are not recognised.
 These are hints, not calls.
+
+With --gene-fasta (the reference sequence of the gene regions) a second pattern is searched: an
+extra copy of a tandem repeat unit. Reads from the left are clipped at the end of a unit and their
+clipped part continues with the start of the same unit (found L bases upstream in the reference);
+reads from the right are clipped at the start of a unit and their clipped part matches the end of a
+unit L bases downstream. Both junctions with the same length L (50 to 1,000 bp) are required. Such
+insertions align to the existing copy with soft-clipped ends only and are missed by Manta and by
+the small-variant caller.
 """
 import argparse
 import json
@@ -103,6 +111,96 @@ def candidates(right, left, starts, regions, min_reads=3, max_tsd=30, min_fracti
     return out
 
 
+def read_fasta(path):
+    """FASTA of samtools faidx region output (names chrom:start-end) -> {chrom: (start, sequence)}."""
+    seqs, name = {}, None
+    with open(path) as handle:
+        for line in handle:
+            if line.startswith(">"):
+                name = line[1:].split()[0]
+                seqs[name] = []
+            elif name:
+                seqs[name].append(line.strip().upper())
+    out = {}
+    for name, parts in seqs.items():
+        chrom, _, span = name.rpartition(":")
+        if not chrom:
+            chrom, span = name, "1-"
+        out[chrom] = (int(span.split("-")[0]), "".join(parts))
+    return out
+
+
+def _identity(a, b):
+    return sum(x == y for x, y in zip(a, b)) / len(a)
+
+
+def _place(clip, start, ref, lo, hi, upstream_side, min_identity=0.9):
+    """Best reference position p in [lo, hi) where the clipped sequence matches: for a right clip
+    ref[p:p+k] (copy start), for a left clip ref[p-k+1:p+1] (copy end)."""
+    k, best = len(clip), None
+    # nearest copy first, so that identical units give the length of one unit
+    for p in (range(hi - 1, lo - 1, -1) if upstream_side else range(lo, hi)):
+        i = p - start
+        seg = ref[i:i + k] if upstream_side else ref[i - k + 1:i + 1]
+        if i - (0 if upstream_side else k - 1) < 0 or len(seg) < k:
+            continue
+        ident = _identity(clip, seg)
+        if ident >= min_identity and (best is None or ident > best[1]):
+            best = (p, ident)
+    return best
+
+
+def _lengths(clips_by_pos, fasta, right_side, min_reads, min_clip, min_len, max_len, seed=40):
+    """Per clip position: the duplication length most of its clipped reads point to."""
+    out = []
+    for (chrom, pos), clips in clips_by_pos.items():
+        clips = [c for c in clips if len(c) >= min_clip]
+        if len(clips) < min_reads or chrom not in fasta:
+            continue
+        start, ref = fasta[chrom]
+        lengths = []
+        for clip in clips:
+            if right_side:       # clipped part follows pos: it starts the next copy, L bases upstream
+                hit = _place(clip[:seed], start, ref, pos - max_len + 1, pos - min_len + 2, True)
+                if hit:
+                    lengths.append(pos - hit[0] + 1)
+            else:                # clipped part precedes pos: it ends the previous copy, L bases downstream
+                hit = _place(clip[-seed:], start, ref, pos + min_len - 1, pos + max_len, False)
+                if hit:
+                    lengths.append(hit[0] - pos + 1)
+        if len(lengths) >= min_reads:
+            length, n = Counter(lengths).most_common(1)[0]
+            support = sum(1 for x in lengths if abs(x - length) <= 0.1 * length)
+            if support >= min_reads:
+                out.append((chrom, pos, length, support))
+    return out
+
+
+def duplications(right, left, starts, regions, fasta, min_reads=2, min_clip=15, min_len=50, max_len=1000):
+    """Tandem copy signatures: a right-clip and a left-clip position whose clips point to the same length."""
+    rights = _lengths(right, fasta, True, min_reads, min_clip, min_len, max_len)
+    lefts = _lengths(left, fasta, False, min_reads, min_clip, min_len, max_len)
+    out, used = [], set()
+    for chrom, b, length, n_r in sorted(rights, key=lambda x: -x[3]):
+        gene = next((g for c, s, e, g in regions if c == chrom and s < b <= e), None)
+        if not gene:
+            continue
+        partners = [x for x in lefts if x[0] == chrom and abs(x[2] - length) <= 0.1 * length
+                    and abs(b - x[1]) <= 2 * length and (x[0], x[1]) not in used]
+        if not partners:
+            continue
+        _, a, _, n_l = max(partners, key=lambda x: x[3])
+        used.add((chrom, a))
+        lo, hi = min(a, b - length + 1), max(a + length - 1, b)
+        spanning = sum(1 for s, e in starts[chrom] if s < b - 10 and e > b + 10)   # reads across the junction
+        out.append({"gene": gene, "chrom": chrom, "pos": lo, "end": hi, "duplicatedLength": length,
+                    "targetSiteDuplication": 0, "clippedReadsLeftJunction": n_r, "clippedReadsRightJunction": n_l,
+                    "spanningReads": spanning,
+                    "clippedFraction": round((n_r + n_l) / (spanning + n_r + n_l), 2) if spanning + n_r + n_l else 0.0,
+                    "signature": ["tandem copy"], "clipsWithAluSequence": 0, "clipsWithPolyA": 0})
+    return out
+
+
 def read_regions(path):
     rows = []
     with open(path) as handle:
@@ -121,10 +219,14 @@ def main(argv=None):
     p.add_argument("--min-clip", type=int, default=10)
     p.add_argument("--min-fraction", type=float, default=0.15)
     p.add_argument("--all", action="store_true", help="also write candidates without Alu sequence in the clips")
+    p.add_argument("--gene-fasta", help="reference sequence of the gene regions (samtools faidx output); "
+                                        "enables the search for extra tandem repeat copies")
     args = p.parse_args(argv)
     regions = read_regions(args.regions)
     right, left, starts = scan(sys.stdin, args.min_clip)
     found = candidates(right, left, starts, regions, args.min_reads, min_fraction=args.min_fraction, keep_all=args.all)
+    if args.gene_fasta:
+        found += duplications(right, left, starts, regions, read_fasta(args.gene_fasta))
     with open(args.out, "w") as handle:
         json.dump(found, handle, indent=2)
     return 0
