@@ -109,6 +109,12 @@ EXACT = {
     "bekannte zusätzliche Tandemkopie": "known extra tandem copy",
     "Markerbase der zusätzlichen Kopie in den Lesungen vorhanden": "marker base of the extra copy present in the reads",
     "gekoppelter Haplotyp der zusätzlichen Kopie vorhanden": "linked haplotype of the extra copy present",
+    "bekannte intronische Alu-Insertion in BRCA2 (häufiges Allel)": "known intronic Alu insertion in BRCA2 (common allele)",
+    "bekanntes Insertionsallel": "known insertion allele",
+    "keine Lesung für das Referenzallel: vermutlich homozygot": "no read for the reference allele: probably homozygous",
+    "Lesungen für beide Allele: vermutlich heterozygot": "reads for both alleles: probably heterozygous",
+    "Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)":
+        "reads fit the known allele sequence better than the reference (realignment)",
     "Haplotyp homozygot: vermutlich zwei Allele mit der zusätzlichen Kopie":
         "haplotype homozygous: probably two alleles with the extra copy",
     "Haplotyp heterozygot: vermutlich ein Allel mit der zusätzlichen Kopie":
@@ -257,6 +263,12 @@ EXACT_RU = {
     "bekannte zusätzliche Tandemkopie": "известная дополнительная тандемная копия",
     "Markerbase der zusätzlichen Kopie in den Lesungen vorhanden": "маркерное основание дополнительной копии присутствует в прочтениях",
     "gekoppelter Haplotyp der zusätzlichen Kopie vorhanden": "сцепленный гаплотип дополнительной копии присутствует",
+    "bekannte intronische Alu-Insertion in BRCA2 (häufiges Allel)": "известная интронная вставка Alu в BRCA2 (частый аллель)",
+    "bekanntes Insertionsallel": "известный аллель вставки",
+    "keine Lesung für das Referenzallel: vermutlich homozygot": "нет прочтений референсного аллеля: вероятно, гомозигота",
+    "Lesungen für beide Allele: vermutlich heterozygot": "прочтения обоих аллелей: вероятно, гетерозигота",
+    "Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)":
+        "прочтения лучше соответствуют известной последовательности аллеля, чем референсу (повторное выравнивание)",
     "Haplotyp homozygot: vermutlich zwei Allele mit der zusätzlichen Kopie":
         "гаплотип гомозиготный: вероятно, два аллеля с дополнительной копией",
     "Haplotyp heterozygot: vermutlich ein Allel mit der zusätzlichen Kopie":

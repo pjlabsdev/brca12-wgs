@@ -34,6 +34,16 @@ reads at both unit borders, the marker base, and at least 3 of the tag SNPs (alt
 least 3 reads and 20 % of the reads, mapping quality at least 20). When at least 3 tag SNPs are
 homozygous (80 %), two copies of the haplotype are likely. A tandem-copy signature from clipped
 reads alone is still reported.
+
+Known alleles from long-read assemblies (KNOWN_ALLELES: the 126 bp copy and the common intronic BRCA2
+Alu insertion, sequences from the HPRC pangenome) are also genotyped by allele-aware realignment:
+every read near the site (unmapped mates placed there included) is aligned to the reference
+haplotype and to the haplotype carrying the allele (edit distance, Myers bit-vector algorithm,
+free start and end in the haplotype). A read supports the allele when it fits that haplotype with at
+least 2 fewer edits, and the reference when the opposite holds; reads with more than 8 % edits to
+both are ignored. The allele is present when at least 2 reads support it. For an insertion that is
+not a tandem copy, reference-supporting reads across the site give the zygosity; for the tandem
+copy no short read can tell the alleles apart in that way, and the zygosity comes from the haplotype.
 """
 import argparse
 import json
@@ -52,6 +62,19 @@ ALU_KMERS = ALU_KMERS + tuple(k.translate(COMP)[::-1] for k in ALU_KMERS)
 # chrom, marker position, reference base, base of the extra copy, unit start, unit end, unit length, label
 KNOWN_COPIES = (("chr17", 43128365, "T", "C", 43128247, 43128372, 126,
                  "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)"),)
+# id, chrom, anchor position (VCF POS), inserted sequence, tandem copy (no reference-specific reads), label
+KNOWN_ALLELES = (
+    ("tandem126", "chr17", 43128264,
+     "GATGGGAGGAACGAACAAACTCCAGACATGCCGCCTTAAGAGCTGTAACACTCACCGCAAAGGTCTGCAGCTTCACTCCTGAAGCCAGCGAGACCACGAACCCACC"
+     "AGGAGGAATGAACAACTCCA", True, "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)"),
+    ("alu_brca2", "chr13", 32348295,
+     "AAAAGTTTTGGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACGAGGTCAGGAGATCGAGACCATCCCGGCTAAAAC"
+     "GGTGAAACCCCGTCTCTACTAAAAATACAAAAAAATTAGCCGGGCGTAGTGGCGGGCGCCTGTAGTCCCAGCTACTTGGGAGGCTGAGGCAGGAGAATGGTGTGAAC"
+     "CCGGGAGGCGGAGCTTGCAGTGAGCCGAGATCCCGCCACTGCACTCCAGCCTGGGCGACAGAGCGAGACTCCGTCTC" + "A" * 27, False,
+     "bekannte intronische Alu-Insertion in BRCA2 (häufiges Allel)"),
+)
+# realigned tandem-copy allele -> marker position of the same copy in KNOWN_COPIES
+ALLELE_MARKER = {"tandem126": 43128365}
 # marker position of a known copy -> SNPs on the same haplotype (chrom, position, reference, alternative)
 HAPLOTYPE_TAGS = {43128365: (("chr17", 43131837, "G", "A"), ("chr17", 43135863, "A", "G"),
                              ("chr17", 43137747, "A", "G"), ("chr17", 43138596, "G", "T"),
@@ -103,10 +126,11 @@ def haplotype(tag_counts, min_reads=3, min_fraction=0.2, hom_fraction=0.8, min_t
     return len(alt), len(tag_counts), copies
 
 
-def known_copies(counts, regions, min_reads=2, min_fraction=0.05, haplotypes=None, clipped=()):
-    """Known alleles supported by at least 2 of: marker base, haplotype tags, clipped reads.
-    haplotypes: {marker position: haplotype() result}; clipped: marker positions with a clip signature."""
-    haplotypes = haplotypes or {}
+def known_copies(counts, regions, min_reads=2, min_fraction=0.05, haplotypes=None, clipped=(), realigned=None):
+    """Known alleles found by allele realignment (at least min_reads supporting reads) or supported by
+    at least 2 of: marker base, haplotype tags, clipped reads. haplotypes: {marker position: haplotype()
+    result}; clipped: marker positions with a clip signature; realigned: {marker position: (ref, allele)}."""
+    haplotypes, realigned = haplotypes or {}, realigned or {}
     out = []
     for m, (n_ref, n_alt) in counts.items():
         depth = n_ref + n_alt
@@ -114,8 +138,11 @@ def known_copies(counts, regions, min_reads=2, min_fraction=0.05, haplotypes=Non
         hap = haplotypes.get(m[1])
         evidence = [name for name, ok in (("clipped reads", m[1] in clipped), ("marker base", marker),
                                           ("haplotype", bool(hap and hap[2]))) if ok]
-        if len(evidence) < 2:
+        n_realigned = realigned.get(m[1], (0, 0))[1]
+        if len(evidence) < 2 and n_realigned < min_reads:
             continue
+        if n_realigned >= min_reads:
+            evidence.insert(0, "allele realignment")
         chrom = next((c for c, s, e, g in regions if c.replace("chr", "") == m[0].replace("chr", "")), m[0])
         gene = next((g for c, s, e, g in regions if c == chrom and s < m[1] <= e), "")
         out.append({"gene": gene, "chrom": chrom, "pos": m[4], "end": m[5], "duplicatedLength": m[6],
@@ -124,8 +151,103 @@ def known_copies(counts, regions, min_reads=2, min_fraction=0.05, haplotypes=Non
                     "markerReads": f"{n_alt}/{depth}", "label": m[7],
                     "signature": ["tandem copy", "known allele"], "clipsWithAluSequence": 0, "clipsWithPolyA": 0,
                     "evidence": evidence})
+        if m[1] in realigned:
+            out[-1]["realignedReads"] = f"{n_realigned} allele"
         if hap:
             out[-1].update(haplotypeTags=f"{hap[0]}/{hap[1]}", haplotypeCopies=hap[2])
+    return out
+
+
+def infix_distance(pattern, text):
+    """Smallest edit distance of pattern to any substring of text (Myers 1999 bit-vector algorithm)."""
+    m = len(pattern)
+    if not m:
+        return 0
+    peq = {}
+    for i, c in enumerate(pattern):
+        peq[c] = peq.get(c, 0) | (1 << i)
+    mask, high = (1 << m) - 1, 1 << (m - 1)
+    pv, mv, score, best = mask, 0, m, m
+    for c in text:
+        eq = peq.get(c, 0)
+        xv = eq | mv
+        xh = (((eq & pv) + pv) ^ pv) | eq
+        ph = mv | (~(xh | pv) & mask)
+        mh = pv & xh
+        if ph & high:
+            score += 1
+        elif mh & high:
+            score -= 1
+        ph = (ph << 1) & mask          # free start in the text: no carry-in
+        mh = (mh << 1) & mask
+        pv = mh | (~(xv | ph) & mask)
+        mv = ph & xv
+        best = min(best, score)
+    return best
+
+
+def realign_known(lines, fasta, alleles=KNOWN_ALLELES, flank=700, before=400, after=300, min_diff=2,
+                  max_error=0.08, min_len=50):
+    """{allele id: (reads supporting the reference, reads supporting the allele)} by local realignment."""
+    comp = str.maketrans("ACGTN", "TGCAN")
+    sites = []
+    for a in alleles:
+        chrom = next((c for c in fasta if c.replace("chr", "") == a[1].replace("chr", "")), None)
+        if chrom is None:
+            continue
+        start, seq = fasta[chrom]
+        i = a[2] - start                          # index of the base after the anchor
+        if i - flank < 0 or i + flank > len(seq):
+            continue
+        ref = seq[i - flank:i + flank]
+        sites.append((a, chrom.replace("chr", ""), ref, seq[i - flank:i + 1] + a[3] + seq[i + 1:i + flank]))
+    counts = {a[0]: [0, 0] for a, *_ in sites}
+    seen = set()
+    for line in lines:
+        if line.startswith("@"):
+            continue
+        f = line.split("\t", 11)
+        if len(f) < 11 or int(f[1]) & 0xF00 or len(f[9]) < min_len:
+            continue
+        chrom, pos = f[2].replace("chr", ""), int(f[3])
+        for a, c, ref, alt in sites:
+            if c != chrom or not a[2] - before < pos < a[2] + after:
+                continue
+            key = (a[0], f[0], int(f[1]) & 0xC0)
+            if key in seen:
+                continue
+            seen.add(key)
+            read = f[9].upper()
+            reads = (read, read.translate(comp)[::-1]) if int(f[1]) & 4 else (read,)
+            d_ref, d_alt = min(((infix_distance(r, ref), infix_distance(r, alt)) for r in reads), key=min)
+            if min(d_ref, d_alt) > max_error * len(read):
+                continue
+            if d_alt + min_diff <= d_ref:
+                counts[a[0]][1] += 1
+            elif d_ref + min_diff <= d_alt:
+                counts[a[0]][0] += 1
+    return counts
+
+
+def realigned_alleles(counts, regions, haplotypes=None, min_reads=2):
+    """Report entries for known alleles found by realignment (Alu and other non-tandem insertions)."""
+    out = []
+    for a in KNOWN_ALLELES:
+        if a[0] not in counts or a[4]:
+            continue
+        n_ref, n_alt = counts[a[0]]
+        if n_alt < min_reads:
+            continue
+        chrom = next((c for c, s, e, g in regions if c.replace("chr", "") == a[1].replace("chr", "")), a[1])
+        gene = next((g for c, s, e, g in regions if c == chrom and s < a[2] <= e), "")
+        out.append({"gene": gene, "chrom": chrom, "pos": a[2], "end": a[2] + 1, "insertedLength": len(a[3]),
+                    "targetSiteDuplication": 0, "clippedReadsLeftJunction": 0, "clippedReadsRightJunction": 0,
+                    "spanningReads": n_ref, "clippedFraction": 0.0, "label": a[5],
+                    "signature": ["Alu", "known allele"] if a[0].startswith("alu") else ["known allele"],
+                    "clipsWithAluSequence": 0, "clipsWithPolyA": 0, "evidence": ["allele realignment"],
+                    "realignedReads": f"{n_alt} allele / {n_ref} reference",
+                    "zygosity": "homozygous" if n_ref <= 0.1 * (n_ref + n_alt) and n_alt >= 2 * min_reads
+                    else "heterozygous"})
     return out
 
 
@@ -332,7 +454,8 @@ def main(argv=None):
     right, left, starts = scan(lines, args.min_clip)
     found = candidates(right, left, starts, regions, args.min_reads, min_fraction=args.min_fraction, keep_all=args.all)
     if args.gene_fasta:
-        dups = duplications(right, left, starts, regions, read_fasta(args.gene_fasta))
+        fasta = read_fasta(args.gene_fasta)
+        dups = duplications(right, left, starts, regions, fasta)
 
         def same_copy(d, m):
             return (d["chrom"].replace("chr", "") == m[0].replace("chr", "") and abs(d["end"] - m[5]) <= 20
@@ -340,16 +463,30 @@ def main(argv=None):
 
         clipped = {m[1] for m in KNOWN_COPIES if any(same_copy(d, m) for d in dups)}
         haps = {pos: haplotype(count_markers(lines, tags, min_mapq=20)) for pos, tags in HAPLOTYPE_TAGS.items()}
-        for known in known_copies(count_markers(lines), regions, haplotypes=haps, clipped=clipped):
+        realigned = realign_known(lines, fasta)
+        by_marker = {pos: tuple(realigned[a]) for a, pos in ALLELE_MARKER.items() if a in realigned}
+        for known in known_copies(count_markers(lines), regions, haplotypes=haps, clipped=clipped,
+                                  realigned=by_marker):
             m = next(m for m in KNOWN_COPIES if m[1] == known["markerPosition"])
             same = [d for d in dups if same_copy(d, m)]
             if same:
                 same[0].update({k: v for k, v in known.items() if k in (
                     "markerPosition", "markerReads", "label", "signature", "evidence", "haplotypeTags",
-                    "haplotypeCopies")})
+                    "haplotypeCopies", "realignedReads")})
             else:
                 dups.append(known)
         found += dups
+        # known non-tandem alleles: replace a matching Alu read-end signature, else add the entry
+        for known in realigned_alleles(realigned, regions):
+            same = [d for d in found if d["chrom"] == known["chrom"] and "tandem copy" not in d["signature"]
+                    and abs(d["pos"] - known["pos"]) <= 30]
+            if same:
+                same[0].update({k: known[k] for k in ("label", "evidence", "realignedReads", "zygosity",
+                                                      "insertedLength")})
+                same[0]["evidence"] = ["allele realignment", "clipped reads"]
+                same[0]["signature"] = sorted(set(same[0]["signature"]) | {"known allele"})
+            else:
+                found.append(known)
     with open(args.out, "w") as handle:
         json.dump(found, handle, indent=2)
     return 0

@@ -161,6 +161,8 @@ def insertion_signals(path, exons):
             if "known allele" in row.get("signature", []):
                 flags.append(row.get("label") or "bekannte zusätzliche Tandemkopie")
                 evidence = row.get("evidence", ["marker base"])
+                if "allele realignment" in evidence:
+                    flags.append("Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)")
                 if "marker base" in evidence:
                     flags.append("Markerbase der zusätzlichen Kopie in den Lesungen vorhanden")
                 if "haplotype" in evidence:
@@ -169,10 +171,21 @@ def insertion_signals(path, exons):
                     flags.append("Haplotyp homozygot: vermutlich zwei Allele mit der zusätzlichen Kopie")
                 elif row.get("haplotypeCopies") == 1:
                     flags.append("Haplotyp heterozygot: vermutlich ein Allel mit der zusätzlichen Kopie")
+        elif "known allele" in row.get("signature", []):
+            flags.append(row.get("label") or "bekanntes Insertionsallel")
+            if row.get("clippedReadsLeftJunction") or row.get("clippedReadsRightJunction"):
+                flags.append("abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion")
+            if row.get("zygosity") == "homozygous":
+                flags.append("keine Lesung für das Referenzallel: vermutlich homozygot")
+            elif row.get("zygosity") == "heterozygous":
+                flags.append("Lesungen für beide Allele: vermutlich heterozygot")
         elif "Alu" in row.get("signature", []):
             flags.append("abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion")
         else:
             flags.append("abgeschnittene Leseenden von beiden Seiten: mögliche Insertion")
+        if "known allele" in row.get("signature", []) and "Alu" in row.get("signature", []) and \
+                "allele realignment" in row.get("evidence", []):
+            flags.append("Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)")
         flags.append("Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig")
         results.append(dict(row, type=kind,
                             affectedExons=_affected_exons(row["chrom"], row["pos"], row["end"], exons, row["gene"]),
