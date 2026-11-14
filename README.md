@@ -364,8 +364,9 @@ short reads (`validation/hprc/`):
 larger variants, the intronic BRCA2 Alu insertion showed the read-end signature in 6 of 6 carriers
 and 0 of 33 non-carriers, a BRCA1 VNTR was called in 8 of 14 carriers, and a 126 bp tandem-repeat
 insertion in 0 of 19 by Manta and the small-variant caller. A tandem-copy signature, added for this
-reason (2 of 3 signals: clipped reads at both unit borders, a marker base of the extra copy, and
-tag SNPs of the haplotype the copy sits on), finds it in 19 of 19 HPRC carriers and 5 of 6 carriers
+reason (allele realignment, or 2 of 3 signals: clipped reads at both unit borders, a marker base of
+the extra copy, and tag SNPs of the haplotype the copy sits on), finds it in 19 of 19 HPRC carriers
+and 6 of 6 carriers
 confirmed by ONT long reads, with no signature in the 25 non-carriers
 (`validation/hprc/tandem_copy_eval.py`; the rules were set on these samples). In 120 further
 1KG-ONT samples not used for tuning it finds 67 of 67 long-read carriers and 1 of 53 non-carriers;
