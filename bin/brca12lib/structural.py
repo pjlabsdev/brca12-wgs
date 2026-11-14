@@ -160,7 +160,15 @@ def insertion_signals(path, exons):
                 flags.append("abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie")
             if "known allele" in row.get("signature", []):
                 flags.append(row.get("label") or "bekannte zusätzliche Tandemkopie")
-                flags.append("Markerbase der zusätzlichen Kopie in den Lesungen vorhanden")
+                evidence = row.get("evidence", ["marker base"])
+                if "marker base" in evidence:
+                    flags.append("Markerbase der zusätzlichen Kopie in den Lesungen vorhanden")
+                if "haplotype" in evidence:
+                    flags.append("gekoppelter Haplotyp der zusätzlichen Kopie vorhanden")
+                if row.get("haplotypeCopies") == 2:
+                    flags.append("Haplotyp homozygot: vermutlich zwei Allele mit der zusätzlichen Kopie")
+                elif row.get("haplotypeCopies") == 1:
+                    flags.append("Haplotyp heterozygot: vermutlich ein Allel mit der zusätzlichen Kopie")
         elif "Alu" in row.get("signature", []):
             flags.append("abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion")
         else:

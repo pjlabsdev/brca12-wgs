@@ -257,8 +257,9 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
   1000 Genomes carriers; the Alu read-end signature recognises Alu sequence only and gives hints, not
   calls (see `validation/pathogenic/README.md`).
 - Extra copies of a tandem repeat unit are reported as hints from read ends, not as calls. For the
-  common 126 bp copy upstream of BRCA1 exon 1 a marker base is checked as well (24 of 25 carriers,
-  0 of 25 non-carriers; rules tuned on these samples). Other tandem copies rely on clipped reads
+  common 126 bp copy upstream of BRCA1 exon 1 a marker base and the linked haplotype are checked as
+  well, and 2 of the 3 signals are required (tuning set: 24 of 25 carriers, 0 of 25 non-carriers;
+  independent set: 67 of 67 carriers, 1 of 53 non-carriers). Other tandem copies rely on clipped reads
   alone and can be missed at low depth. Indel lengths in long homopolymers can differ from
   assembly-based truth (BRCA1 3' UTR poly-T).
 - DeepVariant on macOS is only available via Docker; the default is GATK HaplotypeCaller.
@@ -360,9 +361,13 @@ short reads (`validation/hprc/`):
 larger variants, the intronic BRCA2 Alu insertion showed the read-end signature in 6 of 6 carriers
 and 0 of 33 non-carriers, a BRCA1 VNTR was called in 8 of 14 carriers, and a 126 bp tandem-repeat
 insertion in 0 of 19 by Manta and the small-variant caller. A tandem-copy signature, added for this
-reason (clipped reads at both unit borders plus a marker base of the extra copy), finds it in 19 of
-19 HPRC carriers and 5 of 6 carriers confirmed by ONT long reads, with no signature in the 25
-non-carriers (`validation/hprc/tandem_copy_eval.py`; the rules were set on these samples).
+reason (2 of 3 signals: clipped reads at both unit borders, a marker base of the extra copy, and
+tag SNPs of the haplotype the copy sits on), finds it in 19 of 19 HPRC carriers and 5 of 6 carriers
+confirmed by ONT long reads, with no signature in the 25 non-carriers
+(`validation/hprc/tandem_copy_eval.py`; the rules were set on these samples). In 120 further
+1KG-ONT samples not used for tuning it finds 67 of 67 long-read carriers and 1 of 53 non-carriers;
+that sample (HG02687) shows all three signals and has only 8 spanning long reads, 1 with the
+insertion. The haplotype count agrees with the long-read zygosity in 66 of 67 carriers.
 
 Oxford Nanopore reads of the 1KG-ONT cohort (`validation/longread/`) confirm the short-read SV
 results: for the 11 tested samples the pipeline agrees with the long reads in 26 of 26 sample-site

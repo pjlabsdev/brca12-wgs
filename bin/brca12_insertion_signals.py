@@ -26,6 +26,14 @@ Known tandem-copy alleles (KNOWN_COPIES) are also checked with a marker base: th
 126 bp copy upstream of BRCA1 exon 1 copies unit 1, which differs from unit 2 at chr17:43128365
 (T in unit 2, C in unit 1), so reads of the extra copy placed on unit 2 show C there. Reads of any
 mapping quality count (the array is duplicated), base quality at least 13.
+
+A third, independent signal is the haplotype the extra copy sits on (HAPLOTYPE_TAGS): SNPs 3 to 21 kb
+downstream that are almost always inherited together with it (linkage in the HPRC assemblies and the
+1KG-ONT long reads). The known allele is reported when at least 2 of the 3 signals agree: clipped
+reads at both unit borders, the marker base, and at least 3 of the tag SNPs (alternative base in at
+least 3 reads and 20 % of the reads, mapping quality at least 20). When at least 3 tag SNPs are
+homozygous (80 %), two copies of the haplotype are likely. A tandem-copy signature from clipped
+reads alone is still reported.
 """
 import argparse
 import json
@@ -44,9 +52,13 @@ ALU_KMERS = ALU_KMERS + tuple(k.translate(COMP)[::-1] for k in ALU_KMERS)
 # chrom, marker position, reference base, base of the extra copy, unit start, unit end, unit length, label
 KNOWN_COPIES = (("chr17", 43128365, "T", "C", 43128247, 43128372, 126,
                  "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)"),)
+# marker position of a known copy -> SNPs on the same haplotype (chrom, position, reference, alternative)
+HAPLOTYPE_TAGS = {43128365: (("chr17", 43131837, "G", "A"), ("chr17", 43135863, "A", "G"),
+                             ("chr17", 43137747, "A", "G"), ("chr17", 43138596, "G", "T"),
+                             ("chr17", 43148782, "C", "A"))}
 
 
-def count_markers(lines, markers=KNOWN_COPIES, min_baseq=13):
+def count_markers(lines, markers=KNOWN_COPIES, min_baseq=13, min_mapq=0):
     """Reads with the reference and with the extra-copy base at each marker position."""
     want = {(m[0].replace("chr", ""), m[1]): m for m in markers}
     counts = {m: [0, 0] for m in markers}
@@ -54,7 +66,7 @@ def count_markers(lines, markers=KNOWN_COPIES, min_baseq=13):
         if line.startswith("@"):
             continue
         f = line.split("\t", 11)
-        if len(f) < 11 or int(f[1]) & 0xF04 or f[5] == "*":
+        if len(f) < 11 or int(f[1]) & 0xF04 or f[5] == "*" or int(f[4]) < min_mapq:
             continue
         chrom, pos = f[2].replace("chr", ""), int(f[3])
         hits = [k for k in want if k[0] == chrom and k[1] >= pos]
@@ -83,11 +95,26 @@ def count_markers(lines, markers=KNOWN_COPIES, min_baseq=13):
     return counts
 
 
-def known_copies(counts, regions, min_reads=2, min_fraction=0.05):
+def haplotype(tag_counts, min_reads=3, min_fraction=0.2, hom_fraction=0.8, min_tags=3):
+    """(tags carrying the alternative base, tags tested, copies of the haplotype: 0, 1 or 2)."""
+    alt = [k for k, (r, a) in tag_counts.items() if a >= min_reads and a / (r + a) >= min_fraction]
+    hom = [k for k in alt if tag_counts[k][1] / sum(tag_counts[k]) >= hom_fraction]
+    copies = 2 if len(hom) >= min_tags else (1 if len(alt) >= min_tags else 0)
+    return len(alt), len(tag_counts), copies
+
+
+def known_copies(counts, regions, min_reads=2, min_fraction=0.05, haplotypes=None, clipped=()):
+    """Known alleles supported by at least 2 of: marker base, haplotype tags, clipped reads.
+    haplotypes: {marker position: haplotype() result}; clipped: marker positions with a clip signature."""
+    haplotypes = haplotypes or {}
     out = []
     for m, (n_ref, n_alt) in counts.items():
         depth = n_ref + n_alt
-        if n_alt < min_reads or not depth or n_alt / depth < min_fraction:
+        marker = n_alt >= min_reads and depth and n_alt / depth >= min_fraction
+        hap = haplotypes.get(m[1])
+        evidence = [name for name, ok in (("clipped reads", m[1] in clipped), ("marker base", marker),
+                                          ("haplotype", bool(hap and hap[2]))) if ok]
+        if len(evidence) < 2:
             continue
         chrom = next((c for c, s, e, g in regions if c.replace("chr", "") == m[0].replace("chr", "")), m[0])
         gene = next((g for c, s, e, g in regions if c == chrom and s < m[1] <= e), "")
@@ -95,7 +122,10 @@ def known_copies(counts, regions, min_reads=2, min_fraction=0.05):
                     "targetSiteDuplication": 0, "clippedReadsLeftJunction": 0, "clippedReadsRightJunction": 0,
                     "spanningReads": depth, "clippedFraction": 0.0, "markerPosition": m[1],
                     "markerReads": f"{n_alt}/{depth}", "label": m[7],
-                    "signature": ["tandem copy", "known allele"], "clipsWithAluSequence": 0, "clipsWithPolyA": 0})
+                    "signature": ["tandem copy", "known allele"], "clipsWithAluSequence": 0, "clipsWithPolyA": 0,
+                    "evidence": evidence})
+        if hap:
+            out[-1].update(haplotypeTags=f"{hap[0]}/{hap[1]}", haplotypeCopies=hap[2])
     return out
 
 
@@ -303,12 +333,20 @@ def main(argv=None):
     found = candidates(right, left, starts, regions, args.min_reads, min_fraction=args.min_fraction, keep_all=args.all)
     if args.gene_fasta:
         dups = duplications(right, left, starts, regions, read_fasta(args.gene_fasta))
-        for known in known_copies(count_markers(lines), regions):
-            same = [d for d in dups if d["chrom"] == known["chrom"] and abs(d["end"] - known["end"]) <= 20
-                    and abs(d["duplicatedLength"] - known["duplicatedLength"]) <= 10]
+
+        def same_copy(d, m):
+            return (d["chrom"].replace("chr", "") == m[0].replace("chr", "") and abs(d["end"] - m[5]) <= 20
+                    and abs(d["duplicatedLength"] - m[6]) <= 10)
+
+        clipped = {m[1] for m in KNOWN_COPIES if any(same_copy(d, m) for d in dups)}
+        haps = {pos: haplotype(count_markers(lines, tags, min_mapq=20)) for pos, tags in HAPLOTYPE_TAGS.items()}
+        for known in known_copies(count_markers(lines), regions, haplotypes=haps, clipped=clipped):
+            m = next(m for m in KNOWN_COPIES if m[1] == known["markerPosition"])
+            same = [d for d in dups if same_copy(d, m)]
             if same:
-                same[0].update(markerPosition=known["markerPosition"], markerReads=known["markerReads"],
-                               label=known["label"], signature=["tandem copy", "known allele"])
+                same[0].update({k: v for k, v in known.items() if k in (
+                    "markerPosition", "markerReads", "label", "signature", "evidence", "haplotypeTags",
+                    "haplotypeCopies")})
             else:
                 dups.append(known)
         found += dups

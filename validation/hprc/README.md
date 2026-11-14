@@ -55,16 +55,24 @@ both pointing to the same length (50 to 1,000 bp), at least 2 reads at each bord
 
 Known allele: the extra copy repeats unit 1, which differs from unit 2 at chr17:43128365 (C instead
 of T). Reads of the extra copy that are placed on unit 2 show C there, so the signature is also
-given when at least 2 reads (5 % of the depth) carry C at that position, at any mapping quality.
+counted when at least 2 reads (5 % of the depth) carry C at that position, at any mapping quality.
 
-`tandem_copy_eval.py` (results in `results/tandem_copy.tsv`): 19 of 19 carriers and 0 of 20
+Linked haplotype: in the HPRC assemblies and the 1KG-ONT long reads the extra copy is inherited
+together with SNPs 3 to 21 kb downstream (chr17:43131837 A, 43135863 G, 43137747 G, 43138596 T,
+43148782 A). The haplotype counts when at least 3 of them show the alternative base (3 reads and
+20 %, mapping quality 20); when at least 3 are homozygous (80 %), two copies are likely. The known
+allele is reported when 2 of the 3 signals (clipped reads, marker base, haplotype) agree.
+
+`tandem_copy_eval.py` (results in `results/tandem_copy.tsv`, columns `evidence`, `haplotypeTags`,
+`haplotypeCopies`): 19 of 19 carriers and 0 of 20
 non-carriers; non-carriers have at most 1 read with C. In the 11 1000 Genomes samples with ONT long
 reads: 5 of 6 carriers and 0 of 5 non-carriers (`../longread/results/tandem_copy.tsv`); the missed
 carrier (HG01990) has 1 clipped read at one border and 1 read with C. Across all 72 tested samples
 the only other signature is a 73 bp copy at the BRCA1 intron 6 VNTR in HG01796, where the long
 reads show no insertion of 50 bp or more. The thresholds (clips from 10 bp, clip positions within
 10 bp pooled, at least 2 reads per border, marker rule) were set after looking at these samples,
-so there is no independent test set left.
+so they are not an independent test. The independent test is in `../longread/` (120 further
+samples): 67 of 67 carriers, 1 of 53 non-carriers.
 
 ## Sources
 
