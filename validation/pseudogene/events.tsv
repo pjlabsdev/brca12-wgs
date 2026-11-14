@@ -1,0 +1,3 @@
+#sample	gene	kind	chrom	start	end	size	note
+SPIKE_PSI	BRCA1	LDEL	chr17	43123829	43167978	44150	deletion of exons 1 and 2 by recombination with the pseudogene BRCA1P1 (crossover in a 30 bp identical stretch); modelled, synthetic breakpoints
+SPIKE_PSIDUP	BRCA1	LDUP	chr17	43123829	43167978	44150	reciprocal duplication of the same segment; modelled, synthetic breakpoints
