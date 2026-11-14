@@ -1,0 +1,12 @@
+sample	truth	signature	length	reads	elsewhere
+HG00096	carrier	yes	126	2+3	0
+HG00117	reference	no			0
+HG00365	carrier	yes	126	5+5	0
+HG00637	carrier	yes	126	3+4	0
+HG01377	carrier	no			0
+HG01796	reference	no			0
+HG01990	carrier	no			0
+HG02164	reference	no			0
+HG02274	carrier	yes	126	3+4	0
+HG03929	reference	no			0
+NA19397	reference	no			0

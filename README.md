@@ -30,7 +30,7 @@ validation (last row).
 | SNVs/indels | GATK 4 HaplotypeCaller or DeepVariant | Pisces (default), GATK 3 UnifiedGenotyper or FreeBayes, GATK 3 realignment/BQSR |
 | Low allele fraction | mosaic candidates with GATK Mutect2 (`--mosaic`), validated by spike-ins | Pisces calls low fractions |
 | CNVs | CNVkit (WGS, hybrid or amplicon mode, optional pooled normal reference) and per-exon dosage | none |
-| Structural variants | Manta, plus a read-end signature for Alu insertions | none |
+| Structural variants | Manta, plus read-end signatures for Alu insertions and extra tandem repeat copies | none |
 | Annotation | Ensembl VEP (MANE Select, HGVS, gnomAD, SIFT/PolyPhen), your ClinVar VCF, optional SpliceAI/BayesDel | ANNOVAR (licence required), snpEff, ClinVar 2016 bundled |
 | Legacy names | BIC-style names (e.g. 185delAG, 5382insC, 6174delT) computed from the MANE CDS | BIC names from the bundled BIC database |
 | ACMG/AMP | hints per ClinGen ENIGMA v1.2 criterion incl. ENIGMA tables 4 and 9, never a classification | class from ClinVar/BIC |
@@ -254,10 +254,11 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
 - Exome and panel data cover only what the capture covers; untargeted regions (for example the BRCA2
   3' UTR in both tested exomes) are listed as uncertain, not as negative.
 - Mobile element insertions have no dedicated caller. Manta missed real Alu insertions in several
-  1000 Genomes carriers; the read-end signature recognises Alu sequence only and gives hints, not
+  1000 Genomes carriers; the Alu read-end signature recognises Alu sequence only and gives hints, not
   calls (see `validation/pathogenic/README.md`).
-- Insertions that add a copy of an adjacent tandem repeat are missed (0 of 19 HPRC carriers of a
-  126 bp insertion about 2.9 kb upstream of BRCA1 exon 1), and indel lengths in long homopolymers can differ from
+- Extra copies of a tandem repeat unit are found only as read-end hints, in about two of three
+  carriers (126 bp insertion upstream of BRCA1 exon 1: 16 of 19 HPRC carriers, 4 of 6 ONT-confirmed
+  carriers, no signature in 25 non-carriers). Indel lengths in long homopolymers can differ from
   assembly-based truth (BRCA1 3' UTR poly-T).
 - DeepVariant on macOS is only available via Docker; the default is GATK HaplotypeCaller.
 
@@ -357,14 +358,16 @@ short reads (`validation/hprc/`):
 (chr17:43044804-43044817); outside it the exon indels are 41 of 43 with 1 false positive. Of the
 larger variants, the intronic BRCA2 Alu insertion showed the read-end signature in 6 of 6 carriers
 and 0 of 33 non-carriers, a BRCA1 VNTR was called in 8 of 14 carriers, and a 126 bp tandem-repeat
-insertion in 0 of 19 (see Limitations).
+insertion in 0 of 19 by Manta and the small-variant caller. A read-end signature for extra tandem
+copies, added for this reason, finds it in 16 of 19 carriers and, independently, in 4 of 6 carriers
+confirmed by ONT long reads, with no signature in the 25 non-carriers (`validation/hprc/tandem_copy_eval.py`).
 
 Oxford Nanopore reads of the 1KG-ONT cohort (`validation/longread/`) confirm the short-read SV
 results: for the 11 tested samples the pipeline agrees with the long reads in 26 of 26 sample-site
 pairs. The only disagreement with the 1000 Genomes panel (271 bp deletion in HG01796) is absent in
 all 26 spanning long reads, so the panel genotype is most likely wrong. Across all 1,019 ONT samples, 18 events of 50 bp or more
-were found inside the gene loci, none in an exon; the 126 bp tandem-repeat insertion that short reads
-miss is carried by 552 of 1,004 samples.
+were found inside the gene loci, none in an exon; the 126 bp tandem-repeat insertion is carried by
+552 of 1,004 samples.
 
 ## Deutsch (Kurzfassung)
 

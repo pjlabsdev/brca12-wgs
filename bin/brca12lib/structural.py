@@ -153,12 +153,16 @@ def insertion_signals(path, exons):
     results = []
     for row in rows:
         flags = []
-        if "Alu" in row.get("signature", []):
+        kind = "Insertionssignatur"
+        if "tandem copy" in row.get("signature", []):
+            kind = "Tandemkopie-Signatur"
+            flags.append("abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie")
+        elif "Alu" in row.get("signature", []):
             flags.append("abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion")
         else:
             flags.append("abgeschnittene Leseenden von beiden Seiten: mögliche Insertion")
         flags.append("Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig")
-        results.append(dict(row, type="Insertionssignatur",
+        results.append(dict(row, type=kind,
                             affectedExons=_affected_exons(row["chrom"], row["pos"], row["end"], exons, row["gene"]),
                             caller="brca12_insertion_signals (Leseenden)", flags=flags))
     return results

@@ -430,9 +430,10 @@ process EXON_COVERAGE {
       # Targeted data: median exon depth over both genes as baseline (a whole-gene loss stays visible).
       ${params.python} ${projectDir}/bin/brca12_prepare.py --exon-baseline exons_q20.regions.bed.gz --out-chrom-median chrom_median.txt
     fi
-    # Insertion signatures (e.g. Alu) from soft-clipped read ends inside the genes.
+    # Insertion signatures (Alu, extra tandem repeat copies) from soft-clipped read ends inside the genes.
+    ${params.samtools} faidx ${reference} \$(awk '{print \$1":"\$2+1"-"\$3}' ${exact_bed}) > genes.fa
     ${params.samtools} view -L ${exact_bed} --reference ${reference} ${bam} \\
-      | ${params.python} ${projectDir}/bin/brca12_insertion_signals.py --regions ${exact_bed} --out insertion_signals.json
+      | ${params.python} ${projectDir}/bin/brca12_insertion_signals.py --regions ${exact_bed} --gene-fasta genes.fa --out insertion_signals.json
     cp .command.sh coverage.command.sh
     """
 }

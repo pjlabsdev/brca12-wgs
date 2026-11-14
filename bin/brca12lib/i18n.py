@@ -104,6 +104,9 @@ EXACT = {
     "Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig":
         "hint from read ends, not a variant call; confirmation with an orthogonal method required",
     "Insertionssignatur": "insertion signature",
+    "Tandemkopie-Signatur": "tandem copy signature",
+    "abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie":
+        "clipped read ends at both borders of a repeat unit: possible extra tandem copy",
     "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)":
         "pair of breakends at the same site: possible insertion (e.g. a mobile element such as Alu)",
     "Exonweise Tiefe relativ zum Chromosomen-Median; nur ein Hinweis, kein CNV-Call. Exon ist zugleich als unsicher markiert: Verlust oder Abdeckungsproblem, nicht unterscheidbar.":
@@ -241,6 +244,9 @@ EXACT_RU = {
     "Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig":
         "указание по концам прочтений, не вызов варианта; требуется подтверждение ортогональным методом",
     "Insertionssignatur": "сигнатура вставки",
+    "Tandemkopie-Signatur": "сигнатура тандемной копии",
+    "abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie":
+        "обрезанные концы прочтений на обеих границах повторяющейся единицы: возможная дополнительная тандемная копия",
     "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)":
         "пара точек разрыва в одном месте: возможная вставка (например, мобильного элемента, такого как Alu)",
     "Exonweise Tiefe relativ zum Chromosomen-Median; nur ein Hinweis, kein CNV-Call. Exon ist zugleich als unsicher markiert: Verlust oder Abdeckungsproblem, nicht unterscheidbar.":
