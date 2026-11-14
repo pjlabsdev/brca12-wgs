@@ -8,7 +8,10 @@ states 0-4) turns the deviations into segments; a segment is reported when its q
 the posterior probability that its exons have two copies, reaches `minQuality`.
 
 Validation (validation/exon_cnv): rules frozen before the test; on 60 new 1000 Genomes samples with
-simulated events 569/600 deletions and 209/360 duplications, no call in the 60 unmodified genomes."""
+simulated events 569/600 deletions and 209/360 duplications, no call in the 60 unmodified genomes.
+Step 2 (frozen test on 58 further samples, events simulated on real haplotypes): segments with
+5 <= quality < 10 are reported as hints; with allele balance at heterozygous sites (HaplotypeCaller
+calls) 567/580 deletions and 244/348 duplications at quality >= 5, no false call."""
 import json
 import math
 import statistics
@@ -16,6 +19,7 @@ import statistics
 STATES = (0, 1, 2, 3, 4)
 SHIFT = {0: -3.0, 1: -1.0, 2: 0.0, 3: math.log2(1.5), 4: 1.0}
 PRIOR = {0: 1e-5, 1: 5e-4, 2: 1 - 1e-3, 3: 5e-4 - 2e-5, 4: 1e-5}
+HINT_QUALITY = 5   # segments with HINT_QUALITY <= quality < minQuality are reported as hints (step-2 rules)
 
 
 def load_panel(path):
@@ -127,6 +131,10 @@ def call(panel, depths, alleles=None):
     controls = [d for d in controls if d]
     result = {"enabled": True, "panel": panel.get("description"), "panelSize": panel.get("size"),
               "pad": panel["pad"], "minQuality": panel["minQuality"], "exons": [], "calls": []}
+    hint_q = panel.get("hintQuality", HINT_QUALITY)
+    result["hintQuality"] = hint_q
+    result["hints"] = []
+    result["alleleBalance"] = bool(alleles)
     if len(controls) < max(3, len(panel["controls"]) // 2):
         result.update(enabled=False, reason="too few control windows with depth")
         return result
@@ -158,9 +166,9 @@ def call(panel, depths, alleles=None):
                 j += 1
             p2 = max(1e-300, max(post[k][2] for k in range(i, j + 1)))
             quality = min(99, int(-10 * math.log10(p2)))
-            if quality >= panel["minQuality"]:
+            if quality >= hint_q:
                 first, last = rows[i][2], rows[j][2]
-                result["calls"].append({
+                result["calls" if quality >= panel["minQuality"] else "hints"].append({
                     "gene": gene, "copyNumber": path[i],
                     "type": "Deletion" if path[i] < 2 else "Duplikation",
                     "chrom": first["chrom"], "start": min(first["start"], last["start"]) + 1,
@@ -172,6 +180,29 @@ def call(panel, depths, alleles=None):
                 })
             i = j + 1
     return result
+
+
+def allele_counts(records, panel):
+    """{exon: [(ref_reads, alt_reads), ...]} from heterozygous biallelic SNV calls (GT 0/1 with AD)
+    inside exon +/- pad; same site filter as the validation (>= 2 reads per allele, minor >= 0.15)."""
+    pad = panel["pad"]
+    out = {}
+    for rec in records:
+        if len(rec["ref"]) != 1 or len(rec["alts"]) != 1 or len(rec["alts"][0]) != 1:
+            continue
+        gt = rec["sample"].get("GT", "").replace("|", "/")
+        if gt not in ("0/1", "1/0"):
+            continue
+        try:
+            ref, alt = (int(x) for x in rec["sample"].get("AD", "").split(",")[:2])
+        except ValueError:
+            continue
+        if min(ref, alt) < 2 or min(ref, alt) / (ref + alt) < 0.15:
+            continue
+        for name, e in panel["exons"].items():
+            if e["chrom"] == rec["chrom"] and e["start"] - pad < rec["pos"] <= e["end"] + pad:
+                out.setdefault(name, []).append((ref, alt))
+    return out
 
 
 def build_panel(samples, exons, controls, pad, p_change, min_quality, min_sd=0.07, description=None):

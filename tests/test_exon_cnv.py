@@ -80,6 +80,35 @@ class ExonCnvModel(unittest.TestCase):
         self.assertAlmostEqual(built["exons"]["BRCA1_ex01"]["sd"], 0.07)
 
 
+class ExonCnvHintsAndAlleles(unittest.TestCase):
+    def test_hint_tier(self):
+        p = toy_panel()
+        p["minQuality"] = 100   # quality is capped at 99, so every segment becomes a hint
+        r = exon_cnv.call(p, depths(p, {"BRCA1_ex03": 0.5, "BRCA1_ex04": 0.5}))
+        self.assertEqual(r["calls"], [])
+        self.assertEqual([h["exons"] for h in r["hints"]], [["BRCA1_ex03", "BRCA1_ex04"]])
+
+    def test_allele_counts_filter_and_window(self):
+        p = toy_panel()
+        e = p["exons"]["BRCA1_ex02"]
+        rec = lambda pos, gt, ad, ref="A", alt="G": {"chrom": "chr17", "pos": pos, "ref": ref, "alts": [alt],
+                                                    "sample": {"GT": gt, "AD": ad}}
+        records = [rec(e["start"] + 10, "0/1", "20,10"),        # counted
+                   rec(e["start"] - 150, "0|1", "12,12"),       # inside +/- 200 bp, counted
+                   rec(e["start"] + 10, "1/1", "0,30"),         # homozygous, skipped
+                   rec(e["start"] + 10, "0/1", "29,1"),         # minor allele too weak, skipped
+                   rec(e["start"] + 10, "0/1", "10,10", "AT", "A"),  # indel, skipped
+                   rec(e["end"] + 500, "0/1", "10,10")]         # outside the window
+        self.assertEqual(exon_cnv.allele_counts(records, p), {"BRCA1_ex02": [(20, 10), (12, 12)]})
+
+    def test_allele_balance_supports_duplication(self):
+        ab = exon_cnv.allele_loglik([(20, 10)])
+        self.assertGreater(ab[3], ab[2])
+        ab = exon_cnv.allele_loglik([(15, 15)])
+        self.assertGreater(ab[2], ab[3])
+        self.assertGreater(ab[2], ab[1] + 20)   # a heterozygous site argues strongly against a deletion
+
+
 class ExonCnvAssetAndCli(unittest.TestCase):
     def test_panel_asset(self):
         p = exon_cnv.load_panel(PANEL_ASSET)

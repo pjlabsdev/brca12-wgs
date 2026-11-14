@@ -9,6 +9,10 @@
   1000 Genomes samples with simulated events: 569/600 deletions, 209/360 duplications, BRCA1 exon
   1-2 via BRCA1P1 60/60 and 51/60, no call in the 60 unmodified genomes (current dosage rule: 87
   hints). `validation/exon_cnv/`.
+- Exon copy number, step 2: segments with quality 5 to 9 are reported as hints (`exonCopyNumber.hints`),
+  and allele balance at heterozygous SNVs of the small-variant calls enters the model. Panel rebuilt
+  from reads of the full window. Frozen test on 58 further samples, events simulated on real
+  haplotypes: 567/580 deletions and 244/348 duplications at quality >= 5, no false call.
 - Exome, hybrid-capture panel and amplicon data (`--assay`, `--targets_bed`): no duplicate marking
   and no per-start downsampling for amplicons, primer clipping with `samtools ampliconclip`
   (`--primers_bed`), CNVkit hybrid/amplicon modes, optional pooled CNV reference
