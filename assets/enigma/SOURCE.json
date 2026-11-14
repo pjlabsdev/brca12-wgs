@@ -1,0 +1,43 @@
+{
+  "name": "ClinGen ENIGMA BRCA1/BRCA2 VCEP specifications",
+  "version": "1.2",
+  "cspec": [
+    "https://cspec.genome.network/cspec/ui/svi/doc/GN092",
+    "https://cspec.genome.network/cspec/ui/svi/doc/GN097"
+  ],
+  "hub": "https://hgdownload.soe.ucsc.edu/hubs/enigma/enigma.html",
+  "note": "Research use only. Check the version against the ClinGen CSpec registry before use.",
+  "built": "2026-11-13",
+  "tracks": {
+    "BRCAclinDomains": {
+      "url": "https://hgdownload.soe.ucsc.edu/hubs/enigma/hg38/BRCAclinDomains.bb",
+      "sha256": "ad8ee137273c28ed17e8044c9bafce29fdeff33fdbdcd29deafc57076905d540",
+      "rows": 30,
+      "file": "domains.tsv"
+    },
+    "BRCAexonWeights": {
+      "url": "https://hgdownload.soe.ucsc.edu/hubs/enigma/hg38/BRCAexonWeights.bb",
+      "sha256": "1817d389fd3f723fe658e42d87115e185cfffcad1da4dc73cbd1fcfda4fcd89f",
+      "rows": 50,
+      "file": "exon_weights.tsv"
+    },
+    "BRCAsplicing": {
+      "url": "https://hgdownload.soe.ucsc.edu/hubs/enigma/hg38/BRCAsplicing.bb",
+      "sha256": "67860f8c3c57c4e8dce9936e66dd6c85365f7d3b04d9e84202955e610abbfb5f",
+      "rows": 519,
+      "file": "pvs1.tsv"
+    },
+    "BRCAfunctionalAssays": {
+      "url": "https://hgdownload.soe.ucsc.edu/hubs/enigma/hg38/BRCAfunctionalAssays.bb",
+      "sha256": "8a5e3bebd624d466eb6285135e17a951840e04a88554cf280b729dc16dac7cd0",
+      "rows": 4729,
+      "file": "functional.tsv"
+    },
+    "BRCAmfa": {
+      "url": "https://hgdownload.soe.ucsc.edu/hubs/enigma/hg38/BRCAmfa.bb",
+      "sha256": "833ca06d1dce0a0e412ee2e7fc3f345caf4037760caa310923cf58d2bb63182c",
+      "rows": 13182,
+      "file": "multifactorial.tsv"
+    }
+  }
+}

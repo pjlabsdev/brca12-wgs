@@ -7,11 +7,12 @@ import argparse
 import datetime
 import json
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from brca12lib import coverage, evidence, render, structural, variants  # noqa: E402
+from brca12lib import coverage, enigma_tables, evidence, render, structural, variants  # noqa: E402
 
 SCHEMA = "genome.brca12.v1"
 
@@ -25,7 +26,7 @@ LIMITATIONS = [
     "Kurz-Read-WGS erfasst Mosaike unter etwa 15 % Allelanteil, komplexe Umlagerungen und Bereiche mit Pseudogen-Homologie (BRCA1-Exons 1-2 und BRCA1P1) nur eingeschränkt.",
     "CNVs stammen aus einer Einzelprobe mit flacher CNVkit-Referenz und gelten nur als Kandidaten. Einzelexon-Deletionen oder -Duplikationen unter etwa 1 kb sind unsicher; MLPA ist die übliche Bestätigung.",
     "Manta meldet nur SVs mit Bruchpunkt im Suchfenster um BRCA1/BRCA2. Insertionen mobiler Elemente werden nicht sicher erkannt; die zusätzliche Suche nach Insertionssignaturen in abgeschnittenen Leseenden erkennt nur Alu-Sequenz, braucht mindestens 3 Lesungen je Bruchstelle und liefert Hinweise, keine Aufrufe.",
-    "ACMG/AMP: nur maschinelle Hinweise auf einzelne Kriterien nach ClinGen ENIGMA v1.2. Keine Klassifikation; PVS1-Flussdiagramm mit Exon-Gewichten, PM5_PTC, PS1, PS3/BS3, PP1, PS4 und RNA-Daten fehlen. Die gnomAD-Lesetiefe wird nicht geprüft.",
+    "ACMG/AMP: nur maschinelle Hinweise auf einzelne Kriterien nach ClinGen ENIGMA v1.2. Keine Klassifikation; PVS1/PM5_PTC (Tabelle 4), PS3/BS3 (Tabelle 9) und PP4/BP5 stammen aus den mitgelieferten ENIGMA-Tabellen, PS1, PM3, BS2, BS4, PP1, PS4 und RNA-Daten der Probe fehlen. Die gnomAD-Lesetiefe wird nicht geprüft.",
     "ClinVar-Angaben hängen von der Version der verwendeten ClinVar-VCF ab.",
 ]
 
@@ -35,7 +36,7 @@ LIMITATIONS_EN = [
     "Short-read WGS has limited sensitivity for mosaics below about 15% allele fraction, complex rearrangements and regions with pseudogene homology (BRCA1 exons 1-2 and BRCA1P1).",
     "CNVs come from a single sample with a flat CNVkit reference and are candidates only. Single-exon deletions or duplications below about 1 kb are uncertain; MLPA is the usual confirmation.",
     "Manta only reports SVs with a breakpoint in the search window around BRCA1/BRCA2. Mobile element insertions are not reliably detected; the additional search for insertion signatures in clipped read ends recognises Alu sequence only, needs at least 3 reads per junction and gives hints, not calls.",
-    "ACMG/AMP: automated hints on individual criteria following ClinGen ENIGMA v1.2. No classification; the PVS1 flowchart with exon weights, PM5_PTC, PS1, PS3/BS3, PP1, PS4 and RNA data are missing. gnomAD read depth is not checked.",
+    "ACMG/AMP: automated hints on individual criteria following ClinGen ENIGMA v1.2. No classification; PVS1/PM5_PTC (Table 4), PS3/BS3 (Table 9) and PP4/BP5 come from the bundled ENIGMA tables, PS1, PM3, BS2, BS4, PP1, PS4 and RNA data of the sample are missing. gnomAD read depth is not checked.",
     "ClinVar entries depend on the version of the ClinVar VCF used.",
 ]
 
@@ -60,6 +61,27 @@ def read_exact_regions(path):
     return regions
 
 
+def exon_number(label):
+    match = re.match(r"Exon (\d+)", label or "")
+    return int(match.group(1)) if match else None
+
+
+def add_exon_event_codes(event, kind, labels):
+    """ENIGMA Table 4 codes for whole-exon deletions/duplications (tandem status unknown)."""
+    event["enigmaCodes"] = []
+    if kind is None:
+        return
+    for label in labels:
+        number = exon_number(label)
+        row = enigma_tables.exon_event_row(event["gene"], number, kind) if number else None
+        if row:
+            event["enigmaCodes"].append({"exon": label, "event": row["variant"], "code": row["code"],
+                                         "note": row.get("warning") or None})
+    if event["enigmaCodes"]:
+        text = "; ".join(f"{c['event']}: {c['code']}" for c in event["enigmaCodes"])
+        event.setdefault("flags", []).append(f"ENIGMA Tabelle 4 (falls bestätigt): {text}")
+
+
 def build(args):
     with open(args.reference_check) as handle:
         check = json.load(handle)
@@ -79,6 +101,12 @@ def build(args):
                        "coverage": coverage.gene_summary(exons, gene), "smallVariants": rows}
     low = coverage.low_coverage_intervals(args.cov_perbase, regions, args.low_depth)
     cnvs = [c for c in structural.cnv_segments(args.cnv, args.cnr, regions, exons)]
+    for cnv in cnvs:
+        add_exon_event_codes(cnv, "DEL" if cnv["type"] == "Deletion" else "DUP" if cnv["type"] == "Duplikation" else None,
+                             cnv.get("affectedExons", []))
+    dosage_hints = structural.exon_dosage_hints(exons)
+    for item in dosage_hints:
+        add_exon_event_codes(item, "DEL" if item["type"] == "möglicher Verlust" else "DUP", [item["exon"]])
     svs = structural.structural_variants(args.sv, regions, exons)
     versions = read_versions(args.versions)
     versions.setdefault("nextflow", args.nextflow_version)
@@ -106,7 +134,7 @@ def build(args):
         "lowCoverageIntervals": low,
         "cnvs": [c for c in cnvs if c["type"] != "kein Hinweis"],
         "cnvSegmentsChecked": len(cnvs),
-        "exonDosageHints": structural.exon_dosage_hints(exons),
+        "exonDosageHints": dosage_hints,
         "svs": svs,
         "insertionSignals": structural.insertion_signals(args.insertion_signals, exons),
         "toolVersions": versions,
