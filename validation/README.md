@@ -7,6 +7,9 @@ Run on 2026-11-13 with brca12-wgs at the state of this branch (including the rev
 GATK HaplotypeCaller 4.6.1.0, BWA 0.7.18, samtools/bcftools 1.21, mosdepth 0.3.10, Manta 1.6.0,
 Nextflow 24.10.4 and RTG Tools 3.13 (`vcfeval`).
 
+Neither sample carries a pathogenic variant, a large deletion or a mobile element insertion.
+Those are covered in [pathogenic/README.md](pathogenic/README.md).
+
 ## Results
 
 Matching with RTG `vcfeval` (haplotype-aware, the genotype must agree). Evaluated only inside the

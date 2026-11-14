@@ -157,6 +157,23 @@ only. Annotation and CNVs were not part of it, and neither sample carries a path
 Method, the three discordant calls, limitations and a script to reproduce it are in
 [validation/README.md](validation/README.md).
 
+## Validation with pathogenic variants, large deletions and Alu insertions
+
+Three further experiments, all for research use and none a clinical validation:
+
+| Experiment | Result |
+|---|---|
+| 10 real carriers of pathogenic SNVs/indels (1000 Genomes) | 10 of 10 called heterozygous, GQ 99 |
+| 185 small variants spiked into real HG002 reads (SNVs, indels up to 40 bp) | 185 of 185 called, no false positive in the exons |
+| 12 large events spiked into real reads (120 bp to whole gene, 2 duplications, 1 Alu) | Manta 12 of 12; CNVkit 3 of 12 (0 of 12 before a fix in 1.1.0); exon dosage hint 9 of 11 |
+| Real deletions in BRCA1 (1000 Genomes, not disease-causing) | 1,081 bp: 6 of 6 carriers; 271 bp: 2 of 3 |
+| Real Alu insertions in BRCA2 (1000 Genomes, not disease-causing) | called in 4 of 11 carriers; read-end signature in 11 of 11 and in 0 of 47 non-carrier evaluations |
+
+Spiked variants are simulated variants in real reads, not patient samples. Single-sample CNVkit
+does not find events below about 10 kb; exon-level events currently rest on Manta. No real sample
+with a pathogenic exon deletion, duplication or Alu insertion was available. Details, tables and
+limits: [validation/pathogenic/README.md](validation/pathogenic/README.md).
+
 ## Deutsch (Kurzfassung)
 
 BRCA1/BRCA2-Keimbahnauswertung aus WGS, nur GRCh38: BWA-MEM, samtools, GATK HaplotypeCaller,

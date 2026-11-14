@@ -111,7 +111,50 @@ Files: `results/spike_summary.json`, `results/depth_bins.tsv`.
 
 ## 3. Real structural variants (1000 Genomes)
 
-@@SV_SECTION@@
+The phased SNV, indel and SV panel of the 1000 Genomes Project contains two Alu insertions in
+BRCA2 and two deletions in BRCA1 (`sv_sites_1000g.tsv`). All four are intronic or otherwise not
+disease-causing. The panel genotypes are statistically phased short-read calls: a comparison, not
+truth.
+
+Samples: 17 carriers according to the panel and 6 samples that are 0|0 at all four sites
+(`sv_carriers_1000g.tsv`). At the two Alu sites the panel genotypes were looked up for all 33
+samples of experiments 1 and 3 (`alu_genotypes_1000g.tsv`), which added three heterozygous
+carriers of the common insertion. Reads were prepared as in experiment 1, and in addition the
+mates that the original alignment had placed elsewhere in the genome were retrieved
+(`MATES=1 run_sv_carriers.sh`, evaluation `sv_carriers_eval.py`).
+
+| Site | Event | Called (Manta or small-variant caller) | Read-end signature | Samples with 0\|0 and any call or signature |
+|---|---|---|---|---|
+| chr13:32,348,302 | Alu insertion, common (allele frequency 0.068) | 2 of 9 carriers | 9 of 9 | 0 of 22 |
+| chr13:32,392,272 | Alu insertion, rare | 2 of 2 | 2 of 2 | 0 of 25 |
+| chr17:43,045,958 | deletion 271 bp | 2 of 3 | not applicable | 0 of 6 |
+| chr17:43,071,626 | deletion 1,081 bp | 6 of 6 | not applicable | 0 of 6 |
+
+- **Deletions.** Manta reported the 1,081 bp deletion in all six carriers with the genotype of the
+  panel, including the homozygous carrier. Its start lies 101 bp from the panel coordinate; a match
+  therefore means 50 % reciprocal overlap. The 271 bp deletion was reported in two of three
+  carriers. In the third (HG01796) the depth inside the deleted interval equals the depth next to
+  it (32x and 33x; 13x and 31x in the carrier HG02601), so the reads of this sample do not show the
+  deletion.
+- **Alu insertions, callers.** Manta called 4 of 11 carriers as insertions (PASS; about 320 bp where
+  the length was resolved). Seven carriers, among them a homozygous one, had no call.
+- **Alu insertions, read-end signature.** All 11 carriers show the signature that was added to the
+  pipeline because of the missed calls: reads from both sides clipped at the site, overlapping by
+  the target-site duplication (7 bp and 14 bp), clipped sequence with Alu k-mers. The clipped
+  fraction is 0.43 to 0.64 in heterozygous and 0.92 to 0.94 in homozygous carriers. None of the 47
+  evaluations of samples with panel genotype 0|0 shows a signature, and no such sample has more
+  than one clipped read at a site.
+- **Complete read pairs matter.** In a first run without the mates from other chromosomes, 2 of 11
+  Alu carriers were called and 9 of 11 showed the signature
+  (`results/sv_carriers_summary.without_mates.json`). Pairs with one mate inside the inserted
+  element are lost when only reads near the genes are extracted. A normal run from whole-genome
+  FASTQ files has all pairs.
+
+The signature recognises Alu sequence only. Paired clip positions without Alu sequence occur in
+every sample (up to 8 per sample here) and are not listed unless
+`brca12_insertion_signals.py --all` is used.
+
+Files: `results/sv_carriers_summary.{tsv,json}`.
 
 ## Limits
 
@@ -123,7 +166,7 @@ Files: `results/spike_summary.json`, `results/depth_bins.tsv`.
 - No real sample with a pathogenic exon deletion, duplication or Alu insertion was tested.
 - VEP annotation and the ACMG/AMP hints were not part of these runs (no VEP cache on the validation
   machine). In experiments 1 and 3 CNVkit was replaced by a neutral stand-in.
-- The numbers are small: ten carriers, twelve large events, eleven Alu carriers.
+- The numbers are small: ten carriers, twelve large events, eleven Alu carriers at two sites.
 - The read-end signature was written after the missed Alu insertions had been inspected. Its
   result on the same carriers is not an independent test.
 

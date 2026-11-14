@@ -677,7 +677,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <h3>3.3 Spike-in experiment</h3>
 <p>No openly available short-read WGS data set of a carrier of a pathogenic exon deletion, duplication or Alu insertion was found; the GeT-RM reference materials [21] are distributed as DNA. We therefore spiked synthetic heterozygous variants into real reads. The background was GIAB HG002 on chr13 and chr17 at about 30×, which gives CNVkit a real chromosome-wide baseline. Inside both genes ±20 kb every real read pair was replaced by a pair with the same position, fragment length, read lengths and base qualities, read from one of two haplotypes: the reference, or the reference with the spiked events. Sequencing errors were drawn from the real base qualities. Coverage profile and fragment sizes therefore stayed those of the real run. The replaced pairs were aligned with BWA-MEM and merged with the untouched background, and the pipeline was run with real Manta and CNVkit.</p>
 <p>Two samples carried {small_total} small variants: one per coding exon segment with rotating types, SNVs at canonical splice sites, and five variants modelled on well-known pathogenic alleles (<i>BRCA1</i> c.68_69del, c.181T&gt;G, c.5266dup; <i>BRCA2</i> c.771_775del, c.5946del), whose coordinates were derived from a coding-sequence model that is checked by translation. All {small_found} were called with the correct genotype, with {fp_exon} false positive in the exons (Figure 3). Outside the exons, every sample including the negative control showed the same two calls at one intronic <i>BRCA2</i> site, which come from real HG002 reads with an unmapped mate that the replacement does not cover, and the samples with large deletions showed short artefactual calls directly at some breakpoints.</p>
-<p>Six samples carried {n_large} large events from 120 bp to a whole-gene deletion, two tandem duplications and an Alu insertion in <i>BRCA2</i> exon 3 (Figure 4). Manta reported {manta} of {n_large} with exact breakpoints and heterozygous genotype; the Alu insertion appeared as a pair of breakends. With the settings of version 1.0.2, CNVkit reported {cnv_before} of {n_large}: bins without coverage dominated the segmentation statistics, and even whole-gene deletions with a clear half-depth signal were merged into their neighbours (Figure 5). Excluding such bins (<code>--drop-low-coverage</code>) raised this to {cnv_after} of {n_large}; the smallest event reported by CNVkit was {cnv_min}. In addition, exon dosage hints had been suppressed for exactly the affected exons, because a heterozygous deletion also makes an exon fall below the depth threshold. After the correction, {hints} of the {n_large - 1} deletions and duplications produced a dosage hint for an affected exon. A third defect stopped the pipeline when the input BAM was named like the sample.</p>
+<p>Six samples carried {n_large} large events from 120 bp to a whole-gene deletion, two tandem duplications and an Alu insertion in <i>BRCA2</i> exon 3 (Figure 4). Manta reported {manta} of {n_large} with exact breakpoints and heterozygous genotype; the Alu insertion appeared as a pair of breakends. The read-end signature (Section 2.2) listed the spiked Alu insertion and nothing in the other eight spike-in samples. With the settings of version 1.0.2, CNVkit reported {cnv_before} of {n_large}: bins without coverage dominated the segmentation statistics, and even whole-gene deletions with a clear half-depth signal were merged into their neighbours (Figure 5). Excluding such bins (<code>--drop-low-coverage</code>) raised this to {cnv_after} of {n_large}; the smallest event reported by CNVkit was {cnv_min}. In addition, exon dosage hints had been suppressed for exactly the affected exons, because a heterozygous deletion also makes an exon fall below the depth threshold. After the correction, {hints} of the {n_large - 1} deletions and duplications produced a dosage hint for an affected exon. A third defect stopped the pipeline when the input BAM was named like the sample.</p>
 </div>
 
 <figure><div class="frame">{fig_large(d)}</div>
@@ -688,7 +688,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 
 <div class="cols">
 <h3>3.4 Real structural variants</h3>
-<p>The phased SNV, indel and SV panel of the 1000 Genomes Project [20] contains two Alu insertions in <i>BRCA2</i> and two deletions in <i>BRCA1</i>, all intronic or otherwise not disease-causing. They allow the same kind of event to be tested in real reads (Table 3). Carriers and six samples that are homozygous reference at all four sites were processed as in Section 3.2, with one addition: mates that the original alignment had placed elsewhere in the genome were retrieved as well, because without them Manta received no discordant pairs and reported only {{SV_NOMATES}}. At the two Alu sites the panel genotypes were looked up for all 33 samples of Sections 3.2 and 3.4, which added three heterozygous carriers of the common insertion; the ten samples of Section 3.2 were evaluated there without retrieved mates. The panel calls are statistically phased short-read calls and serve as a comparison, not as truth.</p>
+<p>The phased SNV, indel and SV panel of the 1000 Genomes Project [20] contains two Alu insertions in <i>BRCA2</i> and two deletions in <i>BRCA1</i>, all intronic or otherwise not disease-causing. They allow the same kind of event to be tested in real reads (Table 3). Carriers and six samples that are homozygous reference at all four sites were processed as in Section 3.2, with one addition: mates that the original alignment had placed elsewhere in the genome were retrieved as well, because read pairs with a mate inside the inserted element are otherwise lost: without them only {{SV_NOMATES}}. At the two Alu sites the panel genotypes were looked up for all 33 samples of Sections 3.2 and 3.4, which added three heterozygous carriers of the common insertion; the ten samples of Section 3.2 were rerun with retrieved mates for this purpose. The panel calls are statistically phased short-read calls and serve as a comparison, not as truth.</p>
 
 </div>
 
@@ -797,20 +797,29 @@ def sv_text(d):
     controls_hit = sum(s["controlsReported"] + s["controlsWithReadEndSignal"] for s in d.sv["bySite"].values())
     rows = [r for r in d.sv["rows"] if r["site"] == "HGSV_216998" and r["manta"]]
     shift = sorted({m.get("startDifference") for r in rows for m in r["manta"] if m.get("startDifference") is not None})
+    def span(hom):
+        v = [x["clippedFraction"] for r in d.sv["rows"] if r["type"] == "ALU" and (r["panelGenotype"] == "1|1") == hom
+             and r["panelGenotype"] != "0|0" for x in r["readEndSignal"]]
+        return f"{min(v):.2f} to {max(v):.2f}" if v else "n/a"
+
+    het, hom = span(False), span(True)
     parts = [f"The 1,081 bp deletion was reported by Manta in {big['carriersReported']} of {big['carriers']} carriers"
              + (", with the genotype of the panel including the homozygous carrier" if big["carriersReported"] == big["carriers"] else "")
              + (f"; its start lies {abs(shift[0])} bp from the panel coordinate, whose breakpoints are not base-exact" if shift else "") + ".",
-             f"The 271 bp deletion was reported in {small['carriersReported']} of {small['carriers']} carriers.",
+             f"The 271 bp deletion was reported in {small['carriersReported']} of {small['carriers']} carriers."
+             + (" In the carrier without a call (HG01796) the depth inside the deleted interval equals the depth next to it "
+                "(32x and 33x; 13x and 31x in the carrier HG02601), so the reads of this sample do not show the deletion."
+                if small["carriersReported"] == 2 and small["carriers"] == 3 else ""),
              f"The Alu insertions were called in {alu_c['carriersReported']} of {alu_c['carriers']} carriers of the common and "
-             f"{alu_r['carriersReported']} of {alu_r['carriers']} carriers of the rare insertion, by Manta as insertions of about 320 bp "
-             "or by the small-variant caller as a partial insertion.",
+             f"{alu_r['carriersReported']} of {alu_r['carriers']} carriers of the rare insertion, by Manta as insertions (about 320 bp "
+             "where the length was resolved) or by the small-variant caller as a partial insertion.",
              f"The read-end signature was present in {alu_c['carriersWithReadEndSignal']} of {alu_c['carriers']} and "
-             f"{alu_r['carriersWithReadEndSignal']} of {alu_r['carriers']} carriers, with clipped fractions near one half in heterozygous "
-             "and above 0.85 in homozygous carriers according to the panel.",
+             f"{alu_r['carriersWithReadEndSignal']} of {alu_r['carriers']} carriers, with clipped fractions of {het} in heterozygous "
+             f"and {hom} in homozygous carriers according to the panel.",
              missed_text(d),
              ("No sample with panel genotype 0|0 had a call or signature at any of the four sites." if controls_hit == 0 else
               f"{controls_hit} calls or signatures were made in samples with panel genotype 0|0.")]
-    return " ".join(parts)
+    return " ".join(x for x in parts if x)
 
 
 def main(argv=None):
@@ -825,7 +834,9 @@ def main(argv=None):
     nomates = load(os.path.join(RES, "sv_carriers_summary.without_mates.json"))["bySite"]
     alu_nomates = sum(nomates[s]["carriersReported"] for s in ("HGSV_181048", "HGSV_181052"))
     alu_total = sum(nomates[s]["carriers"] for s in ("HGSV_181048", "HGSV_181052"))
-    page = page.replace("{SV_NOMATES}", f"{alu_nomates} of {alu_total} Alu insertions")
+    sig_nomates = sum(nomates[s]["carriersWithReadEndSignal"] for s in ("HGSV_181048", "HGSV_181052"))
+    page = page.replace("{SV_NOMATES}", f"{alu_nomates} of {alu_total} Alu insertions were called and {sig_nomates} of {alu_total} "
+                                        "showed the read-end signature")
     page = page.replace("{SV_TEXT}", sv_text(d))
     sys.stdout.write(page)
     return 0
