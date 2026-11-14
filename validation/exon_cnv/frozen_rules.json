@@ -1,0 +1,48 @@
+{
+ "frozen_at_utc": "2026-11-14T18:23:16Z",
+ "status": "frozen before any test-set data were fetched; test.tsv samples drawn with seed 20261114 (positions 100-159 of the shuffled 2504 index), none fetched so far",
+ "parameters": {
+  "pad_bp": 200,
+  "p_change": 0.05,
+  "min_q": 10,
+  "min_sd_log2": 0.07,
+  "states": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "prior": "cnvmodel.PRIOR (default)",
+  "mapq_min": 20,
+  "panel": "panel.tsv (80 samples)",
+  "normaliser": "median depth of 8 control windows (fetch.py CONTROLS)"
+ },
+ "test_protocol": {
+  "command": "evaluate.py ../../assets/brca12_exons.bed DATA panel.tsv test.tsv 2 --pad 200 --p-change 0.05 --min-q 10",
+  "simulated_events": "per test sample and gene: DEL of 1,2,3,5 exons and whole gene, DUP of 1,2,3 exons, plus BRCA1 exon 1-2 DEL/DUP through BRCA1P1; simulated by removing or duplicating read pairs of one pseudo-haplotype; simulated, not patient samples",
+  "primary_endpoints": [
+   "sensitivity per event class",
+   "false calls per genome in unmodified samples (calls on read-level confirmed real events excluded and reported separately)"
+  ],
+  "comparator": "current pipeline rule: exon depth / chromosome median outside [0.65, 1.35]"
+ },
+ "tuning_result": {
+  "samples": 20,
+  "simulated_events": 360,
+  "detected": 305,
+  "false_calls": 0,
+  "current_rule_detected": 342,
+  "current_rule_hints_in_20_unmodified_genomes": 28,
+  "real_event_found": "NA18949 heterozygous deletion chr17:43069973-43075601 (BRCA1 MANE exons 14-15), depth halved, 10 discordant pairs, junction from clipped reads; not in the 1000 Genomes SV panel"
+ },
+ "sha256": {
+  "cnvmodel.py": "ee6f23d770971acc0cf7c421373e563ba71c46dd76de82a9707909ffac047377",
+  "evaluate.py": "0e8989df6dcfc7b1e2763ab377eb97e593f904260c1a339654e40088465100a8",
+  "fetch.py": "a32e583cee18eaac73d19e518641e2771f7e68f3c45231fb0b5efc1124932f06",
+  "fetch_all.sh": "582cd6fc58d34f7fed3bb39c0e142840df70aa572a925138f997ba40b732dac1",
+  "panel.tsv": "179633c6c5e2cb7f69765dde22352070fbfa0f602ca93f4a7786cc2a6712f5c6",
+  "tuning.tsv": "7c2cb3cdfea180a788defd8df2d75ec6d196bbeb90bb4a0fa062a4e94cb92250",
+  "test.tsv": "e1abebbcd97aff4a6dab9910ea33e8b506dacc2dd6ff29be1f12fcef7130bcb2"
+ }
+}
