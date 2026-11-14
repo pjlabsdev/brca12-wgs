@@ -62,7 +62,8 @@ ALU_KMERS = ALU_KMERS + tuple(k.translate(COMP)[::-1] for k in ALU_KMERS)
 # chrom, marker position, reference base, base of the extra copy, unit start, unit end, unit length, label
 KNOWN_COPIES = (("chr17", 43128365, "T", "C", 43128247, 43128372, 126,
                  "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)"),)
-# id, chrom, anchor position (VCF POS), inserted sequence, tandem copy (no reference-specific reads), label
+# id, chrom, anchor position (VCF POS), inserted sequence, tandem copy (no reference-specific reads), label,
+# deleted bases after the anchor (optional, 0 for insertions)
 KNOWN_ALLELES = (
     ("tandem126", "chr17", 43128264,
      "GATGGGAGGAACGAACAAACTCCAGACATGCCGCCTTAAGAGCTGTAACACTCACCGCAAAGGTCTGCAGCTTCACTCCTGAAGCCAGCGAGACCACGAACCCACC"
@@ -72,6 +73,9 @@ KNOWN_ALLELES = (
      "GGTGAAACCCCGTCTCTACTAAAAATACAAAAAAATTAGCCGGGCGTAGTGGCGGGCGCCTGTAGTCCCAGCTACTTGGGAGGCTGAGGCAGGAGAATGGTGTGAAC"
      "CCGGGAGGCGGAGCTTGCAGTGAGCCGAGATCCCGCCACTGCACTCCAGCCTGGGCGACAGAGCGAGACTCCGTCTC" + "A" * 27, False,
      "bekannte intronische Alu-Insertion in BRCA2 (häufiges Allel)"),
+    # 980 bp deletion in BRCA1 intron (1KG-ONT: 13 of 993 samples; breakpoints from 38 of 49 long reads
+    # of 5 carriers; listed as 1,081 bp in the 1000 Genomes short-read panel)
+    ("del980_brca1", "chr17", 43071727, "", False, "bekannte intronische 980-bp-Deletion in BRCA1 (seltenes Allel)", 980),
 )
 # realigned tandem-copy allele -> marker position of the same copy in KNOWN_COPIES
 ALLELE_MARKER = {"tandem126": 43128365}
@@ -197,10 +201,11 @@ def realign_known(lines, fasta, alleles=KNOWN_ALLELES, flank=700, before=400, af
             continue
         start, seq = fasta[chrom]
         i = a[2] - start                          # index of the base after the anchor
-        if i - flank < 0 or i + flank > len(seq):
+        deleted = a[6] if len(a) > 6 else 0
+        if i - flank < 0 or i + deleted + flank > len(seq):
             continue
-        ref = seq[i - flank:i + flank]
-        sites.append((a, chrom.replace("chr", ""), ref, seq[i - flank:i + 1] + a[3] + seq[i + 1:i + flank]))
+        ref = seq[i - flank:i + deleted + flank]
+        sites.append((a, chrom.replace("chr", ""), ref, seq[i - flank:i + 1] + a[3] + seq[i + 1 + deleted:i + deleted + flank]))
     counts = {a[0]: [0, 0] for a, *_ in sites}
     seen = set()
     for line in lines:
@@ -211,7 +216,9 @@ def realign_known(lines, fasta, alleles=KNOWN_ALLELES, flank=700, before=400, af
             continue
         chrom, pos = f[2].replace("chr", ""), int(f[3])
         for a, c, ref, alt in sites:
-            if c != chrom or not a[2] - before < pos < a[2] + after:
+            deleted = a[6] if len(a) > 6 else 0
+            if c != chrom or not (a[2] - before < pos < a[2] + after or
+                                  deleted and a[2] + deleted - before < pos < a[2] + deleted + after):
                 continue
             key = (a[0], f[0], int(f[1]) & 0xC0)
             if key in seen:
@@ -230,7 +237,7 @@ def realign_known(lines, fasta, alleles=KNOWN_ALLELES, flank=700, before=400, af
 
 
 def realigned_alleles(counts, regions, haplotypes=None, min_reads=2):
-    """Report entries for known alleles found by realignment (Alu and other non-tandem insertions)."""
+    """Report entries for known alleles found by realignment (non-tandem insertions and deletions)."""
     out = []
     for a in KNOWN_ALLELES:
         if a[0] not in counts or a[4]:
@@ -240,10 +247,15 @@ def realigned_alleles(counts, regions, haplotypes=None, min_reads=2):
             continue
         chrom = next((c for c, s, e, g in regions if c.replace("chr", "") == a[1].replace("chr", "")), a[1])
         gene = next((g for c, s, e, g in regions if c == chrom and s < a[2] <= e), "")
-        out.append({"gene": gene, "chrom": chrom, "pos": a[2], "end": a[2] + 1, "insertedLength": len(a[3]),
+        deleted = a[6] if len(a) > 6 else 0
+        kind = ["Alu", "known allele"] if a[0].startswith("alu") else ["known allele"]
+        if deleted:
+            kind.append("deletion")
+        out.append({"gene": gene, "chrom": chrom, "pos": a[2] + (1 if deleted else 0), "end": a[2] + max(deleted, 1),
+                    "insertedLength": len(a[3]), "deletedLength": deleted,
                     "targetSiteDuplication": 0, "clippedReadsLeftJunction": 0, "clippedReadsRightJunction": 0,
                     "spanningReads": n_ref, "clippedFraction": 0.0, "label": a[5],
-                    "signature": ["Alu", "known allele"] if a[0].startswith("alu") else ["known allele"],
+                    "signature": kind,
                     "clipsWithAluSequence": 0, "clipsWithPolyA": 0, "evidence": ["allele realignment"],
                     "realignedReads": f"{n_alt} allele / {n_ref} reference",
                     "zygosity": "homozygous" if n_ref <= 0.1 * (n_ref + n_alt) and n_alt >= 2 * min_reads
@@ -479,7 +491,7 @@ def main(argv=None):
         # known non-tandem alleles: replace a matching Alu read-end signature, else add the entry
         for known in realigned_alleles(realigned, regions):
             same = [d for d in found if d["chrom"] == known["chrom"] and "tandem copy" not in d["signature"]
-                    and abs(d["pos"] - known["pos"]) <= 30]
+                    and "deletion" not in known["signature"] and abs(d["pos"] - known["pos"]) <= 30]
             if same:
                 same[0].update({k: known[k] for k in ("label", "evidence", "realignedReads", "zygosity",
                                                       "insertedLength")})

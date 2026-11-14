@@ -111,6 +111,9 @@ EXACT = {
     "gekoppelter Haplotyp der zusätzlichen Kopie vorhanden": "linked haplotype of the extra copy present",
     "bekannte intronische Alu-Insertion in BRCA2 (häufiges Allel)": "known intronic Alu insertion in BRCA2 (common allele)",
     "bekanntes Insertionsallel": "known insertion allele",
+    "Bekanntes Deletionsallel": "known deletion allele",
+    "bekanntes Deletionsallel": "known deletion allele",
+    "bekannte intronische 980-bp-Deletion in BRCA1 (seltenes Allel)": "known intronic 980 bp deletion in BRCA1 (rare allele)",
     "keine Lesung für das Referenzallel: vermutlich homozygot": "no read for the reference allele: probably homozygous",
     "Lesungen für beide Allele: vermutlich heterozygot": "reads for both alleles: probably heterozygous",
     "Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)":
@@ -265,6 +268,9 @@ EXACT_RU = {
     "gekoppelter Haplotyp der zusätzlichen Kopie vorhanden": "сцепленный гаплотип дополнительной копии присутствует",
     "bekannte intronische Alu-Insertion in BRCA2 (häufiges Allel)": "известная интронная вставка Alu в BRCA2 (частый аллель)",
     "bekanntes Insertionsallel": "известный аллель вставки",
+    "Bekanntes Deletionsallel": "известный аллель делеции",
+    "bekanntes Deletionsallel": "известный аллель делеции",
+    "bekannte intronische 980-bp-Deletion in BRCA1 (seltenes Allel)": "известная интронная делеция 980 п. н. в BRCA1 (редкий аллель)",
     "keine Lesung für das Referenzallel: vermutlich homozygot": "нет прочтений референсного аллеля: вероятно, гомозигота",
     "Lesungen für beide Allele: vermutlich heterozygot": "прочтения обоих аллелей: вероятно, гетерозигота",
     "Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)":

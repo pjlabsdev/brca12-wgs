@@ -154,7 +154,15 @@ def insertion_signals(path, exons):
     for row in rows:
         flags = []
         kind = "Insertionssignatur"
-        if "tandem copy" in row.get("signature", []):
+        if "deletion" in row.get("signature", []):
+            kind = "Bekanntes Deletionsallel"
+            flags.append(row.get("label") or "bekanntes Deletionsallel")
+            flags.append("Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)")
+            if row.get("zygosity") == "homozygous":
+                flags.append("keine Lesung für das Referenzallel: vermutlich homozygot")
+            elif row.get("zygosity") == "heterozygous":
+                flags.append("Lesungen für beide Allele: vermutlich heterozygot")
+        elif "tandem copy" in row.get("signature", []):
             kind = "Tandemkopie-Signatur"
             if row.get("clippedReadsLeftJunction") or row.get("clippedReadsRightJunction"):
                 flags.append("abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie")
