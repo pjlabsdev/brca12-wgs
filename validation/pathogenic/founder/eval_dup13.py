@@ -72,7 +72,8 @@ def main():
         k = sum(1 for r in sub if (r[key] != "no" if any_ else r[key] == "yes"))
         lo, hi = clopper_pearson(k, len(sub))
         return f"{k}/{len(sub)} ({100 * lo:.1f}-{100 * hi:.1f} %)"
-    lines = ["BRCA1 exon 13 duplication, frozen test. Simulated sets are SIMULATED reads (real HG002 positions,",
+    lines = ["BRCA1 exon 13 duplication, " + ("confirmation test" if tag != "dup13_test" else "frozen test")
+             + ". Simulated sets are SIMULATED reads (real HG002 positions,",
              "fragment sizes and base qualities); the 1000 Genomes samples are real reads.", ""]
     car = [r for r in rows if r["truth"] == "carrier"]
     neg = [r for r in rows if r["truth"] == "non-carrier"]

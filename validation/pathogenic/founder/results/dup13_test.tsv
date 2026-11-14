@@ -1,0 +1,258 @@
+test	sample	set	reads	depthAtSite	truth	catalogCall	realignedReads	manta
+DUP13_r01.f1	DUP13_r01	simulated	all	29	carrier	yes	2 allele / 0 reference	no
+DUP13_r01.f2	DUP13_r01	simulated	1/2	15	carrier	yes	2 allele / 0 reference	DUP
+DUP13_r01.f3	DUP13_r01	simulated	1/3	9	carrier	no		no
+DUP13_r02.f1	DUP13_r02	simulated	all	27	carrier	no		DUP
+DUP13_r02.f2	DUP13_r02	simulated	1/2	17	carrier	no		no
+DUP13_r02.f3	DUP13_r02	simulated	1/3	9	carrier	no		no
+DUP13_r03.f1	DUP13_r03	simulated	all	33	carrier	yes	2 allele / 0 reference	DUP
+DUP13_r03.f2	DUP13_r03	simulated	1/2	17	carrier	no		DUP
+DUP13_r03.f3	DUP13_r03	simulated	1/3	10	carrier	no		no
+DUP13_r04.f1	DUP13_r04	simulated	all	30	carrier	yes	2 allele / 0 reference	no
+DUP13_r04.f2	DUP13_r04	simulated	1/2	16	carrier	no		no
+DUP13_r04.f3	DUP13_r04	simulated	1/3	12	carrier	no		no
+DUP13_r05.f1	DUP13_r05	simulated	all	20	carrier	yes	3 allele / 0 reference	DUP
+DUP13_r05.f2	DUP13_r05	simulated	1/2	12	carrier	yes	2 allele / 0 reference	DUP
+DUP13_r05.f3	DUP13_r05	simulated	1/3	6	carrier	no		no
+DUP13_r06.f1	DUP13_r06	simulated	all	33	carrier	yes	2 allele / 0 reference	DUP
+DUP13_r06.f2	DUP13_r06	simulated	1/2	19	carrier	no		no
+DUP13_r06.f3	DUP13_r06	simulated	1/3	12	carrier	no		no
+DUP13_r07.f1	DUP13_r07	simulated	all	29	carrier	yes	2 allele / 0 reference	no
+DUP13_r07.f2	DUP13_r07	simulated	1/2	14	carrier	no		no
+DUP13_r07.f3	DUP13_r07	simulated	1/3	9	carrier	no		no
+DUP13_r08.f1	DUP13_r08	simulated	all	26	carrier	no		DUP
+DUP13_r08.f2	DUP13_r08	simulated	1/2	11	carrier	no		DUP
+DUP13_r08.f3	DUP13_r08	simulated	1/3	11	carrier	no		no
+DUP13_r09.f1	DUP13_r09	simulated	all	26	carrier	yes	2 allele / 0 reference	DUP
+DUP13_r09.f2	DUP13_r09	simulated	1/2	13	carrier	no		no
+DUP13_r09.f3	DUP13_r09	simulated	1/3	9	carrier	no		no
+DUP13_r10.f1	DUP13_r10	simulated	all	28	carrier	no		DUP
+DUP13_r10.f2	DUP13_r10	simulated	1/2	16	carrier	no		DUP
+DUP13_r10.f3	DUP13_r10	simulated	1/3	7	carrier	no		DUP
+SPIKE_L1.f1	SPIKE_L1	simulated	all	21	non-carrier	no		no
+SPIKE_L1.f2	SPIKE_L1	simulated	1/2	12	non-carrier	no		no
+SPIKE_L1.f3	SPIKE_L1	simulated	1/3	7	non-carrier	no		no
+SPIKE_L2.f1	SPIKE_L2	simulated	all	21	non-carrier	no		DEL
+SPIKE_L2.f2	SPIKE_L2	simulated	1/2	11	non-carrier	no		DEL
+SPIKE_L2.f3	SPIKE_L2	simulated	1/3	6	non-carrier	no		no
+SPIKE_L3.f1	SPIKE_L3	simulated	all	32	non-carrier	no		no
+SPIKE_L3.f2	SPIKE_L3	simulated	1/2	17	non-carrier	no		no
+SPIKE_L3.f3	SPIKE_L3	simulated	1/3	9	non-carrier	no		no
+SPIKE_L4.f1	SPIKE_L4	simulated	all	21	non-carrier	no		no
+SPIKE_L4.f2	SPIKE_L4	simulated	1/2	12	non-carrier	no		no
+SPIKE_L4.f3	SPIKE_L4	simulated	1/3	7	non-carrier	no		no
+SPIKE_L5.f1	SPIKE_L5	simulated	all	11	non-carrier	no		no
+SPIKE_L5.f2	SPIKE_L5	simulated	1/2	5	non-carrier	no		no
+SPIKE_L5.f3	SPIKE_L5	simulated	1/3	4	non-carrier	no		no
+SPIKE_L6.f1	SPIKE_L6	simulated	all	21	non-carrier	no		no
+SPIKE_L6.f2	SPIKE_L6	simulated	1/2	12	non-carrier	no		no
+SPIKE_L6.f3	SPIKE_L6	simulated	1/3	7	non-carrier	no		no
+SPIKE_NEG.f1	SPIKE_NEG	simulated	all	21	non-carrier	no		no
+SPIKE_NEG.f2	SPIKE_NEG	simulated	1/2	12	non-carrier	no		no
+SPIKE_NEG.f3	SPIKE_NEG	simulated	1/3	7	non-carrier	no		no
+SPIKE_S1.f1	SPIKE_S1	simulated	all	21	non-carrier	no		no
+SPIKE_S1.f2	SPIKE_S1	simulated	1/2	12	non-carrier	no		no
+SPIKE_S1.f3	SPIKE_S1	simulated	1/3	7	non-carrier	no		no
+SPIKE_S2.f1	SPIKE_S2	simulated	all	21	non-carrier	no		no
+SPIKE_S2.f2	SPIKE_S2	simulated	1/2	12	non-carrier	no		no
+SPIKE_S2.f3	SPIKE_S2	simulated	1/3	7	non-carrier	no		no
+HG00114	HG00114	real 1000 Genomes	all	42	non-carrier (no known carrier)	no		not run
+HG00130	HG00130	real 1000 Genomes	all	44	non-carrier (no known carrier)	no		not run
+HG00149	HG00149	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+HG00188	HG00188	real 1000 Genomes	all	23	non-carrier (no known carrier)	no		not run
+HG00235	HG00235	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG00242	HG00242	real 1000 Genomes	all	47	non-carrier (no known carrier)	no		not run
+HG00252	HG00252	real 1000 Genomes	all	27	non-carrier (no known carrier)	no		not run
+HG00255	HG00255	real 1000 Genomes	all	44	non-carrier (no known carrier)	no		not run
+HG00313	HG00313	real 1000 Genomes	all	42	non-carrier (no known carrier)	no		not run
+HG00334	HG00334	real 1000 Genomes	all	27	non-carrier (no known carrier)	no		not run
+HG00368	HG00368	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+HG00378	HG00378	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG00409	HG00409	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG00427	HG00427	real 1000 Genomes	all	33	non-carrier (no known carrier)	no		not run
+HG00513	HG00513	real 1000 Genomes	all	69	non-carrier (no known carrier)	no		not run
+HG00530	HG00530	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG00651	HG00651	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG01028	HG01028	real 1000 Genomes	all	47	non-carrier (no known carrier)	no		not run
+HG01058	HG01058	real 1000 Genomes	all	24	non-carrier (no known carrier)	no		not run
+HG01072	HG01072	real 1000 Genomes	all	29	non-carrier (no known carrier)	no		not run
+HG01086	HG01086	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+HG01107	HG01107	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+HG01136	HG01136	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG01137	HG01137	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+HG01174	HG01174	real 1000 Genomes	all	19	non-carrier (no known carrier)	no		not run
+HG01278	HG01278	real 1000 Genomes	all	28	non-carrier (no known carrier)	no		not run
+HG01284	HG01284	real 1000 Genomes	all	29	non-carrier (no known carrier)	no		not run
+HG01286	HG01286	real 1000 Genomes	all	41	non-carrier (no known carrier)	no		not run
+HG01344	HG01344	real 1000 Genomes	all	41	non-carrier (no known carrier)	no		not run
+HG01345	HG01345	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG01347	HG01347	real 1000 Genomes	all	36	non-carrier (no known carrier)	no		not run
+HG01348	HG01348	real 1000 Genomes	all	34	non-carrier (no known carrier)	no		not run
+HG01356	HG01356	real 1000 Genomes	all	41	non-carrier (no known carrier)	no		not run
+HG01375	HG01375	real 1000 Genomes	all	39	non-carrier (no known carrier)	no		not run
+HG01384	HG01384	real 1000 Genomes	all	36	non-carrier (no known carrier)	no		not run
+HG01474	HG01474	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG01506	HG01506	real 1000 Genomes	all	33	non-carrier (no known carrier)	no		not run
+HG01513	HG01513	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG01527	HG01527	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+HG01550	HG01550	real 1000 Genomes	all	33	non-carrier (no known carrier)	no		not run
+HG01551	HG01551	real 1000 Genomes	all	33	non-carrier (no known carrier)	no		not run
+HG01566	HG01566	real 1000 Genomes	all	28	non-carrier (no known carrier)	no		not run
+HG01577	HG01577	real 1000 Genomes	all	34	non-carrier (no known carrier)	no		not run
+HG01589	HG01589	real 1000 Genomes	all	40	non-carrier (no known carrier)	no		not run
+HG01595	HG01595	real 1000 Genomes	all	32	non-carrier (no known carrier)	no		not run
+HG01608	HG01608	real 1000 Genomes	all	27	non-carrier (no known carrier)	no		not run
+HG01617	HG01617	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+HG01676	HG01676	real 1000 Genomes	all	32	non-carrier (no known carrier)	no		not run
+HG01694	HG01694	real 1000 Genomes	all	36	non-carrier (no known carrier)	no		not run
+HG01773	HG01773	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+HG01779	HG01779	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+HG01786	HG01786	real 1000 Genomes	all	43	non-carrier (no known carrier)	no		not run
+HG01806	HG01806	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG01853	HG01853	real 1000 Genomes	all	44	non-carrier (no known carrier)	no		not run
+HG01859	HG01859	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+HG01873	HG01873	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+HG01923	HG01923	real 1000 Genomes	all	40	non-carrier (no known carrier)	no		not run
+HG01932	HG01932	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG01935	HG01935	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+HG01942	HG01942	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+HG01948	HG01948	real 1000 Genomes	all	34	non-carrier (no known carrier)	no		not run
+HG01988	HG01988	real 1000 Genomes	all	32	non-carrier (no known carrier)	no		not run
+HG01997	HG01997	real 1000 Genomes	all	34	non-carrier (no known carrier)	no		not run
+HG02017	HG02017	real 1000 Genomes	all	29	non-carrier (no known carrier)	no		not run
+HG02031	HG02031	real 1000 Genomes	all	34	non-carrier (no known carrier)	no		not run
+HG02064	HG02064	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG02067	HG02067	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+HG02069	HG02069	real 1000 Genomes	all	27	non-carrier (no known carrier)	no		not run
+HG02111	HG02111	real 1000 Genomes	all	41	non-carrier (no known carrier)	no		not run
+HG02128	HG02128	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG02156	HG02156	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG02180	HG02180	real 1000 Genomes	all	48	non-carrier (no known carrier)	no		not run
+HG02182	HG02182	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG02184	HG02184	real 1000 Genomes	all	39	non-carrier (no known carrier)	no		not run
+HG02224	HG02224	real 1000 Genomes	all	36	non-carrier (no known carrier)	no		not run
+HG02277	HG02277	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+HG02285	HG02285	real 1000 Genomes	all	34	non-carrier (no known carrier)	no		not run
+HG02410	HG02410	real 1000 Genomes	all	34	non-carrier (no known carrier)	no		not run
+HG02429	HG02429	real 1000 Genomes	all	39	non-carrier (no known carrier)	no		not run
+HG02445	HG02445	real 1000 Genomes	all	49	non-carrier (no known carrier)	no		not run
+HG02496	HG02496	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG02522	HG02522	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG02611	HG02611	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+HG02657	HG02657	real 1000 Genomes	all	45	non-carrier (no known carrier)	no		not run
+HG02688	HG02688	real 1000 Genomes	all	40	non-carrier (no known carrier)	no		not run
+HG02721	HG02721	real 1000 Genomes	all	26	non-carrier (no known carrier)	no		not run
+HG02728	HG02728	real 1000 Genomes	all	29	non-carrier (no known carrier)	no		not run
+HG02737	HG02737	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG02768	HG02768	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+HG02789	HG02789	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+HG02895	HG02895	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+HG02938	HG02938	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG02944	HG02944	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG02970	HG02970	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+HG02976	HG02976	real 1000 Genomes	all	44	non-carrier (no known carrier)	no		not run
+HG03009	HG03009	real 1000 Genomes	all	34	non-carrier (no known carrier)	no		not run
+HG03048	HG03048	real 1000 Genomes	all	24	non-carrier (no known carrier)	no		not run
+HG03074	HG03074	real 1000 Genomes	all	33	non-carrier (no known carrier)	no		not run
+HG03086	HG03086	real 1000 Genomes	all	36	non-carrier (no known carrier)	no		not run
+HG03097	HG03097	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+HG03111	HG03111	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+HG03114	HG03114	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG03212	HG03212	real 1000 Genomes	all	29	non-carrier (no known carrier)	no		not run
+HG03228	HG03228	real 1000 Genomes	all	28	non-carrier (no known carrier)	no		not run
+HG03240	HG03240	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+HG03247	HG03247	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG03311	HG03311	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+HG03372	HG03372	real 1000 Genomes	all	52	non-carrier (no known carrier)	no		not run
+HG03388	HG03388	real 1000 Genomes	all	39	non-carrier (no known carrier)	no		not run
+HG03437	HG03437	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+HG03439	HG03439	real 1000 Genomes	all	40	non-carrier (no known carrier)	no		not run
+HG03442	HG03442	real 1000 Genomes	all	42	non-carrier (no known carrier)	no		not run
+HG03461	HG03461	real 1000 Genomes	all	56	non-carrier (no known carrier)	no		not run
+HG03499	HG03499	real 1000 Genomes	all	59	non-carrier (no known carrier)	no		not run
+HG03518	HG03518	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG03548	HG03548	real 1000 Genomes	all	34	non-carrier (no known carrier)	no		not run
+HG03577	HG03577	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+HG03593	HG03593	real 1000 Genomes	all	29	non-carrier (no known carrier)	no		not run
+HG03600	HG03600	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG03708	HG03708	real 1000 Genomes	all	42	non-carrier (no known carrier)	no		not run
+HG03722	HG03722	real 1000 Genomes	all	33	non-carrier (no known carrier)	no		not run
+HG03730	HG03730	real 1000 Genomes	all	25	non-carrier (no known carrier)	no		not run
+HG03742	HG03742	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+HG03746	HG03746	real 1000 Genomes	all	26	non-carrier (no known carrier)	no		not run
+HG03780	HG03780	real 1000 Genomes	all	40	non-carrier (no known carrier)	no		not run
+HG03781	HG03781	real 1000 Genomes	all	29	non-carrier (no known carrier)	no		not run
+HG03784	HG03784	real 1000 Genomes	all	36	non-carrier (no known carrier)	no		not run
+HG03793	HG03793	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG03802	HG03802	real 1000 Genomes	all	28	non-carrier (no known carrier)	no		not run
+HG03821	HG03821	real 1000 Genomes	all	33	non-carrier (no known carrier)	no		not run
+HG03836	HG03836	real 1000 Genomes	all	25	non-carrier (no known carrier)	no		not run
+HG03844	HG03844	real 1000 Genomes	all	28	non-carrier (no known carrier)	no		not run
+HG03848	HG03848	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+HG03870	HG03870	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+HG03871	HG03871	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+HG03888	HG03888	real 1000 Genomes	all	36	non-carrier (no known carrier)	no		not run
+HG03904	HG03904	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+HG03973	HG03973	real 1000 Genomes	all	42	non-carrier (no known carrier)	no		not run
+HG04014	HG04014	real 1000 Genomes	all	41	non-carrier (no known carrier)	no		not run
+HG04147	HG04147	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+HG04177	HG04177	real 1000 Genomes	all	28	non-carrier (no known carrier)	no		not run
+HG04180	HG04180	real 1000 Genomes	all	41	non-carrier (no known carrier)	no		not run
+HG04200	HG04200	real 1000 Genomes	all	33	non-carrier (no known carrier)	no		not run
+HG04227	HG04227	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+NA06989	NA06989	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+NA07014	NA07014	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+NA10859	NA10859	real 1000 Genomes	all	42	non-carrier (no known carrier)	no		not run
+NA12890	NA12890	real 1000 Genomes	all	34	non-carrier (no known carrier)	no		not run
+NA18520	NA18520	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+NA18528	NA18528	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+NA18544	NA18544	real 1000 Genomes	all	39	non-carrier (no known carrier)	no		not run
+NA18552	NA18552	real 1000 Genomes	all	26	non-carrier (no known carrier)	no		not run
+NA18565	NA18565	real 1000 Genomes	all	62	non-carrier (no known carrier)	no		not run
+NA18570	NA18570	real 1000 Genomes	all	33	non-carrier (no known carrier)	no		not run
+NA18592	NA18592	real 1000 Genomes	all	39	non-carrier (no known carrier)	no		not run
+NA18595	NA18595	real 1000 Genomes	all	44	non-carrier (no known carrier)	no		not run
+NA18868	NA18868	real 1000 Genomes	all	28	non-carrier (no known carrier)	no		not run
+NA18940	NA18940	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+NA18941	NA18941	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+NA18947	NA18947	real 1000 Genomes	all	37	non-carrier (no known carrier)	no		not run
+NA18953	NA18953	real 1000 Genomes	all	43	non-carrier (no known carrier)	no		not run
+NA18960	NA18960	real 1000 Genomes	all	26	non-carrier (no known carrier)	no		not run
+NA18965	NA18965	real 1000 Genomes	all	47	non-carrier (no known carrier)	no		not run
+NA19001	NA19001	real 1000 Genomes	all	32	non-carrier (no known carrier)	no		not run
+NA19003	NA19003	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+NA19017	NA19017	real 1000 Genomes	all	40	non-carrier (no known carrier)	no		not run
+NA19043	NA19043	real 1000 Genomes	all	41	non-carrier (no known carrier)	no		not run
+NA19128	NA19128	real 1000 Genomes	all	48	non-carrier (no known carrier)	no		not run
+NA19144	NA19144	real 1000 Genomes	all	47	non-carrier (no known carrier)	no		not run
+NA19153	NA19153	real 1000 Genomes	all	32	non-carrier (no known carrier)	no		not run
+NA19207	NA19207	real 1000 Genomes	all	39	non-carrier (no known carrier)	no		not run
+NA19351	NA19351	real 1000 Genomes	all	54	non-carrier (no known carrier)	no		not run
+NA19385	NA19385	real 1000 Genomes	all	39	non-carrier (no known carrier)	no		not run
+NA19391	NA19391	real 1000 Genomes	all	35	non-carrier (no known carrier)	no		not run
+NA19393	NA19393	real 1000 Genomes	all	48	non-carrier (no known carrier)	no		not run
+NA19449	NA19449	real 1000 Genomes	all	42	non-carrier (no known carrier)	no		not run
+NA19734	NA19734	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+NA19789	NA19789	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+NA19818	NA19818	real 1000 Genomes	all	27	non-carrier (no known carrier)	no		not run
+NA19819	NA19819	real 1000 Genomes	all	40	non-carrier (no known carrier)	no		not run
+NA19900	NA19900	real 1000 Genomes	all	47	non-carrier (no known carrier)	no		not run
+NA19909	NA19909	real 1000 Genomes	all	32	non-carrier (no known carrier)	no		not run
+NA20278	NA20278	real 1000 Genomes	all	44	non-carrier (no known carrier)	no		not run
+NA20289	NA20289	real 1000 Genomes	all	41	non-carrier (no known carrier)	no		not run
+NA20298	NA20298	real 1000 Genomes	all	30	non-carrier (no known carrier)	no		not run
+NA20348	NA20348	real 1000 Genomes	all	40	non-carrier (no known carrier)	no		not run
+NA20357	NA20357	real 1000 Genomes	all	36	non-carrier (no known carrier)	no		not run
+NA20359	NA20359	real 1000 Genomes	all	32	non-carrier (no known carrier)	no		not run
+NA20530	NA20530	real 1000 Genomes	all	29	non-carrier (no known carrier)	no		not run
+NA20540	NA20540	real 1000 Genomes	all	45	non-carrier (no known carrier)	no		not run
+NA20761	NA20761	real 1000 Genomes	all	32	non-carrier (no known carrier)	no		not run
+NA20764	NA20764	real 1000 Genomes	all	36	non-carrier (no known carrier)	no		not run
+NA20775	NA20775	real 1000 Genomes	all	36	non-carrier (no known carrier)	no		not run
+NA20813	NA20813	real 1000 Genomes	all	31	non-carrier (no known carrier)	no		not run
+NA20846	NA20846	real 1000 Genomes	all	48	non-carrier (no known carrier)	no		not run
+NA20888	NA20888	real 1000 Genomes	all	33	non-carrier (no known carrier)	no		not run
+NA20896	NA20896	real 1000 Genomes	all	29	non-carrier (no known carrier)	no		not run
+NA21103	NA21103	real 1000 Genomes	all	25	non-carrier (no known carrier)	no		not run
+NA21114	NA21114	real 1000 Genomes	all	38	non-carrier (no known carrier)	no		not run
+NA21117	NA21117	real 1000 Genomes	all	28	non-carrier (no known carrier)	no		not run
