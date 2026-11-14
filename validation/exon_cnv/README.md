@@ -56,3 +56,32 @@ NA18949 (1000 Genomes, JPT, tuning set) carries a heterozygous deletion chr17:43
 It is not in the 1000 Genomes phased SV panel; no long reads are available for this sample. It was
 found by the cohort model as a deletion of exons 14-15 (quality 99) and is excluded from the
 false-call counts. Research use only.
+
+## Step 2: hint tier and allele balance (frozen test on 60 further samples)
+
+Rules frozen in `frozen_rules_step2.json` (commit 4bb6761, pushed before the test data of
+`test2.tsv` were fetched). Events are simulated on one real haplotype: reads are assigned to a
+haplotype by their alleles at the sample's phased heterozygous SNVs (1000 Genomes phased panel) and
+removed (deletion) or duplicated (duplication); allele counts shift as in a real event
+(`fetch_alleles.py`, `evaluate_ab.py`). The panel asset is now built from reads of the full
+window (the step-3 prototype undercounted the outer 50 bp; with corrected data the step-3 test
+gives 571/600 deletions, 209/360 duplications and no call in the 60 unmodified genomes).
+
+Test set: 60 samples; HG00619 could not be read (no CRAM index on the 1000 Genomes server).
+The frozen script also skipped HG03366, whose name carries a trailing space in the 1000 Genomes
+index; the primary results below are those of the frozen script (58 samples). A run with only the
+sample-name parsing fixed (`evaluate_ab_idstrip.py`, 59 samples; event positions are drawn anew,
+so counts differ) is given for completeness.
+
+| Arm (all simulated) | Deletions | Duplications | False calls |
+|---|---:|---:|---:|
+| Depth, call (Q >= 10) | 558/580 | 200/348 | 0 |
+| Depth, call or hint (Q >= 5) | 567/580 | 237/348 | 0 |
+| Depth + allele balance, Q >= 10 | 558/580 | 203/348 | 0 |
+| Depth + allele balance, Q >= 5 | 567/580 | 244/348 | 0 |
+| 59 samples, depth + allele balance, Q >= 5 | 580/590 | 259/354 | 0 |
+
+False calls: calls in the unmodified genomes and outside the event in event samples. BRCA1 exon
+1-2 through BRCA1P1: deletion 58/58, duplication 53/58 (Q >= 10) and 54/58 (Q >= 5). Single-exon
+duplications remain the weak spot (30/116 at Q >= 10, 45/116 with hint tier and allele balance).
+Per-event tables: `results_step2/`. Breakpoint reads were not part of this test.
