@@ -29,6 +29,12 @@ params.vep_cache       = null      // Ensembl VEP cache directory (GRCh38)
 params.vep_cache_version = null    // optional, e.g. 113
 params.clinvar_vcf     = null      // clinvar.vcf.gz (+ .tbi), GRCh38
 // params.outdir: see nextflow.config (default brca12_results)
+// Optional evidence for the ENIGMA v1.2 hints. All are bgzip-compressed with a tabix index and
+// are supplied by the user (SpliceAI and dbNSFP/BayesDel: non-commercial research licence).
+params.gnomad_exomes_vcf  = null   // gnomAD v2.1 exomes (GRCh38 liftover) with non_cancer FAF fields
+params.gnomad_genomes_vcf = null   // gnomAD v3.1 genomes with non_cancer FAF fields
+params.spliceai_vcf       = null   // spliceai_scores.raw.snv.hg38.vcf.gz
+params.bayesdel_tsv       = null   // chrom, pos, ref, alt, BayesDel_noAF score
 params.threads         = 8
 params.snv_caller      = 'haplotypecaller'   // or 'deepvariant'
 params.calling_padding = 200       // bp around BRCA1/BRCA2 for variant calling
@@ -338,6 +344,7 @@ process REPORT {
     path chrom_median
     path versions
     path command_files
+    path evidence_files
 
     output:
     path 'brca12_report.html'
@@ -348,6 +355,10 @@ process REPORT {
     script:
     def input_mode = params.bam ? 'bam' : 'fastq'
     def inputs = params.bam ? params.bam : "${params.reads_r1},${params.reads_r2}"
+    def staged = { p -> p ? file(p).name : null }
+    def evidence = [['--gnomad-exomes', params.gnomad_exomes_vcf], ['--gnomad-genomes', params.gnomad_genomes_vcf],
+                    ['--spliceai', params.spliceai_vcf], ['--bayesdel', params.bayesdel_tsv]]
+        .findAll { it[1] }.collect { "${it[0]} ${staged(it[1])}" }.join(' ')
     """
     cat ${command_files} > brca12_commands.sh
     ${params.python} ${projectDir}/bin/brca12_report.py \\
@@ -363,7 +374,7 @@ process REPORT {
       --min-exon-depth ${params.min_exon_depth} --min-exon-pct20 ${params.min_exon_pct20} \\
       --low-depth ${params.low_depth} --max-mapq0 ${params.max_mapq0} \\
       --nextflow-version ${workflow.nextflow.version} --session-id ${workflow.sessionId} \\
-      --lang ${params.report_lang} \\
+      --lang ${params.report_lang} --tabix ${params.tabix} ${evidence} \\
       --out-json brca12_results.json --out-md brca12_report.md --out-html brca12_report.html
     """
 }
@@ -412,8 +423,14 @@ workflow {
              EXON_COVERAGE.out[5], EXTRACT_AND_ANNOTATE.out[2])
         .collect()
 
+    // Optional evidence files and their tabix indexes; an empty placeholder keeps the input non-empty.
+    evidence_files = Channel.fromPath(
+        [params.gnomad_exomes_vcf, params.gnomad_genomes_vcf, params.spliceai_vcf, params.bayesdel_tsv]
+            .findAll { it }.collectMany { [it, "${it}.tbi"] } + ["${projectDir}/assets/NO_EVIDENCE"],
+        checkIfExists: true).collect()
+
     REPORT(VALIDATE_INPUTS.out.check, VALIDATE_INPUTS.out.exons, VALIDATE_INPUTS.out.exact_bed,
            ann.brca1, ann.brca2, sv.vcf.map { it[0] }, cnv.cns, cnv.cnr,
            cov.q20, cov.thresholds, cov.q0, cov.perbase, cov.chrom_median,
-           versions.versions, commands)
+           versions.versions, commands, evidence_files)
 }

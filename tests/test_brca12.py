@@ -14,7 +14,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BIN = os.path.join(ROOT, "bin")
 sys.path.insert(0, BIN)
 
-from brca12lib import structural, variants  # noqa: E402
+from brca12lib import enigma, evidence, structural, variants  # noqa: E402
 from brca12lib.vcf import genotype_label  # noqa: E402
 
 CSQ_FIELDS = ("Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|"
@@ -91,7 +91,7 @@ class PipelineScriptsTest(unittest.TestCase):
         codes = [h["code"] for h in hints]
         self.assertIn("PVS1 (eingeschränkt)", codes)
         self.assertIn("Bekannte Ausnahme", codes)
-        self.assertIn("BA1 (Kandidat)", codes)
+        self.assertIn("BA1 (Näherung)", codes)
 
     def test_end_to_end_report(self):
         self.prepare()
@@ -160,10 +160,10 @@ class PipelineScriptsTest(unittest.TestCase):
         missense = b1["smallVariants"][1]
         self.assertTrue(any("DP < 15" in f for f in missense["qualityFlags"]))
         self.assertTrue(any("unsicher abgedecktem Bereich" in f for f in missense["qualityFlags"]))
-        self.assertTrue(any(h["code"] == "BS1 (Kandidat)" for h in missense["acmgHints"]))
+        self.assertTrue(any(h["code"] == "BS1 (Näherung)" for h in missense["acmgHints"]))
         b2 = result["genes"]["BRCA2"]["smallVariants"][0]
         self.assertEqual(b2["genotype"], "homozygot")
-        self.assertTrue(any(h["code"] == "BA1 (Kandidat)" for h in b2["acmgHints"]))
+        self.assertTrue(any(h["code"] == "BA1 (Näherung)" for h in b2["acmgHints"]))
         ex23 = next(e for e in result["exonCoverage"] if e["label"].startswith("Exon 23"))
         self.assertEqual(ex23["status"], "unsicher")
         self.assertEqual(ex23["label"], "Exon 23 (Legacy 24)")
@@ -228,3 +228,104 @@ class ReviewFixesTest(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         chroms = [line.split("\t")[0] for line in open(f"{d}/wgs.bed")]
         self.assertEqual(chroms, ["chr13", "chr17"])
+
+
+class EnigmaRulesTest(unittest.TestCase):
+    """ClinGen ENIGMA BRCA1/BRCA2 VCEP specifications v1.2 (CSpec GN092, GN097)."""
+
+    def codes(self, *args, **kwargs):
+        return [h["code"] for h in enigma.acmg_hints(*args, **kwargs)]
+
+    def gnomad(self, faf, present=True, non_cancer=True):
+        best = None if faf is None else {"dataset": "gnomAD exomes", "population": "nfe", "faf": faf,
+                                         "nonCancer": non_cancer}
+        return {"gnomad": {"datasets": ["gnomAD exomes", "gnomAD genomes"], "present": present, "best": best}}
+
+    def test_frequency_thresholds_use_filtering_allele_frequency(self):
+        csq = {"Consequence": "intron_variant"}
+        self.assertIn("BA1", self.codes("BRCA1", csq, None, "A", "G", self.gnomad(0.0011)))
+        self.assertIn("BS1", self.codes("BRCA1", csq, None, "A", "G", self.gnomad(0.00011)))
+        self.assertIn("BS1_Supporting", self.codes("BRCA1", csq, None, "A", "G", self.gnomad(0.00003)))
+        # exactly at a threshold the lower code applies ("above", not "at least")
+        self.assertIn("BS1", self.codes("BRCA1", csq, None, "A", "G", self.gnomad(0.001)))
+        self.assertIn("BS1_Supporting", self.codes("BRCA1", csq, None, "A", "G", self.gnomad(0.0001)))
+        low = self.codes("BRCA1", csq, None, "A", "G", self.gnomad(0.00002))
+        self.assertFalse([c for c in low if c.startswith(("BA1", "BS1", "PM2"))])
+
+    def test_pm2_supporting_only_for_substitutions_absent_from_gnomad(self):
+        csq = {"Consequence": "missense_variant"}
+        absent = self.gnomad(None, present=False)
+        self.assertIn("PM2_Supporting", self.codes("BRCA1", csq, None, "A", "G", absent))
+        indel = self.codes("BRCA1", {"Consequence": "inframe_deletion"}, None, "ATGC", "A", absent)
+        self.assertNotIn("PM2_Supporting", indel)
+        self.assertIn("PM2_Supporting nicht anwendbar", indel)
+        one_file = {"gnomad": {"datasets": ["gnomAD exomes"], "present": False, "best": None}}
+        self.assertIn("PM2_Supporting offen", self.codes("BRCA1", csq, None, "A", "G", one_file))
+        seen_once = self.gnomad(None, present=True)
+        self.assertNotIn("PM2_Supporting", self.codes("BRCA1", csq, None, "A", "G", seen_once))
+
+    def test_without_gnomad_file_hints_are_marked_as_approximation(self):
+        codes = self.codes("BRCA1", {"Consequence": "intron_variant"}, 0.00005, "A", "G", {})
+        self.assertIn("BS1_Supporting (Näherung)", codes)
+        self.assertNotIn("PM2_Supporting (Näherung)",
+                         self.codes("BRCA1", {"Consequence": "frameshift_variant"}, None, "AG", "A", {}))
+
+    def test_bayesdel_thresholds_inside_domains(self):
+        brct = {"Consequence": "missense_variant", "Protein_position": "1700"}
+        self.assertIn("PP3", self.codes("BRCA1", brct, None, "A", "G", {"spliceai": 0.01, "bayesdel": 0.28}))
+        self.assertIn("BP4", self.codes("BRCA1", brct, None, "A", "G", {"spliceai": 0.1, "bayesdel": 0.15}))
+        between = self.codes("BRCA1", brct, None, "A", "G", {"spliceai": 0.01, "bayesdel": 0.2})
+        self.assertFalse({"PP3", "BP4", "BP1_Strong"} & set(between))
+        dbd = {"Consequence": "missense_variant", "Protein_position": "2500"}
+        self.assertNotIn("PP3", self.codes("BRCA2", dbd, None, "A", "G", {"spliceai": 0.01, "bayesdel": 0.29}))
+        self.assertIn("PP3", self.codes("BRCA2", dbd, None, "A", "G", {"spliceai": 0.01, "bayesdel": 0.30}))
+        self.assertIn("BP4", self.codes("BRCA2", dbd, None, "A", "G", {"spliceai": 0.01, "bayesdel": 0.18}))
+        # benign BayesDel does not give BP4 while splicing is not excluded
+        self.assertNotIn("BP4", self.codes("BRCA2", dbd, None, "A", "G", {"spliceai": 0.15, "bayesdel": 0.1}))
+
+    def test_missense_outside_domains_is_bp1_not_bp4(self):
+        outside = {"Consequence": "missense_variant", "Protein_position": "1000"}
+        codes = self.codes("BRCA1", outside, None, "A", "G", {"spliceai": 0.05, "bayesdel": 0.5})
+        self.assertIn("BP1_Strong", codes)
+        self.assertFalse({"PP3", "BP4"} & set(codes))
+
+    def test_spliceai_rules(self):
+        silent_in = {"Consequence": "synonymous_variant", "Protein_position": "50"}
+        self.assertEqual({"BP4", "BP7"} & set(self.codes("BRCA1", silent_in, None, "A", "G", {"spliceai": 0.1})),
+                         {"BP4", "BP7"})
+        self.assertIn("PP3 (Spleißen)", self.codes("BRCA1", silent_in, None, "A", "G", {"spliceai": 0.2}))
+        deep = {"Consequence": "intron_variant", "HGVSc": "ENST:c.212+7A>G"}
+        self.assertEqual({"BP4", "BP7"} & set(self.codes("BRCA1", deep, None, "A", "G", {"spliceai": 0.0})),
+                         {"BP4", "BP7"})
+        near = {"Consequence": "intron_variant&splice_region_variant", "HGVSc": "ENST:c.213-20T>C"}
+        codes = self.codes("BRCA1", near, None, "A", "G", {"spliceai": 0.0})
+        self.assertIn("BP4", codes)
+        self.assertNotIn("BP7", codes)
+        self.assertIn("PP3/BP4 offen", self.codes("BRCA1", deep, None, "A", "G", {}))
+        canonical = {"Consequence": "splice_donor_variant", "HGVSc": "ENST:c.212+1G>A"}
+        self.assertFalse({"PP3 (Spleißen)", "BP4"} & set(self.codes("BRCA1", canonical, None, "G", "A", {"spliceai": 0.9})))
+
+    def test_gnomad_lookup_prefers_non_cancer_and_skips_founder_populations(self):
+        d = tempfile.mkdtemp()
+        info = ("AC=5;non_cancer_AC=4;faf95_nfe=0.5;non_cancer_faf95_nfe=0.00008;non_cancer_faf95_afr=0.00003;"
+                "non_cancer_faf95_asj=0.9;non_cancer_faf95_fin=0.8")
+        ex = write(f"{d}/ex.vcf", f"#h\nchr17\t43045050\t.\tC\tT\t.\tPASS\t{info}\n")
+        ge = write(f"{d}/ge.vcf", "#h\n17\t43045050\t.\tC\tT\t.\tPASS\tAC_non_cancer=9;faf95_non_cancer_sas=0.0002\n")
+        got = evidence.gnomad_lookup([("gnomAD exomes", ex), ("gnomAD genomes", ge)], "chr17", 43045050, "C", "T")
+        self.assertTrue(got["present"])
+        self.assertEqual((got["best"]["dataset"], got["best"]["population"], got["best"]["faf"]),
+                         ("gnomAD genomes", "sas", 0.0002))
+        only_exomes = evidence.gnomad_lookup([("gnomAD exomes", ex)], "chr17", 43045050, "C", "T")
+        self.assertEqual((only_exomes["best"]["population"], only_exomes["best"]["faf"]), ("nfe", 0.00008))
+        absent = evidence.gnomad_lookup([("gnomAD exomes", ex)], "chr17", 43045050, "C", "G")
+        self.assertFalse(absent["present"])
+        self.assertIsNone(evidence.gnomad_lookup([], "chr17", 1, "A", "C"))
+
+    def test_spliceai_and_bayesdel_lookup(self):
+        d = tempfile.mkdtemp()
+        sp = write(f"{d}/sp.vcf", "#h\n17\t43045050\t.\tC\tT\t.\t.\tSpliceAI=T|BRCA1|0.01|0.35|0.00|0.02|1|2|3|4,T|NBR2|0.9|0|0|0|1|2|3|4\n")
+        bd = write(f"{d}/bd.tsv", "#chr\tpos\tref\talt\tBayesDel_noAF\n17\t43045050\tC\tT\t0.31\n")
+        src = evidence.Evidence(spliceai=sp, bayesdel=bd)
+        found = src.for_variant("chr17", 43045050, "C", "T", "BRCA1")
+        self.assertEqual((found["spliceai"], found["bayesdel"], found["gnomad"]), (0.35, 0.31, None))
+        self.assertIsNone(src.for_variant("chr17", 43045050, "C", "A", "BRCA1")["spliceai"])

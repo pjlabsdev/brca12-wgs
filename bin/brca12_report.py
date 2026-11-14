@@ -11,7 +11,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from brca12lib import coverage, render, structural, variants  # noqa: E402
+from brca12lib import coverage, evidence, render, structural, variants  # noqa: E402
 
 SCHEMA = "genome.brca12.v1"
 
@@ -25,7 +25,7 @@ LIMITATIONS = [
     "Kurz-Read-WGS erfasst Mosaike unter etwa 15 % Allelanteil, komplexe Umlagerungen und Bereiche mit Pseudogen-Homologie (BRCA1-Exons 1-2 und BRCA1P1) nur eingeschränkt.",
     "CNVs stammen aus einer Einzelprobe mit flacher CNVkit-Referenz und gelten nur als Kandidaten. Einzelexon-Deletionen oder -Duplikationen unter etwa 1 kb sind unsicher; MLPA ist die übliche Bestätigung.",
     "Manta meldet nur SVs mit Bruchpunkt im Suchfenster um BRCA1/BRCA2. Insertionen mobiler Elemente (z. B. Alu in BRCA2-Exon 3) werden nicht sicher erkannt.",
-    "ACMG/AMP: nur maschinelle Hinweise auf einzelne Kriterien (ENIGMA-Schwellen). Keine Klassifikation; PS3, PM5, PS1, PP1, PS4 und Spleißanalysen fehlen.",
+    "ACMG/AMP: nur maschinelle Hinweise auf einzelne Kriterien nach ClinGen ENIGMA v1.2. Keine Klassifikation; PVS1-Flussdiagramm mit Exon-Gewichten, PM5_PTC, PS1, PS3/BS3, PP1, PS4 und RNA-Daten fehlen. Die gnomAD-Lesetiefe wird nicht geprüft.",
     "ClinVar-Angaben hängen von der Version der verwendeten ClinVar-VCF ab.",
 ]
 
@@ -35,7 +35,7 @@ LIMITATIONS_EN = [
     "Short-read WGS has limited sensitivity for mosaics below about 15% allele fraction, complex rearrangements and regions with pseudogene homology (BRCA1 exons 1-2 and BRCA1P1).",
     "CNVs come from a single sample with a flat CNVkit reference and are candidates only. Single-exon deletions or duplications below about 1 kb are uncertain; MLPA is the usual confirmation.",
     "Manta only reports SVs with a breakpoint in the search window around BRCA1/BRCA2. Mobile element insertions (e.g. Alu in BRCA2 exon 3) are not reliably detected.",
-    "ACMG/AMP: automated hints on individual criteria only (ENIGMA thresholds). No classification; PS3, PM5, PS1, PP1, PS4 and splicing analyses are missing.",
+    "ACMG/AMP: automated hints on individual criteria following ClinGen ENIGMA v1.2. No classification; the PVS1 flowchart with exon weights, PM5_PTC, PS1, PS3/BS3, PP1, PS4 and RNA data are missing. gnomAD read depth is not checked.",
     "ClinVar entries depend on the version of the ClinVar VCF used.",
 ]
 
@@ -69,10 +69,11 @@ def build(args):
                                 args.min_exon_depth, args.min_exon_pct20, args.max_mapq0)
     uncertain = [e for e in exons if e["status"] != "ok"]
     small = dict(item.split("=", 1) for item in args.small)
+    sources = evidence.Evidence(args.gnomad_exomes, args.gnomad_genomes, args.spliceai, args.bayesdel, args.tabix)
     genes = {}
     for gene, meta in GENES.items():
         chrom, start, end, _ = next(r for r in regions if r[3] == gene)
-        rows = variants.small_variants(small[gene], gene, uncertain) if gene in small else []
+        rows = variants.small_variants(small[gene], gene, uncertain, sources) if gene in small else []
         genes[gene] = {"symbol": gene, "chrom": chrom, "start": start + 1, "end": end,
                        "strand": meta["strand"], "transcript": meta["transcript"],
                        "coverage": coverage.gene_summary(exons, gene), "smallVariants": rows}
@@ -97,6 +98,7 @@ def build(args):
         "input": {"mode": args.input_mode, "files": [os.path.basename(p) for p in args.inputs.split(",")]},
         "reference": {"path": args.reference, "assembly": check.get("assembly"), "check": check},
         "snvCaller": "GATK HaplotypeCaller" if args.snv_caller == "haplotypecaller" else "DeepVariant",
+        "evidenceSources": dict(sources.configured(), specification="ClinGen ENIGMA BRCA1/BRCA2 VCEP v1.2"),
         "thresholds": {"minExonDepth": args.min_exon_depth, "minExonPct20x": args.min_exon_pct20,
                        "lowDepth": args.low_depth, "maxLowMapqFraction": args.max_mapq0},
         "genes": genes,
@@ -149,6 +151,11 @@ def main(argv=None):
     p.add_argument("--max-mapq0", type=float, default=0.10)
     p.add_argument("--nextflow-version", default=None)
     p.add_argument("--session-id", default=None)
+    p.add_argument("--gnomad-exomes", default=None, help="gnomAD exomes VCF with non-cancer FAF (bgzip + tabix)")
+    p.add_argument("--gnomad-genomes", default=None, help="gnomAD genomes VCF with non-cancer FAF (bgzip + tabix)")
+    p.add_argument("--spliceai", default=None, help="SpliceAI precomputed scores VCF (bgzip + tabix)")
+    p.add_argument("--bayesdel", default=None, help="TSV chrom,pos,ref,alt,BayesDel_noAF (bgzip + tabix)")
+    p.add_argument("--tabix", default="tabix")
     p.add_argument("--lang", choices=("en", "de"), default="en", help="language of the HTML/Markdown report")
     args = p.parse_args(argv)
     result = build(args)

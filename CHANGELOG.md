@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased (1.1.0)
+
+- ACMG/AMP hints now follow the ClinGen ENIGMA BRCA1/BRCA2 specifications v1.2:
+  - BA1, BS1 and the new BS1_Supporting use the filtering allele frequency of gnomAD non-cancer
+    non-founder populations (`--gnomad_exomes_vcf`, `--gnomad_genomes_vcf`). Without these files
+    the hints are labelled as approximations.
+  - PM2_Supporting is no longer given to insertions, deletions or delins, and needs both gnomAD files.
+  - PP3, BP4, BP1_Strong and BP7 are evaluated with BayesDel no-AF inside the functional domains
+    and SpliceAI (`--bayesdel_tsv`, `--spliceai_vcf`) instead of being reported as open.
+  - The blanket "BP4/BP7 candidate" for every non-coding variant is gone.
+- New JSON fields per variant: `gnomadFAF`, `spliceAI`, `bayesDel`; top level `evidenceSources`.
+
 ## 1.0.2 (2026-11-13)
 
 - GIAB HG001/HG002 benchmark of the BRCA1/BRCA2 small-variant calls (`validation/`).
