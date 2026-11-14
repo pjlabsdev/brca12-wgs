@@ -36,6 +36,8 @@
   (`validation/longread/frozen/`): tandem copy 116/116 carriers (4/84 non-carriers with calls),
   Alu 25/25 and 0/175 with 25/25 correct genotypes. Deletions in the catalogue: 980 bp BRCA1
   intronic deletion (registered addendum: 10/10 carriers, 0/198 non-carriers, genotype 10/10).
+  Head-to-head on the same reads: ExpansionHunter v5 14/19 HPRC and 54/64 independent carriers of
+  the tandem copy; Paragraph 114/116 and 23/25 (PASS 102 and 12), same 4 non-carrier calls.
 - Paper: sections on targeted data, low allele fractions, assembly truth and long reads; Figure 7.
 
 - GRCh37 position and BIC-style legacy names for every small variant (`grch37Pos`, `bicNames`,

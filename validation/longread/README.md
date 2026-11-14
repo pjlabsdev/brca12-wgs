@@ -96,6 +96,10 @@ from the long reads and tested on the same 200 samples plus all 8 further long-r
 30x data (`frozen_eval_del980.py`, `results/frozen_test_del980.tsv`): 10 of 10 carriers found (95 %
 CI 69.2-100 %), no call in 198 non-carriers, genotype 10 of 10 right.
 
+Head-to-head on the same samples and reads: ExpansionHunter v5 (`expansionhunter/`, tandem copy
+only) and Paragraph 2.3 (`paragraph/`). Paragraph finds 114 of 116 tandem-copy carriers (102 with
+PASS) and 23 of 25 Alu carriers (12 with PASS) and calls the same 4 long-read non-carriers.
+
 By superpopulation (1000 Genomes labels), carriers found for the tandem copy: AFR 27/27, AMR
 20/20, EAS 21/21, EUR 17/17, SAS 31/31 (non-carrier calls 0/29, 2/12, 1/17, 1/16, 0/10); for the Alu
 insertion every carrier in every group (2 to 8 per group) and no call in any non-carrier.

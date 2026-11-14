@@ -380,7 +380,9 @@ allele haplotype. This method was frozen and its test registered before the data
 long-read carriers (4 calls in 84 non-carriers, all with 3 to 6 spanning long reads) and the Alu
 insertion in 25 of 25 carriers with no call in 175 non-carriers and the right genotype in 25 of 25.
 Read-end signatures alone found 97 of 116 and 19 of 25. A registered addendum added the 980 bp
-BRCA1 intronic deletion: 10 of 10 carriers, no call in 198 non-carriers, genotype 10 of 10. ExpansionHunter v5 with a locus definition
+BRCA1 intronic deletion: 10 of 10 carriers, no call in 198 non-carriers, genotype 10 of 10.
+Paragraph, given the same allele sequences and reads, found 114 of 116 (102 with PASS) and 23 of 25
+(12 with PASS) and called the same 4 long-read non-carriers (`validation/longread/paragraph/`). ExpansionHunter v5 with a locus definition
 for the tandem copy found 14 of 19 HPRC carriers and 54 of 64 independent carriers.
 
 Oxford Nanopore reads of the 1KG-ONT cohort (`validation/longread/`) confirm the short-read SV

@@ -1103,6 +1103,17 @@ def frozen_text(d):
     for site in ("tandem126", "alu_brca2"):
         car = [r for r in d.frozen if r["site"] == site and r["truth"] == "carrier" and r["called"] == "yes"]
         zyg[site] = (sum((r["zygosity"] == "homozygous") == (int(r["ontSupporting"]) / int(r["ontSpanning"]) >= 0.9) for r in car), len(car))
+    pg = {}
+    for site in ("tandem126", "alu_brca2"):
+        rows = [r for r in tsv(os.path.join(VAL, "longread", "paragraph", "paragraph_vs_ours.tsv")) if r["site"] == site]
+        car = [r for r in rows if r["truth"] == "carrier"]
+        pg[site] = (sum("1" in r["paragraphGT"] for r in car), len(car),
+                    sum("1" in r["paragraphGT"] and r["paragraphFT"] == "PASS" for r in car),
+                    sum("1" in r["paragraphGT"] for r in rows if r["truth"] != "carrier"))
+    eh = []
+    for name in ("tandem126_hprc39_eh_vs_realign.tsv", "tandem126_ont_independent113_eh_vs_realign.tsv"):
+        car = [r for r in tsv(os.path.join(VAL, "longread", "expansionhunter", name)) if r["truth"] == "carrier"]
+        eh += [sum(any(int(x) > 1 for x in r["eh_genotype"].split("/") if x.isdigit()) for r in car), len(car)]
     dcar = [r for r in d.frozen_del if r["truth"] == "carrier"]
     dnon = [r for r in d.frozen_del if r["truth"] == "non-carrier"]
     dl = (sum(r["called"] == "yes" for r in dcar), len(dcar), sum(r["called"] == "yes" for r in dnon), len(dnon),
@@ -1115,7 +1126,9 @@ def frozen_text(d):
             f"The 126 bp copy was found in {t[0]} of {t[1]} long-read carriers and reported in {t[2]} of {t[3]} non-carriers; read-end signatures alone found {t0[0]} of {t0[1]}. "
             f"The <i>BRCA2</i> Alu insertion was found in {a[0]} of {a[1]} carriers with no call in {a[3]} non-carriers (read-end signature alone: {a0[0]} of {a0[1]}); its genotype agreed with the long reads in {zyg['alu_brca2'][0]} of {zyg['alu_brca2'][1]}, and that of the tandem copy in {zyg['tandem126'][0]} of {zyg['tandem126'][1]}. "
             f"All {len(audit)} non-carriers with a call had several concordant signals and only {span} spanning long reads when genotyped again; {with_ins} of them had at least one long read with the insertion, so they may be gaps in the truth rather than false calls; the frozen analysis counts them as false. "
-            f"A registered addendum then added the 980 bp <i>BRCA1</i> intronic deletion (1,081 bp in the 1000 Genomes panel) to the catalogue, with breakpoints from the long reads: it was found in {dl[0]} of {dl[1]} long-read carriers (the 200 samples and all further carriers with 30× data), with no call in {dl[3]} non-carriers and the right genotype in {dl[4]} of {dl[0]}.</p>")
+            f"A registered addendum then added the 980 bp <i>BRCA1</i> intronic deletion (1,081 bp in the 1000 Genomes panel) to the catalogue, with breakpoints from the long reads: it was found in {dl[0]} of {dl[1]} long-read carriers (the 200 samples and all further carriers with 30× data), with no call in {dl[3]} non-carriers and the right genotype in {dl[4]} of {dl[0]}. "
+            f"On the same reads, Paragraph [@paragraph] given the same allele sequences found {pg['tandem126'][0]} of {pg['tandem126'][1]} tandem-copy carriers ({pg['tandem126'][2]} with PASS) and {pg['alu_brca2'][0]} of {pg['alu_brca2'][1]} Alu carriers ({pg['alu_brca2'][2]} with PASS), and it called the same {pg['tandem126'][3]} long-read non-carriers, which supports that these carry the copy. "
+            f"ExpansionHunter [@expansionhunter] with a locus definition for the tandem array found the copy in {eh[0]} of {eh[1]} HPRC carriers and {eh[2]} of {eh[3]} carriers of the independent set.</p>")
 
 
 def ont_all_text(d):
