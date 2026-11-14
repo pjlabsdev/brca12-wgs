@@ -28,13 +28,24 @@ def _join(items, lang):
     return "; ".join(tr(i, lang) for i in items)
 
 
+def _hgvs_legacy(v):
+    """HGVS c. with BIC legacy names and the GRCh37 position for comparison with older reports."""
+    text = v.get("hgvsc") or ""
+    extra = []
+    if v.get("bicNames"):
+        extra.append("BIC " + " / ".join(v["bicNames"]))
+    if v.get("grch37Pos"):
+        extra.append(f"GRCh37 {v['chrom']}:{v['grch37Pos']}")
+    return f"{text} ({'; '.join(extra)})" if extra and text else (text or "; ".join(extra))
+
+
 def sections(result, lang="en"):
     out = []
     for gene in ("BRCA1", "BRCA2"):
         info = result["genes"][gene]
         hint_key = "textDE" if lang == "de" else "textEN"
         rows = [[v["pos"], v["ref"], v["alt"], v["genotype"], v["consequence"], v["transcript"],
-                 v["hgvsc"], v["hgvsp"], v["clinvar"]["significance"],
+                 _hgvs_legacy(v), v["hgvsp"], v["clinvar"]["significance"],
                  "; ".join(f"{h['code']}: {h[hint_key]}" for h in v["acmgHints"]),
                  _join(v["qualityFlags"], lang) or "ok"] for v in info["smallVariants"]]
         strand = ui("strand_minus" if info["strand"] == "-" else "strand_plus", lang)

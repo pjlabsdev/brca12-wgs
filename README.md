@@ -121,6 +121,19 @@ Not implemented: PS1, PM3, BS2, BS4 and RNA evidence of the sample itself. The g
 for PM2_Supporting) are not checked; each hint says so. Known exceptions such as BRCA2 p.Lys3326Ter
 are noted.
 
+## Legacy names and GRCh37 positions
+
+For comparison with older laboratory reports every small variant also carries its GRCh37 position
+and BIC-style legacy names (`grch37Pos`, `bicNames`; shown next to HGVS in the report). Both loci
+map to GRCh37 as one contiguous block (Ensembl assembly mapping): BRCA1 −1,847,983 bp, BRCA2
++574,137 bp. BIC numbering: BRCA1 c. + 119, BRCA2 c. + 228 (5'UTR one more, as c. has no position
+0); introns use the legacy exon numbers (BRCA1 has no legacy exon 4). BIC itself is inconsistent for
+deletions and insertions, so both the HGVS-based and the 5'-shifted name are given
+(c.68_69del → 187delAG / 185delAG, c.5266dup → 5385insC / 5382insC, c.5946del → 6174delT).
+Against the 4,464 BRCA Exchange entries with a nucleotide BIC name (release of 2026-03-08) one of the
+computed names was identical in 89.3 % and matched position and type in 96.9 %; the rest differ in
+spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the reference nomenclature.
+
 ## Reproducibility
 
 - Pinned versions in `envs/brca12.yml` and `envs/manta.yml` (Manta 1.6 needs Python 2.7; on Apple

@@ -25,7 +25,7 @@ downstream parsers do not depend on the report language. Main fields:
 | `researchUseOnly`, `clinicalClassification` | always `true` / `null` |
 | `disclaimer.de`, `disclaimer.en` | the mandatory confirmation notice |
 | `genes.BRCA1`, `genes.BRCA2` | locus, strand, MANE transcript, coverage summary, `smallVariants[]` |
-| `smallVariants[]` | `pos`, `ref`, `alt`, `genotype`, `depth`, `alleleFraction`, `consequence`, `transcript`, `hgvsc`, `hgvsp`, `exon`, `maxAF`, `gnomadFAF{dataset, population, faf, nonCancer}`, `spliceAI`, `bayesDel`, `clinvar{significance, reviewStatus, stars, condition}`, `acmgHints[{code, textDE, textEN, direction}]`, `qualityFlags[]` |
+| `smallVariants[]` | `pos`, `ref`, `alt`, `genotype`, `depth`, `alleleFraction`, `consequence`, `transcript`, `hgvsc`, `hgvsp`, `grch37Pos`, `bicNames[]`, `exon`, `maxAF`, `gnomadFAF{dataset, population, faf, nonCancer}`, `spliceAI`, `bayesDel`, `clinvar{significance, reviewStatus, stars, condition}`, `acmgHints[{code, textDE, textEN, direction}]`, `qualityFlags[]` |
 | `cnvs[]` | CNVkit segments with copy number != 2 overlapping a gene, `affectedExons[]` |
 | `exonDosageHints[]` | exons whose depth ratio to the chromosome median is < 0.65 or > 1.35 |
 | `insertionSignals[]` | insertion signatures from soft-clipped read ends inside the genes (two clip positions facing each other, overlap 0 to 30 bp, clipped sequence with Alu k-mers); hints, not calls |

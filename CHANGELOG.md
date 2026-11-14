@@ -2,6 +2,9 @@
 
 ## Unreleased (1.1.0)
 
+- GRCh37 position and BIC-style legacy names for every small variant (`grch37Pos`, `bicNames`,
+  shown next to HGVS), for comparison with older reports; checked against 4,464 BRCA Exchange BIC
+  names (89.3 % identical, 96.9 % same position and type).
 - ACMG/AMP hints now follow the ClinGen ENIGMA BRCA1/BRCA2 specifications v1.2:
   - BA1, BS1 and the new BS1_Supporting use the filtering allele frequency of gnomAD non-cancer
     non-founder populations (`--gnomad_exomes_vcf`, `--gnomad_genomes_vcf`). Without these files

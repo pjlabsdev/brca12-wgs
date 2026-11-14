@@ -8,6 +8,7 @@ akkreditierten Labor.
 import re
 
 from .enigma import acmg_hints
+from . import legacy
 from .vcf import VCF, genotype_label, to_float, to_int
 
 CLINVAR_STARS = {
@@ -105,6 +106,8 @@ def small_variants(path, gene, low_exons=(), evidence=None):
                 "transcript": csq.get("Feature") or None,
                 "maneSelect": csq.get("MANE_SELECT") or None,
                 "hgvsc": csq.get("HGVSc") or None, "hgvsp": csq.get("HGVSp") or None,
+                "grch37Pos": legacy.grch37(record["chrom"], record["pos"]),
+                "bicNames": legacy.bic_names(gene, csq.get("HGVSc")),
                 "exon": csq.get("EXON") or None, "intron": csq.get("INTRON") or None,
                 "maxAF": af,
                 "gnomadFAF": gnomad["best"] if gnomad else None,
