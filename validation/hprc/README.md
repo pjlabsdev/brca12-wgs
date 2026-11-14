@@ -66,8 +66,9 @@ allele is reported when 2 of the 3 signals (clipped reads, marker base, haplotyp
 `tandem_copy_eval.py` (results in `results/tandem_copy.tsv`, columns `evidence`, `haplotypeTags`,
 `haplotypeCopies`): 19 of 19 carriers and 0 of 20
 non-carriers; non-carriers have at most 1 read with C. In the 11 1000 Genomes samples with ONT long
-reads: 5 of 6 carriers and 0 of 5 non-carriers (`../longread/results/tandem_copy.tsv`); the missed
-carrier (HG01990) has 1 clipped read at one border and 1 read with C. Across all 72 tested samples
+reads: 6 of 6 carriers and 0 of 5 non-carriers (`../longread/results/tandem_copy.tsv`). Before
+allele realignment was added, HG01990 was missed (1 clipped read at one border and 1 read with C);
+realignment finds 5 reads of the extra copy. Across all 72 tested samples
 the only other signature is a 73 bp copy at the BRCA1 intron 6 VNTR in HG01796, where the long
 reads show no insertion of 50 bp or more. The thresholds (clips from 10 bp, clip positions within
 10 bp pooled, at least 2 reads per border, marker rule) were set after looking at these samples,

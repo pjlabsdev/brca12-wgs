@@ -1,0 +1,401 @@
+sample	site	status	truth	ontSpanning	ontSupporting	called	realignment	readEndSignature	evidence	realignedReads	zygosity
+HG00114	tandem126	ok	carrier	23	23	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	24 allele	homozygous
+HG00114	alu_brca2	ok	non-carrier			no	no	no			
+HG00130	tandem126	ok	non-carrier			no	no	no			
+HG00130	alu_brca2	ok	non-carrier			no	no	no			
+HG00149	tandem126	ok	carrier	51	29	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	14 allele	heterozygous
+HG00149	alu_brca2	ok	non-carrier			no	no	no			
+HG00188	tandem126	ok	carrier	13	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	9 allele	heterozygous
+HG00188	alu_brca2	ok	non-carrier			no	no	no			
+HG00235	tandem126	ok	non-carrier			no	no	no			
+HG00235	alu_brca2	ok	carrier	30	14	yes	yes	yes	allele realignment,clipped reads	19 allele / 13 reference	heterozygous
+HG00242	tandem126	ok	non-carrier			no	no	no			
+HG00242	alu_brca2	ok	non-carrier			no	no	no			
+HG00252	tandem126	ok	non-carrier			no	no	no			
+HG00252	alu_brca2	ok	non-carrier			no	no	no			
+HG00255	tandem126	ok	carrier	25	25	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	19 allele	homozygous
+HG00255	alu_brca2	ok	non-carrier			no	no	no			
+HG00313	tandem126	ok	non-carrier			no	no	no			
+HG00313	alu_brca2	ok	non-carrier			no	no	no			
+HG00334	tandem126	ok	carrier	24	11	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	9 allele	heterozygous
+HG00334	alu_brca2	ok	non-carrier			no	no	no			
+HG00368	tandem126	ok	carrier	32	14	yes	yes	no	allele realignment,haplotype	3 allele	heterozygous
+HG00368	alu_brca2	ok	non-carrier			no	no	no			
+HG00378	tandem126	ok	non-carrier			no	no	no			
+HG00378	alu_brca2	ok	non-carrier			no	no	no			
+HG00409	tandem126	ok	carrier	8	4	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	7 allele	heterozygous
+HG00409	alu_brca2	ok	non-carrier			no	no	no			
+HG00427	tandem126	ok	non-carrier			no	no	no			
+HG00427	alu_brca2	ok	non-carrier			no	no	no			
+HG00513	tandem126	ok	non-carrier			no	no	no			
+HG00513	alu_brca2	ok	non-carrier			no	no	no			
+HG00530	tandem126	ok	non-carrier			no	no	no			
+HG00530	alu_brca2	ok	non-carrier			no	no	no			
+HG00651	tandem126	ok	carrier	19	10	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	18 allele	heterozygous
+HG00651	alu_brca2	ok	non-carrier			no	no	no			
+HG01028	tandem126	ok	carrier	24	14	yes	yes	yes	allele realignment,clipped reads,haplotype	7 allele	heterozygous
+HG01028	alu_brca2	ok	non-carrier			no	no	no			
+HG01058	tandem126	ok	non-carrier			no	no	no			
+HG01058	alu_brca2	ok	non-carrier			no	no	no			
+HG01072	tandem126	ok	non-carrier			no	no	no			
+HG01072	alu_brca2	ok	non-carrier			no	no	no			
+HG01086	tandem126	ok	non-carrier			no	no	no			
+HG01086	alu_brca2	ok	non-carrier			no	no	no			
+HG01107	tandem126	ok	carrier	19	19	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	24 allele	homozygous
+HG01107	alu_brca2	ok	non-carrier			no	no	no			
+HG01136	tandem126	ok	carrier	22	10	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	9 allele	heterozygous
+HG01136	alu_brca2	ok	carrier	14	4	yes	yes	yes	allele realignment,clipped reads	20 allele / 19 reference	heterozygous
+HG01137	tandem126	ok	carrier	8	8	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	16 allele	homozygous
+HG01137	alu_brca2	ok	non-carrier			no	no	no			
+HG01174	tandem126	ok	non-carrier			no	no	no			
+HG01174	alu_brca2	ok	non-carrier			no	no	no			
+HG01278	tandem126	ok	non-carrier			no	no	no			
+HG01278	alu_brca2	ok	non-carrier			no	no	no			
+HG01284	tandem126	ok	non-carrier			no	no	no			
+HG01284	alu_brca2	ok	non-carrier			no	no	no			
+HG01286	tandem126	ok	non-carrier			no	no	no			
+HG01286	alu_brca2	ok	non-carrier			no	no	no			
+HG01344	tandem126	ok	carrier	22	11	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	12 allele	heterozygous
+HG01344	alu_brca2	ok	carrier	13	6	yes	yes	no	allele realignment	10 allele / 16 reference	heterozygous
+HG01345	tandem126	ok	carrier	22	9	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	9 allele	heterozygous
+HG01345	alu_brca2	ok	non-carrier			no	no	no			
+HG01347	tandem126	ok	carrier	19	19	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	23 allele	homozygous
+HG01347	alu_brca2	ok	non-carrier			no	no	no			
+HG01348	tandem126	ok	carrier	13	8	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	19 allele	heterozygous
+HG01348	alu_brca2	ok	non-carrier			no	no	no			
+HG01356	tandem126	ok	carrier	15	6	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	10 allele	heterozygous
+HG01356	alu_brca2	ok	non-carrier			no	no	no			
+HG01375	tandem126	ok	non-carrier			no	no	no			
+HG01375	alu_brca2	ok	non-carrier			no	no	no			
+HG01384	tandem126	ok	carrier	31	13	yes	yes	no	allele realignment,haplotype	14 allele	heterozygous
+HG01384	alu_brca2	ok	non-carrier			no	no	no			
+HG01474	tandem126	ok	non-carrier			no	no	no			
+HG01474	alu_brca2	ok	non-carrier			no	no	no			
+HG01506	tandem126	ok	carrier	21	21	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	17 allele	homozygous
+HG01506	alu_brca2	ok	non-carrier			no	no	no			
+HG01513	tandem126	ok	non-carrier			no	no	no			
+HG01513	alu_brca2	ok	carrier	11	3	yes	yes	no	allele realignment	11 allele / 17 reference	heterozygous
+HG01527	tandem126	ok	non-carrier			yes	yes	no	allele realignment,marker base,haplotype	6 allele	heterozygous
+HG01527	alu_brca2	ok	non-carrier			no	no	no			
+HG01550	tandem126	ok	carrier	34	34	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	22 allele	homozygous
+HG01550	alu_brca2	ok	carrier	23	10	yes	yes	no	allele realignment	9 allele / 10 reference	heterozygous
+HG01551	tandem126	ok	carrier	23	13	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	11 allele	homozygous
+HG01551	alu_brca2	ok	non-carrier			no	no	no			
+HG01566	tandem126	ok	non-carrier			yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	9 allele	heterozygous
+HG01566	alu_brca2	ok	non-carrier			no	no	no			
+HG01577	tandem126	ok	carrier	9	3	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	5 allele	heterozygous
+HG01577	alu_brca2	ok	carrier	16	4	yes	yes	yes	allele realignment,clipped reads	16 allele / 13 reference	heterozygous
+HG01589	tandem126	ok	carrier	16	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	15 allele	heterozygous
+HG01589	alu_brca2	ok	non-carrier			no	no	no			
+HG01595	tandem126	ok	non-carrier			no	no	no			
+HG01595	alu_brca2	ok	carrier	15	12	yes	yes	yes	allele realignment,clipped reads	15 allele / 17 reference	heterozygous
+HG01608	tandem126	ok	non-carrier			no	no	no			
+HG01608	alu_brca2	ok	non-carrier			no	no	no			
+HG01617	tandem126	ok	carrier	14	9	yes	yes	no	allele realignment,haplotype	4 allele	heterozygous
+HG01617	alu_brca2	ok	non-carrier			no	no	no			
+HG01676	tandem126	ok	carrier	35	17	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	9 allele	heterozygous
+HG01676	alu_brca2	ok	non-carrier			no	no	no			
+HG01694	tandem126	ok	non-carrier			no	no	no			
+HG01694	alu_brca2	ok	non-carrier			no	no	no			
+HG01773	tandem126	ok	carrier	9	5	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	9 allele	heterozygous
+HG01773	alu_brca2	ok	non-carrier			no	no	no			
+HG01779	tandem126	ok	carrier	20	20	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	25 allele	homozygous
+HG01779	alu_brca2	ok	non-carrier			no	no	no			
+HG01786	tandem126	ok	non-carrier			no	no	no			
+HG01786	alu_brca2	ok	non-carrier			no	no	no			
+HG01806	tandem126	ok	carrier	8	4	yes	yes	no	allele realignment,haplotype	9 allele	heterozygous
+HG01806	alu_brca2	ok	non-carrier			no	no	no			
+HG01853	tandem126	ok	non-carrier			no	no	no			
+HG01853	alu_brca2	ok	non-carrier			no	no	no			
+HG01859	tandem126	ok	carrier	20	6	yes	yes	no	allele realignment,marker base,haplotype	7 allele	heterozygous
+HG01859	alu_brca2	ok	carrier	16	9	yes	yes	yes	allele realignment,clipped reads	17 allele / 11 reference	heterozygous
+HG01873	tandem126	ok	carrier	11	4	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	19 allele	heterozygous
+HG01873	alu_brca2	ok	non-carrier			no	no	no			
+HG01923	tandem126	ok	non-carrier			no	no	no			
+HG01923	alu_brca2	ok	carrier	9	3	yes	yes	yes	allele realignment,clipped reads	13 allele / 12 reference	heterozygous
+HG01932	tandem126	ok	carrier	46	19	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	12 allele	heterozygous
+HG01932	alu_brca2	ok	non-carrier			no	no	no			
+HG01935	tandem126	ok	carrier	16	11	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	11 allele	heterozygous
+HG01935	alu_brca2	ok	non-carrier			no	no	no			
+HG01942	tandem126	ok	carrier	8	8	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	21 allele	homozygous
+HG01942	alu_brca2	ok	non-carrier			no	no	no			
+HG01948	tandem126	ok	carrier	12	5	yes	yes	no	allele realignment,marker base,haplotype	12 allele	heterozygous
+HG01948	alu_brca2	ok	non-carrier			no	no	no			
+HG01988	tandem126	ok	non-carrier			no	no	no			
+HG01988	alu_brca2	ok	non-carrier			no	no	no			
+HG01997	tandem126	ok	carrier	6	3	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	12 allele	heterozygous
+HG01997	alu_brca2	ok	non-carrier			no	no	no			
+HG02017	tandem126	ok	carrier	16	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	13 allele	heterozygous
+HG02017	alu_brca2	ok	non-carrier			no	no	no			
+HG02031	tandem126	ok	non-carrier			no	no	no			
+HG02031	alu_brca2	ok	carrier	9	3	yes	yes	yes	allele realignment,clipped reads	16 allele / 12 reference	heterozygous
+HG02064	tandem126	ok	non-carrier			no	no	no			
+HG02064	alu_brca2	ok	non-carrier			no	no	no			
+HG02067	tandem126	ok	non-carrier			no	no	no			
+HG02067	alu_brca2	ok	non-carrier			no	no	no			
+HG02069	tandem126	ok	carrier	6	3	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	10 allele	heterozygous
+HG02069	alu_brca2	ok	non-carrier			no	no	no			
+HG02111	tandem126	ok	carrier	20	10	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	18 allele	heterozygous
+HG02111	alu_brca2	ok	non-carrier			no	no	no			
+HG02128	tandem126	ok	carrier	35	13	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	11 allele	heterozygous
+HG02128	alu_brca2	ok	non-carrier			no	no	no			
+HG02156	tandem126	ok	carrier	8	8	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	21 allele	homozygous
+HG02156	alu_brca2	ok	non-carrier			no	no	no			
+HG02180	tandem126	ok	carrier	33	19	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	13 allele	heterozygous
+HG02180	alu_brca2	ok	non-carrier			no	no	no			
+HG02182	tandem126	ok	non-carrier			no	no	no			
+HG02182	alu_brca2	ok	non-carrier			no	no	no			
+HG02184	tandem126	ok	carrier	18	9	yes	yes	no	allele realignment,marker base,haplotype	9 allele	heterozygous
+HG02184	alu_brca2	ok	non-carrier			no	no	no			
+HG02224	tandem126	ok	carrier	13	6	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	12 allele	heterozygous
+HG02224	alu_brca2	ok	non-carrier			no	no	no			
+HG02277	tandem126	ok	carrier	33	14	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	8 allele	heterozygous
+HG02277	alu_brca2	ok	non-carrier			no	no	no			
+HG02285	tandem126	ok	carrier	11	6	yes	yes	no	allele realignment,marker base,haplotype	5 allele	heterozygous
+HG02285	alu_brca2	ok	non-carrier			no	no	no			
+HG02410	tandem126	ok	non-carrier			no	no	no			
+HG02410	alu_brca2	ok	non-carrier			no	no	no			
+HG02429	tandem126	ok	non-carrier			no	no	no			
+HG02429	alu_brca2	ok	non-carrier			no	no	no			
+HG02445	tandem126	ok	non-carrier			no	no	no			
+HG02445	alu_brca2	ok	non-carrier			no	no	no			
+HG02496	tandem126	ok	carrier	33	20	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	8 allele	heterozygous
+HG02496	alu_brca2	ok	non-carrier			no	no	no			
+HG02522	tandem126	ok	carrier	15	6	yes	yes	no	allele realignment,marker base,haplotype	7 allele	heterozygous
+HG02522	alu_brca2	ok	non-carrier			no	no	no			
+HG02611	tandem126	ok	non-carrier			no	no	no			
+HG02611	alu_brca2	ok	non-carrier			no	no	no			
+HG02657	tandem126	ok	non-carrier			no	no	no			
+HG02657	alu_brca2	ok	non-carrier			no	no	no			
+HG02688	tandem126	ok	carrier	17	17	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	31 allele	homozygous
+HG02688	alu_brca2	ok	non-carrier			no	no	no			
+HG02721	tandem126	ok	carrier	17	9	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	8 allele	heterozygous
+HG02721	alu_brca2	ok	carrier	18	14	yes	yes	no	allele realignment	17 allele / 18 reference	heterozygous
+HG02728	tandem126	ok	carrier	11	8	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	17 allele	heterozygous
+HG02728	alu_brca2	ok	non-carrier			no	no	no			
+HG02737	tandem126	ok	carrier	21	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	9 allele	heterozygous
+HG02737	alu_brca2	ok	non-carrier			no	no	no			
+HG02768	tandem126	ok	non-carrier			no	no	no			
+HG02768	alu_brca2	ok	non-carrier			no	no	no			
+HG02789	tandem126	ok	carrier	8	4	yes	yes	no	allele realignment,marker base,haplotype	8 allele	heterozygous
+HG02789	alu_brca2	ok	non-carrier			no	no	no			
+HG02895	tandem126	ok	carrier	10	5	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	12 allele	heterozygous
+HG02895	alu_brca2	ok	non-carrier			no	no	no			
+HG02938	tandem126	ok	non-carrier			no	no	no			
+HG02938	alu_brca2	ok	non-carrier			no	no	no			
+HG02944	tandem126	ok	non-carrier			no	no	no			
+HG02944	alu_brca2	ok	non-carrier			no	no	no			
+HG02970	tandem126	ok	carrier	8	8	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	19 allele	homozygous
+HG02970	alu_brca2	ok	non-carrier			no	no	no			
+HG02976	tandem126	ok	carrier	41	21	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	15 allele	heterozygous
+HG02976	alu_brca2	ok	non-carrier			no	no	no			
+HG03009	tandem126	ok	carrier	36	17	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	12 allele	heterozygous
+HG03009	alu_brca2	ok	non-carrier			no	no	no			
+HG03048	tandem126	ok	non-carrier			no	no	no			
+HG03048	alu_brca2	ok	non-carrier			no	no	no			
+HG03074	tandem126	ok	non-carrier			no	no	no			
+HG03074	alu_brca2	ok	non-carrier			no	no	no			
+HG03086	tandem126	ok	carrier	18	18	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	20 allele	homozygous
+HG03086	alu_brca2	ok	non-carrier			no	no	no			
+HG03097	tandem126	ok	non-carrier			no	no	no			
+HG03097	alu_brca2	ok	non-carrier			no	no	no			
+HG03111	tandem126	ok	carrier	34	18	yes	yes	no	allele realignment,haplotype	6 allele	heterozygous
+HG03111	alu_brca2	ok	non-carrier			no	no	no			
+HG03114	tandem126	ok	non-carrier			no	no	no			
+HG03114	alu_brca2	ok	non-carrier			no	no	no			
+HG03212	tandem126	ok	non-carrier			no	no	no			
+HG03212	alu_brca2	ok	non-carrier			no	no	no			
+HG03228	tandem126	ok	carrier	17	4	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	8 allele	heterozygous
+HG03228	alu_brca2	ok	non-carrier			no	no	no			
+HG03240	tandem126	ok	non-carrier			no	no	no			
+HG03240	alu_brca2	ok	non-carrier			no	no	no			
+HG03247	tandem126	ok	carrier	8	2	yes	yes	no	allele realignment,marker base,haplotype	5 allele	heterozygous
+HG03247	alu_brca2	ok	non-carrier			no	no	no			
+HG03311	tandem126	ok	non-carrier			no	no	no			
+HG03311	alu_brca2	ok	non-carrier			no	no	no			
+HG03372	tandem126	ok	non-carrier			no	no	no			
+HG03372	alu_brca2	ok	non-carrier			no	no	no			
+HG03388	tandem126	ok	non-carrier			no	no	no			
+HG03388	alu_brca2	ok	non-carrier			no	no	no			
+HG03437	tandem126	ok	non-carrier			no	no	no			
+HG03437	alu_brca2	ok	non-carrier			no	no	no			
+HG03439	tandem126	ok	carrier	21	13	yes	yes	no	allele realignment,haplotype	5 allele	heterozygous
+HG03439	alu_brca2	ok	non-carrier			no	no	no			
+HG03442	tandem126	ok	carrier	14	14	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	19 allele	homozygous
+HG03442	alu_brca2	ok	non-carrier			no	no	no			
+HG03461	tandem126	ok	carrier	14	6	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	7 allele	heterozygous
+HG03461	alu_brca2	ok	non-carrier			no	no	no			
+HG03499	tandem126	ok	carrier	17	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	9 allele	heterozygous
+HG03499	alu_brca2	ok	non-carrier			no	no	no			
+HG03518	tandem126	ok	non-carrier			no	no	no			
+HG03518	alu_brca2	ok	non-carrier			no	no	no			
+HG03548	tandem126	ok	carrier	20	10	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	12 allele	heterozygous
+HG03548	alu_brca2	ok	non-carrier			no	no	no			
+HG03577	tandem126	ok	non-carrier			no	no	no			
+HG03577	alu_brca2	ok	non-carrier			no	no	no			
+HG03593	tandem126	ok	carrier	22	22	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	14 allele	homozygous
+HG03593	alu_brca2	ok	non-carrier			no	no	no			
+HG03600	tandem126	ok	carrier	9	2	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	10 allele	heterozygous
+HG03600	alu_brca2	ok	non-carrier			no	no	no			
+HG03708	tandem126	ok	carrier	7	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	26 allele	homozygous
+HG03708	alu_brca2	ok	non-carrier			no	no	no			
+HG03722	tandem126	ok	carrier	10	10	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	20 allele	homozygous
+HG03722	alu_brca2	ok	non-carrier			no	no	no			
+HG03730	tandem126	ok	carrier	13	7	yes	yes	no	allele realignment,haplotype	8 allele	heterozygous
+HG03730	alu_brca2	ok	non-carrier			no	no	no			
+HG03742	tandem126	ok	carrier	19	11	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	11 allele	heterozygous
+HG03742	alu_brca2	ok	non-carrier			no	no	no			
+HG03746	tandem126	ok	non-carrier			no	no	no			
+HG03746	alu_brca2	ok	non-carrier			no	no	no			
+HG03780	tandem126	ok	carrier	18	11	yes	yes	no	allele realignment,marker base,haplotype	6 allele	heterozygous
+HG03780	alu_brca2	ok	carrier	11	3	yes	yes	yes	allele realignment,clipped reads	16 allele / 15 reference	heterozygous
+HG03781	tandem126	ok	non-carrier			no	no	no			
+HG03781	alu_brca2	ok	non-carrier			no	no	no			
+HG03784	tandem126	ok	non-carrier			no	no	no			
+HG03784	alu_brca2	ok	carrier	27	16	yes	yes	yes	allele realignment,clipped reads	15 allele / 17 reference	heterozygous
+HG03793	tandem126	ok	carrier	10	3	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	14 allele	heterozygous
+HG03793	alu_brca2	ok	non-carrier			no	no	no			
+HG03802	tandem126	ok	non-carrier			no	no	no			
+HG03802	alu_brca2	ok	non-carrier			no	no	no			
+HG03821	tandem126	ok	non-carrier			no	no	no			
+HG03821	alu_brca2	ok	non-carrier			no	no	no			
+HG03836	tandem126	ok	carrier	21	14	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	13 allele	heterozygous
+HG03836	alu_brca2	ok	non-carrier			no	no	no			
+HG03844	tandem126	ok	non-carrier			no	no	no			
+HG03844	alu_brca2	ok	carrier	4	2	yes	yes	no	allele realignment	6 allele / 18 reference	heterozygous
+HG03848	tandem126	ok	carrier	9	9	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	19 allele	homozygous
+HG03848	alu_brca2	ok	non-carrier			no	no	no			
+HG03870	tandem126	ok	carrier	14	13	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	29 allele	homozygous
+HG03870	alu_brca2	ok	non-carrier			no	no	no			
+HG03871	tandem126	ok	carrier	11	11	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	14 allele	homozygous
+HG03871	alu_brca2	ok	non-carrier			no	no	no			
+HG03888	tandem126	ok	carrier	15	15	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	20 allele	homozygous
+HG03888	alu_brca2	ok	non-carrier			no	no	no			
+HG03904	tandem126	ok	carrier	20	20	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	22 allele	homozygous
+HG03904	alu_brca2	ok	carrier	15	7	yes	yes	yes	allele realignment,clipped reads	14 allele / 19 reference	heterozygous
+HG03973	tandem126	ok	carrier	15	15	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	23 allele	homozygous
+HG03973	alu_brca2	ok	non-carrier			no	no	no			
+HG04014	tandem126	ok	carrier	8	8	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	16 allele	homozygous
+HG04014	alu_brca2	ok	non-carrier			no	no	no			
+HG04147	tandem126	ok	carrier	18	5	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	8 allele	heterozygous
+HG04147	alu_brca2	ok	non-carrier			no	no	no			
+HG04177	tandem126	ok	non-carrier			no	no	no			
+HG04177	alu_brca2	ok	carrier	15	6	yes	yes	yes	allele realignment,clipped reads	19 allele / 20 reference	heterozygous
+HG04180	tandem126	ok	carrier	19	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	12 allele	heterozygous
+HG04180	alu_brca2	ok	carrier	14	7	yes	yes	yes	allele realignment,clipped reads	13 allele / 13 reference	heterozygous
+HG04200	tandem126	ok	carrier	19	12	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	14 allele	heterozygous
+HG04200	alu_brca2	ok	non-carrier			no	no	no			
+HG04227	tandem126	ok	carrier	15	5	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	11 allele	heterozygous
+HG04227	alu_brca2	ok	non-carrier			no	no	no			
+NA06989	tandem126	ok	non-carrier			no	no	no			
+NA06989	alu_brca2	ok	non-carrier			no	no	no			
+NA07014	tandem126	ok	carrier	13	8	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	13 allele	heterozygous
+NA07014	alu_brca2	ok	non-carrier			no	no	no			
+NA10859	tandem126	ok	carrier	5	3	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	10 allele	heterozygous
+NA10859	alu_brca2	ok	non-carrier			no	no	no			
+NA12890	tandem126	ok	non-carrier			no	no	no			
+NA12890	alu_brca2	ok	non-carrier			no	no	no			
+NA18520	tandem126	ok	carrier	11	6	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	13 allele	heterozygous
+NA18520	alu_brca2	ok	non-carrier			no	no	no			
+NA18528	tandem126	ok	carrier	12	10	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	11 allele	heterozygous
+NA18528	alu_brca2	ok	non-carrier			no	no	no			
+NA18544	tandem126	ok	non-carrier			no	no	no			
+NA18544	alu_brca2	ok	non-carrier			no	no	no			
+NA18552	tandem126	ok	carrier	9	5	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	13 allele	heterozygous
+NA18552	alu_brca2	ok	carrier	7	4	yes	yes	no	allele realignment	15 allele / 14 reference	heterozygous
+NA18565	tandem126	ok	non-carrier			no	no	no			
+NA18565	alu_brca2	ok	non-carrier			no	no	no			
+NA18570	tandem126	ok	carrier	17	16	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	22 allele	homozygous
+NA18570	alu_brca2	ok	non-carrier			no	no	no			
+NA18592	tandem126	ok	carrier	13	6	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	13 allele	heterozygous
+NA18592	alu_brca2	ok	carrier	15	8	yes	yes	yes	allele realignment,clipped reads	14 allele / 13 reference	heterozygous
+NA18595	tandem126	ok	non-carrier			no	no	no			
+NA18595	alu_brca2	ok	non-carrier			no	no	no			
+NA18868	tandem126	ok	carrier	14	6	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	17 allele	heterozygous
+NA18868	alu_brca2	ok	non-carrier			no	no	no			
+NA18940	tandem126	ok	non-carrier			yes	yes	no	allele realignment,haplotype	6 allele	heterozygous
+NA18940	alu_brca2	ok	non-carrier			no	no	no			
+NA18941	tandem126	ok	non-carrier			no	no	no			
+NA18941	alu_brca2	ok	carrier	25	9	yes	yes	yes	allele realignment,clipped reads	12 allele / 11 reference	heterozygous
+NA18947	tandem126	ok	carrier	9	7	yes	yes	no	allele realignment,marker base,haplotype	10 allele	heterozygous
+NA18947	alu_brca2	ok	non-carrier			no	no	no			
+NA18953	tandem126	ok	non-carrier			no	no	no			
+NA18953	alu_brca2	ok	non-carrier			no	no	no			
+NA18960	tandem126	ok	carrier	13	9	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	10 allele	heterozygous
+NA18960	alu_brca2	ok	non-carrier			no	no	no			
+NA18965	tandem126	ok	non-carrier			no	no	no			
+NA18965	alu_brca2	ok	carrier	19	9	yes	yes	yes	allele realignment,clipped reads	23 allele / 18 reference	heterozygous
+NA19001	tandem126	ok	carrier	10	9	yes	yes	no	allele realignment,marker base,haplotype	8 allele	heterozygous
+NA19001	alu_brca2	ok	carrier	6	2	yes	yes	yes	allele realignment,clipped reads	11 allele / 10 reference	heterozygous
+NA19003	tandem126	ok	carrier	11	5	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	7 allele	heterozygous
+NA19003	alu_brca2	ok	non-carrier			no	no	no			
+NA19017	tandem126	ok	non-carrier			no	no	no			
+NA19017	alu_brca2	ok	non-carrier			no	no	no			
+NA19043	tandem126	ok	carrier	9	9	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	20 allele	homozygous
+NA19043	alu_brca2	ok	non-carrier			no	no	no			
+NA19128	tandem126	ok	non-carrier			no	no	no			
+NA19128	alu_brca2	ok	non-carrier			no	no	no			
+NA19144	tandem126	ok	non-carrier			no	no	no			
+NA19144	alu_brca2	ok	non-carrier			no	no	no			
+NA19153	tandem126	ok	non-carrier			no	no	no			
+NA19153	alu_brca2	ok	non-carrier			no	no	no			
+NA19207	tandem126	ok	carrier	9	4	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	5 allele	heterozygous
+NA19207	alu_brca2	ok	non-carrier			no	no	no			
+NA19351	tandem126	ok	non-carrier			no	no	no			
+NA19351	alu_brca2	ok	non-carrier			no	no	no			
+NA19385	tandem126	ok	non-carrier			no	no	no			
+NA19385	alu_brca2	ok	non-carrier			no	no	no			
+NA19391	tandem126	ok	non-carrier			no	no	no			
+NA19391	alu_brca2	ok	non-carrier			no	no	no			
+NA19393	tandem126	ok	carrier	10	3	yes	yes	no	allele realignment,marker base,haplotype	4 allele	heterozygous
+NA19393	alu_brca2	ok	non-carrier			no	no	no			
+NA19449	tandem126	ok	non-carrier			no	no	no			
+NA19449	alu_brca2	ok	non-carrier			no	no	no			
+NA19734	tandem126	ok	carrier	7	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	17 allele	heterozygous
+NA19734	alu_brca2	ok	carrier	17	7	yes	yes	yes	allele realignment,clipped reads	11 allele / 17 reference	heterozygous
+NA19789	tandem126	ok	non-carrier			yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	13 allele	heterozygous
+NA19789	alu_brca2	ok	non-carrier			no	no	no			
+NA19818	tandem126	ok	carrier	13	8	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	10 allele	heterozygous
+NA19818	alu_brca2	ok	non-carrier			no	no	no			
+NA19819	tandem126	ok	carrier	21	8	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	9 allele	heterozygous
+NA19819	alu_brca2	ok	non-carrier			no	no	no			
+NA19900	tandem126	ok	carrier	20	11	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	11 allele	heterozygous
+NA19900	alu_brca2	ok	carrier	10	6	yes	yes	yes	allele realignment,clipped reads	10 allele / 14 reference	heterozygous
+NA19909	tandem126	ok	carrier	21	12	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	7 allele	heterozygous
+NA19909	alu_brca2	ok	non-carrier			no	no	no			
+NA20278	tandem126	ok	non-carrier			no	no	no			
+NA20278	alu_brca2	ok	non-carrier			no	no	no			
+NA20289	tandem126	ok	carrier	17	6	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	15 allele	heterozygous
+NA20289	alu_brca2	ok	non-carrier			no	no	no			
+NA20298	tandem126	ok	non-carrier			no	no	no			
+NA20298	alu_brca2	ok	non-carrier			no	no	no			
+NA20348	tandem126	ok	carrier	17	9	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	10 allele	heterozygous
+NA20348	alu_brca2	ok	non-carrier			no	no	no			
+NA20357	tandem126	ok	carrier	20	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	8 allele	heterozygous
+NA20357	alu_brca2	ok	non-carrier			no	no	no			
+NA20359	tandem126	ok	carrier	11	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	8 allele	heterozygous
+NA20359	alu_brca2	ok	non-carrier			no	no	no			
+NA20530	tandem126	ok	non-carrier			no	no	no			
+NA20530	alu_brca2	ok	non-carrier			no	no	no			
+NA20540	tandem126	ok	carrier	11	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	13 allele	heterozygous
+NA20540	alu_brca2	ok	non-carrier			no	no	no			
+NA20761	tandem126	ok	carrier	15	5	yes	yes	no	allele realignment,marker base,haplotype	7 allele	heterozygous
+NA20761	alu_brca2	ok	non-carrier			no	no	no			
+NA20764	tandem126	ok	non-carrier			no	no	no			
+NA20764	alu_brca2	ok	non-carrier			no	no	no			
+NA20775	tandem126	ok	non-carrier			no	no	no			
+NA20775	alu_brca2	ok	non-carrier			no	no	no			
+NA20813	tandem126	ok	carrier	12	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	13 allele	heterozygous
+NA20813	alu_brca2	ok	non-carrier			no	no	no			
+NA20846	tandem126	ok	carrier	27	13	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	12 allele	heterozygous
+NA20846	alu_brca2	ok	non-carrier			no	no	no			
+NA20888	tandem126	ok	non-carrier			no	no	no			
+NA20888	alu_brca2	ok	carrier	37	16	yes	yes	yes	allele realignment,clipped reads	14 allele / 16 reference	heterozygous
+NA20896	tandem126	ok	non-carrier			no	no	no			
+NA20896	alu_brca2	ok	non-carrier			no	no	no			
+NA21103	tandem126	ok	carrier	32	32	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	27 allele	homozygous
+NA21103	alu_brca2	ok	non-carrier			no	no	no			
+NA21114	tandem126	ok	carrier	20	20	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	14 allele	homozygous
+NA21114	alu_brca2	ok	non-carrier			no	no	no			
+NA21117	tandem126	ok	carrier	13	7	yes	yes	yes	allele realignment,clipped reads,marker base,haplotype	7 allele	heterozygous
+NA21117	alu_brca2	ok	non-carrier			no	no	no			
