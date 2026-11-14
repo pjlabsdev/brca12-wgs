@@ -1,0 +1,13 @@
+panel 80 eval samples 20 min_q 10
+simulated events (simulated, not patient samples): {'cohort': {'tp': 305, 'exact': 297, 'fn': 55}, 'baseline': {'tp': 342, 'fn': 18}}
+  DEL1   n= 40 cohort  36 (exact  36)  current rule  34
+  DEL2   n= 40 cohort  39 (exact  38)  current rule  39
+  DEL3   n= 40 cohort  40 (exact  40)  current rule  40
+  DEL5   n= 40 cohort  39 (exact  39)  current rule  40
+  DELall n= 40 cohort  40 (exact  38)  current rule  40
+  DUP1   n= 40 cohort   9 (exact   9)  current rule  30
+  DUP2   n= 40 cohort  31 (exact  29)  current rule  40
+  DUP3   n= 40 cohort  32 (exact  29)  current rule  39
+  PSEUDO_DEL n= 20 cohort  20 (exact  20)  current rule  20
+  PSEUDO_DUP n= 20 cohort  19 (exact  19)  current rule  20
+false calls: {'cohort_null_calls': 0, 'baseline_null_hints': 28, 'null_samples': 20, 'cohort_other_gene_calls': 0}

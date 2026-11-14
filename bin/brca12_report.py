@@ -93,6 +93,17 @@ def add_exon_event_codes(event, kind, labels):
         event.setdefault("flags", []).append(f"ENIGMA Tabelle 4 (falls bestätigt): {text}")
 
 
+def load_exon_cnv(path):
+    """exon_cnv.json from brca12_exon_cnv.py; missing or disabled -> {"enabled": False, "calls": []}."""
+    if not path or not os.path.exists(path):
+        return {"enabled": False, "reason": "not run", "calls": [], "exons": []}
+    with open(path) as handle:
+        data = json.load(handle)
+    data.setdefault("calls", [])
+    data.setdefault("exons", [])
+    return data
+
+
 ASSAY_LIMITATIONS = {
     "exome": ("Exom-/Panel-Daten (Hybrid-Capture): Introns und Promotor sind nur am Rand der Ziele abgedeckt; CNVs aus CNVkit hybrid mit flacher Referenz sind ohne --cnv_reference (Normalproben derselben Methode) unsicher; Manta läuft im Exom-Modus.",
               "Exome/panel data (hybrid capture): introns and the promoter are covered only at the edges of the targets; CNVs from CNVkit hybrid with a flat reference are unreliable without --cnv_reference (normal samples of the same assay); Manta runs in exome mode."),
@@ -167,6 +178,10 @@ def build(args):
     dosage_hints = structural.exon_dosage_hints(exons)
     for item in dosage_hints:
         add_exon_event_codes(item, "DEL" if item["type"] == "möglicher Verlust" else "DUP", [item["exon"]])
+    exon_cnv = load_exon_cnv(args.exon_cnv)
+    for item in exon_cnv["calls"]:
+        item["flags"] = [f"Exon-Kohorte: Qualität {item['quality']}, mittlere log2-Abweichung {item['meanLog2Deviation']}"]
+        add_exon_event_codes(item, "DEL" if item["type"] == "Deletion" else "DUP", item["affectedExons"])
     svs = structural.structural_variants(args.sv, regions, exons)
     mosaic_paths = dict(item.split("=", 1) for item in args.mosaic)
     germline = [v for g in genes.values() for v in g["smallVariants"]]
@@ -214,6 +229,7 @@ def build(args):
         "cnvs": [c for c in cnvs if c["type"] != "kein Hinweis"],
         "cnvSegmentsChecked": len(cnvs),
         "exonDosageHints": dosage_hints,
+        "exonCopyNumber": exon_cnv,
         "svs": svs,
         "insertionSignals": structural.insertion_signals(args.insertion_signals, exons),
         "toolVersions": versions,
@@ -247,13 +263,15 @@ def summarize(result):
         "lossOfFunctionCandidateCount": len(lof),
         "cnvCandidateCount": len(result["cnvs"]),
         "exonDosageHintCount": len(result["exonDosageHints"]),
+        "exonCopyNumberCallCount": len(result["exonCopyNumber"]["calls"]),
         "svCount": len(result["svs"]),
         "insertionSignalCount": len(result["insertionSignals"]),
         "mosaicCandidateCount": len(result.get("mosaicCandidates", [])),
         "readQCFlagCount": len((result.get("readQC") or {}).get("flags", [])),
         "uncertainExonCount": sum(1 for e in result["exonCoverage"] if e["status"] != "ok"),
         "lowCoverageIntervalCount": len(result["lowCoverageIntervals"]),
-        "needsAttention": bool(clinvar_plp or lof or result["cnvs"] or result["svs"] or result["insertionSignals"]
+        "needsAttention": bool(clinvar_plp or lof or result["cnvs"] or result["exonCopyNumber"]["calls"]
+                               or result["svs"] or result["insertionSignals"]
                                or result.get("mosaicCandidates")),
     }
 
@@ -266,6 +284,7 @@ def main(argv=None):
         p.add_argument(f"--{name}", required=True)
     p.add_argument("--small", action="append", default=[])
     p.add_argument("--insertion-signals", default=None)
+    p.add_argument("--exon-cnv", default=None, help="exon_cnv.json from brca12_exon_cnv.py")
     p.add_argument("--snv-caller", default="haplotypecaller")
     p.add_argument("--assay", choices=("wgs", "exome", "panel", "amplicon"), default="wgs")
     p.add_argument("--read-qc", default=None, help="read_qc.json from brca12_read_qc.py")

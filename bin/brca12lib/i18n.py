@@ -145,6 +145,8 @@ EXACT = {
 }
 
 PATTERNS = [
+    (re.compile(r"^Exon-Kohorte: Qualität (\d+), mittlere log2-Abweichung (.+)$"),
+     r"exon cohort: quality \1, mean log2 deviation \2"),
     (re.compile(r"^hoher Duplikatanteil \((.+) %\)$"), r"high duplicate fraction (\1%)"),
     (re.compile(r"^geringer Anteil kartierter Reads \((.+) %\)$"), r"low fraction of mapped reads (\1%)"),
     (re.compile(r"^hohe Fehlerrate \((.+) %\)$"), r"high error rate (\1%)"),
@@ -314,6 +316,8 @@ EXACT_RU = {
 }
 
 PATTERNS_RU = [
+    (re.compile(r"^Exon-Kohorte: Qualität (\d+), mittlere log2-Abweichung (.+)$"),
+     r"когорта экзонов: качество \1, среднее отклонение log2 \2"),
     (re.compile(r"^hoher Duplikatanteil \((.+) %\)$"), r"высокая доля дубликатов (\1 %)"),
     (re.compile(r"^geringer Anteil kartierter Reads \((.+) %\)$"), r"низкая доля картированных ридов (\1 %)"),
     (re.compile(r"^hohe Fehlerrate \((.+) %\)$"), r"высокая частота ошибок (\1 %)"),
