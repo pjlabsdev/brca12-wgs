@@ -57,7 +57,7 @@ params.cnvkit    = 'cnvkit.py'
 params.vep       = 'vep'
 params.mosdepth  = 'mosdepth'
 params.python    = 'python3'
-params.report_lang = 'en'      // language of brca12_report.html/.md: en or de
+params.report_lang = 'en'      // language of brca12_report.html/.md: en, de or ru
 
 def requireParam(name) {
     if (!params[name]) { error "Parameter --${name} is missing (see README.md)." }
@@ -391,6 +391,27 @@ process REPORT {
     """
 }
 
+process REPORT_PDF {
+    // Optional PDF of the HTML report (--report_pdf), printed with headless Chrome/Chromium
+    // (--chrome); skipped with a note when none is available.
+    tag "${params.sample}"
+    publishDir "${params.outdir}", mode: 'copy'
+
+    when:
+    params.report_pdf
+
+    input:
+    path report_html
+
+    output:
+    path 'brca12_report.pdf', optional: true
+
+    script:
+    """
+    bash ${projectDir}/bin/brca12_pdf.sh ${report_html} brca12_report.pdf '${params.chrome ?: ''}'
+    """
+}
+
 workflow {
     requireParam('reference')
     requireParam('vep_cache')
@@ -445,4 +466,5 @@ workflow {
            ann.brca1, ann.brca2, sv.vcf.map { it[0] }, cnv.cns, cnv.cnr,
            cov.q20, cov.thresholds, cov.q0, cov.perbase, cov.chrom_median, cov.insertion,
            versions.versions, commands, evidence_files)
+    REPORT_PDF(REPORT.out[0])
 }

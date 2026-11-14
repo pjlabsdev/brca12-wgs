@@ -74,6 +74,18 @@ chr13:32315077-32400268 (plus strand). Exons: MANE Select ENST00000357654 / NM_0
 BRCA1 also shows the legacy numbering without exon 4) and ENST00000380152 / NM_000059.4 (27 exons),
 generated from Ensembl with `bin/brca12_make_exons.py`.
 
+## Report languages and PDF
+
+`--report_lang en|de|ru` sets the language of the HTML and Markdown report. **The Russian version is
+a machine-assisted translation that has not been reviewed by a native speaker**; the texts of the
+individual ACMG/AMP hints stay in English there. The JSON keeps German values (stable schema) and
+carries the disclaimer and limitations in all three languages.
+
+`--report_pdf` also writes `brca12_report.pdf`, printed from the HTML report with headless
+Chrome/Chromium (`--chrome /path/to/chrome`, otherwise searched on `PATH` and in the usual macOS
+locations). Without a browser the step is skipped with a note in the log. The PDF has A4 pages,
+a header with sample name and RUO note and page numbers.
+
 ## Flagging uncertain results
 
 - Exon **uncertain** if mean depth < 20x, fewer than 95 % of bases ≥ 20x, or more than 10 % of reads

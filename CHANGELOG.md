@@ -2,6 +2,10 @@
 
 ## Unreleased (1.1.0)
 
+- Russian report language (`--report_lang ru`; machine-assisted, not reviewed by a native speaker).
+- Optional PDF report (`--report_pdf`, `--chrome`): the HTML report printed with headless
+  Chrome/Chromium, A4 with header (sample, RUO) and page numbers; skipped with a note when no
+  browser is available.
 - ACMG/AMP hints now follow the ClinGen ENIGMA BRCA1/BRCA2 specifications v1.2:
   - BA1, BS1 and the new BS1_Supporting use the filtering allele frequency of gnomAD non-cancer
     non-founder populations (`--gnomad_exomes_vcf`, `--gnomad_genomes_vcf`). Without these files

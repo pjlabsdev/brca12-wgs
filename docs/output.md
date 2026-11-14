@@ -35,3 +35,8 @@ downstream parsers do not depend on the report language. Main fields:
 | `toolVersions` | versions that actually ran |
 | `summary` | counts and `needsAttention` |
 | `limitations`, `limitationsEN` | known limits of the method |
+
+## PDF and languages
+
+- `brca12_report.pdf` (only with `--report_pdf` and an available Chrome/Chromium).
+- JSON `disclaimer{de, en, ru}`, `limitations` (German), `limitationsEN`, `limitationsRU`.

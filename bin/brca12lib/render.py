@@ -14,8 +14,14 @@ DISCLAIMER_EN = ("Research use only (RUO). These results must not be interpreted
                  "result does not rule out a hereditary BRCA1/BRCA2 predisposition.")
 
 
+DISCLAIMER_RU = ("Только для исследований (RUO). Эти результаты нельзя интерпретировать в медицинских целях без "
+                 "клинически валидированного подтверждения (аккредитованная лаборатория, например секвенирование по "
+                 "Сэнгеру или MLPA). Указания ACMG/AMP являются автоматическими подсказками по отдельным критериям, "
+                 "а не классификацией. Отсутствие находок не исключает наследственную предрасположенность BRCA1/BRCA2.")
+
+
 def disclaimer(lang):
-    return DISCLAIMER_DE if lang == "de" else DISCLAIMER_EN
+    return {"de": DISCLAIMER_DE, "ru": DISCLAIMER_RU}.get(lang, DISCLAIMER_EN)
 
 
 def _table(headers, rows, lang):
@@ -67,7 +73,11 @@ def sections(result, lang="en"):
 
 
 def _limitations(result, lang):
-    return result["limitations"] if lang == "de" else result.get("limitationsEN", result["limitations"])
+    if lang == "de":
+        return result["limitations"]
+    if lang == "ru" and result.get("limitationsRU"):
+        return result["limitationsRU"]
+    return result.get("limitationsEN", result["limitations"])
 
 
 def markdown(result, lang="en"):
@@ -98,6 +108,9 @@ def markdown(result, lang="en"):
 
 
 CSS = """
+@page{size:A4;margin:16mm 12mm}
+@media print{body{margin:0;max-width:none;font-size:10px;background:#fff;color:#1d1d1f} h2{break-after:avoid} .report-figure,table{break-inside:avoid-page} table{break-inside:auto} tr{break-inside:avoid} thead{display:table-header-group} .disclaimer{break-inside:avoid;background:#fff8ec}}
+
 body{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:#1d1d1f;margin:32px;max-width:1200px}
 h1{font-weight:500;font-size:20px} h2{font-weight:500;font-size:15px;margin-top:28px}
 .disclaimer{border:1px solid #c7c7cc;border-left:4px solid #ff9500;background:#fff8ec;padding:10px 14px;border-radius:8px}
@@ -112,7 +125,7 @@ def html_report(result, lang="en"):
     esc = html.escape
     uncertain = tr("unsicher", lang)
     parts = [f"<!DOCTYPE html><html lang='{lang}'><head><meta charset='utf-8'>"
-             f"<title>{esc(ui('title', lang))} · {esc(result['sample'])}</title>",
+             f"<title>{esc(ui('title', lang))} · {esc(result['sample'])} · RUO</title>",
              f"<style>{CSS}</style></head><body>",
              f"<h1>{esc(ui('title', lang))} · {esc(result['sample'])}</h1>",
              f"<p class='disclaimer'><strong>{esc(ui('important', lang))}:</strong> {esc(disclaimer(lang))}</p>",
