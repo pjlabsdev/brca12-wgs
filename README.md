@@ -261,7 +261,8 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
   well, and 2 of the 3 signals are required (tuning set: 24 of 25 carriers, 0 of 25 non-carriers;
   independent set: 67 of 67 carriers, 1 of 53 non-carriers); together with allele realignment it
   found 116 of 116 carriers in a preregistered test (4 calls in 84 non-carriers with thin long-read
-  coverage). Realignment needs the allele sequence and covers three known alleles so far. Other tandem
+  coverage). Realignment needs the allele sequence and covers six known alleles so far, three of them pathogenic
+  founder rearrangements (simulated carriers only, see below). Other tandem
   copies rely on clipped reads
   alone and can be missed at low depth. Indel lengths in long homopolymers can differ from
   assembly-based truth (BRCA1 3' UTR poly-T).
@@ -381,6 +382,14 @@ long-read carriers (4 calls in 84 non-carriers, all with 3 to 6 spanning long re
 insertion in 25 of 25 carriers with no call in 175 non-carriers and the right genotype in 25 of 25.
 Read-end signatures alone found 97 of 116 and 19 of 25. A registered addendum added the 980 bp
 BRCA1 intronic deletion: 10 of 10 carriers, no call in 198 non-carriers, genotype 10 of 10.
+Three pathogenic founder rearrangements with published base-pair breakpoints are in the same
+catalog and are flagged as pathogenic in the report: BRCA2 c.156_157insAlu, the BRCA1 exon 13
+duplication and the Dutch BRCA1 exon 13 deletion of 3,835 bp. No carrier genome is public, so the
+preregistered tests use simulated carriers in real HG002 reads at about 30x, 15x and 10x, and 200
+real 1000 Genomes genomes as non-carriers (`validation/pathogenic/founder/`): c.156_157insAlu 89 of
+90 (Manta on the same reads 5 of 90), exon 13 deletion 29 of 30 (Manta 27 of 30), exon 13
+duplication 9 of 30 in the frozen test and 58 of 60 in a registered confirmation after a fix
+(Manta 37 of 60); no call in 24 to 27 simulated and 200 real non-carriers per allele.
 Paragraph, given the same allele sequences and reads, found 114 of 116 (102 with PASS) and 23 of 25
 (12 with PASS) and called the same 4 long-read non-carriers (`validation/longread/paragraph/`). ExpansionHunter v5 with a locus definition
 for the tandem copy found 14 of 19 HPRC carriers and 54 of 64 independent carriers.

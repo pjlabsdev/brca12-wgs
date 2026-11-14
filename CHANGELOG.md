@@ -38,6 +38,14 @@
   intronic deletion (registered addendum: 10/10 carriers, 0/198 non-carriers, genotype 10/10).
   Head-to-head on the same reads: ExpansionHunter v5 14/19 HPRC and 54/64 independent carriers of
   the tandem copy; Paragraph 114/116 and 23/25 (PASS 102 and 12), same 4 non-carrier calls.
+- Pathogenic founder rearrangements in the known-allele catalog, flagged as pathogenic in the
+  report (`clinicalSignificance`): BRCA2 c.156_157insAlu (AluYa5 consensus with the published 14 bp
+  target site duplication), BRCA1 exon 13 duplication (c.4186-1787_4357+4122dup; realignment across
+  the whole segment plus outward-facing read pairs, `discordantPairs`, zygosity unknown) and the
+  Dutch BRCA1 exon 13 deletion of 3,835 bp. Preregistered tests with simulated carriers and 200 real
+  non-carriers (`validation/pathogenic/founder/`): 89/90, 29/30, duplication 9/30 frozen and 58/60
+  in the registered confirmation; Manta 5/90, 27/30, 37/60; no false calls. The 510 bp exon 22
+  deletion is left out (published coordinates fail the Alu check). `spike.py --alu-sequence`.
 - Paper: sections on targeted data, low allele fractions, assembly truth and long reads; Figure 7.
 
 - GRCh37 position and BIC-style legacy names for every small variant (`grch37Pos`, `bicNames`,
