@@ -108,6 +108,7 @@ def main(argv=None):
     p.add_argument("--sdf", required=True)
     p.add_argument("--outdir", required=True)
     p.add_argument("--threads", type=int, default=4)
+    p.add_argument("--targets", default=None, help="target BED of an exome/panel/amplicon assay (adds region 'targets')")
     args = p.parse_args(argv)
     os.makedirs(args.outdir, exist_ok=True)
     conf = read_bed(args.truth_bed)
@@ -115,6 +116,9 @@ def main(argv=None):
     exons = [(c, max(0, s - 20), e + 20) for c, s, e in read_bed(args.exons, names=("BRCA1", "BRCA2"))]
     rows = evaluate(args, "gene_loci", intersect(conf, genes), args.outdir)
     rows += evaluate(args, "exons_pm20", intersect(conf, exons), args.outdir)
+    if args.targets:
+        targets = intersect(merge(read_bed(args.targets)), genes)
+        rows += evaluate(args, "targets", intersect(conf, targets), args.outdir)
     covered = sum(e - s for _, s, e in intersect(conf, genes))
     total = sum(e - s for _, s, e in merge(genes))
     with open(os.path.join(args.outdir, "summary.json"), "w") as handle:

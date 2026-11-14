@@ -1,0 +1,7 @@
+sample	region	type	evaluatedBases	truthTotal	TP	FP	FN	recall	precision	F1
+HG002_ampliseq_ion	gene_loci	SNV	200954	95	14	4	81	0.1474	0.7778	0.2478
+HG002_ampliseq_ion	gene_loci	INDEL	200954	20	0	124	20	0.0	0.0	
+HG002_ampliseq_ion	exons_pm20	SNV	20920	11	8	3	3	0.7273	0.7273	0.7273
+HG002_ampliseq_ion	exons_pm20	INDEL	20920	1	0	99	1	0.0	0.0	
+HG002_ampliseq_ion	targets	SNV	19531	8	8	3	0	1.0	0.7273	0.8421
+HG002_ampliseq_ion	targets	INDEL	19531	0	0	98	0		0.0	

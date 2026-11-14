@@ -1,0 +1,7 @@
+sample	region	type	evaluatedBases	truthTotal	TP	FP	FN	recall	precision	F1
+HG002_exome_agilent	gene_loci	SNV	200954	95	37	4	58	0.3895	0.9024	0.5441
+HG002_exome_agilent	gene_loci	INDEL	200954	20	3	1	17	0.15	0.75	0.25
+HG002_exome_agilent	exons_pm20	SNV	20920	11	9	0	2	0.8182	1.0	0.9
+HG002_exome_agilent	exons_pm20	INDEL	20920	1	0	0	1	0.0		
+HG002_exome_agilent	targets	SNV	23774	12	10	0	2	0.8333	1.0	0.9091
+HG002_exome_agilent	targets	INDEL	23774	1	0	0	1	0.0		

@@ -15,20 +15,41 @@ elif name=="samtools":
     elif a[0]=="sort": open(opt("-o"),"w").write(sys.stdin.read())
     elif a[0]=="markdup": open(a[-1],"w").write("bam"); open(opt("-f"),"w").write("stats")
     elif a[0]=="index": touch(a[-1]+".bai")
+    elif a[0]=="stats":
+        print("SN\traw total sequences:\t1000\nSN\treads mapped:\t990\nSN\treads properly paired:\t980\n"
+              "SN\treads duplicated:\t50\nSN\treads MQ0:\t3\nSN\terror rate:\t0.002\nSN\taverage length:\t150\n"
+              "SN\taverage quality:\t35.0\nSN\tinsert size average:\t400.0\nIS\t390\t200\t0\t0\nIS\t410\t300\t0\t0")
+    elif a[0]=="idxstats":
+        print("chr13\t114364328\t50000\t10\nchr17\t83257441\t60000\t20\n*\t0\t0\t100")
+    elif a[0]=="view" and "-c" in a:
+        print(95000)
+    elif a[0]=="ampliconclip":
+        sys.stdout.write(sys.stdin.read())
+        open(opt("-f"),"w").write("COMMAND: fake\nTOTAL READS: 1000\nTOTAL CLIPPED: 930\nEXCLUDED: 10\nFILTERED: 4\n")
+        touch(opt("--primer-counts"))
     elif a[0]=="depth":
         for p in range(43045001,43045101): print(f"chr17\t{p}\t{5 if p<43045041 else 25}")
 elif name=="gatk":
     if a[0]=="--version": print("The Genome Analysis Toolkit (GATK) v4.6.1.0"); sys.exit(0)
-    o=opt("-O"); open(o,"w").write(VCF); touch(o+".tbi")
+    o=opt("-O")
+    if "Mutect2" in a or "FilterMutectCalls" in a:
+        # one germline heterozygous call (removed by the report) and one low-fraction candidate
+        open(o,"w").write(VCF.replace("\tGT:AD:DP:GQ\t0/1:20,18:38:99","\tGT:AD:DP:AF\t0/1:20,18:38:0.47")
+                          .replace("chr13\t32338000\t.\tA\tG\t900\tPASS\tMQ=60\tGT:AD:DP:GQ\t1/1:0,35:35:99",
+                                   "chr17\t43094000\t.\tC\tT\t.\tPASS\tMQ=60\tGT:AD:DP:AF\t0/1:60,6:66:0.09"))
+    else:
+        open(o,"w").write(VCF)
+    touch(o+".tbi")
 elif name=="bcftools":
     if a[0]=="--version": print("bcftools 1.21"); sys.exit(0)
-    o=opt("-o"); src=[x for x in a if x.endswith(".vcf.gz") and x!=o][-1]
-    lines=open(src).read().splitlines(True)
-    if a[0]=="view":
+    o=opt("-o"); srcs=[x for x in a if x.endswith(".vcf.gz") and x!=o]
+    lines=open(srcs[-1]).read().splitlines(True) if srcs and a[-1]!="-" else sys.stdin.read().splitlines(True)
+    if a[0]=="view" and "-R" in a:
         bed=open(opt("-R")).read().split()
         chrom=bed[0]
         lines=[l for l in lines if l.startswith("#") or l.startswith(chrom+"\t")]
-    open(o,"w").writelines(lines)
+    if o: open(o,"w").writelines(lines)
+    else: sys.stdout.writelines(lines)
 elif name=="tabix": touch(a[-1]+".tbi")
 elif name=="bgzip": shutil.copyfileobj(sys.stdin, sys.stdout)
 elif name=="vep":
@@ -53,7 +74,8 @@ elif name=="cnvkit.py":
     if a[0]=="version": print("0.9.11"); sys.exit(0)
     if a[0]=="access":
         open(opt("-o"),"w").write("chr1\t0\t1000\nchr13\t10000\t114000000\nchr17\t60000\t83000000\n"); sys.exit(0)
-    if opt("--access") != opt("--targets"): sys.exit("cnvkit: WGS mode needs the same --targets and --access")
+    if opt("--method")=="wgs" and opt("--access") != opt("--targets"): sys.exit("cnvkit: WGS mode needs the same --targets and --access")
+    if opt("--method")!="wgs" and not (opt("--targets") or opt("--reference")): sys.exit("cnvkit: targets missing")
     d=opt("--output-dir"); os.makedirs(d,exist_ok=True); stem=os.path.basename(a[1])[:-4]
     open(f"{d}/{stem}.call.cns","w").write("chromosome\tstart\tend\tgene\tlog2\tcn\tdepth\tprobes\tweight\nchr17\t40000000\t46000000\t-\t0.0\t2\t30\t6000\t1\nchr13\t30000000\t35000000\t-\t0.01\t2\t30\t5000\t1\n")
     open(f"{d}/{stem}.cnr","w").write("chromosome\tstart\tend\tgene\tdepth\tlog2\tweight\nchr17\t43090000\t43091000\t-\t30\t0.0\t1\n")

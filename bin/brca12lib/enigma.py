@@ -11,11 +11,17 @@ Implemented from the specification:
   BP1_Strong                silent, missense or in-frame outside the domains, SpliceAI <= 0.1
   BP7                       silent inside a domain, or intronic at or beyond +7/-21, if BP4 is met
 
-Not implemented (reported as candidates or left out): the PVS1 flowchart with exon-specific
-weights, PM5_PTC, PS1, functional (PS3/BS3) and clinical evidence. The gnomAD read-depth
+From the bundled ENIGMA tables (enigma_tables.py, assets/enigma):
+  PVS1, PM5_PTC             decision trees per exon, splice site and start codon (Table 4)
+  PS3, BS3                  calibrated functional assays (Table 9)
+  PP4, BP5                  published combined likelihood ratios
+
+Not implemented: PS1, PM3, BS2, BS4 and RNA evidence of the sample itself. The gnomAD read-depth
 conditions (>= 20 for BA1/BS1, >= 25 for PM2_Supporting) are not checked and are named in the text.
 """
 import re
+
+from . import enigma_tables
 
 LOF_CONSEQUENCES = ("stop_gained", "frameshift_variant", "splice_acceptor_variant",
                     "splice_donor_variant", "start_lost", "transcript_ablation")
@@ -203,27 +209,46 @@ def predictor_hints(gene, csq, spliceai, bayesdel):
     return hints
 
 
+def decision_tree_hints(gene, csq, consequences):
+    """PVS1 and PM5_PTC from ENIGMA Table 4; a candidate hint if no table row applies."""
+    hgvsc = csq.get("HGVSc")
+    if any(c in ("stop_gained", "frameshift_variant") for c in consequences):
+        row, what = enigma_tables.table4_row(gene, hgvsc, "ptc"), ("vorzeitiges Stoppcodon", "premature termination codon")
+    elif any(c in ("splice_acceptor_variant", "splice_donor_variant") for c in consequences):
+        row, what = enigma_tables.table4_row(gene, hgvsc, "splice"), ("Spleißstelle ±1,2", "splice site ±1,2")
+    elif "start_lost" in consequences:
+        row, what = enigma_tables.table4_row(gene, hgvsc, "start"), ("Startcodon", "initiation codon")
+    else:
+        row, what = None, None
+    if row:
+        return enigma_tables.table4_hints(row, *what)
+    if is_last_exon(csq.get("EXON")):
+        return [hint("PVS1 (eingeschränkt)",
+                     "Loss-of-Function-Konsequenz im letzten Exon ohne passende Zeile in ENIGMA Tabelle 4: NMD-Escape möglich, PVS1-Stärke nach dem Entscheidungsbaum prüfen.",
+                     "Loss-of-function consequence in the last exon without a matching row in ENIGMA Table 4: NMD escape possible, check PVS1 strength with the decision tree.",
+                     "pathogenic")]
+    return [hint("PVS1 (Kandidat)",
+                 "Vorzeitiger Stopp, Leserasterverschiebung oder Spleißstelle ohne passende Zeile in ENIGMA Tabelle 4 (z. B. Indel an der Spleißstelle). Stärke nach dem PVS1-Flussdiagramm festlegen.",
+                 "Premature stop, frameshift or splice site without a matching row in ENIGMA Table 4 (e.g. an indel at the splice site). Set the strength with the PVS1 flowchart.",
+                 "pathogenic")]
+
+
 def acmg_hints(gene, csq, proxy_af, ref="", alt="", evidence=None):
     """All hints for one variant. `evidence` holds optional gnomAD, SpliceAI and BayesDel lookups."""
     evidence = evidence or {}
     consequences = (csq.get("Consequence") or "").split("&")
     hints = []
     if any(c in LOF_CONSEQUENCES for c in consequences):
-        if is_last_exon(csq.get("EXON")):
-            hints.append(hint("PVS1 (eingeschränkt)",
-                              "Loss-of-Function-Konsequenz im letzten Exon: NMD-Escape möglich, PVS1-Stärke nach dem ENIGMA-Entscheidungsbaum prüfen.",
-                              "Loss-of-function consequence in the last exon: NMD escape possible, check PVS1 strength with the ENIGMA decision tree.",
-                              "pathogenic"))
-        else:
-            hints.append(hint("PVS1 (Kandidat)",
-                              "Vorzeitiger Stopp, Leserasterverschiebung oder kanonische Spleißstelle im MANE-Transkript. Stärke nach dem ENIGMA-PVS1-Flussdiagramm und den exonspezifischen Gewichten festlegen.",
-                              "Premature stop, frameshift or canonical splice site in the MANE transcript. Set the strength with the ENIGMA PVS1 flowchart and the exon-specific weights.",
-                              "pathogenic"))
+        hints += decision_tree_hints(gene, csq, consequences)
         if gene == "BRCA2" and "Lys3326Ter" in (csq.get("HGVSp") or ""):
             hints.append(hint("Bekannte Ausnahme",
                               "BRCA2 p.Lys3326Ter (c.9976A>T) gilt trotz Stoppcodon als benigne für hohes HBOC-Risiko.",
                               "BRCA2 p.Lys3326Ter (c.9976A>T) is considered benign for high HBOC risk despite the stop codon.",
                               "benign"))
+    for extra in (enigma_tables.functional_hint(gene, csq.get("HGVSc")),
+                  enigma_tables.multifactorial_hint(gene, csq.get("HGVSc"))):
+        if extra:
+            hints.append(extra)
     is_substitution = len(ref) == 1 and len(alt) == 1
     hints += frequency_hints(is_substitution, evidence.get("gnomad"), proxy_af)
     hints += predictor_hints(gene, csq, evidence.get("spliceai"), evidence.get("bayesdel"))

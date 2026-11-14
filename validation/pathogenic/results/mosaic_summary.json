@@ -1,0 +1,74 @@
+[
+ {
+  "sample": "MOSAIC_05",
+  "spikedAlleleFraction": 0.05,
+  "spikedEvents": 94,
+  "reportedAsMosaicCandidate": 16,
+  "calledByGermlineCaller": 12,
+  "reportedEither": 28,
+  "medianObservedFraction": 0.08,
+  "falsePositiveMosaicCandidates": 0,
+  "falsePositiveGermlineCalls": 0,
+  "falsePositiveExamples": []
+ },
+ {
+  "sample": "MOSAIC_10",
+  "spikedAlleleFraction": 0.1,
+  "spikedEvents": 94,
+  "reportedAsMosaicCandidate": 19,
+  "calledByGermlineCaller": 46,
+  "reportedEither": 65,
+  "medianObservedFraction": 0.086,
+  "falsePositiveMosaicCandidates": 0,
+  "falsePositiveGermlineCalls": 0,
+  "falsePositiveExamples": []
+ },
+ {
+  "sample": "MOSAIC_15",
+  "spikedAlleleFraction": 0.15,
+  "spikedEvents": 94,
+  "reportedAsMosaicCandidate": 15,
+  "calledByGermlineCaller": 70,
+  "reportedEither": 85,
+  "medianObservedFraction": 0.095,
+  "falsePositiveMosaicCandidates": 0,
+  "falsePositiveGermlineCalls": 0,
+  "falsePositiveExamples": []
+ },
+ {
+  "sample": "MOSAIC_20",
+  "spikedAlleleFraction": 0.2,
+  "spikedEvents": 94,
+  "reportedAsMosaicCandidate": 4,
+  "calledByGermlineCaller": 90,
+  "reportedEither": 94,
+  "medianObservedFraction": 0.093,
+  "falsePositiveMosaicCandidates": 0,
+  "falsePositiveGermlineCalls": 0,
+  "falsePositiveExamples": []
+ },
+ {
+  "sample": "MOSAIC_30",
+  "spikedAlleleFraction": 0.3,
+  "spikedEvents": 94,
+  "reportedAsMosaicCandidate": 2,
+  "calledByGermlineCaller": 92,
+  "reportedEither": 94,
+  "medianObservedFraction": 0.115,
+  "falsePositiveMosaicCandidates": 0,
+  "falsePositiveGermlineCalls": 0,
+  "falsePositiveExamples": []
+ },
+ {
+  "sample": "MOSAIC_NEG",
+  "spikedAlleleFraction": null,
+  "spikedEvents": 0,
+  "reportedAsMosaicCandidate": 0,
+  "calledByGermlineCaller": 0,
+  "reportedEither": 0,
+  "medianObservedFraction": null,
+  "falsePositiveMosaicCandidates": 0,
+  "falsePositiveGermlineCalls": 0,
+  "falsePositiveExamples": []
+ }
+]

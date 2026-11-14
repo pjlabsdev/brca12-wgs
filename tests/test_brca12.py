@@ -156,7 +156,8 @@ class PipelineScriptsTest(unittest.TestCase):
         self.assertEqual(len(b1["smallVariants"]), 2)
         frameshift = b1["smallVariants"][0]
         self.assertEqual(frameshift["clinvar"]["stars"], 3)
-        self.assertTrue(any(h["code"] == "PVS1 (Kandidat)" for h in frameshift["acmgHints"]))
+        self.assertTrue(any(h["code"] == "PVS1" for h in frameshift["acmgHints"]))
+        self.assertTrue(any(h["code"] == "PM5_PTC_Strong" for h in frameshift["acmgHints"]))
         missense = b1["smallVariants"][1]
         self.assertTrue(any("DP < 15" in f for f in missense["qualityFlags"]))
         self.assertTrue(any("unsicher abgedecktem Bereich" in f for f in missense["qualityFlags"]))
@@ -170,6 +171,7 @@ class PipelineScriptsTest(unittest.TestCase):
         self.assertEqual(len(result["cnvs"]), 1)
         self.assertEqual(result["cnvs"][0]["type"], "Deletion")
         self.assertIn("Exon 10 (Legacy 11)", result["cnvs"][0]["affectedExons"])
+        self.assertTrue(any(c["code"].startswith("PVS1") for c in result["cnvs"][0]["enigmaCodes"]))
         self.assertEqual({s["gene"] for s in result["svs"]}, {"BRCA1", "BRCA2"})
         bnd = next(s for s in result["svs"] if s["type"] == "BND")
         self.assertIn("unpräzise Bruchpunkte", bnd["flags"])

@@ -5,7 +5,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python=3.11
+  - python=3.10
   - bwa=0.7.18
   - samtools=1.21
   - bcftools=1.21
@@ -14,3 +14,4 @@ dependencies:
   - cnvkit=0.9.11
   - mosdepth=0.3.10
   - ensembl-vep=113.0
+  - perl-list-moreutils    # missing VEP dependency in some ensembl-vep 113 builds

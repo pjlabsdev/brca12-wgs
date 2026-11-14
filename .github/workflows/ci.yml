@@ -19,3 +19,13 @@ jobs:
       - uses: nf-core/setup-nextflow@v2
         with: { version: "24.10.4" }
       - run: bash tests/run_stub_pipeline.sh
+      - run: bash tests/run_stub_batch.sh
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the container and check every tool
+        run: docker build -t brca12-wgs:ci .
+      - name: Tool versions inside the container
+        run: |
+          docker run --rm brca12-wgs:ci bash -c 'samtools --version | head -1; gatk --version | tail -1; cnvkit.py version; mosdepth --version; /opt/conda/envs/manta/bin/configManta.py --version'
