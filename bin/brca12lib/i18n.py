@@ -105,6 +105,9 @@ EXACT = {
         "hint from read ends, not a variant call; confirmation with an orthogonal method required",
     "Insertionssignatur": "insertion signature",
     "Tandemkopie-Signatur": "tandem copy signature",
+    "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)": "extra 126 bp copy upstream of BRCA1 exon 1 (common allele)",
+    "bekannte zusätzliche Tandemkopie": "known extra tandem copy",
+    "Markerbase der zusätzlichen Kopie in den Lesungen vorhanden": "marker base of the extra copy present in the reads",
     "abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie":
         "clipped read ends at both borders of a repeat unit: possible extra tandem copy",
     "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)":
@@ -245,6 +248,9 @@ EXACT_RU = {
         "указание по концам прочтений, не вызов варианта; требуется подтверждение ортогональным методом",
     "Insertionssignatur": "сигнатура вставки",
     "Tandemkopie-Signatur": "сигнатура тандемной копии",
+    "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)": "дополнительная копия 126 п. н. перед экзоном 1 BRCA1 (частый аллель)",
+    "bekannte zusätzliche Tandemkopie": "известная дополнительная тандемная копия",
+    "Markerbase der zusätzlichen Kopie in den Lesungen vorhanden": "маркерное основание дополнительной копии присутствует в прочтениях",
     "abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie":
         "обрезанные концы прочтений на обеих границах повторяющейся единицы: возможная дополнительная тандемная копия",
     "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)":

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Tandem-copy signature at the common 126 bp insertion upstream of BRCA1 exon 1 (chr17:43128264).
+"""Tandem-copy signature at the common 126 bp insertion upstream of BRCA1 exon 1 (chr17:43128264):
+clipped reads at both unit borders and the marker base of the extra copy (chr17:43128365 C).
 
 Runs bin/brca12_insertion_signals.py --gene-fasta on the BAM of every given pipeline output
 directory and compares the result at the site with a truth table (sample, carrier/reference).
@@ -51,6 +52,7 @@ def main(argv=None):
         rows.append({"sample": sample, "truth": truth[sample], "signature": "yes" if at else "no",
                      "length": at[0]["duplicatedLength"] if at else "",
                      "reads": f"{at[0]['clippedReadsLeftJunction']}+{at[0]['clippedReadsRightJunction']}" if at else "",
+                     "markerReads": at[0].get("markerReads", "") if at else "",
                      "elsewhere": len(found) - len(at)})
     with open(a.out, "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0]), delimiter="\t")

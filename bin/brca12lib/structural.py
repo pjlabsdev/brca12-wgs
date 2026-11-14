@@ -156,7 +156,11 @@ def insertion_signals(path, exons):
         kind = "Insertionssignatur"
         if "tandem copy" in row.get("signature", []):
             kind = "Tandemkopie-Signatur"
-            flags.append("abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie")
+            if row.get("clippedReadsLeftJunction") or row.get("clippedReadsRightJunction"):
+                flags.append("abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie")
+            if "known allele" in row.get("signature", []):
+                flags.append(row.get("label") or "bekannte zusätzliche Tandemkopie")
+                flags.append("Markerbase der zusätzlichen Kopie in den Lesungen vorhanden")
         elif "Alu" in row.get("signature", []):
             flags.append("abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion")
         else:

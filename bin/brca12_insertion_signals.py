@@ -21,6 +21,11 @@ reads from the right are clipped at the start of a unit and their clipped part m
 unit L bases downstream. Both junctions with the same length L (50 to 1,000 bp) are required. Such
 insertions align to the existing copy with soft-clipped ends only and are missed by Manta and by
 the small-variant caller.
+
+Known tandem-copy alleles (KNOWN_COPIES) are also checked with a marker base: the common extra
+126 bp copy upstream of BRCA1 exon 1 copies unit 1, which differs from unit 2 at chr17:43128365
+(T in unit 2, C in unit 1), so reads of the extra copy placed on unit 2 show C there. Reads of any
+mapping quality count (the array is duplicated), base quality at least 13.
 """
 import argparse
 import json
@@ -34,6 +39,76 @@ COMP = str.maketrans("ACGTN", "TGCAN")
 ALU_KMERS = ("GGCCGGGCGCGG", "GGCTCACGCCTG", "CTGTAATCCCAG", "GCACTTTGGGAG", "GAGGCGGAGGTT", "GCGAGACTCCGT",
              "CAGCCTGGGCGA", "GGGAGGCTGAGG", "TACTCGGGAGGC", "GGGCGTGGTGGC")
 ALU_KMERS = ALU_KMERS + tuple(k.translate(COMP)[::-1] for k in ALU_KMERS)
+
+
+# chrom, marker position, reference base, base of the extra copy, unit start, unit end, unit length, label
+KNOWN_COPIES = (("chr17", 43128365, "T", "C", 43128247, 43128372, 126,
+                 "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)"),)
+
+
+def count_markers(lines, markers=KNOWN_COPIES, min_baseq=13):
+    """Reads with the reference and with the extra-copy base at each marker position."""
+    want = {(m[0].replace("chr", ""), m[1]): m for m in markers}
+    counts = {m: [0, 0] for m in markers}
+    for line in lines:
+        if line.startswith("@"):
+            continue
+        f = line.split("\t", 11)
+        if len(f) < 11 or int(f[1]) & 0xF04 or f[5] == "*":
+            continue
+        chrom, pos = f[2].replace("chr", ""), int(f[3])
+        hits = [k for k in want if k[0] == chrom and k[1] >= pos]
+        if not hits:
+            continue
+        ref, rd = pos, 0
+        for n, op in CIGAR.findall(f[5]):
+            n = int(n)
+            if op in "M=X":
+                for k in hits:
+                    if ref <= k[1] < ref + n:
+                        i = rd + k[1] - ref
+                        if len(f[10]) <= i or ord(f[10][i]) - 33 >= min_baseq:
+                            m = want[k]
+                            base = f[9][i].upper()
+                            if base == m[2]:
+                                counts[m][0] += 1
+                            elif base == m[3]:
+                                counts[m][1] += 1
+                ref += n
+                rd += n
+            elif op in "DN":
+                ref += n
+            elif op in "IS":
+                rd += n
+    return counts
+
+
+def known_copies(counts, regions, min_reads=2, min_fraction=0.05):
+    out = []
+    for m, (n_ref, n_alt) in counts.items():
+        depth = n_ref + n_alt
+        if n_alt < min_reads or not depth or n_alt / depth < min_fraction:
+            continue
+        chrom = next((c for c, s, e, g in regions if c.replace("chr", "") == m[0].replace("chr", "")), m[0])
+        gene = next((g for c, s, e, g in regions if c == chrom and s < m[1] <= e), "")
+        out.append({"gene": gene, "chrom": chrom, "pos": m[4], "end": m[5], "duplicatedLength": m[6],
+                    "targetSiteDuplication": 0, "clippedReadsLeftJunction": 0, "clippedReadsRightJunction": 0,
+                    "spanningReads": depth, "clippedFraction": 0.0, "markerPosition": m[1],
+                    "markerReads": f"{n_alt}/{depth}", "label": m[7],
+                    "signature": ["tandem copy", "known allele"], "clipsWithAluSequence": 0, "clipsWithPolyA": 0})
+    return out
+
+
+def merge_nearby(clips_by_pos, distance=10):
+    """Clip positions within a few bases of a better supported one are counted with it."""
+    out = {}
+    for key in sorted(clips_by_pos, key=lambda k: -len(clips_by_pos[k])):
+        home = next((k for k in out if k[0] == key[0] and abs(k[1] - key[1]) <= distance), None)
+        if home:
+            out[home] = out[home] + clips_by_pos[key]
+        else:
+            out[key] = list(clips_by_pos[key])
+    return out
 
 
 def scan(lines, min_clip=10, min_mapq=20):
@@ -176,10 +251,10 @@ def _lengths(clips_by_pos, fasta, right_side, min_reads, min_clip, min_len, max_
     return out
 
 
-def duplications(right, left, starts, regions, fasta, min_reads=2, min_clip=15, min_len=50, max_len=1000):
+def duplications(right, left, starts, regions, fasta, min_reads=2, min_clip=10, min_len=50, max_len=1000):
     """Tandem copy signatures: a right-clip and a left-clip position whose clips point to the same length."""
-    rights = _lengths(right, fasta, True, min_reads, min_clip, min_len, max_len)
-    lefts = _lengths(left, fasta, False, min_reads, min_clip, min_len, max_len)
+    rights = _lengths(merge_nearby(right), fasta, True, min_reads, min_clip, min_len, max_len)
+    lefts = _lengths(merge_nearby(left), fasta, False, min_reads, min_clip, min_len, max_len)
     out, used = [], set()
     for chrom, b, length, n_r in sorted(rights, key=lambda x: -x[3]):
         gene = next((g for c, s, e, g in regions if c == chrom and s < b <= e), None)
@@ -223,10 +298,20 @@ def main(argv=None):
                                         "enables the search for extra tandem repeat copies")
     args = p.parse_args(argv)
     regions = read_regions(args.regions)
-    right, left, starts = scan(sys.stdin, args.min_clip)
+    lines = sys.stdin.readlines()
+    right, left, starts = scan(lines, args.min_clip)
     found = candidates(right, left, starts, regions, args.min_reads, min_fraction=args.min_fraction, keep_all=args.all)
     if args.gene_fasta:
-        found += duplications(right, left, starts, regions, read_fasta(args.gene_fasta))
+        dups = duplications(right, left, starts, regions, read_fasta(args.gene_fasta))
+        for known in known_copies(count_markers(lines), regions):
+            same = [d for d in dups if d["chrom"] == known["chrom"] and abs(d["end"] - known["end"]) <= 20
+                    and abs(d["duplicatedLength"] - known["duplicatedLength"]) <= 10]
+            if same:
+                same[0].update(markerPosition=known["markerPosition"], markerReads=known["markerReads"],
+                               label=known["label"], signature=["tandem copy", "known allele"])
+            else:
+                dups.append(known)
+        found += dups
     with open(args.out, "w") as handle:
         json.dump(found, handle, indent=2)
     return 0

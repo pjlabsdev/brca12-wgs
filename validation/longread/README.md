@@ -38,7 +38,7 @@ site: 18 sites, none in an exon ±20 bp, 9 seen in a single sample.
 - BRCA1 1,081 bp intronic deletion (980 bp in the reads): 13 of 993.
 - BRCA1 VNTR at chr17:43100560-43100705: several alleles from -77 to +568 bp.
 - 126 bp tandem-repeat insertion upstream of BRCA1 exon 1 (chr17:43128267): 552 of 1,004. The
-  short-read callers miss it; the tandem-copy read-end signature finds it in 4 of 6 long-read
+  short-read callers miss it; the tandem-copy signature finds it in 5 of 6 long-read
   carriers among the 11 tested samples and in none of the 5 non-carriers
   (`results/tandem_copy.tsv`, `results/tandem_copy_truth.tsv`).
 

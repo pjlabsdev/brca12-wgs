@@ -53,13 +53,18 @@ signature miss it. For this reason a tandem-copy signature was added to
 matches the start of the unit, and reads clipped at the start whose clipped part matches its end,
 both pointing to the same length (50 to 1,000 bp), at least 2 reads at each border.
 
-`tandem_copy_eval.py` (results in `results/tandem_copy.tsv`): the signature with length 126 bp was
-found in 16 of 19 carriers and 0 of 20 non-carriers; the only other signature in all 39 samples was
-a 73 bp copy at the BRCA1 intron 6 VNTR in HG02622, which carries 68 and 76 bp insertions there.
-The rule was developed on these samples. As an independent check, the same code ran on 11
-1000 Genomes samples of the earlier validation that have ONT long reads: 4 of 6 long-read carriers
-and 0 of 5 non-carriers (`../longread/results/tandem_copy.tsv`). Carriers without a signature had
-fewer than two supporting clipped reads at one or both borders.
+Known allele: the extra copy repeats unit 1, which differs from unit 2 at chr17:43128365 (C instead
+of T). Reads of the extra copy that are placed on unit 2 show C there, so the signature is also
+given when at least 2 reads (5 % of the depth) carry C at that position, at any mapping quality.
+
+`tandem_copy_eval.py` (results in `results/tandem_copy.tsv`): 19 of 19 carriers and 0 of 20
+non-carriers; non-carriers have at most 1 read with C. In the 11 1000 Genomes samples with ONT long
+reads: 5 of 6 carriers and 0 of 5 non-carriers (`../longread/results/tandem_copy.tsv`); the missed
+carrier (HG01990) has 1 clipped read at one border and 1 read with C. Across all 72 tested samples
+the only other signature is a 73 bp copy at the BRCA1 intron 6 VNTR in HG01796, where the long
+reads show no insertion of 50 bp or more. The thresholds (clips from 10 bp, clip positions within
+10 bp pooled, at least 2 reads per border, marker rule) were set after looking at these samples,
+so there is no independent test set left.
 
 ## Sources
 

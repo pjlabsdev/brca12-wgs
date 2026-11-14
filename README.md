@@ -256,9 +256,10 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
 - Mobile element insertions have no dedicated caller. Manta missed real Alu insertions in several
   1000 Genomes carriers; the Alu read-end signature recognises Alu sequence only and gives hints, not
   calls (see `validation/pathogenic/README.md`).
-- Extra copies of a tandem repeat unit are found only as read-end hints, in about two of three
-  carriers (126 bp insertion upstream of BRCA1 exon 1: 16 of 19 HPRC carriers, 4 of 6 ONT-confirmed
-  carriers, no signature in 25 non-carriers). Indel lengths in long homopolymers can differ from
+- Extra copies of a tandem repeat unit are reported as hints from read ends, not as calls. For the
+  common 126 bp copy upstream of BRCA1 exon 1 a marker base is checked as well (24 of 25 carriers,
+  0 of 25 non-carriers; rules tuned on these samples). Other tandem copies rely on clipped reads
+  alone and can be missed at low depth. Indel lengths in long homopolymers can differ from
   assembly-based truth (BRCA1 3' UTR poly-T).
 - DeepVariant on macOS is only available via Docker; the default is GATK HaplotypeCaller.
 
@@ -358,9 +359,10 @@ short reads (`validation/hprc/`):
 (chr17:43044804-43044817); outside it the exon indels are 41 of 43 with 1 false positive. Of the
 larger variants, the intronic BRCA2 Alu insertion showed the read-end signature in 6 of 6 carriers
 and 0 of 33 non-carriers, a BRCA1 VNTR was called in 8 of 14 carriers, and a 126 bp tandem-repeat
-insertion in 0 of 19 by Manta and the small-variant caller. A read-end signature for extra tandem
-copies, added for this reason, finds it in 16 of 19 carriers and, independently, in 4 of 6 carriers
-confirmed by ONT long reads, with no signature in the 25 non-carriers (`validation/hprc/tandem_copy_eval.py`).
+insertion in 0 of 19 by Manta and the small-variant caller. A tandem-copy signature, added for this
+reason (clipped reads at both unit borders plus a marker base of the extra copy), finds it in 19 of
+19 HPRC carriers and 5 of 6 carriers confirmed by ONT long reads, with no signature in the 25
+non-carriers (`validation/hprc/tandem_copy_eval.py`; the rules were set on these samples).
 
 Oxford Nanopore reads of the 1KG-ONT cohort (`validation/longread/`) confirm the short-read SV
 results: for the 11 tested samples the pipeline agrees with the long reads in 26 of 26 sample-site
