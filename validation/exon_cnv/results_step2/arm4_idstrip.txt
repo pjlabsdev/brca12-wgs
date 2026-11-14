@@ -1,0 +1,13 @@
+depth + allele balance; panel 80; eval samples 59; min_q 5; simulated events, not patient samples
+deletions 580/590  duplications 259/354
+  DEL1       n=118 found 112 exact 112
+  DEL2       n=118 found 117 exact 115
+  DEL3       n=118 found 118 exact 117
+  DEL5       n=118 found 117 exact 116
+  DELall     n=118 found 116 exact 113
+  DUP1       n=118 found  53 exact  53
+  DUP2       n=118 found 101 exact  91
+  DUP3       n=118 found 105 exact  87
+  PSEUDO_DEL n= 59 found  59 exact  59
+  PSEUDO_DUP n= 59 found  54 exact  51
+false calls: {'null_calls': 0, 'other_calls': 0, 'null_samples': 59}

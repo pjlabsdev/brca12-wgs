@@ -13,6 +13,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from brca12lib import coverage, enigma_tables, evidence, render, structural, variants  # noqa: E402
+from brca12lib import exon_cnv as exon_cnv_lib  # noqa: E402
+from brca12lib.vcf import VCF  # noqa: E402
 
 SCHEMA = "genome.brca12.v1"
 
@@ -100,6 +102,7 @@ def load_exon_cnv(path):
     with open(path) as handle:
         data = json.load(handle)
     data.setdefault("calls", [])
+    data.setdefault("hints", [])
     data.setdefault("exons", [])
     return data
 
@@ -179,6 +182,17 @@ def build(args):
     for item in dosage_hints:
         add_exon_event_codes(item, "DEL" if item["type"] == "möglicher Verlust" else "DUP", [item["exon"]])
     exon_cnv = load_exon_cnv(args.exon_cnv)
+    if exon_cnv.get("enabled") and exon_cnv.get("panelData") and exon_cnv.get("depths"):
+        # allele balance at heterozygous SNVs of the small-variant calls (HaplotypeCaller/DeepVariant)
+        records = [r for path in small.values() if os.path.exists(path) for r in VCF(path).records]
+        alleles = exon_cnv_lib.allele_counts(records, exon_cnv["panelData"])
+        redone = exon_cnv_lib.call(exon_cnv["panelData"], exon_cnv["depths"], alleles or None)
+        exon_cnv.update({k: redone[k] for k in ("calls", "hints", "exons", "alleleBalance", "hintQuality")})
+        exon_cnv["hetSitesUsed"] = sum(len(v) for v in alleles.values())
+    exon_cnv.pop("depths", None)
+    exon_cnv.pop("panelData", None)
+    for item in exon_cnv.get("hints", []):
+        item["flags"] = [f"Exon-Kohorte, nur Hinweis: Qualität {item['quality']}, mittlere log2-Abweichung {item['meanLog2Deviation']}"]
     for item in exon_cnv["calls"]:
         item["flags"] = [f"Exon-Kohorte: Qualität {item['quality']}, mittlere log2-Abweichung {item['meanLog2Deviation']}"]
         add_exon_event_codes(item, "DEL" if item["type"] == "Deletion" else "DUP", item["affectedExons"])
@@ -264,6 +278,7 @@ def summarize(result):
         "cnvCandidateCount": len(result["cnvs"]),
         "exonDosageHintCount": len(result["exonDosageHints"]),
         "exonCopyNumberCallCount": len(result["exonCopyNumber"]["calls"]),
+        "exonCopyNumberHintCount": len(result["exonCopyNumber"].get("hints", [])),
         "svCount": len(result["svs"]),
         "insertionSignalCount": len(result["insertionSignals"]),
         "mosaicCandidateCount": len(result.get("mosaicCandidates", [])),

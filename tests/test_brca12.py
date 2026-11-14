@@ -139,7 +139,19 @@ class PipelineScriptsTest(unittest.TestCase):
         versions = write(f"{d}/versions.tsv", "bwa\t0.7.18-r1243\nsamtools\t1.21\ngatk\t4.6.1.0\nmanta\t1.6.0\n")
         commands = write(f"{d}/cmds.sh", "bwa mem ...\n")
         out = {k: f"{d}/out.{k}" for k in ("json", "md", "html")}
-        r = self.run_script(f"{BIN}/brca12_report.py", "--sample", "S", "--input-mode", "fastq",
+        # exon copy number: a toy panel whose BRCA1 exons 3-4 have half the depth
+        sys.path.insert(0, BIN)
+        from brca12lib import exon_cnv as exon_cnv_lib
+        panel = {"description": "toy", "size": 10, "pad": 200, "pChange": 0.05, "minQuality": 10,
+                 "controls": {f"c{i}": {"chrom": "chr17", "start": 1000000 * i, "end": 1000000 * i + 4000} for i in range(1, 7)},
+                 "exons": {f"BRCA1_ex{i:02d}": {"chrom": "chr17", "start": 43000000 + i * 5000, "end": 43000000 + i * 5000 + 150,
+                                                "gene": "BRCA1", "label": f"Exon {i}", "median": 0.0, "sd": 0.1} for i in range(1, 9)}}
+        depths = {n: 30.0 for n in panel["controls"]}
+        depths.update({n: 15.0 if n in ("BRCA1_ex03", "BRCA1_ex04") else 30.0 for n in panel["exons"]})
+        ecnv = exon_cnv_lib.call(panel, depths)
+        ecnv.update(depths=depths, panelData=panel)
+        write(f"{d}/exon_cnv.json", json.dumps(ecnv))
+        r = self.run_script(f"{BIN}/brca12_report.py", "--sample", "S", "--input-mode", "fastq", "--exon-cnv", f"{d}/exon_cnv.json",
                             "--inputs", "S_R1.fastq.gz,S_R2.fastq.gz", "--reference", "/ref/GRCh38.fa",
                             "--reference-check", f"{d}/check.json", "--exons", f"{d}/exons.norm.bed",
                             "--regions", f"{d}/exact.bed", "--small", f"BRCA1={brca1}", "--small", f"BRCA2={brca2}",
@@ -173,6 +185,13 @@ class PipelineScriptsTest(unittest.TestCase):
         self.assertIn("Exon 10 (Legacy 11)", result["cnvs"][0]["affectedExons"])
         self.assertTrue(any(c["code"].startswith("PVS1") for c in result["cnvs"][0]["enigmaCodes"]))
         self.assertEqual({s["gene"] for s in result["svs"]}, {"BRCA1", "BRCA2"})
+        ecn = result["exonCopyNumber"]
+        self.assertNotIn("depths", ecn)
+        self.assertNotIn("panelData", ecn)
+        self.assertEqual([c["exons"] for c in ecn["calls"]], [["BRCA1_ex03", "BRCA1_ex04"]])
+        self.assertTrue(ecn["calls"][0]["flags"][0].startswith("Exon-Kohorte: Qualität"))
+        self.assertEqual(result["summary"]["exonCopyNumberCallCount"], 1)
+        self.assertIn("chr17:43015001-43020150", open(out["html"]).read())
         bnd = next(s for s in result["svs"] if s["type"] == "BND")
         self.assertIn("unpräzise Bruchpunkte", bnd["flags"])
         self.assertEqual(len(result["lowCoverageIntervals"]), 1)
