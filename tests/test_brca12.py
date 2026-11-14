@@ -478,6 +478,25 @@ class InsertionSignalTest(unittest.TestCase):
         merged = mod.merge_nearby({("chr1", 100): ["A", "B"], ("chr1", 108): ["C"], ("chr1", 300): ["D"]})
         self.assertEqual(merged, {("chr1", 100): ["A", "B", "C"], ("chr1", 300): ["D"]})
 
+    def test_tandem_duplication_from_outward_pairs(self):
+        import brca12_insertion_signals as mod
+        regions = [("chr13", 0, 100000, "BRCA2")]
+        def pair(i, pos, mpos, flag=17, mapq=60):
+            return "\t".join([f"p{i}", str(flag | 1 | 64), "chr13", str(pos), str(mapq), "150M", "=", str(mpos),
+                              "0", "A" * 150, "I" * 150])
+        # reverse read near the duplication start, forward mate near its end: outward-facing pair
+        lines = [pair(i, 20100 + 20 * i, 24600 + 10 * i) for i in range(4)]
+        found = mod.tandem_duplications(lines, regions)
+        self.assertEqual(len(found), 1)
+        self.assertEqual((found[0]["gene"], found[0]["pos"], found[0]["outwardPairs"]), ("BRCA2", 20100, 4))
+        self.assertGreater(found[0]["duplicatedLength"], 4000)
+        self.assertEqual(mod.tandem_duplications(lines[:3], regions), [])               # three pairs: too few
+        self.assertEqual(mod.tandem_duplications([pair(i, 20100 + 20 * i, 24600, mapq=10) for i in range(4)],
+                                                 regions), [])                            # low mapping quality
+        self.assertEqual(mod.tandem_duplications([pair(i, 20100 + i, 20500) for i in range(4)], regions), [])
+        normal = [pair(i, 20100 + i, 20400, flag=33) for i in range(10)]                 # inward pairs
+        self.assertEqual(mod.tandem_duplications(normal, regions), [])
+
     @staticmethod
     def _dump(rows):
         import json, tempfile

@@ -299,6 +299,73 @@ def duplication_pairs(lines, alleles=KNOWN_ALLELES, reach=700, min_mapq=20):
     return {a: len(n) for a, n in names.items()}
 
 
+def outward_pairs(lines, regions, min_mapq=20, window=600):
+    """Clusters of read pairs that face outward (reverse read left of its forward mate), the read-pair
+    signature of a tandem duplication: [(chrom, first reverse-read start, last forward-mate end, names)].
+    Clipped reads whose supplementary alignment (SA tag) joins the two ends are added to the cluster."""
+    pairs, clips = [], []
+    seen = set()
+    for line in lines:
+        if line.startswith("@"):
+            continue
+        f = line.split("\t")
+        if len(f) < 11:
+            continue
+        flag = int(f[1])
+        if flag & 0xF0C or int(f[4]) < min_mapq:
+            continue
+        chrom, pos = f[2], int(f[3])
+        if not any(c == chrom and s < pos <= e for c, s, e, g in regions):
+            continue
+        if flag & 1 and f[6] == "=" and flag & 16 and not flag & 32 and int(f[7]) > pos and f[0] not in seen:
+            seen.add(f[0])
+            pairs.append((chrom, pos, int(f[7]) + len(f[9]), f[0]))
+        sa = next((x[5:] for x in f[11:] if x.startswith("SA:Z:")), None)
+        if sa:
+            cig = CIGAR.findall(f[5])
+            aligned = sum(int(n) for n, op in cig if op in "MD=X")
+            for entry in sa.rstrip(";").split(";"):
+                parts = entry.split(",")
+                if len(parts) >= 5 and parts[0] == chrom and int(parts[4]) >= min_mapq:
+                    other = int(parts[1])
+                    # left part aligned at the segment end, right part at the segment start (or the reverse)
+                    if cig and cig[-1][1] == "S" and other < pos:
+                        clips.append((chrom, other, pos + aligned, f[0]))
+                    elif cig and cig[0][1] == "S" and other > pos:
+                        clips.append((chrom, pos, other + aligned, f[0]))
+    clusters = []
+    for chrom, start, end, name in sorted(pairs):
+        home = next((c for c in clusters if c[0] == chrom and abs(c[1] - start) <= window and
+                     abs(c[2] - end) <= window), None)
+        if home:
+            home[1], home[2] = min(home[1], start), max(home[2], end)
+            home[3].add(name)
+        else:
+            clusters.append([chrom, start, end, {name}, set()])
+    for chrom, start, end, name in clips:
+        home = next((c for c in clusters if c[0] == chrom and abs(c[1] - start) <= window and
+                     abs(c[2] - end) <= window), None)
+        if home:
+            home[4].add(name)
+    return clusters
+
+
+def tandem_duplications(lines, regions, exons=None, min_support=4, min_span=1000, max_span=200000):
+    """Report entries for tandem duplications found by outward-facing read pairs plus joining split reads."""
+    out = []
+    for chrom, start, end, names, split in outward_pairs(lines, regions):
+        support = len(names | split)
+        if support < min_support or not min_span <= end - start <= max_span:
+            continue
+        gene = next((g for c, s, e, g in regions if c == chrom and s < start <= e), "")
+        out.append({"gene": gene, "chrom": chrom, "pos": start, "end": end, "duplicatedLength": end - start,
+                    "signature": ["tandem duplication", "read pairs"], "evidence": ["read pairs"] +
+                    (["split reads"] if split else []), "outwardPairs": len(names), "splitReads": len(split),
+                    "breakpointPrecision": "approximate (read-pair span)",
+                    "clippedReadsLeftJunction": 0, "clippedReadsRightJunction": 0})
+    return out
+
+
 def realigned_alleles(counts, regions, haplotypes=None, min_reads=2, pairs=None, min_pairs=3):
     """Report entries for known alleles found by realignment (non-tandem insertions and deletions)."""
     out = []
@@ -575,6 +642,11 @@ def main(argv=None):
                 same[0]["signature"] = sorted(set(same[0]["signature"]) | {"known allele"})
             else:
                 found.append(known)
+        # tandem duplications from outward-facing read pairs, unless a known allele already covers them
+        for dup in tandem_duplications(lines, regions):
+            if not any(d["chrom"] == dup["chrom"] and "duplication" in d.get("signature", []) and
+                       abs(d["pos"] - dup["pos"]) <= 600 and abs(d["end"] - dup["end"]) <= 600 for d in found):
+                found.append(dup)
     with open(args.out, "w") as handle:
         json.dump(found, handle, indent=2)
     return 0
