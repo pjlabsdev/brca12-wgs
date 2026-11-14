@@ -111,6 +111,8 @@ or without `chr`). Only targets that overlap BRCA1/BRCA2 are used.
   samples a single sample gives candidates only; build one with `cnvkit.py reference` from normals of
   the same assay and pass it with `--cnv_reference` (also possible for WGS). The per-exon dosage uses
   the median exon depth of both genes as baseline, so a whole-gene loss stays visible.
+  The exon copy-number model against a reference cohort needs a panel of normal samples of the same
+  assay (`brca12lib.exon_cnv.build_panel`); without one (`--exon_cnv_panel`) it is switched off.
 - **Structural variants:** Manta in exome mode; skipped for single-end reads.
 - **Coverage:** every target with mean and minimum depth and share of bases ≥ 20x; targets below
   `--min_target_depth` (30x) are listed. Summary: uniformity (share of target bases with at least
@@ -143,7 +145,7 @@ germline variants. They always need confirmation by an orthogonal method; detect
 | SNVs/indels | GATK HaplotypeCaller (default) or DeepVariant (`--snv_caller deepvariant`) | `calls/<sample>.small.vcf.gz` |
 | Mosaic candidates (`--mosaic`) | GATK Mutect2 + FilterMutectCalls | `calls/<sample>.mosaic.vcf.gz` |
 | Structural variants | Manta, breakpoints within ±1 Mb of the genes | `calls/<sample>.manta.diploidSV.vcf.gz` |
-| CNVs | CNVkit (WGS, hybrid or amplicon; flat or `--cnv_reference`), plus per-exon dosage | `calls/cnvkit/` |
+| CNVs | CNVkit (WGS, hybrid or amplicon; flat or `--cnv_reference`), plus per-exon dosage and, for WGS, exon copy number against an 80-genome reference cohort (`--exon_cnv_panel`, HMM over exons; `validation/exon_cnv/`) | `calls/cnvkit/`, `coverage/exon_cnv.json` |
 | Per-gene extraction | bcftools norm/view with `brca12_regions.bed` | `variants/BRCA1.*`, `variants/BRCA2.*` |
 | Annotation | Ensembl VEP (MANE, gnomAD, HGVS) + ClinVar (`--custom`) | `variants/*.vep.vcf.gz` |
 | Exon coverage | mosdepth (MAPQ ≥ 20 and ≥ 0), samtools depth | `coverage/` |

@@ -68,6 +68,9 @@ params.targets_bed      = null     // target intervals; required for exome, pane
 params.primers_bed      = null     // amplicon primers (BED, optional strand in column 6) for samtools ampliconclip
 params.min_target_depth = 30       // targets with a lower mean depth are listed as weakly covered
 params.cnv_reference    = null     // CNVkit reference (.cnn) built from normal samples of the same assay
+// Exon copy number against a reference cohort. WGS default: assets/exon_cnv_panel_1kg30x.json (80 1000 Genomes
+// 30x samples); other assays need a panel built from normal samples of the same assay; 'none' switches it off.
+params.exon_cnv_panel   = null
 // Low-allele-fraction (mosaic) candidates with GATK Mutect2 in tumour-only mode.
 params.mosaic           = false
 params.mosaic_min_af    = 0.02
@@ -402,6 +405,7 @@ process EXON_COVERAGE {
     path reference_index_files
     path exons
     path exact_bed
+    path exon_cnv_panel
 
     output:
     path 'exons_q20.regions.bed.gz', emit: q20
@@ -411,6 +415,7 @@ process EXON_COVERAGE {
     path 'chrom_median.txt', emit: chrom_median
     path 'coverage.command.sh'
     path 'insertion_signals.json', emit: insertion
+    path 'exon_cnv.json', emit: exon_cnv
 
     script:
     """
@@ -434,6 +439,14 @@ process EXON_COVERAGE {
     ${params.samtools} faidx ${reference} \$(awk '{print \$1":"\$2+1"-"\$3}' ${exact_bed}) > genes.fa
     ${params.samtools} view -L ${exact_bed} --reference ${reference} ${bam} \\
       | ${params.python} ${projectDir}/bin/brca12_insertion_signals.py --regions ${exact_bed} --gene-fasta genes.fa --out insertion_signals.json
+    # Exon copy number against a reference cohort: depth over exons +/- pad and control windows (MAPQ >= 20).
+    ${params.python} ${projectDir}/bin/brca12_exon_cnv.py --panel ${exon_cnv_panel} --write-bed exon_cnv_regions.bed
+    if [ -s exon_cnv_regions.bed ]; then
+      ${params.samtools} depth -a -Q 20 -b exon_cnv_regions.bed --reference ${reference} ${bam} \\
+        | ${params.python} ${projectDir}/bin/brca12_exon_cnv.py --panel ${exon_cnv_panel} --out exon_cnv.json
+    else
+      ${params.python} ${projectDir}/bin/brca12_exon_cnv.py --panel ${exon_cnv_panel} --out exon_cnv.json
+    fi
     cp .command.sh coverage.command.sh
     """
 }
@@ -536,6 +549,7 @@ process REPORT {
     path cov_perbase
     path chrom_median
     path insertion_signals
+    path exon_cnv
     path versions
     path command_files
     path evidence_files
@@ -573,7 +587,7 @@ process REPORT {
       --sv ${manta_vcf} --cnv ${cnv_cns} --cnr ${cnv_cnr} \\
       --cov-q20 ${cov_q20} --cov-thresholds ${cov_thresholds} --cov-q0 ${cov_q0} \\
       --cov-perbase ${cov_perbase} --chrom-median ${chrom_median} \\
-      --insertion-signals ${insertion_signals} \\
+      --insertion-signals ${insertion_signals} --exon-cnv ${exon_cnv} \\
       --assay ${params.assay} --platform ${params.platform} --read-qc ${read_qc} ${mosaicArgs} \\
       --versions ${versions} --commands brca12_commands.sh \\
       --snv-caller ${params.snv_caller} \\
@@ -680,7 +694,11 @@ workflow {
     sv = CALL_SV_MANTA(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.sv_bed)
     cnv = CALL_CNV_CNVKIT(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.check, targets_ch,
                           file(params.cnv_reference ?: "${projectDir}/assets/NO_CNV_REFERENCE", checkIfExists: true))
-    cov = EXON_COVERAGE(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.exons, VALIDATE_INPUTS.out.exact_bed)
+    exon_cnv_panel_in = file(params.exon_cnv_panel && params.exon_cnv_panel != 'none' ? params.exon_cnv_panel
+        : "${projectDir}/assets/" + (params.exon_cnv_panel != 'none' && params.assay == 'wgs' ? 'exon_cnv_panel_1kg30x.json' : 'NO_EXON_CNV_PANEL'),
+        checkIfExists: true)
+    cov = EXON_COVERAGE(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.exons, VALIDATE_INPUTS.out.exact_bed,
+                        exon_cnv_panel_in)
     clinvar = Channel.value(tuple(file(params.clinvar_vcf, checkIfExists: true), file("${params.clinvar_vcf}.tbi", checkIfExists: true)))
     if (params.mosaic) {
         CALL_MOSAIC(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.calling_bed)
@@ -710,7 +728,7 @@ workflow {
 
     REPORT(VALIDATE_INPUTS.out.check, VALIDATE_INPUTS.out.exons, VALIDATE_INPUTS.out.exact_bed,
            ann.brca1, ann.brca2, sv.vcf.map { it[0] }, cnv.cns, cnv.cnr,
-           cov.q20, cov.thresholds, cov.q0, cov.perbase, cov.chrom_median, cov.insertion,
+           cov.q20, cov.thresholds, cov.q0, cov.perbase, cov.chrom_median, cov.insertion, cov.exon_cnv,
            versions.versions, commands, evidence_files, READ_QC.out.json,
            ann.mosaic.flatten().unique { it.name }.collect().ifEmpty([file("${projectDir}/assets/NO_MOSAIC")]))
     XLSX_EXPORT(REPORT.out[2])

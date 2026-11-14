@@ -2,6 +2,13 @@
 
 ## Unreleased (1.1.0)
 
+- Exon copy number against a reference cohort (`exonCopyNumber`, `--exon_cnv_panel`): depth over
+  each exon +/- 200 bp relative to eight single-copy control windows, compared with a panel of 80
+  1000 Genomes 30x genomes (`assets/exon_cnv_panel_1kg30x.json`, WGS default), hidden Markov model
+  over the exons of each gene, segments with quality >= 10. Rules frozen before a test on 60 new
+  1000 Genomes samples with simulated events: 569/600 deletions, 209/360 duplications, BRCA1 exon
+  1-2 via BRCA1P1 60/60 and 51/60, no call in the 60 unmodified genomes (current dosage rule: 87
+  hints). `validation/exon_cnv/`.
 - Exome, hybrid-capture panel and amplicon data (`--assay`, `--targets_bed`): no duplicate marking
   and no per-start downsampling for amplicons, primer clipping with `samtools ampliconclip`
   (`--primers_bed`), CNVkit hybrid/amplicon modes, optional pooled CNV reference
