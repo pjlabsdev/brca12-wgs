@@ -2,6 +2,25 @@
 
 ## Unreleased (1.1.0)
 
+- Exome, hybrid-capture panel and amplicon data (`--assay`, `--targets_bed`): no duplicate marking
+  and no per-start downsampling for amplicons, primer clipping with `samtools ampliconclip`
+  (`--primers_bed`), CNVkit hybrid/amplicon modes, optional pooled CNV reference
+  (`--cnv_reference`, also for WGS), Manta exome mode, exons outside the targets marked uncertain.
+- Read and target QC (`qc/read_qc.json`, report section, Excel sheets): reads, mapping, pairing,
+  duplicates, insert size, error rate; per target depth, uniformity, fold-80, on-target rate,
+  weakly covered targets; share of reads with a clipped primer.
+- Mosaic candidates (`--mosaic`): GATK Mutect2 tumour-only with FilterMutectCalls, allele fraction
+  limits, minimum supporting reads and depth; VEP-annotated; validated with spike-ins at 5 to 30 %.
+- Single-end FASTQ (only `--reads_r1`; Manta skipped) and `--platform iontorrent` (indels flagged,
+  mosaic candidates SNVs only).
+- Container: `Dockerfile` with all tools at the pinned versions, profiles `docker` and
+  `singularity`, image built and smoke-tested in CI. `perl-list-moreutils` added to the conda
+  environment (missing VEP dependency).
+- Validation on exome and amplicon data (`validation/targeted/`): GIAB HG002 Agilent exome, HG001
+  TruSeq exome and HG002 Ion AmpliSeq exome against GIAB v4.2.1; mosaic spike-ins
+  (`validation/pathogenic/run_mosaic.sh`, `mosaic_eval.py`).
+- README: feature comparison with BRCA-analyzer.
+
 - GRCh37 position and BIC-style legacy names for every small variant (`grch37Pos`, `bicNames`,
   shown next to HGVS), for comparison with older reports; checked against 4,464 BRCA Exchange BIC
   names (89.3 % identical, 96.9 % same position and type).

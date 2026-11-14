@@ -32,13 +32,17 @@ downstream parsers do not depend on the report language. Main fields:
 | `svs[]` | Manta calls with a breakpoint in a gene (`type`, `pos`, `end`, mate, `PR`/`SR`, flags) |
 | `exonCoverage[]` | per exon: mean depth, % ≥ 10/20/30x, MAPQ < 20 fraction, dosage ratio, `status`, `reasons[]` |
 | `lowCoverageIntervals[]` | intervals below `--low_depth` inside the genes |
+| `assay`, `platform` | `wgs`/`exome`/`panel`/`amplicon`; `illumina`/`iontorrent` |
+| `input.singleEnd` | `true` for single-end FASTQ (Manta skipped) |
+| `readQC` | `regionStats` (reads, mapped/paired/duplicate/MAPQ-0 %, insert size, error rate, read length, base quality), for targeted assays `targets[]` (mean/min depth, % ≥ 20x, `status`) and `targetSummary` (mean depth, % ≥ 20x, `uniformityPct`, `fold80BasePenalty`, `onTargetReadPct`, `weakTargetCount`), for amplicons `primerClipping`, and `flags[]` |
+| `mosaicCalling`, `mosaicCandidates[]` | settings of `--mosaic` and Mutect2 calls between the allele-fraction limits that the germline caller did not report; same fields as `smallVariants[]`, `genotype` = `Mosaik-Kandidat` |
 | `toolVersions` | versions that actually ran |
 | `summary` | counts and `needsAttention` |
 | `limitations`, `limitationsEN` | known limits of the method |
 
 ## Excel and cohort files
 
-- `brca12_report.xlsx`: sheets Übersicht, SNVs Indels, CNV, SV, Exon-Coverage, Geringe Tiefe, Tool-Versionen.
+- `brca12_report.xlsx`: sheets Übersicht, SNVs Indels, CNV, SV, Exon-Coverage, Geringe Tiefe, Mosaik-Kandidaten (with `--mosaic`), Lese-QC, Ziel-Coverage (targeted assays), Tool-Versionen.
 - Batch (`bin/brca12_batch.py`): `cohort/cohort_samples.tsv`, `cohort/cohort_variants.tsv` (with `cohort_carriers`, `cohort_fraction`, `contamination_hint`), `cohort/cohort_contamination.tsv` (`sample`, variant, `allele_fraction`, `possible_source`), `cohort/cohort.xlsx`.
 ## PDF and languages
 

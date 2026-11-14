@@ -12,23 +12,42 @@ with uncertain regions flagged.
 > are automated hints on individual criteria, never a classification. An unremarkable result does
 > not rule out a hereditary BRCA1/BRCA2 predisposition.
 
-## Why another BRCA pipeline?
+## Comparison with BRCA-analyzer
 
-Older BRCA workflows such as [BRCA-analyzer](https://github.com/aakechin/BRCA-analyzer) target
-amplicon panels on hg19 and call SNVs/indels only. brca12-wgs is built for WGS on GRCh38:
+[BRCA-analyzer](https://github.com/aakechin/BRCA-analyzer) (Kechin et al. 2018, last commit February
+2020) is the best-known open BRCA1/BRCA2 workflow. The table compares it, as described in its README
+and code, with brca12-wgs 1.1.0. Feature by feature, brca12-wgs covers what BRCA-analyzer offers and
+adds the rows it lacks; the one area where BRCA-analyzer is ahead is the size of its clinical
+validation (last row).
 
-| | brca12-wgs | amplicon-era workflows |
+| | brca12-wgs 1.1.0 | BRCA-analyzer |
 |---|---|---|
-| Data | WGS (FASTQ or BAM/CRAM) | amplicon panels |
-| Reference | GRCh38/hg38 (checked from contig lengths) | hg19 |
-| SNVs/indels | GATK 4 HaplotypeCaller or DeepVariant | GATK 3 |
-| CNVs | CNVkit + per-exon dosage | none |
-| Structural variants | Manta | none |
-| Annotation | Ensembl VEP, MANE Select, gnomAD, your ClinVar VCF | ANNOVAR (licence required) |
-| ACMG/AMP | hints per ENIGMA v1.2 criterion, clearly not a classification | none |
-| Coverage | per exon at 10/20/30x, MAPQ-0 fraction, low-depth intervals | per amplicon |
-| Reproducibility | pinned conda envs, every command logged, tool versions in report | manual |
-| Output | HTML, Markdown and machine-readable JSON | Excel, Word |
+| Data types | WGS, exome, hybrid-capture panels and amplicon panels (`--assay`), paired or single-end, Illumina or Ion Torrent | amplicon panels (MiSeq) |
+| Input | FASTQ, BAM or CRAM | FASTQ |
+| Reference | GRCh38 (checked from contig lengths); GRCh37 position given for every small variant | hg19 |
+| Primer removal | `samtools ampliconclip` with a primer BED, share of clipped reads reported | cutPrimers, share of trimmed reads reported |
+| Duplicates | marked (not for amplicons) | not marked |
+| SNVs/indels | GATK 4 HaplotypeCaller or DeepVariant | Pisces (default), GATK 3 UnifiedGenotyper or FreeBayes, GATK 3 realignment/BQSR |
+| Low allele fraction | mosaic candidates with GATK Mutect2 (`--mosaic`), validated by spike-ins | Pisces calls low fractions |
+| CNVs | CNVkit (WGS, hybrid or amplicon mode, optional pooled normal reference) and per-exon dosage | none |
+| Structural variants | Manta, plus a read-end signature for Alu insertions | none |
+| Annotation | Ensembl VEP (MANE Select, HGVS, gnomAD, SIFT/PolyPhen), your ClinVar VCF, optional SpliceAI/BayesDel | ANNOVAR (licence required), snpEff, ClinVar 2016 bundled |
+| Legacy names | BIC-style names (e.g. 185delAG, 5382insC, 6174delT) computed from the MANE CDS | BIC names from the bundled BIC database |
+| ACMG/AMP | hints per ClinGen ENIGMA v1.2 criterion incl. ENIGMA tables 4 and 9, never a classification | class from ClinVar/BIC |
+| Read QC | reads, mapping, pairing, duplicates, insert size, error rate | read and index counts |
+| Coverage | per exon (10/20/30x, MAPQ < 20 share), per target, uniformity, fold-80, on-target rate, every interval below 10x | per amplicon, uniformity figure |
+| Several samples | sample sheet, parallel runs, cohort table with carrier counts | yes, joint table |
+| Contamination | hint when a low-fraction variant is clearly present in another sample of the batch | same idea |
+| Figures | depth per exon and MLPA-like exon dosage plot per gene | amplicon uniformity |
+| Output | HTML, Markdown, PDF, Excel and JSON (schema `genome.brca12.v1`) | Excel, Word |
+| Report language | English, German, Russian (Russian not reviewed by a native speaker) | English, Russian |
+| Reproducibility | Nextflow, pinned conda environments, Docker/Singularity image, every command and tool version in the report | Python script, Docker image |
+| Tests | unit tests and three full pipeline runs in CI | none in the repository |
+| Open validation | GIAB HG001/HG002 (WGS, 2 exomes, Ion AmpliSeq), real pathogenic carriers, spike-ins incl. mosaics, real SVs with long-read confirmation; all scripts in `validation/` | example data only |
+| Clinical validation | none (research use only) | more than 900 patient samples, pathogenic variants confirmed by Sanger sequencing |
+
+The last row cannot be matched with open data: it would need sequencing of characterised reference
+DNA (e.g. Coriell) or access to a clinical cohort.
 
 ## Quick start
 
@@ -44,9 +63,17 @@ nextflow run main.nf -profile conda \
 # From an existing BAM/CRAM (alignment is skipped)
 nextflow run main.nf -profile conda --sample sample --bam sample.bam \
   --reference GRCh38.fa --vep_cache ~/.vep --clinvar_vcf clinvar.vcf.gz
+
+# Amplicon panel, single-end or paired, primers clipped, mosaic candidates, in the container
+docker build -t brca12-wgs:1.1.0 .
+nextflow run main.nf -profile docker --sample S1 --reads_r1 S1_R1.fastq.gz --reads_r2 S1_R2.fastq.gz \
+  --assay amplicon --targets_bed amplicons.bed --primers_bed primers.bed --mosaic \
+  --reference GRCh38.fa --vep_cache ~/.vep --clinvar_vcf clinvar.vcf.gz
 ```
 
-Requirements: Nextflow ≥ 23.10, Java 17, conda/mamba (or the tools on `PATH`). The reference needs
+Requirements: Nextflow ≥ 23.10, Java 17, and conda/mamba, Docker or Singularity (or the tools on
+`PATH`). The container (`Dockerfile`, profiles `docker` and `singularity`, built in CI) holds every
+tool at the pinned versions; VEP cache, reference and ClinVar are mounted from the host. The reference needs
 `.fai`, `.dict` and the BWA index next to the FASTA. VEP needs an offline GRCh38 cache
 (`vep_install -a cf -s homo_sapiens -y GRCh38`). ClinVar: `clinvar.vcf.gz` + `.tbi` from NCBI (GRCh38).
 
@@ -72,15 +99,51 @@ is given when a variant has a low allele fraction (3 to 25 %) in one sample but 
 heterozygous or homozygous in another sample of the batch; the hint names the possible source. It is
 a reason to check (identity SNPs, repeated library), not a finding.
 
+## Exome, gene panels and amplicons
+
+`--assay exome|panel|amplicon` with `--targets_bed` (the capture or amplicon intervals; contigs with
+or without `chr`). Only targets that overlap BRCA1/BRCA2 are used.
+
+- **Amplicons:** no duplicate marking; HaplotypeCaller without per-start downsampling;
+  `--primers_bed` clips primers from both read ends with `samtools ampliconclip` (strand-aware when
+  the BED has a strand column). Reads shorter than 30 bp after clipping are dropped.
+- **CNVs:** CNVkit in hybrid (exome, panel) or amplicon mode. Without a reference from normal
+  samples a single sample gives candidates only; build one with `cnvkit.py reference` from normals of
+  the same assay and pass it with `--cnv_reference` (also possible for WGS). The per-exon dosage uses
+  the median exon depth of both genes as baseline, so a whole-gene loss stays visible.
+- **Structural variants:** Manta in exome mode; skipped for single-end reads.
+- **Coverage:** every target with mean and minimum depth and share of bases ≥ 20x; targets below
+  `--min_target_depth` (30x) are listed. Summary: uniformity (share of target bases with at least
+  0.2 x the mean depth), fold-80 base penalty, on-target rate and, for amplicons, the share of reads
+  with a clipped primer. Exons not covered by any target are marked uncertain.
+- **Ion Torrent:** `--platform iontorrent` (single-end FASTQ with only `--reads_r1`). Indels are
+  flagged as unreliable (homopolymer errors of the platform) and mosaic candidates are SNVs only.
+
+## Read QC and mosaic candidates
+
+Every run writes `qc/read_qc.json` and a report section with reads, mapping, proper pairs,
+duplicates, MAPQ 0, insert size, error rate and base quality over the gene regions, with warnings
+(for example more than 30 % duplicates, error rate above 1 %).
+
+`--mosaic` adds GATK Mutect2 in tumour-only mode over the gene regions. Calls that pass
+FilterMutectCalls, have an allele fraction between `--mosaic_min_af` (0.02) and `--mosaic_max_af`
+(0.30), at least `--mosaic_min_alt_reads` (3) supporting reads and `--mosaic_min_depth` (20) reads,
+and that the germline caller did not report are listed as **mosaic candidates**, annotated like
+germline variants. They always need confirmation by an orthogonal method; detection depends on depth
+(see Validation).
+
 ## What it does
 
 | Step | Tool | Output |
 |---|---|---|
 | Input check (GRCh38 via chr13/chr17 lengths, BED inside the loci) | `bin/brca12_prepare.py` | `qc/reference_check.json` |
-| Alignment | BWA-MEM, samtools fixmate/sort/markdup/index | `alignment/` |
+| Alignment | BWA-MEM, samtools fixmate/sort/markdup/index (single-end and amplicon aware) | `alignment/` |
+| Primer clipping (amplicon) | samtools ampliconclip | `alignment/*.primerclip.bam` |
+| Read and target QC | samtools stats/idxstats/depth | `qc/read_qc.json` |
 | SNVs/indels | GATK HaplotypeCaller (default) or DeepVariant (`--snv_caller deepvariant`) | `calls/<sample>.small.vcf.gz` |
+| Mosaic candidates (`--mosaic`) | GATK Mutect2 + FilterMutectCalls | `calls/<sample>.mosaic.vcf.gz` |
 | Structural variants | Manta, breakpoints within ±1 Mb of the genes | `calls/<sample>.manta.diploidSV.vcf.gz` |
-| CNVs | CNVkit WGS, flat reference over chr13/chr17, plus per-exon dosage | `calls/cnvkit/` |
+| CNVs | CNVkit (WGS, hybrid or amplicon; flat or `--cnv_reference`), plus per-exon dosage | `calls/cnvkit/` |
 | Per-gene extraction | bcftools norm/view with `brca12_regions.bed` | `variants/BRCA1.*`, `variants/BRCA2.*` |
 | Annotation | Ensembl VEP (MANE, gnomAD, HGVS) + ClinVar (`--custom`) | `variants/*.vep.vcf.gz` |
 | Exon coverage | mosdepth (MAPQ ≥ 20 and ≥ 0), samtools depth | `coverage/` |
@@ -185,7 +248,11 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
 ## Limitations
 
 - Single sample: CNVs are candidates only (no cohort for GATK gCNV); confirm by MLPA.
-- Mosaics below ~15 % and complex rearrangements are not reliably detected by short-read WGS.
+- Mosaics: at about 30x WGS, spiked variants at 5 % allele fraction were reported in 28 of 94 cases and
+  at 20 % in 94 of 94; deeper data (panels, exomes) are needed for low fractions. Complex
+  rearrangements are not reliably detected by short reads.
+- Exome and panel data cover only what the capture covers; untargeted regions (for example the BRCA2
+  3' UTR in both tested exomes) are listed as uncertain, not as negative.
 - Mobile element insertions have no dedicated caller. Manta missed real Alu insertions in several
   1000 Genomes carriers; the read-end signature recognises Alu sequence only and gives hints, not
   calls (see `validation/pathogenic/README.md`).
@@ -234,6 +301,41 @@ Spiked variants are simulated variants in real reads, not patient samples. Singl
 does not find events below about 10 kb; exon-level events currently rest on Manta. No real sample
 with a pathogenic exon deletion, duplication or Alu insertion was available. Details, tables and
 limits: [validation/pathogenic/README.md](validation/pathogenic/README.md).
+
+## Validation on exome and amplicon data
+
+Three public GIAB data sets, re-aligned from FASTQ to GRCh38 and compared with GIAB v4.2.1
+(`validation/targeted/run_targeted.sh`). Counts are inside the targets and the GIAB confident regions.
+
+| Data set | SNVs found | SNV false positives | Indels | Notes |
+|---|---|---|---|---|
+| HG002, Agilent SureSelect v5 exome (paired) | 10 of 12 | 0 | 0 of 1 | all misses in the BRCA2 3' UTR with 0-2 reads in the original data; flagged as uncertain |
+| HG001, Illumina TruSeq exome (paired, vendor BED) | 15 of 17 | 0 | 1 of 2, 1 FP | same 3' UTR region; the indel FP is a genotype error at 2 reads |
+| HG002, Ion AmpliSeq exome (single-end amplicons) | 8 of 8 | 3, all flagged for allele balance | 98 FP | Ion homopolymer errors: indels are flagged with `--platform iontorrent` |
+
+With `--mosaic`, none of the three data sets produced a mosaic candidate. The minimum of 3
+supporting reads and 20x depth and the SNV-only rule for Ion Torrent were set after a first run on
+these data (which gave 4 candidates for the TruSeq exome, all with 2 supporting reads at 8x, and 23
+indel candidates for Ion Torrent), so this is not an independent test of those thresholds. The same
+GIAB HG002 WGS benchmark run inside the Docker image gave the same result as the conda run (SNVs
+95 of 95, indels 19 of 20, exons ±20 bp 12 of 12, one indel false positive).
+
+## Validation of mosaic candidates
+
+94 small variants (SNVs and indels up to 40 bp) were spiked into real HG002 reads (about 30x) at
+allele fractions of 5 to 30 %, plus a negative control (`validation/pathogenic/run_mosaic.sh`).
+
+| Allele fraction | Mosaic candidates | Germline caller | Reported in either list | False positives |
+|---|---|---|---|---|
+| 5 % | 16 | 12 | 28 of 94 | 0 |
+| 10 % | 19 | 46 | 65 of 94 | 0 |
+| 15 % | 15 | 70 | 85 of 94 | 0 |
+| 20 % | 4 | 90 | 94 of 94 | 0 |
+| 30 % | 2 | 92 | 94 of 94 | 0 |
+| negative control | 0 | 0 | none spiked | 0 |
+
+Germline calls at these fractions carry the flag "unusual allele balance". At 30x, about 1.5 reads
+carry a 5 % variant, which sets the limit; spiked variants are simulated, not patient samples.
 
 ## Deutsch (Kurzfassung)
 
