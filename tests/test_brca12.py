@@ -401,9 +401,23 @@ class InsertionSignalTest(unittest.TestCase):
         counts = mod.count_markers(lines)
         self.assertEqual(list(counts.values())[0], [30, 2])
         regions = [("chr17", 43044294, 43170327, "BRCA1")]
-        found = mod.known_copies(counts, regions)
+        self.assertEqual(mod.known_copies(counts, regions), [])          # marker base alone is not enough
+        found = mod.known_copies(counts, regions, haplotypes={43128365: (4, 5, 1)})
         self.assertEqual((found[0]["duplicatedLength"], found[0]["markerReads"]), (126, "2/32"))
-        self.assertEqual(mod.known_copies(mod.count_markers(lines[1:]), regions), [])     # one C read is not enough
+        self.assertEqual((found[0]["evidence"], found[0]["haplotypeCopies"]), (["marker base", "haplotype"], 1))
+        found = mod.known_copies(mod.count_markers(lines[1:]), regions, haplotypes={43128365: (4, 5, 1)})
+        self.assertEqual(found, [])                                           # one C read: haplotype alone
+        found = mod.known_copies(mod.count_markers(lines[1:]), regions, haplotypes={43128365: (5, 5, 2)},
+                                 clipped={43128365})
+        self.assertEqual(found[0]["evidence"], ["clipped reads", "haplotype"])
+        rows = structural.insertion_signals(self._dump(found), [])
+        self.assertIn("Haplotyp homozygot: vermutlich zwei Allele mit der zusätzlichen Kopie", rows[0]["flags"])
+        self.assertNotIn("Markerbase der zusätzlichen Kopie in den Lesungen vorhanden", rows[0]["flags"])
+        # haplotype tags: alternative base in at least 3 reads and 20 %, homozygous from 80 %
+        tags = {("chr17", i, "G", "A"): c for i, c in enumerate([[10, 10], [0, 12], [9, 3], [20, 2]])}
+        self.assertEqual(mod.haplotype(tags), (3, 4, 1))
+        tags = {("chr17", i, "G", "A"): [1, 15] for i in range(3)}
+        self.assertEqual(mod.haplotype(tags), (3, 3, 2))
         merged = mod.merge_nearby({("chr1", 100): ["A", "B"], ("chr1", 108): ["C"], ("chr1", 300): ["D"]})
         self.assertEqual(merged, {("chr1", 100): ["A", "B", "C"], ("chr1", 300): ["D"]})
 

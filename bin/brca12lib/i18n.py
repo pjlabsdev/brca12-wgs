@@ -108,6 +108,11 @@ EXACT = {
     "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)": "extra 126 bp copy upstream of BRCA1 exon 1 (common allele)",
     "bekannte zusätzliche Tandemkopie": "known extra tandem copy",
     "Markerbase der zusätzlichen Kopie in den Lesungen vorhanden": "marker base of the extra copy present in the reads",
+    "gekoppelter Haplotyp der zusätzlichen Kopie vorhanden": "linked haplotype of the extra copy present",
+    "Haplotyp homozygot: vermutlich zwei Allele mit der zusätzlichen Kopie":
+        "haplotype homozygous: probably two alleles with the extra copy",
+    "Haplotyp heterozygot: vermutlich ein Allel mit der zusätzlichen Kopie":
+        "haplotype heterozygous: probably one allele with the extra copy",
     "abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie":
         "clipped read ends at both borders of a repeat unit: possible extra tandem copy",
     "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)":
@@ -251,6 +256,11 @@ EXACT_RU = {
     "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)": "дополнительная копия 126 п. н. перед экзоном 1 BRCA1 (частый аллель)",
     "bekannte zusätzliche Tandemkopie": "известная дополнительная тандемная копия",
     "Markerbase der zusätzlichen Kopie in den Lesungen vorhanden": "маркерное основание дополнительной копии присутствует в прочтениях",
+    "gekoppelter Haplotyp der zusätzlichen Kopie vorhanden": "сцепленный гаплотип дополнительной копии присутствует",
+    "Haplotyp homozygot: vermutlich zwei Allele mit der zusätzlichen Kopie":
+        "гаплотип гомозиготный: вероятно, два аллеля с дополнительной копией",
+    "Haplotyp heterozygot: vermutlich ein Allel mit der zusätzlichen Kopie":
+        "гаплотип гетерозиготный: вероятно, один аллель с дополнительной копией",
     "abgeschnittene Leseenden an beiden Grenzen einer Wiederholungseinheit: mögliche zusätzliche Tandemkopie":
         "обрезанные концы прочтений на обеих границах повторяющейся единицы: возможная дополнительная тандемная копия",
     "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)":

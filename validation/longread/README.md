@@ -42,6 +42,27 @@ site: 18 sites, none in an exon ±20 bp, 9 seen in a single sample.
   carriers among the 11 tested samples and in none of the 5 non-carriers
   (`results/tandem_copy.tsv`, `results/tandem_copy_truth.tsv`).
 
+## Independent test of the tandem-copy signature (`results/tandem_copy_independent*.tsv`)
+
+The rules of the signature were set on the 39 HPRC and 11 ONT samples above. As an independent
+test, 120 further 1KG-ONT samples with 1000 Genomes 30x data were taken (none used before): 67
+carry the 126 bp insertion in the long reads (`ont_genotype.py`), 53 do not. The short reads are the
+original 1000 Genomes alignments of chr17:43126000-43150000; the evaluation is
+`../hprc/tandem_copy_eval.py --sam`.
+
+| Signal | Carriers (67) | Non-carriers (53) |
+|---|---:|---:|
+| Clipped reads at both unit borders | 60 | 1 |
+| Marker base chr17:43128365 C | 65 | 2 |
+| Linked haplotype (at least 3 of 5 tag SNPs) | 67 | 1 |
+| Reported: at least 2 of 3 | 67 | 1 |
+
+The one non-carrier with a report (HG02687) shows all three signals (4+4 clipped reads, 4 of 43
+reads with C, 5 of 5 tag SNPs); it has only 8 spanning long reads, 1 of them with the insertion, so
+it may well be a carrier missed by the long-read genotype. The haplotype count gives the zygosity:
+all 18 carriers with two haplotype copies show the insertion in every spanning long read, and 48
+of the 49 with one copy show it in 22 to 83 % of them.
+
 Sites outside the gene loci (reads reach beyond them) are dropped, and a shorter insertion cluster
 with the same carriers next to a longer one (an insertion aligned in two pieces) is merged into it.
 
