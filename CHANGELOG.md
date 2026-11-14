@@ -24,8 +24,9 @@
   check of the structural variants in the 1KG-ONT cohort (`validation/longread/`, all 1,019 samples).
 - Tandem-copy signature (`brca12_insertion_signals.py --gene-fasta`): extra copies of a repeat unit
   (50 to 1,000 bp) from clipped reads at both unit borders, reported next to the Alu signature.
-  Finds the common 126 bp insertion upstream of BRCA1 exon 1 in 16 of 19 HPRC and 4 of 6 ONT carriers,
-  none in 25 non-carriers.
+  Clip positions a few bases apart are pooled, clips from 10 bp count, and the common 126 bp copy
+  upstream of BRCA1 exon 1 is also recognised by its marker base (chr17:43128365 C). It is found in
+  19 of 19 HPRC and 5 of 6 ONT carriers, none in 25 non-carriers.
 - Paper: sections on targeted data, low allele fractions, assembly truth and long reads; Figure 7.
 
 - GRCh37 position and BIC-style legacy names for every small variant (`grch37Pos`, `bicNames`,

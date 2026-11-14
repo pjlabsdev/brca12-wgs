@@ -392,6 +392,21 @@ class InsertionSignalTest(unittest.TestCase):
         self.assertEqual(rows[0]["type"], "Tandemkopie-Signatur")
         self.assertTrue(rows[0]["flags"][0].startswith("abgeschnittene Leseenden an beiden Grenzen"))
 
+    def test_known_copy_marker_and_nearby_clip_positions(self):
+        import brca12_insertion_signals as mod
+        def read(name, base, mapq=0):
+            seq = "A" * 20 + base + "A" * 29
+            return "\t".join([name, "0", "chr17", str(43128345), str(mapq), "50M", "*", "0", "0", seq, "I" * 50])
+        lines = [read(f"c{i}", "C") for i in range(2)] + [read(f"t{i}", "T", 60) for i in range(30)]
+        counts = mod.count_markers(lines)
+        self.assertEqual(list(counts.values())[0], [30, 2])
+        regions = [("chr17", 43044294, 43170327, "BRCA1")]
+        found = mod.known_copies(counts, regions)
+        self.assertEqual((found[0]["duplicatedLength"], found[0]["markerReads"]), (126, "2/32"))
+        self.assertEqual(mod.known_copies(mod.count_markers(lines[1:]), regions), [])     # one C read is not enough
+        merged = mod.merge_nearby({("chr1", 100): ["A", "B"], ("chr1", 108): ["C"], ("chr1", 300): ["D"]})
+        self.assertEqual(merged, {("chr1", 100): ["A", "B", "C"], ("chr1", 300): ["D"]})
+
     @staticmethod
     def _dump(rows):
         import json, tempfile
