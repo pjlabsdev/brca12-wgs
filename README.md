@@ -43,7 +43,7 @@ validation (last row).
 | Report language | English, German, Russian (Russian not reviewed by a native speaker) | English, Russian |
 | Reproducibility | Nextflow, pinned conda environments, Docker/Singularity image, every command and tool version in the report | Python script, Docker image |
 | Tests | unit tests and three full pipeline runs in CI | none in the repository |
-| Open validation | GIAB HG001/HG002 (WGS, 2 exomes, Ion AmpliSeq), real pathogenic carriers, spike-ins incl. mosaics, real SVs with long-read confirmation; all scripts in `validation/` | example data only |
+| Open validation | GIAB HG001/HG002 (WGS, 2 exomes, Ion AmpliSeq), real pathogenic carriers, spike-ins incl. mosaics, real SVs checked in ONT long reads, 39 HPRC samples against assembly-based truth; all scripts in `validation/` | example data only |
 | Clinical validation | none (research use only) | more than 900 patient samples, pathogenic variants confirmed by Sanger sequencing |
 
 The last row cannot be matched with open data: it would need sequencing of characterised reference
@@ -256,6 +256,9 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
 - Mobile element insertions have no dedicated caller. Manta missed real Alu insertions in several
   1000 Genomes carriers; the read-end signature recognises Alu sequence only and gives hints, not
   calls (see `validation/pathogenic/README.md`).
+- Insertions that add a copy of an adjacent tandem repeat are missed (0 of 19 HPRC carriers of a
+  126 bp insertion about 2.9 kb upstream of BRCA1 exon 1), and indel lengths in long homopolymers can differ from
+  assembly-based truth (BRCA1 3' UTR poly-T).
 - DeepVariant on macOS is only available via Docker; the default is GATK HaplotypeCaller.
 
 ## Tests
@@ -336,6 +339,32 @@ allele fractions of 5 to 30 %, plus a negative control (`validation/pathogenic/r
 
 Germline calls at these fractions carry the flag "unusual allele balance". At 30x, about 1.5 reads
 carry a 5 % variant, which sets the limit; spiked variants are simulated, not patient samples.
+
+## Validation against assembly-based truth (HPRC) and long reads
+
+39 samples of the Human Pangenome Reference Consortium are also in the 1000 Genomes 30x data. Their
+haplotype-resolved assemblies give a truth for the whole of both genes that does not depend on
+short reads (`validation/hprc/`):
+
+| Region | Type | Truth | Found | False positives |
+|---|---|---|---|---|
+| Exons ±20 bp | SNV | 590 | 590 | 0 |
+| Exons ±20 bp | Indel | 86 | 68 | 10 |
+| Gene loci | SNV | 8,095 | 8,026 | 100 |
+| Gene loci | Indel | 3,312 | 2,494 | 392 |
+
+16 of the 18 missed and 9 of the 10 false exon indels lie in one poly-T stretch of the BRCA1 3' UTR
+(chr17:43044804-43044817); outside it the exon indels are 41 of 43 with 1 false positive. Of the
+larger variants, the intronic BRCA2 Alu insertion showed the read-end signature in 6 of 6 carriers
+and 0 of 33 non-carriers, a BRCA1 VNTR was called in 8 of 14 carriers, and a 126 bp tandem-repeat
+insertion in 0 of 19 (see Limitations).
+
+Oxford Nanopore reads of the 1KG-ONT cohort (`validation/longread/`) confirm the short-read SV
+results: for the 11 tested samples the pipeline agrees with the long reads in 26 of 26 sample-site
+pairs. The only disagreement with the 1000 Genomes panel (271 bp deletion in HG01796) is absent in
+all 26 spanning long reads, so the panel genotype is most likely wrong. Across all 1,019 ONT samples, 18 events of 50 bp or more
+were found inside the gene loci, none in an exon; the 126 bp tandem-repeat insertion that short reads
+miss is carried by 552 of 1,004 samples.
 
 ## Deutsch (Kurzfassung)
 

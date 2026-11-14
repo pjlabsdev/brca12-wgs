@@ -25,7 +25,7 @@ LIMITATIONS = [
     "Nur GRCh38/hg38. Koordinaten BRCA1 chr17:43044295-43170327 (Minus-Strang), BRCA2 chr13:32315077-32400268 (Plus-Strang).",
     "Kurz-Read-WGS erfasst Mosaike unter etwa 15 % Allelanteil, komplexe Umlagerungen und Bereiche mit Pseudogen-Homologie (BRCA1-Exons 1-2 und BRCA1P1) nur eingeschränkt.",
     "CNVs stammen aus einer Einzelprobe mit flacher CNVkit-Referenz und gelten nur als Kandidaten. Einzelexon-Deletionen oder -Duplikationen unter etwa 1 kb sind unsicher; MLPA ist die übliche Bestätigung.",
-    "Manta meldet nur SVs mit Bruchpunkt im Suchfenster um BRCA1/BRCA2. Insertionen mobiler Elemente werden nicht sicher erkannt; die zusätzliche Suche nach Insertionssignaturen in abgeschnittenen Leseenden erkennt nur Alu-Sequenz, braucht mindestens 3 Lesungen je Bruchstelle und liefert Hinweise, keine Aufrufe.",
+    "Manta meldet nur SVs mit Bruchpunkt im Suchfenster um BRCA1/BRCA2. Insertionen mobiler Elemente werden nicht sicher erkannt; die zusätzliche Suche nach Insertionssignaturen in abgeschnittenen Leseenden erkennt nur Alu-Sequenz, braucht mindestens 3 Lesungen je Bruchstelle und liefert Hinweise, keine Aufrufe. Insertionen, die eine weitere Kopie einer benachbarten Tandemwiederholung einfügen, werden nicht erkannt.",
     "ACMG/AMP: nur maschinelle Hinweise auf einzelne Kriterien nach ClinGen ENIGMA v1.2. Keine Klassifikation; PVS1/PM5_PTC (Tabelle 4), PS3/BS3 (Tabelle 9) und PP4/BP5 stammen aus den mitgelieferten ENIGMA-Tabellen, PS1, PM3, BS2, BS4, PP1, PS4 und RNA-Daten der Probe fehlen. Die gnomAD-Lesetiefe wird nicht geprüft.",
     "ClinVar-Angaben hängen von der Version der verwendeten ClinVar-VCF ab.",
 ]
@@ -35,7 +35,7 @@ LIMITATIONS_EN = [
     "GRCh38/hg38 only. Coordinates BRCA1 chr17:43044295-43170327 (minus strand), BRCA2 chr13:32315077-32400268 (plus strand).",
     "Short-read WGS has limited sensitivity for mosaics below about 15% allele fraction, complex rearrangements and regions with pseudogene homology (BRCA1 exons 1-2 and BRCA1P1).",
     "CNVs come from a single sample with a flat CNVkit reference and are candidates only. Single-exon deletions or duplications below about 1 kb are uncertain; MLPA is the usual confirmation.",
-    "Manta only reports SVs with a breakpoint in the search window around BRCA1/BRCA2. Mobile element insertions are not reliably detected; the additional search for insertion signatures in clipped read ends recognises Alu sequence only, needs at least 3 reads per junction and gives hints, not calls.",
+    "Manta only reports SVs with a breakpoint in the search window around BRCA1/BRCA2. Mobile element insertions are not reliably detected; the additional search for insertion signatures in clipped read ends recognises Alu sequence only, needs at least 3 reads per junction and gives hints, not calls. Insertions that add a copy of an adjacent tandem repeat are not detected.",
     "ACMG/AMP: automated hints on individual criteria following ClinGen ENIGMA v1.2. No classification; PVS1/PM5_PTC (Table 4), PS3/BS3 (Table 9) and PP4/BP5 come from the bundled ENIGMA tables, PS1, PM3, BS2, BS4, PP1, PS4 and RNA data of the sample are missing. gnomAD read depth is not checked.",
     "ClinVar entries depend on the version of the ClinVar VCF used.",
 ]
@@ -46,7 +46,7 @@ LIMITATIONS_RU = [
     "Только GRCh38/hg38. Координаты BRCA1 chr17:43044295-43170327 (минус-цепь), BRCA2 chr13:32315077-32400268 (плюс-цепь).",
     "Полногеномное секвенирование короткими прочтениями имеет ограниченную чувствительность к мозаицизму с долей аллеля ниже примерно 15 %, к сложным перестройкам и к областям с гомологией псевдогенов (экзоны 1-2 BRCA1 и BRCA1P1).",
     "CNV получены по одному образцу с плоской референсной моделью CNVkit и являются только кандидатами. Делеции или дупликации одного экзона короче примерно 1 т. п. н. неопределённы; обычное подтверждение: MLPA.",
-    "Manta сообщает только о SV с точкой разрыва в окне поиска вокруг BRCA1/BRCA2. Вставки мобильных элементов надёжно не выявляются; дополнительный поиск сигнатур вставок по обрезанным концам прочтений распознаёт только последовательность Alu, требует не менее 3 прочтений на стык и даёт указания, а не вызовы.",
+    "Manta сообщает только о SV с точкой разрыва в окне поиска вокруг BRCA1/BRCA2. Вставки мобильных элементов надёжно не выявляются; дополнительный поиск сигнатур вставок по обрезанным концам прочтений распознаёт только последовательность Alu, требует не менее 3 прочтений на стык и даёт указания, а не вызовы. Вставки, добавляющие ещё одну копию соседнего тандемного повтора, не выявляются.",
     "ACMG/AMP: только автоматические указания по отдельным критериям согласно ClinGen ENIGMA v1.2. Без классификации; PVS1/PM5_PTC (таблица 4), PS3/BS3 (таблица 9) и PP4/BP5 взяты из прилагаемых таблиц ENIGMA, PS1, PM3, BS2, BS4, PP1, PS4 и РНК-данные образца отсутствуют. Глубина прочтения gnomAD не проверяется.",
     "Данные ClinVar зависят от версии используемого ClinVar VCF.",
 ]

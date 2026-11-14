@@ -20,6 +20,10 @@
   TruSeq exome and HG002 Ion AmpliSeq exome against GIAB v4.2.1; mosaic spike-ins
   (`validation/pathogenic/run_mosaic.sh`, `mosaic_eval.py`).
 - README: feature comparison with BRCA-analyzer.
+- Validation against assembly-based truth for 39 HPRC samples (`validation/hprc/`) and a long-read
+  check of the structural variants in the 1KG-ONT cohort (`validation/longread/`, all 1,019 samples).
+- Limitation documented: insertions that add a copy of an adjacent tandem repeat are not detected.
+- Paper: sections on targeted data, low allele fractions, assembly truth and long reads; Figure 7.
 
 - GRCh37 position and BIC-style legacy names for every small variant (`grch37Pos`, `bicNames`,
   shown next to HGVS), for comparison with older reports; checked against 4,464 BRCA Exchange BIC

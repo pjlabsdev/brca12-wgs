@@ -1,0 +1,27 @@
+sample	site	type	longReads	supportingReads	panel	pipeline
+HG00096	HGSV_181048	ALU	absent	0/24	absent	-
+HG00096	HGSV_181052	ALU	absent	0/27	absent	-
+HG00096	HGSV_216996	DEL	absent	0/21	absent	-
+HG00096	HGSV_216998	DEL	absent	0/27	absent	-
+HG00117	HGSV_181048	ALU	present	10/18	present	read-end signal
+HG00365	HGSV_181048	ALU	absent	0/13	absent	-
+HG00365	HGSV_181052	ALU	absent	0/15	absent	-
+HG00637	HGSV_181048	ALU	present	16/27	present	read-end signal
+HG00637	HGSV_181052	ALU	absent	0/23	absent	-
+HG00637	HGSV_216998	DEL	present	17/30	present	call
+HG01377	HGSV_181048	ALU	present	6/13	present	read-end signal
+HG01377	HGSV_181052	ALU	absent	0/9	absent	-
+HG01796	HGSV_181048	ALU	absent	0/27	absent	-
+HG01796	HGSV_181052	ALU	absent	0/30	absent	-
+HG01796	HGSV_216996	DEL	absent	0/26	present	-
+HG01990	HGSV_181048	ALU	absent	0/23	absent	-
+HG01990	HGSV_181052	ALU	absent	0/17	absent	-
+HG01990	HGSV_216998	DEL	present	4/14	present	call
+HG02164	HGSV_181048	ALU	absent	0/15	absent	-
+HG02164	HGSV_181052	ALU	absent	0/21	absent	-
+HG02274	HGSV_181048	ALU	absent	0/15	absent	-
+HG02274	HGSV_181052	ALU	absent	0/26	absent	-
+HG03929	HGSV_181048	ALU	absent	0/23	absent	-
+HG03929	HGSV_181052	ALU	absent	0/14	absent	-
+NA19397	HGSV_181048	ALU	absent	0/4	absent	-
+NA19397	HGSV_181052	ALU	absent	0/10	absent	-

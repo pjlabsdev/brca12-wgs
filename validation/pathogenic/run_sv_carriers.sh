@@ -16,6 +16,7 @@ HERE="$ROOT/validation/pathogenic"
 WORK="${1:?usage: run_sv_carriers.sh WORKDIR}"
 DATA="$WORK/data"
 SUFFIX="${MATES:+_mates}"
+OUTDIR="${OUTDIR:-sv_carriers$SUFFIX}"     # folder below WORKDIR; run_hprc.sh uses its own
 KG="$WORK/svkg$SUFFIX"
 FULLREF=https://1000genomes.s3.amazonaws.com/technical/reference/GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa
 TABLE="${TABLE:-$HERE/sv_carriers_1000g.tsv}"
@@ -25,8 +26,9 @@ REG="chr17:43034295-43180327 chr13:32305077-32410268"
 mkdir -p "$KG" && cd "$KG"
 
 # The samples of run_carriers.sh are run as well: at the Alu sites all samples are evaluated.
-grep -hv '^#' "$TABLE" "$HERE/carriers_1000g.tsv" | while IFS=$'\t' read -r s run prefix _; do
-  out="$WORK/sv_carriers$SUFFIX/$s"
+LISTS=("$TABLE"); [[ -n ${TABLE_ONLY:-} ]] || LISTS+=("$HERE/carriers_1000g.tsv")
+grep -hv '^#' "${LISTS[@]}" | while IFS=$'\t' read -r s run prefix _; do
+  out="$WORK/$OUTDIR/$s"
   [[ -s $out/brca12_results.json ]] && continue
   if [[ ! -s ${s}_R1.fastq.gz ]]; then
     for attempt in 1 2 3 4; do   # the remote read occasionally stalls
@@ -55,6 +57,7 @@ grep -hv '^#' "$TABLE" "$HERE/carriers_1000g.tsv" | while IFS=$'\t' read -r s ru
      --threads "$THREADS" --outdir "$out" < /dev/null)
   rm -rf "$WORK/work_$s"
 done
+[[ -z ${TABLE_ONLY:-} ]] || exit 0
 python3 "$HERE/sv_carriers_eval.py" --sites "$HERE/sv_sites_1000g.tsv" --carriers "$HERE/sv_carriers_1000g.tsv" \
-  --alu-genotypes "$HERE/alu_genotypes_1000g.tsv" --more-workdir "$WORK/sv_carriers$SUFFIX" \
-  --workdir "$WORK/sv_carriers$SUFFIX" --out "$WORK/sv_carriers$SUFFIX/sv_carriers_summary"
+  --alu-genotypes "$HERE/alu_genotypes_1000g.tsv" --more-workdir "$WORK/$OUTDIR" \
+  --workdir "$WORK/$OUTDIR" --out "$WORK/$OUTDIR/sv_carriers_summary"
