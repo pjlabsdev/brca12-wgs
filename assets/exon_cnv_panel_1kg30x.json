@@ -11,8 +11,8 @@
    "end": 32315667,
    "gene": "BRCA2",
    "label": "Exon 1",
-   "median": 0.2178,
-   "sd": 0.1457
+   "median": 0.2653,
+   "sd": 0.147
   },
   "BRCA2_ex02": {
    "chrom": "chr13",
@@ -20,8 +20,8 @@
    "end": 32316527,
    "gene": "BRCA2",
    "label": "Exon 2",
-   "median": -0.0225,
-   "sd": 0.1484
+   "median": 0.0219,
+   "sd": 0.1437
   },
   "BRCA2_ex03": {
    "chrom": "chr13",
@@ -29,8 +29,8 @@
    "end": 32319325,
    "gene": "BRCA2",
    "label": "Exon 3",
-   "median": -0.0214,
-   "sd": 0.1736
+   "median": 0.0173,
+   "sd": 0.1738
   },
   "BRCA2_ex04": {
    "chrom": "chr13",
@@ -38,8 +38,8 @@
    "end": 32325184,
    "gene": "BRCA2",
    "label": "Exon 4",
-   "median": -0.1396,
-   "sd": 0.1537
+   "median": -0.0926,
+   "sd": 0.1507
   },
   "BRCA2_ex05": {
    "chrom": "chr13",
@@ -47,8 +47,8 @@
    "end": 32326150,
    "gene": "BRCA2",
    "label": "Exon 5",
-   "median": 0.0522,
-   "sd": 0.1715
+   "median": 0.109,
+   "sd": 0.1673
   },
   "BRCA2_ex06": {
    "chrom": "chr13",
@@ -56,8 +56,8 @@
    "end": 32326282,
    "gene": "BRCA2",
    "label": "Exon 6",
-   "median": 0.0055,
-   "sd": 0.1927
+   "median": 0.0687,
+   "sd": 0.1819
   },
   "BRCA2_ex07": {
    "chrom": "chr13",
@@ -65,8 +65,8 @@
    "end": 32326613,
    "gene": "BRCA2",
    "label": "Exon 7",
-   "median": -0.0001,
-   "sd": 0.163
+   "median": 0.0508,
+   "sd": 0.1652
   },
   "BRCA2_ex08": {
    "chrom": "chr13",
@@ -74,8 +74,8 @@
    "end": 32329492,
    "gene": "BRCA2",
    "label": "Exon 8",
-   "median": -0.0639,
-   "sd": 0.1719
+   "median": -0.0122,
+   "sd": 0.1677
   },
   "BRCA2_ex09": {
    "chrom": "chr13",
@@ -83,8 +83,8 @@
    "end": 32331030,
    "gene": "BRCA2",
    "label": "Exon 9",
-   "median": -0.079,
-   "sd": 0.1564
+   "median": -0.0213,
+   "sd": 0.1407
   },
   "BRCA2_ex10": {
    "chrom": "chr13",
@@ -92,8 +92,8 @@
    "end": 32333387,
    "gene": "BRCA2",
    "label": "Exon 10",
-   "median": -0.0313,
-   "sd": 0.1239
+   "median": -0.02,
+   "sd": 0.1218
   },
   "BRCA2_ex11": {
    "chrom": "chr13",
@@ -101,8 +101,8 @@
    "end": 32341196,
    "gene": "BRCA2",
    "label": "Exon 11",
-   "median": -0.0092,
-   "sd": 0.0711
+   "median": -0.0055,
+   "sd": 0.0714
   },
   "BRCA2_ex12": {
    "chrom": "chr13",
@@ -110,8 +110,8 @@
    "end": 32344653,
    "gene": "BRCA2",
    "label": "Exon 12",
-   "median": -0.0261,
-   "sd": 0.1461
+   "median": 0.0208,
+   "sd": 0.1517
   },
   "BRCA2_ex13": {
    "chrom": "chr13",
@@ -119,8 +119,8 @@
    "end": 32346896,
    "gene": "BRCA2",
    "label": "Exon 13",
-   "median": -0.0287,
-   "sd": 0.1779
+   "median": 0.0318,
+   "sd": 0.1597
   },
   "BRCA2_ex14": {
    "chrom": "chr13",
@@ -128,8 +128,8 @@
    "end": 32355288,
    "gene": "BRCA2",
    "label": "Exon 14",
-   "median": -0.0716,
-   "sd": 0.1733
+   "median": -0.0363,
+   "sd": 0.172
   },
   "BRCA2_ex15": {
    "chrom": "chr13",
@@ -137,8 +137,8 @@
    "end": 32356609,
    "gene": "BRCA2",
    "label": "Exon 15",
-   "median": 0.0492,
-   "sd": 0.1752
+   "median": 0.081,
+   "sd": 0.17
   },
   "BRCA2_ex16": {
    "chrom": "chr13",
@@ -146,8 +146,8 @@
    "end": 32357929,
    "gene": "BRCA2",
    "label": "Exon 16",
-   "median": 0.0302,
-   "sd": 0.1351
+   "median": 0.0659,
+   "sd": 0.137
   },
   "BRCA2_ex17": {
    "chrom": "chr13",
@@ -155,8 +155,8 @@
    "end": 32362693,
    "gene": "BRCA2",
    "label": "Exon 17",
-   "median": -0.0303,
-   "sd": 0.1212
+   "median": 0.0187,
+   "sd": 0.1172
   },
   "BRCA2_ex18": {
    "chrom": "chr13",
@@ -164,8 +164,8 @@
    "end": 32363533,
    "gene": "BRCA2",
    "label": "Exon 18",
-   "median": -0.0426,
-   "sd": 0.1447
+   "median": -0.0083,
+   "sd": 0.1394
   },
   "BRCA2_ex19": {
    "chrom": "chr13",
@@ -173,8 +173,8 @@
    "end": 32370557,
    "gene": "BRCA2",
    "label": "Exon 19",
-   "median": -0.0889,
-   "sd": 0.1361
+   "median": -0.0496,
+   "sd": 0.1326
   },
   "BRCA2_ex20": {
    "chrom": "chr13",
@@ -182,8 +182,8 @@
    "end": 32371100,
    "gene": "BRCA2",
    "label": "Exon 20",
-   "median": -0.0731,
-   "sd": 0.1521
+   "median": -0.0348,
+   "sd": 0.1523
   },
   "BRCA2_ex21": {
    "chrom": "chr13",
@@ -191,8 +191,8 @@
    "end": 32376791,
    "gene": "BRCA2",
    "label": "Exon 21",
-   "median": -0.093,
-   "sd": 0.149
+   "median": -0.0331,
+   "sd": 0.1506
   },
   "BRCA2_ex22": {
    "chrom": "chr13",
@@ -200,8 +200,8 @@
    "end": 32379515,
    "gene": "BRCA2",
    "label": "Exon 22",
-   "median": -0.0628,
-   "sd": 0.1675
+   "median": -0.0173,
+   "sd": 0.1645
   },
   "BRCA2_ex23": {
    "chrom": "chr13",
@@ -209,8 +209,8 @@
    "end": 32379913,
    "gene": "BRCA2",
    "label": "Exon 23",
-   "median": -0.0043,
-   "sd": 0.1739
+   "median": 0.0327,
+   "sd": 0.1655
   },
   "BRCA2_ex24": {
    "chrom": "chr13",
@@ -218,8 +218,8 @@
    "end": 32380145,
    "gene": "BRCA2",
    "label": "Exon 24",
-   "median": -0.052,
-   "sd": 0.2034
+   "median": 0.0027,
+   "sd": 0.1973
   },
   "BRCA2_ex25": {
    "chrom": "chr13",
@@ -227,8 +227,8 @@
    "end": 32394933,
    "gene": "BRCA2",
    "label": "Exon 25",
-   "median": 0.032,
-   "sd": 0.1552
+   "median": 0.0653,
+   "sd": 0.1509
   },
   "BRCA2_ex26": {
    "chrom": "chr13",
@@ -236,8 +236,8 @@
    "end": 32397044,
    "gene": "BRCA2",
    "label": "Exon 26",
-   "median": 0.0255,
-   "sd": 0.1117
+   "median": 0.0662,
+   "sd": 0.1157
   },
   "BRCA2_ex27": {
    "chrom": "chr13",
@@ -245,7 +245,7 @@
    "end": 32400268,
    "gene": "BRCA2",
    "label": "Exon 27",
-   "median": -0.0159,
+   "median": -0.0057,
    "sd": 0.07
   },
   "BRCA1_ex23": {
@@ -254,8 +254,8 @@
    "end": 43045802,
    "gene": "BRCA1",
    "label": "Exon 23 (Legacy 24)",
-   "median": 0.0249,
-   "sd": 0.0986
+   "median": 0.0389,
+   "sd": 0.0992
   },
   "BRCA1_ex22": {
    "chrom": "chr17",
@@ -263,8 +263,8 @@
    "end": 43047703,
    "gene": "BRCA1",
    "label": "Exon 22 (Legacy 23)",
-   "median": -0.0057,
-   "sd": 0.1707
+   "median": 0.0451,
+   "sd": 0.1618
   },
   "BRCA1_ex21": {
    "chrom": "chr17",
@@ -272,8 +272,8 @@
    "end": 43049194,
    "gene": "BRCA1",
    "label": "Exon 21 (Legacy 22)",
-   "median": -0.0695,
-   "sd": 0.1828
+   "median": -0.0131,
+   "sd": 0.1785
   },
   "BRCA1_ex20": {
    "chrom": "chr17",
@@ -281,8 +281,8 @@
    "end": 43051117,
    "gene": "BRCA1",
    "label": "Exon 20 (Legacy 21)",
-   "median": -0.02,
-   "sd": 0.1698
+   "median": 0.0237,
+   "sd": 0.185
   },
   "BRCA1_ex19": {
    "chrom": "chr17",
@@ -290,8 +290,8 @@
    "end": 43057135,
    "gene": "BRCA1",
    "label": "Exon 19 (Legacy 20)",
-   "median": -0.0312,
-   "sd": 0.1435
+   "median": 0.0174,
+   "sd": 0.1461
   },
   "BRCA1_ex18": {
    "chrom": "chr17",
@@ -299,8 +299,8 @@
    "end": 43063373,
    "gene": "BRCA1",
    "label": "Exon 18 (Legacy 19)",
-   "median": -0.0508,
-   "sd": 0.1767
+   "median": -0.0006,
+   "sd": 0.1865
   },
   "BRCA1_ex17": {
    "chrom": "chr17",
@@ -308,8 +308,8 @@
    "end": 43063951,
    "gene": "BRCA1",
    "label": "Exon 17 (Legacy 18)",
-   "median": -0.0356,
-   "sd": 0.1588
+   "median": 0.0214,
+   "sd": 0.1504
   },
   "BRCA1_ex16": {
    "chrom": "chr17",
@@ -317,8 +317,8 @@
    "end": 43067695,
    "gene": "BRCA1",
    "label": "Exon 16 (Legacy 17)",
-   "median": -0.028,
-   "sd": 0.1479
+   "median": 0.0334,
+   "sd": 0.1719
   },
   "BRCA1_ex15": {
    "chrom": "chr17",
@@ -326,8 +326,8 @@
    "end": 43071238,
    "gene": "BRCA1",
    "label": "Exon 15 (Legacy 16)",
-   "median": 0.0491,
-   "sd": 0.1184
+   "median": 0.0838,
+   "sd": 0.1235
   },
   "BRCA1_ex14": {
    "chrom": "chr17",
@@ -335,8 +335,8 @@
    "end": 43074521,
    "gene": "BRCA1",
    "label": "Exon 14 (Legacy 15)",
-   "median": 0.0244,
-   "sd": 0.1212
+   "median": 0.0561,
+   "sd": 0.1261
   },
   "BRCA1_ex13": {
    "chrom": "chr17",
@@ -344,8 +344,8 @@
    "end": 43076614,
    "gene": "BRCA1",
    "label": "Exon 13 (Legacy 14)",
-   "median": -0.1162,
-   "sd": 0.1684
+   "median": -0.0615,
+   "sd": 0.1599
   },
   "BRCA1_ex12": {
    "chrom": "chr17",
@@ -353,8 +353,8 @@
    "end": 43082575,
    "gene": "BRCA1",
    "label": "Exon 12 (Legacy 13)",
-   "median": -0.0406,
-   "sd": 0.1577
+   "median": 0.0097,
+   "sd": 0.1665
   },
   "BRCA1_ex11": {
    "chrom": "chr17",
@@ -362,8 +362,8 @@
    "end": 43091032,
    "gene": "BRCA1",
    "label": "Exon 11 (Legacy 12)",
-   "median": -0.0081,
-   "sd": 0.1576
+   "median": 0.0462,
+   "sd": 0.1459
   },
   "BRCA1_ex10": {
    "chrom": "chr17",
@@ -371,8 +371,8 @@
    "end": 43094860,
    "gene": "BRCA1",
    "label": "Exon 10 (Legacy 11)",
-   "median": -0.0189,
-   "sd": 0.0779
+   "median": -0.0131,
+   "sd": 0.0765
   },
   "BRCA1_ex09": {
    "chrom": "chr17",
@@ -380,8 +380,8 @@
    "end": 43095922,
    "gene": "BRCA1",
    "label": "Exon 9 (Legacy 10)",
-   "median": -0.0433,
-   "sd": 0.1834
+   "median": 0.0032,
+   "sd": 0.1868
   },
   "BRCA1_ex08": {
    "chrom": "chr17",
@@ -389,8 +389,8 @@
    "end": 43097289,
    "gene": "BRCA1",
    "label": "Exon 8 (Legacy 9)",
-   "median": 0.0493,
-   "sd": 0.1379
+   "median": 0.1132,
+   "sd": 0.1484
   },
   "BRCA1_ex07": {
    "chrom": "chr17",
@@ -398,8 +398,8 @@
    "end": 43099880,
    "gene": "BRCA1",
    "label": "Exon 7 (Legacy 8)",
-   "median": -0.0107,
-   "sd": 0.1578
+   "median": 0.0524,
+   "sd": 0.1545
   },
   "BRCA1_ex06": {
    "chrom": "chr17",
@@ -407,8 +407,8 @@
    "end": 43104261,
    "gene": "BRCA1",
    "label": "Exon 6 (Legacy 7)",
-   "median": -0.0576,
-   "sd": 0.1605
+   "median": 0.0025,
+   "sd": 0.1577
   },
   "BRCA1_ex05": {
    "chrom": "chr17",
@@ -416,8 +416,8 @@
    "end": 43104956,
    "gene": "BRCA1",
    "label": "Exon 5 (Legacy 6)",
-   "median": -0.0466,
-   "sd": 0.1607
+   "median": 0.0015,
+   "sd": 0.1562
   },
   "BRCA1_ex04": {
    "chrom": "chr17",
@@ -425,8 +425,8 @@
    "end": 43106533,
    "gene": "BRCA1",
    "label": "Exon 4 (Legacy 5)",
-   "median": 0.0226,
-   "sd": 0.1644
+   "median": 0.0844,
+   "sd": 0.1546
   },
   "BRCA1_ex03": {
    "chrom": "chr17",
@@ -434,8 +434,8 @@
    "end": 43115779,
    "gene": "BRCA1",
    "label": "Exon 3",
-   "median": 0.0244,
-   "sd": 0.1804
+   "median": 0.0655,
+   "sd": 0.1678
   },
   "BRCA1_ex02": {
    "chrom": "chr17",
@@ -443,8 +443,8 @@
    "end": 43124115,
    "gene": "BRCA1",
    "label": "Exon 2",
-   "median": 0.0334,
-   "sd": 0.1138
+   "median": 0.0873,
+   "sd": 0.1111
   },
   "BRCA1_ex01": {
    "chrom": "chr17",
@@ -452,8 +452,8 @@
    "end": 43125364,
    "gene": "BRCA1",
    "label": "Exon 1",
-   "median": -0.002,
-   "sd": 0.1502
+   "median": 0.0641,
+   "sd": 0.1507
   }
  },
  "controls": {

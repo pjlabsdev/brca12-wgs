@@ -8,7 +8,10 @@ states 0-4) turns the deviations into segments; a segment is reported when its q
 the posterior probability that its exons have two copies, reaches `minQuality`.
 
 Validation (validation/exon_cnv): rules frozen before the test; on 60 new 1000 Genomes samples with
-simulated events 569/600 deletions and 209/360 duplications, no call in the 60 unmodified genomes."""
+simulated events 569/600 deletions and 209/360 duplications, no call in the 60 unmodified genomes.
+Step 2 (frozen test on 58 further samples, events simulated on real haplotypes): segments with
+5 <= quality < 10 are reported as hints; with allele balance at heterozygous sites (HaplotypeCaller
+calls) 567/580 deletions and 244/348 duplications at quality >= 5, no false call."""
 import json
 import math
 import statistics
@@ -16,6 +19,7 @@ import statistics
 STATES = (0, 1, 2, 3, 4)
 SHIFT = {0: -3.0, 1: -1.0, 2: 0.0, 3: math.log2(1.5), 4: 1.0}
 PRIOR = {0: 1e-5, 1: 5e-4, 2: 1 - 1e-3, 3: 5e-4 - 2e-5, 4: 1e-5}
+HINT_QUALITY = 5   # segments with HINT_QUALITY <= quality < minQuality are reported as hints (step-2 rules)
 
 
 def load_panel(path):
@@ -64,10 +68,35 @@ def _lse(values):
     return m + math.log(sum(math.exp(v - m) for v in values))
 
 
-def hmm(ys, sds, p_change):
-    """Forward-backward and Viterbi over exons. Returns per-exon posteriors and the Viterbi path."""
+# Expected fraction of the second allele at a heterozygous site per copy-number state (phase unknown,
+# so a mixture over which haplotype carries the extra or missing copy).
+_AB_MIX = {0: (0.02, 0.98), 1: (0.02, 0.98), 2: (0.5,), 3: (1 / 3, 2 / 3), 4: (0.25, 0.5, 0.75)}
+
+
+def allele_loglik(counts):
+    """log P(allele counts | state) summed over heterozygous sites [(ref_reads, alt_reads), ...]."""
+    out = {c: 0.0 for c in STATES}
+    for ref, alt in counts:
+        n = ref + alt
+        if n == 0:
+            continue
+        for c in STATES:
+            fr = _AB_MIX[c]
+            out[c] += _lse([alt * math.log(f) + ref * math.log(1 - f) - math.log(len(fr)) for f in fr])
+    return out
+
+
+def hmm(ys, sds, p_change, allele_counts=None):
+    """Forward-backward and Viterbi over exons. Returns per-exon posteriors and the Viterbi path.
+    allele_counts: optional per exon list of (ref, alt) read counts at heterozygous sites."""
     n = len(ys)
     emis = [{c: _logpdf(ys[i], SHIFT[c], sds[i] if c != 0 else 1.0) for c in STATES} for i in range(n)]
+    if allele_counts:
+        for i in range(n):
+            if allele_counts[i]:
+                ab = allele_loglik(allele_counts[i])
+                for c in STATES:
+                    emis[i][c] += ab[c]
     trans = {(a, b): math.log(1 - p_change) if a == b else math.log(p_change * PRIOR[b] / (1 - PRIOR[a]))
              for a in STATES for b in STATES}
     start = {c: math.log(PRIOR[c]) + emis[0][c] for c in STATES}
@@ -95,12 +124,17 @@ def hmm(ys, sds, p_change):
     return post, path[::-1]
 
 
-def call(panel, depths):
-    """Exon table and copy-number segments for one sample from interval mean depths."""
+def call(panel, depths, alleles=None):
+    """Exon table and copy-number segments for one sample from interval mean depths.
+    alleles: optional {exon name: [(ref_reads, alt_reads), ...]} at heterozygous sites (allele balance)."""
     controls = [depths.get(name) for name in panel["controls"]]
     controls = [d for d in controls if d]
     result = {"enabled": True, "panel": panel.get("description"), "panelSize": panel.get("size"),
               "pad": panel["pad"], "minQuality": panel["minQuality"], "exons": [], "calls": []}
+    hint_q = panel.get("hintQuality", HINT_QUALITY)
+    result["hintQuality"] = hint_q
+    result["hints"] = []
+    result["alleleBalance"] = bool(alleles)
     if len(controls) < max(3, len(panel["controls"]) // 2):
         result.update(enabled=False, reason="too few control windows with depth")
         return result
@@ -116,9 +150,11 @@ def call(panel, depths):
             continue
         ys = [math.log2(max(depths[n], 0.05) / norm) - e["median"] for _, n, e in rows]
         sds = [e["sd"] for _, _, e in rows]
-        post, path = hmm(ys, sds, panel["pChange"])
+        counts = [list((alleles or {}).get(n, [])) for _, n, _ in rows] if alleles else None
+        post, path = hmm(ys, sds, panel["pChange"], counts)
         for (_, n, e), y, sd, p, s in zip(rows, ys, sds, post, path):
             result["exons"].append({"gene": gene, "exon": n, "label": e.get("label", n), "log2Deviation": round(y, 3),
+                                    "hetSites": len((alleles or {}).get(n, [])),
                                     "z": round(y / sd, 2), "copyNumber": s, "pTwoCopies": round(p[2], 4)})
         i = 0
         while i < len(rows):
@@ -130,9 +166,9 @@ def call(panel, depths):
                 j += 1
             p2 = max(1e-300, max(post[k][2] for k in range(i, j + 1)))
             quality = min(99, int(-10 * math.log10(p2)))
-            if quality >= panel["minQuality"]:
+            if quality >= hint_q:
                 first, last = rows[i][2], rows[j][2]
-                result["calls"].append({
+                result["calls" if quality >= panel["minQuality"] else "hints"].append({
                     "gene": gene, "copyNumber": path[i],
                     "type": "Deletion" if path[i] < 2 else "Duplikation",
                     "chrom": first["chrom"], "start": min(first["start"], last["start"]) + 1,
@@ -144,6 +180,29 @@ def call(panel, depths):
                 })
             i = j + 1
     return result
+
+
+def allele_counts(records, panel):
+    """{exon: [(ref_reads, alt_reads), ...]} from heterozygous biallelic SNV calls (GT 0/1 with AD)
+    inside exon +/- pad; same site filter as the validation (>= 2 reads per allele, minor >= 0.15)."""
+    pad = panel["pad"]
+    out = {}
+    for rec in records:
+        if len(rec["ref"]) != 1 or len(rec["alts"]) != 1 or len(rec["alts"][0]) != 1:
+            continue
+        gt = rec["sample"].get("GT", "").replace("|", "/")
+        if gt not in ("0/1", "1/0"):
+            continue
+        try:
+            ref, alt = (int(x) for x in rec["sample"].get("AD", "").split(",")[:2])
+        except ValueError:
+            continue
+        if min(ref, alt) < 2 or min(ref, alt) / (ref + alt) < 0.15:
+            continue
+        for name, e in panel["exons"].items():
+            if e["chrom"] == rec["chrom"] and e["start"] - pad < rec["pos"] <= e["end"] + pad:
+                out.setdefault(name, []).append((ref, alt))
+    return out
 
 
 def build_panel(samples, exons, controls, pad, p_change, min_quality, min_sd=0.07, description=None):

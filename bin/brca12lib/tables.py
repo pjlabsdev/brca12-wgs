@@ -45,7 +45,7 @@ def sample_sheets(result):
              _join([d.get("note")] + (d.get("flags") or []))] for d in result.get("exonDosageHints") or []]
     cnv += [[sample, c.get("gene"), c.get("type"), c.get("chrom"), c.get("start"), c.get("end"),
              c.get("copyNumber"), c.get("meanLog2Deviation"), _join(c.get("affectedExons") or []), _join(c.get("flags") or [])]
-            for c in (result.get("exonCopyNumber") or {}).get("calls", [])]
+            for c in (result.get("exonCopyNumber") or {}).get("calls", []) + (result.get("exonCopyNumber") or {}).get("hints", [])]
     sv = [["sample", "gene", "type", "chrom", "pos", "end", "mate", "genotype", "paired_reads", "split_reads",
            "filter", "affected_exons", "flags"]]
     sv += [[sample, s.get("gene"), s.get("type"), s.get("chrom"), s.get("pos"), s.get("end"),

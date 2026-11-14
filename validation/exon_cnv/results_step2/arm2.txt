@@ -1,0 +1,13 @@
+depth only; panel 80; eval samples 58; min_q 5; simulated events, not patient samples
+deletions 567/580  duplications 237/348
+  DEL1       n=116 found 107 exact 107
+  DEL2       n=116 found 116 exact 114
+  DEL3       n=116 found 116 exact 114
+  DEL5       n=116 found 115 exact 113
+  DELall     n=116 found 113 exact 112
+  DUP1       n=116 found  41 exact  40
+  DUP2       n=116 found  88 exact  80
+  DUP3       n=116 found 108 exact  94
+  PSEUDO_DEL n= 58 found  58 exact  58
+  PSEUDO_DUP n= 58 found  54 exact  51
+false calls: {'null_calls': 0, 'other_calls': 0, 'null_samples': 58}

@@ -39,7 +39,12 @@ def main(argv=None):
     if args.out:
         handle = sys.stdin if args.depth == "-" else open(args.depth)
         depths = exon_cnv.mean_depths(handle, rows)
-        json.dump(exon_cnv.call(panel, depths), open(args.out, "w"), indent=1)
+        result = exon_cnv.call(panel, depths)
+        # depths and panel travel with the result so that the report can add allele balance from the
+        # small-variant calls (brca12_report.py)
+        result["depths"] = depths
+        result["panelData"] = panel
+        json.dump(result, open(args.out, "w"), indent=1)
     return 0
 
 
