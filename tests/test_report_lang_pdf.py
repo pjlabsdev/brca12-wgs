@@ -60,7 +60,8 @@ class PdfTest(unittest.TestCase):
             return r, os.path.exists(pdf)
 
     def test_skipped_without_chrome(self):
-        r, exists = self.run_pdf("", "/usr/bin:/bin")
+        # A Chrome path that does not exist; searching PATH would find the browsers of CI runners.
+        r, exists = self.run_pdf("/nonexistent/chrome", "/usr/bin:/bin")
         self.assertEqual(r.returncode, 0)
         self.assertFalse(exists)
         self.assertIn("skipped", r.stderr)
