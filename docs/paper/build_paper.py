@@ -40,6 +40,42 @@ LOGO = """<svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 0 600 9
 <text x="315" y="72" font-family="'IBM Plex Mono', ui-monospace, Menlo, monospace" font-weight="500" font-size="46" fill="#141413">PJ Labs</text></svg>"""
 
 
+REFS = {
+    'bwa': 'Li H. Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. arXiv:1303.3997; 2013.',
+    'samtools': 'Danecek P, Bonfield JK, Liddle J, et al. Twelve years of SAMtools and BCFtools. GigaScience. 2021;10(2):giab008.',
+    'gatk': 'Poplin R, Ruano-Rubio V, DePristo MA, et al. Scaling accurate genetic variant discovery to tens of thousands of samples. bioRxiv 201178; 2018.',
+    'deepvariant': 'Poplin R, Chang PC, Alexander D, et al. A universal SNP and small-indel variant caller using deep neural networks. Nat Biotechnol. 2018;36:983–987.',
+    'manta': 'Chen X, Schulz-Trieglaff O, Shaw R, et al. Manta: rapid detection of structural variants and indels for germline and cancer sequencing applications. Bioinformatics. 2016;32(8):1220–1222.',
+    'cnvkit': 'Talevich E, Shain AH, Botton T, Bastian BC. CNVkit: genome-wide copy number detection and visualization from targeted DNA sequencing. PLoS Comput Biol. 2016;12(4):e1004873.',
+    'vep': 'McLaren W, Gil L, Hunt SE, et al. The Ensembl Variant Effect Predictor. Genome Biol. 2016;17:122.',
+    'mosdepth': 'Pedersen BS, Quinlan AR. Mosdepth: quick coverage calculation for genomes and exomes. Bioinformatics. 2018;34(5):867–868.',
+    'nextflow': 'Di Tommaso P, Chatzou M, Floden EW, et al. Nextflow enables reproducible computational workflows. Nat Biotechnol. 2017;35:316–319.',
+    'acmg': 'Richards S, Aziz N, Bale S, et al. Standards and guidelines for the interpretation of sequence variants. Genet Med. 2015;17(5):405–424.',
+    'clinvar': 'Landrum MJ, Lee JM, Benson M, et al. ClinVar: improving access to variant interpretations and supporting evidence. Nucleic Acids Res. 2018;46(D1):D1062–D1067.',
+    'mane': 'Morales J, Pujar S, Loveland JE, et al. A joint NCBI and EMBL-EBI transcript set for clinical genomics and research. Nature. 2022;604:310–315.',
+    'gnomad': 'Karczewski KJ, Francioli LC, Tiao G, et al. The mutational constraint spectrum quantified from variation in 141,456 humans. Nature. 2020;581:434–443.',
+    'brcaanalyzer': 'Kechin A. BRCA-analyzer: automatic workflow for analysis of BRCA1/2 NGS data. https://github.com/aakechin/BRCA-analyzer (accessed 12 November 2026).',
+    'enigma': 'Parsons MT, de la Hoya M, Richardson ME, et al. Evidence-based recommendations for gene-specific ACMG/AMP variant classification from the ClinGen ENIGMA BRCA1 and BRCA2 Variant Curation Expert Panel. Am J Hum Genet. 2024;111(9):2044–2058.',
+    'pvs1': 'Abou Tayoun AN, Pesaran T, DiStefano MT, et al. Recommendations for interpreting the loss of function PVS1 ACMG/AMP variant criterion. Hum Mutat. 2018;39(11):1517–1524.',
+    'giab1': 'Zook JM, Chapman B, Wang J, et al. Integrating human sequence data sets provides a resource of benchmark SNP and indel genotype calls. Nat Biotechnol. 2014;32:246–251.',
+    'giab2': 'Wagner J, Olson ND, Harris L, et al. Benchmarking challenging small variants with linked and long reads. Cell Genomics. 2022;2(5):100128.',
+    'vcfeval': 'Cleary JG, Braithwaite R, Gaastra K, et al. Comparing variant call files for performance benchmarking of next-generation sequencing variant calling pipelines. bioRxiv 023754; 2015.',
+    'kgp': 'Byrska-Bishop M, Evani US, Zhao X, et al. High-coverage whole-genome sequencing of the expanded 1000 Genomes Project cohort including 602 trios. Cell. 2022;185(18):3426–3440.',
+    'getrm': 'Barker SD, Bale S, Booker J, et al. Development and characterization of reference materials for MTHFR, SERPINA1, RET, BRCA1, and BRCA2 genetic testing. J Mol Diagn. 2009;11(6):553–561.',
+    'kuchenbaecker': 'Kuchenbaecker KB, Hopper JL, Barnes DR, et al. Risks of breast, ovarian, and contralateral breast cancer for BRCA1 and BRCA2 mutation carriers. JAMA. 2017;317(23):2402–2416.',
+    'sluiter': 'Sluiter MD, van Rensburg EJ. Large genomic rearrangements of the BRCA1 and BRCA2 genes: review of the literature and report of a novel BRCA1 mutation. Breast Cancer Res Treat. 2011;125(2):325–349.',
+    'teugels': 'Teugels E, De Brakeleer S, Goelen G, Lissens W, Sermijn E, De Grève J. De novo Alu element insertions targeted to a sequence common to the BRCA1 and BRCA2 genes. Hum Mutat. 2005;26(3):284.',
+    'machado': 'Machado PM, Brandão RD, Cavaco BM, et al. Screening for a BRCA2 rearrangement in high-risk breast/ovarian cancer families: evidence for a founder effect and analysis of the associated phenotypes. J Clin Oncol. 2007;25(15):2027–2034.',
+    'sarek': 'Garcia M, Juhos S, Larsson M, et al. Sarek: a portable workflow for whole-genome sequencing analysis of germline and somatic variants. F1000Research. 2020;9:63.',
+    'spliceai': 'Jaganathan K, Kyriazopoulou Panagiotopoulou S, McRae JF, et al. Predicting splicing from primary sequence with deep learning. Cell. 2019;176(3):535–548.',
+    'bayesdel': 'Feng BJ. PERCH: a unified framework for disease gene prioritization. Hum Mutat. 2017;38(3):243–251.',
+    'mlpa': 'Schouten JP, McElgunn CJ, Waaijer R, Zwijnenburg D, Diepvens F, Pals G. Relative quantification of 40 nucleic acid sequences by multiplex ligation-dependent probe amplification. Nucleic Acids Res. 2002;30(12):e57.',
+    'melt': 'Gardner EJ, Lam VK, Harris DN, et al. The Mobile Element Locator Tool (MELT): population-scale mobile element discovery and biology. Genome Res. 2017;27(11):1916–1929.',
+    'gatksv': 'Collins RL, Brand H, Karczewski KJ, et al. A structural variation reference for medical and population genetics. Nature. 2020;581:444–451.',
+    'wilson': 'Wilson EB. Probable inference, the law of succession, and statistical inference. J Am Stat Assoc. 1927;22(158):209–212.',
+}
+
+
 # ------------------------------------------------------------------ data
 def load(path):
     with open(path) as handle:
@@ -582,6 +618,7 @@ th {{ font-family: {MONO}; font-weight: 500; font-size: 7.4pt; color: {SUB}; bor
 code {{ font-family: {MONO}; font-size: 7.9pt; }}
 pre {{ font-family: {MONO}; font-size: 7.4pt; background: #F3F1EA; padding: 5pt 6pt; border-radius: 4px; white-space: pre-wrap; }}
 ul {{ margin: 0 0 5.5pt; padding-left: 12pt; }} li {{ margin-bottom: 2pt; }}
+a.cite {{ color: inherit; text-decoration: none; }}
 ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs li {{ margin-bottom: 1.5pt; }}
 """
     return f"""<!DOCTYPE html>
@@ -617,36 +654,36 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 
 <div class="cols">
 <h2>1 Introduction</h2>
-<p>Pathogenic germline variants in the tumour suppressor genes <i>BRCA1</i> (chr17, minus strand) and <i>BRCA2</i> (chr13, plus strand) substantially increase lifetime risks of breast, ovarian, prostate and pancreatic cancer. Most pathogenic alleles are truncating SNVs and small indels, but large genomic rearrangements such as single- or multi-exon deletions and duplications account for a relevant fraction of findings, particularly in <i>BRCA1</i>, which is rich in Alu repeats and has a partially duplicated pseudogene (<i>BRCA1P1</i>) near its 5′ end.</p>
-<p>Whole-genome sequencing (WGS) captures all of these variant classes in a single assay, but extracting a reliable gene-level result requires several specialised tools, consistent coordinates and explicit statements about where the data are not sufficient. Openly available workflows such as BRCA-analyzer [14] were developed for amplicon panels on GRCh37/hg19, depend on licence-restricted annotation and do not report copy-number or structural variants. General-purpose germline pipelines cover WGS but are not tailored to a concise, gene-focused report with exon-level coverage and conservative interpretation hints.</p>
+<p>Pathogenic germline variants in the tumour suppressor genes <i>BRCA1</i> (chr17, minus strand) and <i>BRCA2</i> (chr13, plus strand) substantially increase lifetime risks of breast, ovarian, prostate and pancreatic cancer [@kuchenbaecker]. Most pathogenic alleles are truncating SNVs and small indels, but large genomic rearrangements such as single- or multi-exon deletions and duplications account for a relevant fraction of findings, particularly in <i>BRCA1</i>, which is rich in Alu repeats and has a partially duplicated pseudogene (<i>BRCA1P1</i>) near its 5′ end [@sluiter]. Insertions of mobile elements are rare but include a founder variant, the Alu insertion c.156_157insAlu in <i>BRCA2</i> exon 3 [@teugels, @machado].</p>
+<p>Whole-genome sequencing (WGS) captures all of these variant classes in a single assay, but extracting a reliable gene-level result requires several specialised tools, consistent coordinates and explicit statements about where the data are not sufficient. Openly available workflows such as BRCA-analyzer [@brcaanalyzer] were developed for amplicon panels on GRCh37/hg19, depend on licence-restricted annotation and do not report copy-number or structural variants. General-purpose germline pipelines such as Sarek [@sarek] cover WGS but are not tailored to a concise, gene-focused report with exon-level coverage and conservative interpretation hints.</p>
 <p><i>brca12-wgs</i> addresses this gap with three design goals: (i) GRCh38 only, with automatic rejection of other assemblies; (ii) separate, traceable evidence layers for small variants, copy-number candidates, structural variants and coverage; and (iii) reproducibility through pinned software environments, recorded tool versions and a verbatim command log.</p>
 
 <h2>2 Implementation</h2>
-<p>The pipeline is written in Nextflow DSL2 [9] and runs locally with conda environments or with tools on the system path (Figure 1, Table 1).</p>
+<p>The pipeline is written in Nextflow DSL2 [@nextflow] and runs locally with conda environments or with tools on the system path (Figure 1, Table 1).</p>
 
 <table><caption><strong>Table 1.</strong> Processes, tools and outputs.</caption>
 <tr><th>Step</th><th>Tool (pinned version)</th><th>Purpose</th></tr>
 <tr><td>Input check</td><td>Python</td><td>GRCh38 detection from chr13/chr17 lengths; region and exon BED harmonisation</td></tr>
-<tr><td>Alignment</td><td>BWA-MEM 0.7.18 [1], samtools 1.21 [2]</td><td>Alignment, fixmate, sort, duplicate marking</td></tr>
-<tr><td>SNVs/indels</td><td>GATK 4.6.1.0 HaplotypeCaller [3] or DeepVariant [4]</td><td>Calling in both genes ± 200 bp</td></tr>
-<tr><td>Structural variants</td><td>Manta 1.6.0 [5]</td><td>Breakpoints within ± 1 Mb of both genes</td></tr>
-<tr><td>Copy number</td><td>CNVkit 0.9.11 [6]</td><td>WGS mode, flat reference over chr13 and chr17; per-exon depth ratios</td></tr>
-<tr><td>Annotation</td><td>Ensembl VEP 113 [7], bcftools</td><td>MANE Select [12], HGVS, gnomAD [13], ClinVar [11]</td></tr>
-<tr><td>Coverage</td><td>mosdepth 0.3.10 [8]</td><td>Per exon at MAPQ ≥ 20 and ≥ 0; 10/20/30×</td></tr>
+<tr><td>Alignment</td><td>BWA-MEM 0.7.18 [@bwa], samtools 1.21 [@samtools]</td><td>Alignment, fixmate, sort, duplicate marking</td></tr>
+<tr><td>SNVs/indels</td><td>GATK 4.6.1.0 HaplotypeCaller [@gatk] or DeepVariant [@deepvariant]</td><td>Calling in both genes ± 200 bp</td></tr>
+<tr><td>Structural variants</td><td>Manta 1.6.0 [@manta]</td><td>Breakpoints within ± 1 Mb of both genes</td></tr>
+<tr><td>Copy number</td><td>CNVkit 0.9.11 [@cnvkit]</td><td>WGS mode, flat reference over chr13 and chr17; per-exon depth ratios</td></tr>
+<tr><td>Annotation</td><td>Ensembl VEP 113 [@vep], bcftools</td><td>MANE Select [@mane], HGVS, gnomAD [@gnomad], ClinVar [@clinvar]</td></tr>
+<tr><td>Coverage</td><td>mosdepth 0.3.10 [@mosdepth]</td><td>Per exon at MAPQ ≥ 20 and ≥ 0; 10/20/30×</td></tr>
 <tr><td>Report</td><td>Python (standard library)</td><td>HTML, Markdown (English or German), JSON</td></tr>
 </table>
 
 <h3>2.1 Reference and regions</h3>
-<p>The input check reads the FASTA index and accepts the reference only if chr13 and chr17 have the GRCh38 lengths; GRCh37 is rejected with an explicit message. Gene loci are fixed to chr17:43,044,295–43,170,327 (<i>BRCA1</i>) and chr13:32,315,077–32,400,268 (<i>BRCA2</i>). Exons are taken from the MANE Select transcripts NM_007294.4 (23 exons) and NM_000059.4 (27 exons). For <i>BRCA1</i> the report also shows the legacy exon numbering, which omits exon 4.</p>
+<p>The input check reads the FASTA index and accepts the reference only if chr13 and chr17 have the GRCh38 lengths; GRCh37 is rejected with an explicit message. Gene loci are fixed to chr17:43,044,295–43,170,327 (<i>BRCA1</i>) and chr13:32,315,077–32,400,268 (<i>BRCA2</i>). Exons are taken from the MANE Select transcripts [@mane] NM_007294.4 (23 exons) and NM_000059.4 (27 exons). For <i>BRCA1</i> the report also shows the legacy exon numbering, which omits exon 4.</p>
 
 <h3>2.2 Variant calling</h3>
-<p>Small variants are called with GATK HaplotypeCaller restricted to the padded gene regions, or optionally with DeepVariant. Manta is run with call regions extending 1 Mb around both genes, so that rearrangements with one breakpoint inside a gene are retained, including breakend (BND) pairs. Two breakends a few bases apart whose mates lie elsewhere are flagged as a possible insertion of foreign sequence such as a mobile element. In addition, soft-clipped read ends inside the genes are searched for the signature of an insertion: reads from the left clipped at one position, reads from the right clipped at a position up to 30 bp before it (the target-site duplication), at least three clipped reads on each side and a clipped fraction of at least 15 %. Such a pair is listed as an insertion signature when the clipped sequence contains k-mers of the Alu consensus; it is a hint from the reads, not a variant call. For copy number, CNVkit is run in WGS mode with 1 kb bins over chr13 and chr17 and a flat reference; bins with almost no coverage are excluded from segmentation (Section 3.3). Segments overlapping a gene with an estimated copy number different from two are reported as candidates with the affected exons. Independently, the mean depth of each exon is divided by the median depth of 100 kb windows on the same chromosome; ratios below 0.65 or above 1.35 are listed as dosage hints. Because only a single sample is available, both are labelled as candidates that require MLPA or another validated method.</p>
+<p>Reads are aligned with BWA-MEM [@bwa]; sorting, mate fixing and duplicate marking use samtools [@samtools]. Small variants are called with GATK HaplotypeCaller [@gatk] restricted to the padded gene regions, or optionally with DeepVariant [@deepvariant]. Manta [@manta] is run with call regions extending 1 Mb around both genes, so that rearrangements with one breakpoint inside a gene are retained, including breakend (BND) pairs. Two breakends a few bases apart whose mates lie elsewhere are flagged as a possible insertion of foreign sequence such as a mobile element. In addition, soft-clipped read ends inside the genes are searched for the signature of an insertion: reads from the left clipped at one position, reads from the right clipped at a position up to 30 bp before it (the target-site duplication), at least three clipped reads on each side and a clipped fraction of at least 15 %. Such a pair is listed as an insertion signature when the clipped sequence contains k-mers of the Alu consensus; it is a hint from the reads, not a variant call. For copy number, CNVkit [@cnvkit] is run in WGS mode with 1 kb bins over chr13 and chr17 and a flat reference; bins with almost no coverage are excluded from segmentation (Section 3.3). Segments overlapping a gene with an estimated copy number different from two are reported as candidates with the affected exons. Independently, the mean depth of each exon is divided by the median depth of 100 kb windows on the same chromosome; ratios below 0.65 or above 1.35 are listed as dosage hints. Because only a single sample is available, both are labelled as candidates that require MLPA [@mlpa] or another validated method.</p>
 
 <h3>2.3 Annotation and ACMG/AMP hints</h3>
-<p>VEP annotates consequences, HGVS notation and exon or intron number on the MANE Select transcript. ClinVar significance, review status and condition come from a user-supplied ClinVar VCF, so that the ClinVar version is under the user's control. The pipeline then evaluates single ACMG/AMP criteria [10] following version 1.2 of the ClinGen ENIGMA BRCA1/BRCA2 specification [15]: BA1, BS1 and BS1_Supporting from gnomAD non-cancer filtering allele frequencies in non-founder populations, PM2_Supporting for substitutions absent from both gnomAD data sets, PP3 and BP4 from BayesDel and SpliceAI inside the defined functional domains, BP1_Strong outside them and BP7 for silent and deep intronic variants. The gnomAD, SpliceAI and BayesDel files are supplied by the user; without them the corresponding hints are reported as open or as approximations. Truncating and canonical splice variants are reported as PVS1 candidates, restricted in the last exon [16]; the exon-specific PVS1 decision tree is not yet applied. No combination rule is used and no classification is assigned; the JSON field <code>clinicalClassification</code> is always null.</p>
+<p>VEP [@vep] annotates consequences, HGVS notation and exon or intron number on the MANE Select transcript. ClinVar [@clinvar] significance, review status and condition come from a user-supplied ClinVar VCF, so that the ClinVar version is under the user's control. The pipeline then evaluates single ACMG/AMP criteria [@acmg] following version 1.2 of the ClinGen ENIGMA BRCA1/BRCA2 specification [@enigma]: BA1, BS1 and BS1_Supporting from gnomAD [@gnomad] non-cancer filtering allele frequencies in non-founder populations, PM2_Supporting for substitutions absent from both gnomAD data sets, PP3 and BP4 from BayesDel [@bayesdel] and SpliceAI [@spliceai] inside the defined functional domains, BP1_Strong outside them and BP7 for silent and deep intronic variants. The gnomAD, SpliceAI and BayesDel files are supplied by the user; without them the corresponding hints are reported as open or as approximations. Truncating and canonical splice variants are reported as PVS1 candidates, restricted in the last exon [@pvs1]; the exon-specific PVS1 decision tree is not yet applied. No combination rule is used and no classification is assigned; the JSON field <code>clinicalClassification</code> is always null.</p>
 
 <h3>2.4 Coverage and uncertain regions</h3>
-<p>An exon is flagged as uncertain if its mean depth is below 20×, if fewer than 95 % of its bases reach 20×, or if more than 10 % of reads have mapping quality below 20, which identifies regions affected by pseudogene homology or repeats. All intervals below 10× are listed. Small variants receive quality flags for non-PASS filters, low depth, low genotype quality, heterozygous allele fractions outside 25–75 %, low mapping quality and location in an uncertain exon. All thresholds are parameters.</p>
+<p>Depth per exon is computed with mosdepth [@mosdepth]. An exon is flagged as uncertain if its mean depth is below 20×, if fewer than 95 % of its bases reach 20×, or if more than 10 % of reads have mapping quality below 20, which identifies regions affected by pseudogene homology or repeats. All intervals below 10× are listed. Small variants receive quality flags for non-PASS filters, low depth, low genotype quality, heterozygous allele fractions outside 25–75 %, low mapping quality and location in an uncertain exon. All thresholds are parameters.</p>
 
 <h3>2.5 Reporting and reproducibility</h3>
 <p>The report has separate sections for <i>BRCA1</i> and <i>BRCA2</i> small variants, copy-number candidates, structural variants, coverage per exon and uncertain intervals, followed by tool versions, the invocation and limitations. It is produced as HTML and Markdown in English or German and as JSON (schema <code>genome.brca12.v1</code>). Tool versions are captured at run time, every task copies its command script into <code>brca12_commands.sh</code>, and conda environments pin all tool versions. Unit tests and a stub run of the complete workflow run in GitHub Actions on every change.</p>
@@ -655,10 +692,10 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <p>Four data sets were used (Figures 2 and 3). All scripts, sample lists and result files are in the <code>validation/</code> directory of the repository.</p>
 
 <h3>3.1 Genome in a Bottle truth sets</h3>
-<p>Small-variant calls were compared with the GIAB NIST v4.2.1 GRCh38 truth sets for HG001 and HG002 [17, 18]. Illumina HiSeq 2×148 bp read pairs that the GIAB alignments placed within either gene ±10 kb were extracted, downsampled to about 36× and 30×, converted back to FASTQ and processed from FASTQ. Calls were matched with RTG Tools <code>vcfeval</code> [19], which compares haplotypes and requires the genotype to agree, inside the GIAB high-confidence regions (91.9 % and 95.1 % of the 211,225 bp of both loci). The pipeline recovered {snv_k} of {snv_n} SNVs and {ind_k} of {ind_n} indels, and all {ex_n} variants in the exons ±20 bp without a false positive. The three discordant calls were intronic; two were genotype errors in homopolymers at 12× and 14× that carried the pipeline's own quality flags.</p>
+<p>Small-variant calls were compared with the GIAB NIST v4.2.1 GRCh38 truth sets for HG001 and HG002 [@giab1, @giab2]. Illumina HiSeq 2×148 bp read pairs that the GIAB alignments placed within either gene ±10 kb were extracted, downsampled to about 36× and 30×, converted back to FASTQ and processed from FASTQ. Calls were matched with RTG Tools <code>vcfeval</code> [@vcfeval], which compares haplotypes and requires the genotype to agree, inside the GIAB high-confidence regions (91.9 % and 95.1 % of the 211,225 bp of both loci). The pipeline recovered {snv_k} of {snv_n} SNVs and {ind_k} of {ind_n} indels, and all {ex_n} variants in the exons ±20 bp without a false positive. The three discordant calls were intronic; two were genotype errors in homopolymers at 12× and 14× that carried the pipeline's own quality flags.</p>
 
 <h3>3.2 Real carriers of pathogenic variants</h3>
-<p>The 30× joint call set of the 3,202 samples of the 1000 Genomes Project [20] was searched for loss-of-function variants in the MANE coding sequence and its canonical splice sites. Ten individuals carry eight such variants, seven of them annotated as pathogenic in the ClinVar release used by that call set (Table 2). Read pairs over both genes ±10 kb were taken from the public CRAM files and processed from FASTQ. All {c['detected']} variants were called heterozygous with genotype quality 99, including a 5 bp deletion that the 1000 Genomes call set itself marks as low confidence. As a secondary check, calls in the exons ±20 bp agreed with the 1000 Genomes genotypes of the same individuals for {cs_k} of {cs_n} SNVs and {ci_k} of {ci_n} indels, with {cs_fp} and {ci_fp} additional calls; that call set is a comparison, not a truth set.</p>
+<p>The 30× joint call set of the 3,202 samples of the 1000 Genomes Project [@kgp] was searched for loss-of-function variants in the MANE coding sequence and its canonical splice sites. Ten individuals carry eight such variants, seven of them annotated as pathogenic in the ClinVar release used by that call set (Table 2). Read pairs over both genes ±10 kb were taken from the public CRAM files and processed from FASTQ. All {c['detected']} variants were called heterozygous with genotype quality 99, including a 5 bp deletion that the 1000 Genomes call set itself marks as low confidence. As a secondary check, calls in the exons ±20 bp agreed with the 1000 Genomes genotypes of the same individuals for {cs_k} of {cs_n} SNVs and {ci_k} of {ci_n} indels, with {cs_fp} and {ci_fp} additional calls; that call set is a comparison, not a truth set.</p>
 
 <table class="wide"><caption><strong>Table 2.</strong> Carriers of pathogenic <i>BRCA1</i>/<i>BRCA2</i> variants in the 1000 Genomes Project and the result of the pipeline. AD, reads supporting reference and variant allele.</caption>
 <tr><th>Sample</th><th>Pop.</th><th>Gene</th><th>Variant (MANE)</th><th>Consequence</th><th>Detected, genotype</th><th>Depth</th><th>AD</th></tr>
@@ -671,11 +708,11 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <figcaption><strong>Figure 2. Variants used for validation, drawn on both gene loci.</strong> Black boxes are MANE Select exons. Above the gene: pathogenic variants of real carriers. Below: spiked small variants (one tick each), spiked large events and the positions of real structural variants.</figcaption></figure>
 
 <figure><div class="frame">{fig_recall(d)}</div>
-<figcaption><strong>Figure 3. Detection by data set and variant class.</strong> Points are the fraction of known variants that the pipeline reported; bars are 95 % Wilson intervals. Green, all found; amber and red, partly found. Small numbers give wide intervals.</figcaption></figure>
+<figcaption><strong>Figure 3. Detection by data set and variant class.</strong> Points are the fraction of known variants that the pipeline reported; bars are 95 % Wilson intervals [@wilson]. Green, all found; amber and red, partly found. Small numbers give wide intervals.</figcaption></figure>
 
 <div class="cols">
 <h3>3.3 Spike-in experiment</h3>
-<p>No openly available short-read WGS data set of a carrier of a pathogenic exon deletion, duplication or Alu insertion was found; the GeT-RM reference materials [21] are distributed as DNA. We therefore spiked synthetic heterozygous variants into real reads. The background was GIAB HG002 on chr13 and chr17 at about 30×, which gives CNVkit a real chromosome-wide baseline. Inside both genes ±20 kb every real read pair was replaced by a pair with the same position, fragment length, read lengths and base qualities, read from one of two haplotypes: the reference, or the reference with the spiked events. Sequencing errors were drawn from the real base qualities. Coverage profile and fragment sizes therefore stayed those of the real run. The replaced pairs were aligned with BWA-MEM and merged with the untouched background, and the pipeline was run with real Manta and CNVkit.</p>
+<p>No openly available short-read WGS data set of a carrier of a pathogenic exon deletion, duplication or Alu insertion was found; the GeT-RM reference materials [@getrm] are distributed as DNA. We therefore spiked synthetic heterozygous variants into real reads. The background was GIAB HG002 on chr13 and chr17 at about 30×, which gives CNVkit a real chromosome-wide baseline. Inside both genes ±20 kb every real read pair was replaced by a pair with the same position, fragment length, read lengths and base qualities, read from one of two haplotypes: the reference, or the reference with the spiked events. Sequencing errors were drawn from the real base qualities. Coverage profile and fragment sizes therefore stayed those of the real run. The replaced pairs were aligned with BWA-MEM and merged with the untouched background, and the pipeline was run with real Manta and CNVkit.</p>
 <p>Two samples carried {small_total} small variants: one per coding exon segment with rotating types, SNVs at canonical splice sites, and five variants modelled on well-known pathogenic alleles (<i>BRCA1</i> c.68_69del, c.181T&gt;G, c.5266dup; <i>BRCA2</i> c.771_775del, c.5946del), whose coordinates were derived from a coding-sequence model that is checked by translation. All {small_found} were called with the correct genotype, with {fp_exon} false positive in the exons (Figure 3). Outside the exons, every sample including the negative control showed the same two calls at one intronic <i>BRCA2</i> site, which come from real HG002 reads with an unmapped mate that the replacement does not cover, and the samples with large deletions showed short artefactual calls directly at some breakpoints.</p>
 <p>Six samples carried {n_large} large events from 120 bp to a whole-gene deletion, two tandem duplications and an Alu insertion in <i>BRCA2</i> exon 3 (Figure 4). Manta reported {manta} of {n_large} with exact breakpoints and heterozygous genotype; the Alu insertion appeared as a pair of breakends. The read-end signature (Section 2.2) listed the spiked Alu insertion and nothing in the other eight spike-in samples. With the settings of version 1.0.2, CNVkit reported {cnv_before} of {n_large}: bins without coverage dominated the segmentation statistics, and even whole-gene deletions with a clear half-depth signal were merged into their neighbours (Figure 5). Excluding such bins (<code>--drop-low-coverage</code>) raised this to {cnv_after} of {n_large}; the smallest event reported by CNVkit was {cnv_min}. In addition, exon dosage hints had been suppressed for exactly the affected exons, because a heterozygous deletion also makes an exon fall below the depth threshold. After the correction, {hints} of the {n_large - 1} deletions and duplications produced a dosage hint for an affected exon. A third defect stopped the pipeline when the input BAM was named like the sample.</p>
 </div>
@@ -688,7 +725,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 
 <div class="cols">
 <h3>3.4 Real structural variants</h3>
-<p>The phased SNV, indel and SV panel of the 1000 Genomes Project [20] contains two Alu insertions in <i>BRCA2</i> and two deletions in <i>BRCA1</i>, all intronic or otherwise not disease-causing. They allow the same kind of event to be tested in real reads (Table 3). Carriers and six samples that are homozygous reference at all four sites were processed as in Section 3.2, with one addition: mates that the original alignment had placed elsewhere in the genome were retrieved as well, because read pairs with a mate inside the inserted element are otherwise lost: without them only {{SV_NOMATES}}. At the two Alu sites the panel genotypes were looked up for all 33 samples of Sections 3.2 and 3.4, which added three heterozygous carriers of the common insertion; the ten samples of Section 3.2 were rerun with retrieved mates for this purpose. The panel calls are statistically phased short-read calls and serve as a comparison, not as truth.</p>
+<p>The phased SNV, indel and SV panel of the 1000 Genomes Project [@kgp] contains two Alu insertions in <i>BRCA2</i> and two deletions in <i>BRCA1</i>, all intronic or otherwise not disease-causing. They allow the same kind of event to be tested in real reads (Table 3). Carriers and six samples that are homozygous reference at all four sites were processed as in Section 3.2, with one addition: mates that the original alignment had placed elsewhere in the genome were retrieved as well, because read pairs with a mate inside the inserted element are otherwise lost: without them only {{SV_NOMATES}}. At the two Alu sites the panel genotypes were looked up for all 33 samples of Sections 3.2 and 3.4, which added three heterozygous carriers of the common insertion; the ten samples of Section 3.2 were rerun with retrieved mates for this purpose. The panel calls are statistically phased short-read calls (the Alu insertions come from MELT [@melt] within the GATK-SV pipeline [@gatksv]) and serve as a comparison, not as truth.</p>
 
 </div>
 
@@ -714,7 +751,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 </ul>
 
 <h2>4 Comparison with existing workflows</h2>
-<table><caption><strong>Table 4.</strong> Feature comparison with BRCA-analyzer [14].</caption>
+<table><caption><strong>Table 4.</strong> Feature comparison with BRCA-analyzer [@brcaanalyzer].</caption>
 <tr><th></th><th>brca12-wgs</th><th>BRCA-analyzer</th></tr>
 <tr><td>Data type</td><td>WGS (FASTQ or BAM/CRAM)</td><td>Amplicon panels</td></tr>
 <tr><td>Assembly</td><td>GRCh38, enforced</td><td>hg19</td></tr>
@@ -747,29 +784,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <p>None declared.</p>
 
 <h2>References</h2>
-<ol class="refs">
-<li>Li H. Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. arXiv:1303.3997; 2013.</li>
-<li>Danecek P, Bonfield JK, Liddle J, et al. Twelve years of SAMtools and BCFtools. GigaScience. 2021;10(2):giab008.</li>
-<li>Poplin R, Ruano-Rubio V, DePristo MA, et al. Scaling accurate genetic variant discovery to tens of thousands of samples. bioRxiv 201178; 2018.</li>
-<li>Poplin R, Chang PC, Alexander D, et al. A universal SNP and small-indel variant caller using deep neural networks. Nat Biotechnol. 2018;36:983–987.</li>
-<li>Chen X, Schulz-Trieglaff O, Shaw R, et al. Manta: rapid detection of structural variants and indels for germline and cancer sequencing applications. Bioinformatics. 2016;32(8):1220–1222.</li>
-<li>Talevich E, Shain AH, Botton T, Bastian BC. CNVkit: genome-wide copy number detection and visualization from targeted DNA sequencing. PLoS Comput Biol. 2016;12(4):e1004873.</li>
-<li>McLaren W, Gil L, Hunt SE, et al. The Ensembl Variant Effect Predictor. Genome Biol. 2016;17:122.</li>
-<li>Pedersen BS, Quinlan AR. Mosdepth: quick coverage calculation for genomes and exomes. Bioinformatics. 2018;34(5):867–868.</li>
-<li>Di Tommaso P, Chatzou M, Floden EW, et al. Nextflow enables reproducible computational workflows. Nat Biotechnol. 2017;35:316–319.</li>
-<li>Richards S, Aziz N, Bale S, et al. Standards and guidelines for the interpretation of sequence variants. Genet Med. 2015;17(5):405–424.</li>
-<li>Landrum MJ, Lee JM, Benson M, et al. ClinVar: improving access to variant interpretations and supporting evidence. Nucleic Acids Res. 2018;46(D1):D1062–D1067.</li>
-<li>Morales J, Pujar S, Loveland JE, et al. A joint NCBI and EMBL-EBI transcript set for clinical genomics and research. Nature. 2022;604:310–315.</li>
-<li>Karczewski KJ, Francioli LC, Tiao G, et al. The mutational constraint spectrum quantified from variation in 141,456 humans. Nature. 2020;581:434–443.</li>
-<li>Kechin A. BRCA-analyzer: automatic workflow for analysis of BRCA1/2 NGS data. https://github.com/aakechin/BRCA-analyzer (accessed 12 November 2026).</li>
-<li>Parsons MT, de la Hoya M, Richardson ME, et al. Evidence-based recommendations for gene-specific ACMG/AMP variant classification from the ClinGen ENIGMA BRCA1 and BRCA2 Variant Curation Expert Panel. Am J Hum Genet. 2024;111(9):2044–2058.</li>
-<li>Abou Tayoun AN, Pesaran T, DiStefano MT, et al. Recommendations for interpreting the loss of function PVS1 ACMG/AMP variant criterion. Hum Mutat. 2018;39(11):1517–1524.</li>
-<li>Zook JM, Chapman B, Wang J, et al. Integrating human sequence data sets provides a resource of benchmark SNP and indel genotype calls. Nat Biotechnol. 2014;32:246–251.</li>
-<li>Wagner J, Olson ND, Harris L, et al. Benchmarking challenging small variants with linked and long reads. Cell Genomics. 2022;2(5):100128.</li>
-<li>Cleary JG, Braithwaite R, Gaastra K, et al. Comparing variant call files for performance benchmarking of next-generation sequencing variant calling pipelines. bioRxiv 023754; 2015.</li>
-<li>Byrska-Bishop M, Evani US, Zhao X, et al. High-coverage whole-genome sequencing of the expanded 1000 Genomes Project cohort including 602 trios. Cell. 2022;185(18):3426–3440.</li>
-<li>Barker SD, Bale S, Booker J, et al. Development and characterization of reference materials for MTHFR, SERPINA1, RET, BRCA1, and BRCA2 genetic testing. J Mol Diagn. 2009;11(6):553–561.</li>
-</ol>
+{{REFS}}
 </div>
 </body></html>
 """
@@ -788,6 +803,29 @@ def missed_text(d):
             f"the site ({counts}), below the threshold of three per side and far from the half expected for a heterozygous insertion; "
             f"samples with panel genotype 0|0 had at most {top}. Whether the panel genotype or the reads are right "
             "cannot be decided here.")
+
+
+def number_citations(page):
+    """Replace [@key, @key] by numbers in order of first appearance and build the reference list."""
+    order = []
+
+    def cite(match):
+        out = []
+        for key in re.findall(r"@([a-z0-9]+)", match.group(0)):
+            if key not in REFS:
+                raise KeyError(f"unknown reference {key}")
+            if key not in order:
+                order.append(key)
+            n = order.index(key) + 1
+            out.append(f'<a class="cite" href="#ref-{n}">{n}</a>')
+        return "[" + ", ".join(out) + "]"
+
+    page = re.sub(r"\[@[a-z0-9]+(?:, @[a-z0-9]+)*\]", cite, page)
+    unused = [k for k in REFS if k not in order]
+    if unused:
+        raise ValueError(f"references never cited: {unused}")
+    items = "".join(f'<li id="ref-{n}">{REFS[k]}</li>\n' for n, k in enumerate(order, 1))
+    return page.replace("{REFS}", f'<ol class="refs">\n{items}</ol>')
 
 
 def sv_text(d):
@@ -838,6 +876,7 @@ def main(argv=None):
     page = page.replace("{SV_NOMATES}", f"{alu_nomates} of {alu_total} Alu insertions were called and {sig_nomates} of {alu_total} "
                                         "showed the read-end signature")
     page = page.replace("{SV_TEXT}", sv_text(d))
+    page = number_citations(page)
     sys.stdout.write(page)
     return 0
 
