@@ -391,6 +391,23 @@ process REPORT {
     """
 }
 
+process XLSX_EXPORT {
+    // Excel export of the result (bin/brca12_xlsx.py, no third-party packages).
+    tag "${params.sample}"
+    publishDir "${params.outdir}", mode: 'copy'
+
+    input:
+    path results_json
+
+    output:
+    path 'brca12_report.xlsx'
+
+    script:
+    """
+    ${params.python} ${projectDir}/bin/brca12_xlsx.py ${results_json} brca12_report.xlsx
+    """
+}
+
 workflow {
     requireParam('reference')
     requireParam('vep_cache')
@@ -445,4 +462,5 @@ workflow {
            ann.brca1, ann.brca2, sv.vcf.map { it[0] }, cnv.cns, cnv.cnr,
            cov.q20, cov.thresholds, cov.q0, cov.perbase, cov.chrom_median, cov.insertion,
            versions.versions, commands, evidence_files)
+    XLSX_EXPORT(REPORT.out[2])
 }

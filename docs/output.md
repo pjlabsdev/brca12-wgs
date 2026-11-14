@@ -35,3 +35,8 @@ downstream parsers do not depend on the report language. Main fields:
 | `toolVersions` | versions that actually ran |
 | `summary` | counts and `needsAttention` |
 | `limitations`, `limitationsEN` | known limits of the method |
+
+## Excel and cohort files
+
+- `brca12_report.xlsx`: sheets Übersicht, SNVs Indels, CNV, SV, Exon-Coverage, Geringe Tiefe, Tool-Versionen.
+- Batch (`bin/brca12_batch.py`): `cohort/cohort_samples.tsv`, `cohort/cohort_variants.tsv` (with `cohort_carriers`, `cohort_fraction`, `contamination_hint`), `cohort/cohort_contamination.tsv` (`sample`, variant, `allele_fraction`, `possible_source`), `cohort/cohort.xlsx`.

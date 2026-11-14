@@ -19,7 +19,7 @@ PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
   --sample TEST --reference "$WORK/ref.fa" --reads_r1 "$WORK/R1.fq.gz" --reads_r2 "$WORK/R2.fq.gz" \
   --vep_cache "$WORK/vep" --clinvar_vcf "$WORK/clinvar.vcf.gz" \
   --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$WORK/out"
-for f in brca12_report.html brca12_report.md brca12_results.json brca12_commands.sh; do
+for f in brca12_report.html brca12_report.md brca12_results.json brca12_commands.sh brca12_report.xlsx; do
   test -s "$WORK/out/$f" || { echo "missing $f"; exit 1; }
 done
 python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['schema']=='genome.brca12.v1'; assert r['genes']['BRCA1']['smallVariants']; print('stub pipeline OK')" "$WORK/out/brca12_results.json"

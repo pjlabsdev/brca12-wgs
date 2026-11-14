@@ -2,6 +2,11 @@
 
 ## Unreleased (1.1.0)
 
+- Several samples per run: `bin/brca12_batch.py` reads a sample sheet (FASTQ pair or BAM/CRAM per
+  sample), runs each sample and writes a cohort summary (`bin/brca12_cohort.py`: samples, all calls
+  with carrier counts, contamination hints when a low-fraction call is clearly present in another
+  sample of the batch, `cohort.xlsx`).
+- Excel export of every result (`brca12_report.xlsx`, process `XLSX_EXPORT`, no extra packages).
 - ACMG/AMP hints now follow the ClinGen ENIGMA BRCA1/BRCA2 specifications v1.2:
   - BA1, BS1 and the new BS1_Supporting use the filtering allele frequency of gnomAD non-cancer
     non-founder populations (`--gnomad_exomes_vcf`, `--gnomad_genomes_vcf`). Without these files
