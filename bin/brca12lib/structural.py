@@ -154,7 +154,14 @@ def insertion_signals(path, exons):
     for row in rows:
         flags = []
         kind = "Insertionssignatur"
-        if "duplication" in row.get("signature", []):
+        if "tandem duplication" in row.get("signature", []):
+            kind = "Tandemduplikation (Lesepaare)"
+            flags.append(f"{row.get('outwardPairs', 0)} nach außen gerichtete Lesepaare, "
+                         f"{row.get('splitReads', 0)} geteilte Lesungen über die neue Verbindungsstelle")
+            flags.append(f"duplizierte Länge etwa {row.get('duplicatedLength', 0)} bp; Bruchpunkte ungefähr "
+                         "(Spannweite der Lesepaare)")
+            flags.append("Zygotie aus Lesungen nicht bestimmbar (alle Referenzübergänge bleiben erhalten)")
+        elif "duplication" in row.get("signature", []):
             kind = "Bekannte pathogene Duplikation" if row.get("clinicalSignificance") == "pathogenic" \
                 else "Bekanntes Duplikationsallel"
             if row.get("clinicalSignificance") == "pathogenic":
@@ -210,8 +217,11 @@ def insertion_signals(path, exons):
         if "known allele" in row.get("signature", []) and "Alu" in row.get("signature", []) and \
                 "allele realignment" in row.get("evidence", []):
             flags.append("Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)")
-        flags.append("Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig")
+        pairs = "tandem duplication" in row.get("signature", [])
+        flags.append(("Hinweis aus Lesepaaren" if pairs else "Hinweis aus Leseenden") +
+                     ", kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig")
         results.append(dict(row, type=kind,
                             affectedExons=_affected_exons(row["chrom"], row["pos"], row["end"], exons, row["gene"]),
-                            caller="brca12_insertion_signals (Leseenden)", flags=flags))
+                            caller="brca12_insertion_signals (" + ("Lesepaare" if pairs else "Leseenden") + ")",
+                            flags=flags))
     return results

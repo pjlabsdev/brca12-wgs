@@ -104,6 +104,9 @@ EXACT = {
     "Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig":
         "hint from read ends, not a variant call; confirmation with an orthogonal method required",
     "Insertionssignatur": "insertion signature",
+    "Tandemduplikation (Lesepaare)": "tandem duplication (read pairs)",
+    "Hinweis aus Lesepaaren, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig":
+        "hint from read pairs, not a variant call; confirmation with an orthogonal method required",
     "Tandemkopie-Signatur": "tandem copy signature",
     "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)": "extra 126 bp copy upstream of BRCA1 exon 1 (common allele)",
     "bekannte zusätzliche Tandemkopie": "known extra tandem copy",
@@ -162,6 +165,10 @@ PATTERNS = [
     (re.compile(r"^liegt in unsicher abgedecktem Bereich (.+)$"), r"located in uncertain region \1"),
     (re.compile(r"^Exon (\d+) \(Legacy (\d+)\)$"), r"Exon \1 (legacy \2)"),
     (re.compile(r"^ENIGMA Tabelle 4 \(falls bestätigt\): (.+)$"), r"ENIGMA Table 4 (if confirmed): \1"),
+    (re.compile(r"^(\d+) nach außen gerichtete Lesepaare, (\d+) geteilte Lesungen über die neue Verbindungsstelle$"),
+     r"\1 outward-facing read pairs, \2 split reads across the new junction"),
+    (re.compile(r"^duplizierte Länge etwa (\d+) bp; Bruchpunkte ungefähr \(Spannweite der Lesepaare\)$"),
+     r"duplicated length about \1 bp; approximate breakpoints (read-pair span)"),
 ]
 
 
@@ -277,6 +284,9 @@ EXACT_RU = {
     "Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig":
         "указание по концам прочтений, не вызов варианта; требуется подтверждение ортогональным методом",
     "Insertionssignatur": "сигнатура вставки",
+    "Tandemduplikation (Lesepaare)": "тандемная дупликация (пары прочтений)",
+    "Hinweis aus Lesepaaren, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig":
+        "указание по парам прочтений, не вызов варианта; требуется подтверждение ортогональным методом",
     "Tandemkopie-Signatur": "сигнатура тандемной копии",
     "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)": "дополнительная копия 126 п. н. перед экзоном 1 BRCA1 (частый аллель)",
     "bekannte zusätzliche Tandemkopie": "известная дополнительная тандемная копия",
@@ -335,6 +345,10 @@ PATTERNS_RU = [
     (re.compile(r"^liegt in unsicher abgedecktem Bereich (.+)$"), r"находится в неопределённо покрытой области \1"),
     (re.compile(r"^Exon (\d+) \(Legacy (\d+)\)$"), r"Экзон \1 (устар. нумерация \2)"),
     (re.compile(r"^ENIGMA Tabelle 4 \(falls bestätigt\): (.+)$"), r"ENIGMA, таблица 4 (при подтверждении): \1"),
+    (re.compile(r"^(\d+) nach außen gerichtete Lesepaare, (\d+) geteilte Lesungen über die neue Verbindungsstelle$"),
+     r"обращённых наружу пар прочтений: \1, разделённых прочтений через новое соединение: \2"),
+    (re.compile(r"^duplizierte Länge etwa (\d+) bp; Bruchpunkte ungefähr \(Spannweite der Lesepaare\)$"),
+     r"длина дупликации около \1 п.н.; точки разрыва приблизительны (по размаху пар прочтений)"),
 ]
 
 LANGUAGES = ("de", "en", "ru")
