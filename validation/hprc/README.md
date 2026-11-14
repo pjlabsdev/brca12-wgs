@@ -43,8 +43,8 @@ Variants of 50 bp or more:
 | Site | Event | Carriers found | Calls in non-carriers |
 |---|---|---|---|
 | chr13:32348295 (BRCA2 intron) | Alu insertion, 318 bp | 6/6 with read-end signal, 0/6 Manta call | 0/33 |
-| chr17:43100595 (BRCA1 intron) | VNTR, -80 to +113 bp | 8/14 called | 5/25 |
-| chr17:43128264 (BRCA1 intron) | 126 bp tandem-repeat insertion | 0/19 | 0/20 |
+| chr17:43100595 (BRCA1 intron 6) | VNTR, -80 to +113 bp | 8/14 called | 5/25 |
+| chr17:43128264 (upstream of BRCA1 exon 1) | 126 bp tandem-repeat insertion | 0/19 | 0/20 |
 
 The 126 bp insertion is a further copy of an adjacent tandem repeat. Its reads align to the
 existing copy with soft-clipped ends only, so neither Manta nor the read-end signature (which

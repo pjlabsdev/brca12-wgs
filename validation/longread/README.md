@@ -28,6 +28,22 @@ two gene regions).
 - The 271 bp BRCA1 deletion that the panel lists for HG01796 is absent in all 26 spanning long
   reads; the pipeline did not report it either. The panel genotype is most likely wrong.
 
+## All 1,019 samples (`results/all_disc.*`)
+
+`ont_discover.py` collected every insertion and deletion of 50 bp or more inside both gene loci from
+the long reads of all 1,019 cohort samples (no sample failed) and genotyped every sample at every
+site: 18 sites, none in an exon ±20 bp, 9 seen in a single sample.
+
+- BRCA2 intronic Alu insertion (chr13:32348296, 316 bp): 136 of 1,002 evaluable samples.
+- BRCA1 1,081 bp intronic deletion (980 bp in the reads): 13 of 993.
+- BRCA1 VNTR at chr17:43100560-43100705: several alleles from -77 to +568 bp.
+- 126 bp tandem-repeat insertion upstream of BRCA1 exon 1 (chr17:43128267): 552 of 1,004. The
+  short-read pipeline did not detect it in any of 19 HPRC carriers (`../hprc/README.md`), so this is
+  a common allele in a blind spot of the method, not a rare miss.
+
+Sites outside the gene loci (reads reach beyond them) are dropped, and a shorter insertion cluster
+with the same carriers next to a longer one (an insertion aligned in two pieces) is merged into it.
+
 ## Sources
 
 Schloissnig S et al. Structural variation in 1,019 diverse humans based on long-read sequencing.

@@ -72,6 +72,11 @@ REFS = {
     'mlpa': 'Schouten JP, McElgunn CJ, Waaijer R, Zwijnenburg D, Diepvens F, Pals G. Relative quantification of 40 nucleic acid sequences by multiplex ligation-dependent probe amplification. Nucleic Acids Res. 2002;30(12):e57.',
     'melt': 'Gardner EJ, Lam VK, Harris DN, et al. The Mobile Element Locator Tool (MELT): population-scale mobile element discovery and biology. Genome Res. 2017;27(11):1916–1929.',
     'gatksv': 'Collins RL, Brand H, Karczewski KJ, et al. A structural variation reference for medical and population genetics. Nature. 2020;581:444–451.',
+    'mutect2': 'Benjamin D, Sato T, Cibulskis K, Getz G, Stewart C, Lichtenstein L. Calling somatic SNVs and indels with Mutect2. bioRxiv 861054; 2019.',
+    'giabdata': 'Zook JM, Catoe D, McDaniel J, et al. Extensive sequencing of seven human genomes to characterize benchmark reference materials. Sci Data. 2016;3:160025.',
+    'hprc': 'Liao WW, Asri M, Ebler J, et al. A draft human pangenome reference. Nature. 2023;617:312–324.',
+    'mgcactus': 'Hickey G, Monlong J, Ebler J, et al. Pangenome graph construction from genome alignments with Minigraph-Cactus. Nat Biotechnol. 2024;42:663–673.',
+    'ont1kg': 'Schloissnig S, Pani S, Ebler J, et al. Structural variation in 1,019 diverse humans based on long-read sequencing. Nature. 2025;644(8076):442–452.',
     'wilson': 'Wilson EB. Probable inference, the law of succession, and statistical inference. J Am Stat Assoc. 1927;22(158):209–212.',
 }
 
@@ -91,6 +96,17 @@ def table(path):
             elif line.strip():
                 rows.append(dict(zip(keys, line.rstrip("\n").split("\t"))))
     return rows
+
+
+def tsv(path):
+    with open(path) as handle:
+        lines = [l.rstrip("\n").split("\t") for l in handle if l.strip()]
+    return [dict(zip(lines[0], l)) for l in lines[1:]]
+
+
+TARGETED = (("HG002_exome_agilent", "HG002, Agilent SureSelect v5 exome"),
+            ("HG001_exome_truseq", "HG001, Illumina TruSeq exome"),
+            ("HG002_ampliseq_ion", "HG002, Ion AmpliSeq exome (single-end)"))
 
 
 def wilson(k, n, z=1.96):
@@ -126,6 +142,21 @@ class Data:
         self.sv_sites = table(os.path.join(PATHO, "sv_sites_1000g.tsv"))
         self.depth = table(os.path.join(RES, "depth_bins.tsv"))
         self.exons = exons()
+        self.targeted = {n: {"bench": tsv(os.path.join(VAL, "targeted", "results", f"{n}.benchmark.tsv")),
+                             "qc": load(os.path.join(VAL, "targeted", "results", f"{n}.qc.json"))} for n, _ in TARGETED}
+        self.mosaic = load(os.path.join(RES, "mosaic_summary.json"))
+        self.hprc = load(os.path.join(VAL, "hprc", "results", "hprc_summary.json"))
+        self.ont = tsv(os.path.join(VAL, "longread", "results", "ours_vs_shortread.tsv"))
+        disc = os.path.join(VAL, "longread", "results", "all_disc.json")
+        self.ont_all = load(disc) if os.path.exists(disc) else None
+
+    def target_row(self, name, kind):
+        r = next(x for x in self.targeted[name]["bench"] if x["region"] == "targets" and x["type"] == kind)
+        return int(r["TP"]), int(r["truthTotal"]), int(r["FP"])
+
+    def hprc_small(self, region, kind):
+        r = next(x for x in self.hprc["small"] if x["region"] == region and x["type"] == kind)
+        return r["TP"], r["truthTotal"], r["FP"], r["FN"]
 
     def giab_total(self, region, kind):
         rows = [r for r in self.giab if r["region"] == region and r["type"] == kind]
@@ -184,12 +215,12 @@ def fig_workflow():
 
     b.append(f'<defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">'
              f'<path d="M0,0 L8,4 L0,8 z" fill="{SUB}"/></marker></defs>')
-    box(8, 96, 100, 48, "Input", ["FASTQ pair or", "BAM/CRAM (WGS)"])
+    box(8, 96, 100, 48, "Input", ["FASTQ or BAM/CRAM", "WGS, exome, panel"])
     box(132, 96, 104, 48, "Check + align", ["GRCh38 only", "BWA-MEM, samtools"])
     arrow(108, 120, 131, 120)
     rows = [("Small variants", ["GATK HaplotypeCaller", "or DeepVariant"], 8),
             ("Structural variants", ["Manta, genes ±1 Mb"], 68),
-            ("Copy number", ["CNVkit (WGS) +", "exon depth ratios"], 128),
+            ("Copy number", ["CNVkit +", "exon depth ratios"], 128),
             ("Coverage", ["mosdepth per exon,", "MAPQ-aware"], 188)]
     for title, sub, y in rows:
         box(268, y, 128, 48, title, sub)
@@ -326,6 +357,20 @@ def recall_rows(d):
         rows.append(("Real SVs (1000 Genomes)" if sid == "HGSV_216998" else "", label + (", called" if alu else ""), s["carriersReported"], s["carriers"]))
         if alu:
             rows.append(("", label + ", read-end signature", s["carriersWithReadEndSignal"], s["carriers"]))
+    for i, (name, label) in enumerate(TARGETED):
+        k, n, _ = d.target_row(name, "SNV")
+        rows.append(("Exome and amplicon (GIAB)" if i == 0 else "", label.split(", ", 1)[1].replace(" (single-end)", "") + ", SNVs in targets", k, n))
+    for i, (region, kind, label) in enumerate((("exons_pm20", "SNV", "SNVs, exons ±20 bp"), ("exons_pm20", "INDEL", "Indels, exons ±20 bp"),
+                                               ("gene_loci", "SNV", "SNVs, gene loci"), ("gene_loci", "INDEL", "Indels, gene loci"))):
+        k, n, _, _ = d.hprc_small(region, kind)
+        rows.append(("Assembly truth (39 HPRC samples)" if i == 0 else "", label, k, n))
+    for sid, label, key in (("chr13:32348295", "Alu insertion, read-end signature", "carriersWithReadEndSignal"),
+                            ("chr17:43100595", "VNTR length change, called", "carriersCalled"),
+                            ("chr17:43128264", "Tandem-repeat insertion 126 bp", "carriersCalled")):
+        s = d.hprc["bySite"][sid]
+        rows.append(("", label, s[key], s["carriers"]))
+    for i, m in enumerate(r for r in d.mosaic if r["spikedEvents"]):
+        rows.append(("Spike-in, low allele fraction" if i == 0 else "", f"{m['spikedAlleleFraction'] * 100:.0f} % of reads, any call", m["reportedEither"], m["spikedEvents"]))
     return rows
 
 
@@ -334,7 +379,7 @@ def fig_recall(d):
     w, rh, top = 720, 15.5, 26
     h = top + rh * len(rows) + 30
     b = []
-    x0, x1 = 420, 660
+    x0, x1 = 400, 630
 
     def X(p):
         return x0 + p * (x1 - x0)
@@ -359,6 +404,41 @@ def fig_recall(d):
         b.append(f'<circle cx="{X(k / n):.1f}" cy="{y:.1f}" r="3" fill="{colour}"/>')
         b.append(text(706, y + 2.6, f"{k} / {n}", 7.6, "end", mono=True))
     return svg(w, h, b)
+
+
+# ------------------------------------------------------------------ figure 7: low allele fractions
+def fig_mosaic(d):
+    mos = [m for m in d.mosaic if m["spikedEvents"]]
+    w, top, bh, gap = 720, 18, 15, 7
+    x0, x1 = 90, 600
+    h = top + len(mos) * (bh + gap) + 34
+    b = []
+    for p in (0, 0.25, 0.5, 0.75, 1.0):
+        x = x0 + p * (x1 - x0)
+        b.append(f'<line x1="{x:.1f}" y1="{top - 4}" x2="{x:.1f}" y2="{top + len(mos) * (bh + gap)}" stroke="{LINE}" stroke-width="0.6"/>')
+        b.append(text(x, top + len(mos) * (bh + gap) + 11, f"{p * 100:.0f} %", 7, "middle", SUB, mono=True))
+    b.append(text((x0 + x1) / 2, top + len(mos) * (bh + gap) + 24, "Share of spiked variants", 7.5, "middle", SUB))
+    b.append(text(8, top - 6, "Allele fraction", 7.5, fill=SUB))
+    for i, m in enumerate(mos):
+        y = top + i * (bh + gap)
+        n = m["spikedEvents"]
+        parts = ((m["reportedAsMosaicCandidate"], BLUE), (m["calledByGermlineCaller"], OK), (n - m["reportedEither"], GREY))
+        x = x0
+        for k, colour in parts:
+            wd = k / n * (x1 - x0)
+            if wd > 0:
+                b.append(f'<rect x="{x:.1f}" y="{y}" width="{wd:.1f}" height="{bh}" fill="{colour}"/>')
+                if wd > 18:
+                    b.append(text(x + wd / 2, y + bh / 2 + 2.6, str(k), 7.2, "middle", "#FFFFFF", mono=True))
+            x += wd
+        b.append(text(8, y + bh / 2 + 2.6, f"{m['spikedAlleleFraction'] * 100:.0f} %", 7.6, mono=True))
+        b.append(text(x1 + 8, y + bh / 2 + 2.6, f"{m['reportedEither']} / {n} reported", 7.4, mono=True))
+    lx = x0
+    for label, colour in (("mosaic candidate", BLUE), ("germline caller", OK), ("not reported", GREY)):
+        b.append(f'<rect x="{lx}" y="{h - 9}" width="8" height="8" fill="{colour}"/>')
+        b.append(text(lx + 12, h - 2, label, 7.2))
+        lx += 110
+    return svg(w, h + 2, b)
 
 
 # ------------------------------------------------------------------ figure 4: large events per caller
@@ -573,6 +653,35 @@ def build(d, fonts, version, date, doi):
     ci_k, ci_n, ci_fp = d.concordance("exons_pm20", "INDEL")
     unexpected = [u for u in d.spike["unexpected"] if not (u["caller"] == "Manta" and u["type"] == "BND")]
     fp_exon = "no"
+    tg = {n: {k: d.target_row(n, k) for k in ("SNV", "INDEL")} for n, _ in TARGETED}
+    tg_snv_k = sum(v["SNV"][0] for v in tg.values())
+    tg_snv_n = sum(v["SNV"][1] for v in tg.values())
+    ts = {n: d.targeted[n]["qc"]["readQC"]["targetSummary"] for n, _ in TARGETED}
+    tg_rows = "".join(
+        f"<tr><td>{esc(label)}</td><td>{ts[n]['meanDepth']:.0f}×</td><td>{ts[n]['uniformityPct']:.1f} %</td><td>{ts[n]['fold80BasePenalty']:.2f}</td>"
+        f"<td>{tg[n]['SNV'][0]} / {tg[n]['SNV'][1]}</td><td>{tg[n]['SNV'][2]}</td><td>{tg[n]['INDEL'][0]} / {tg[n]['INDEL'][1]}</td><td>{tg[n]['INDEL'][2]}</td>"
+        f"<td>{d.targeted[n]['qc']['mosaicCandidates']}</td></tr>" for n, label in TARGETED)
+    mos = [m for m in d.mosaic if m["spikedEvents"]]
+    mos_neg = next(m for m in d.mosaic if not m["spikedEvents"])
+    mos_fp = sum(m["falsePositiveMosaicCandidates"] + m["falsePositiveGermlineCalls"] for m in d.mosaic)
+    mos_rows = "".join(
+        f"<tr><td>{m['spikedAlleleFraction'] * 100:.0f} %</td><td>{m['reportedAsMosaicCandidate']}</td><td>{m['calledByGermlineCaller']}</td>"
+        f"<td>{m['reportedEither']} / {m['spikedEvents']}</td><td>{m['falsePositiveMosaicCandidates'] + m['falsePositiveGermlineCalls']}</td></tr>" for m in mos)
+    mos_n = mos[0]["spikedEvents"]
+    mos_at = {round(m["spikedAlleleFraction"] * 100): m for m in mos}
+    h_es = d.hprc_small("exons_pm20", "SNV")
+    h_ei = d.hprc_small("exons_pm20", "INDEL")
+    h_gs = d.hprc_small("gene_loci", "SNV")
+    h_gi = d.hprc_small("gene_loci", "INDEL")
+    h_n = len(d.hprc["samples"])
+    h_alu, h_vntr, h_tr = (d.hprc["bySite"][s] for s in ("chr13:32348295", "chr17:43100595", "chr17:43128264"))
+    hprc_rows = "".join(
+        f"<tr><td>{reg}</td><td>{kind}</td><td>{v[1]:,}</td><td>{v[0]:,}</td><td>{v[2]:,}</td><td>{v[3]:,}</td><td>{100 * v[0] / v[1]:.1f} %</td></tr>"
+        for reg, kind, v in (("Exons ±20 bp", "SNV", h_es), ("Exons ±20 bp", "Indel", h_ei), ("Gene loci", "SNV", h_gs), ("Gene loci", "Indel", h_gi)))
+    ont_pairs = len(d.ont)
+    ont_agree = sum((r["longReads"] == "present") == (r["pipeline"] != "-") for r in d.ont)
+    ont_samples = len({r["sample"] for r in d.ont})
+    ont_panel_wrong = [r for r in d.ont if (r["longReads"] == "present") != (r["panel"] == "present")]
     carriers_rows = "".join(
         f"<tr><td>{esc(r['sample'])}</td><td>{esc(r['population'])}</td><td><i>{esc(r['gene'])}</i></td><td><code>{esc(r['hgvs'])}</code></td>"
         f"<td>{esc(r['consequence'])}</td><td>{'yes' if r['detected'] else 'no'}, {esc(r['genotype'] or '')}</td><td>{esc(r['depth'])}</td><td>{esc(r['AD'])}</td></tr>"
@@ -623,18 +732,18 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 """
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>brca12-wgs: a reproducible Nextflow pipeline for BRCA1/BRCA2 germline analysis from whole-genome sequencing on GRCh38</title>
+<title>brca12-wgs: a reproducible Nextflow pipeline for BRCA1/BRCA2 germline analysis from genome, exome and panel sequencing on GRCh38</title>
 <style>{style}</style></head><body>
 
 <div class="mast"><div>{LOGO}</div><div class="kind">Software report · preprint<br>Version {esc(version)} · {esc(date)}</div></div>
 
-<h1>brca12-wgs: a reproducible Nextflow pipeline for <i>BRCA1</i>/<i>BRCA2</i> germline analysis from whole-genome sequencing on GRCh38</h1>
+<h1>brca12-wgs: a reproducible Nextflow pipeline for <i>BRCA1</i>/<i>BRCA2</i> germline analysis from genome, exome and panel sequencing on GRCh38</h1>
 <div class="meta"><strong>Peter Jungwirth, MSc</strong> · PJ Labs, Austria</div>
 <div class="small">Software: https://github.com/pjlabsdev/brca12-wgs · DOI: <span id="doi">{esc(doi)}</span> · Licence: MIT</div>
 
 <div class="top">
 <div class="summary">
-<p><strong>Summary.</strong> Germline pathogenic variants in <i>BRCA1</i> and <i>BRCA2</i> cause hereditary breast and ovarian cancer syndrome. The relevant spectrum spans single-nucleotide variants, small insertions and deletions, exon-level copy-number changes and larger rearrangements, yet many open BRCA workflows target amplicon panels on GRCh37 and report small variants only. <i>brca12-wgs</i> is a Nextflow pipeline that takes paired-end FASTQ files or a BAM/CRAM from whole-genome sequencing and produces a structured BRCA1/BRCA2 report on GRCh38. It combines BWA-MEM, GATK HaplotypeCaller or DeepVariant, Manta, CNVkit with per-exon depth ratios, Ensembl VEP with MANE Select transcripts, ClinVar and mosdepth, and lists automated hints on single ACMG/AMP criteria following the ClinGen ENIGMA specification without assigning a classification. We measured performance on four kinds of data: Genome in a Bottle truth sets ({snv_k} of {snv_n} SNVs and {ind_k} of {ind_n} indels), ten 1000 Genomes carriers of pathogenic variants ({c['detected']} of {c['total']} detected), {small_total} small and {n_large} large variants spiked into real reads, and real Alu insertions and deletions in 1000 Genomes samples. Real Alu insertions were called in only {alu_k} of {alu_n} carriers, but an insertion signature from clipped read ends, added for this reason, was present in {alu_sig} of {alu_n}. Manta reported all {n_large} spiked large events, whereas single-sample CNVkit segmentation reported {cnv_after} of {n_large} after a correction made during this work ({cnv_before} before). The software is for research use; results require confirmation by a clinically validated method.</p>
+<p><strong>Summary.</strong> Germline pathogenic variants in <i>BRCA1</i> and <i>BRCA2</i> cause hereditary breast and ovarian cancer syndrome. The relevant spectrum spans single-nucleotide variants, small insertions and deletions, exon-level copy-number changes and larger rearrangements, yet many open BRCA workflows target amplicon panels on GRCh37 and report small variants only. <i>brca12-wgs</i> is a Nextflow pipeline that takes FASTQ files or a BAM/CRAM from whole-genome, exome, hybrid-capture panel or amplicon sequencing and produces a structured BRCA1/BRCA2 report on GRCh38. It combines BWA-MEM, GATK HaplotypeCaller or DeepVariant, Manta, CNVkit with per-exon depth ratios, Ensembl VEP with MANE Select transcripts, ClinVar and mosdepth, and lists automated hints on single ACMG/AMP criteria following the ClinGen ENIGMA specification without assigning a classification. We measured performance on four kinds of whole-genome data: Genome in a Bottle truth sets ({snv_k} of {snv_n} SNVs and {ind_k} of {ind_n} indels), ten 1000 Genomes carriers of pathogenic variants ({c['detected']} of {c['total']} detected), {small_total} small and {n_large} large variants spiked into real reads, and real Alu insertions and deletions in 1000 Genomes samples, checked in long reads. On {h_n} samples with assembly-based truth from the Human Pangenome Reference Consortium it found {h_es[0]} of {h_es[1]} exonic SNVs without a false positive, and on two exomes and an amplicon panel {tg_snv_k} of {tg_snv_n} SNVs inside the targets. Spiked variants at 20 % allele fraction were all reported, with mosaic candidates from Mutect2 below the germline caller's range. Real Alu insertions were called in only {alu_k} of {alu_n} carriers, but an insertion signature from clipped read ends, added for this reason, was present in {alu_sig} of {alu_n}. Manta reported all {n_large} spiked large events, whereas single-sample CNVkit segmentation reported {cnv_after} of {n_large} after a correction made during this work ({cnv_before} before). The software is for research use; results require confirmation by a clinically validated method.</p>
 <p><strong>Availability.</strong> Source code, test data, validation scripts and results are available under the MIT licence at https://github.com/pjlabsdev/brca12-wgs.</p>
 </div>
 <div class="highlights"><h2>Highlights</h2><ul>
@@ -642,6 +751,9 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <li>{c['detected']} of {c['total']} real carriers of pathogenic variants from the 1000 Genomes Project were detected with the correct genotype.</li>
 <li>{small_found} of {small_total} spiked SNVs and indels up to 40 bp and {manta} of {n_large} spiked deletions, duplications and an Alu insertion were reported.</li>
 <li>Real Alu insertions were called in {alu_k} of {alu_n} carriers; a read-end signature added for this reason was present in {alu_sig} of {alu_n} and in {alu_ctrl_sig} of {alu_ctrl} non-carrier evaluations.</li>
+<li>Against assembly-based truth in {h_n} HPRC samples: {h_es[0]} of {h_es[1]} SNVs in the exons ±20 bp, no false positive.</li>
+<li>Exome and amplicon data: {tg_snv_k} of {tg_snv_n} SNVs inside the targets; the misses lie in a UTR stretch without reads.</li>
+<li>Mosaic candidates (Mutect2) and the germline caller together reported every spiked variant at 20 % allele fraction, with no false positive.</li>
 <li>The validation exposed and fixed three defects, including missed copy-number segments.</li>
 <li>Research use only. No classification is assigned.</li>
 </ul></div>
@@ -655,22 +767,24 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <div class="cols">
 <h2>1 Introduction</h2>
 <p>Pathogenic germline variants in the tumour suppressor genes <i>BRCA1</i> (chr17, minus strand) and <i>BRCA2</i> (chr13, plus strand) substantially increase lifetime risks of breast, ovarian, prostate and pancreatic cancer [@kuchenbaecker]. Most pathogenic alleles are truncating SNVs and small indels, but large genomic rearrangements such as single- or multi-exon deletions and duplications account for a relevant fraction of findings, particularly in <i>BRCA1</i>, which is rich in Alu repeats and has a partially duplicated pseudogene (<i>BRCA1P1</i>) near its 5′ end [@sluiter]. Insertions of mobile elements are rare but include a founder variant, the Alu insertion c.156_157insAlu in <i>BRCA2</i> exon 3 [@teugels, @machado].</p>
-<p>Whole-genome sequencing (WGS) captures all of these variant classes in a single assay, but extracting a reliable gene-level result requires several specialised tools, consistent coordinates and explicit statements about where the data are not sufficient. Openly available workflows such as BRCA-analyzer [@brcaanalyzer] were developed for amplicon panels on GRCh37/hg19, depend on licence-restricted annotation and do not report copy-number or structural variants. General-purpose germline pipelines such as Sarek [@sarek] cover WGS but are not tailored to a concise, gene-focused report with exon-level coverage and conservative interpretation hints.</p>
+<p>Whole-genome sequencing (WGS) captures all of these variant classes in a single assay, but extracting a reliable gene-level result requires several specialised tools, consistent coordinates and explicit statements about where the data are not sufficient. Openly available workflows such as BRCA-analyzer [@brcaanalyzer] were developed for amplicon panels on GRCh37/hg19, depend on licence-restricted annotation and do not report copy-number or structural variants. General-purpose germline pipelines such as Sarek [@sarek] cover WGS but are not tailored to a concise, gene-focused report with exon-level coverage and conservative interpretation hints. Because many laboratories sequence exomes or gene panels rather than genomes, the same report should also be available for targeted data.</p>
 <p><i>brca12-wgs</i> addresses this gap with three design goals: (i) GRCh38 only, with automatic rejection of other assemblies; (ii) separate, traceable evidence layers for small variants, copy-number candidates, structural variants and coverage; and (iii) reproducibility through pinned software environments, recorded tool versions and a verbatim command log.</p>
 
 <h2>2 Implementation</h2>
-<p>The pipeline is written in Nextflow DSL2 [@nextflow] and runs locally with conda environments or with tools on the system path (Figure 1, Table 1).</p>
+<p>The pipeline is written in Nextflow DSL2 [@nextflow] and runs locally with conda environments, a Docker or Singularity image, or tools on the system path (Figure 1, Table 1).</p>
 
 <table><caption><strong>Table 1.</strong> Processes, tools and outputs.</caption>
 <tr><th>Step</th><th>Tool (pinned version)</th><th>Purpose</th></tr>
 <tr><td>Input check</td><td>Python</td><td>GRCh38 detection from chr13/chr17 lengths; region and exon BED harmonisation</td></tr>
-<tr><td>Alignment</td><td>BWA-MEM 0.7.18 [@bwa], samtools 1.21 [@samtools]</td><td>Alignment, fixmate, sort, duplicate marking</td></tr>
+<tr><td>Alignment</td><td>BWA-MEM 0.7.18 [@bwa], samtools 1.21 [@samtools]</td><td>Alignment, fixmate, sort, duplicate marking (not for amplicons), primer clipping with <code>ampliconclip</code></td></tr>
+<tr><td>Read QC</td><td>samtools stats, mosdepth</td><td>Mapping, pairing, duplicates, error rate; per target depth, uniformity, fold-80, on-target reads</td></tr>
 <tr><td>SNVs/indels</td><td>GATK 4.6.1.0 HaplotypeCaller [@gatk] or DeepVariant [@deepvariant]</td><td>Calling in both genes ± 200 bp</td></tr>
+<tr><td>Mosaic candidates</td><td>GATK Mutect2 [@mutect2] (optional)</td><td>Calls at 2–30 % allele fraction not made by the germline caller</td></tr>
 <tr><td>Structural variants</td><td>Manta 1.6.0 [@manta]</td><td>Breakpoints within ± 1 Mb of both genes</td></tr>
-<tr><td>Copy number</td><td>CNVkit 0.9.11 [@cnvkit]</td><td>WGS mode, flat reference over chr13 and chr17; per-exon depth ratios</td></tr>
+<tr><td>Copy number</td><td>CNVkit 0.9.11 [@cnvkit]</td><td>WGS, hybrid or amplicon mode, flat or pooled reference; per-exon depth ratios</td></tr>
 <tr><td>Annotation</td><td>Ensembl VEP 113 [@vep], bcftools</td><td>MANE Select [@mane], HGVS, gnomAD [@gnomad], ClinVar [@clinvar]</td></tr>
 <tr><td>Coverage</td><td>mosdepth 0.3.10 [@mosdepth]</td><td>Per exon at MAPQ ≥ 20 and ≥ 0; 10/20/30×</td></tr>
-<tr><td>Report</td><td>Python (standard library)</td><td>HTML, Markdown (English or German), JSON</td></tr>
+<tr><td>Report</td><td>Python (standard library)</td><td>HTML, Markdown, PDF, Excel (English, German or Russian), JSON</td></tr>
 </table>
 
 <h3>2.1 Reference and regions</h3>
@@ -688,8 +802,11 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <h3>2.5 Reporting and reproducibility</h3>
 <p>The report has separate sections for <i>BRCA1</i> and <i>BRCA2</i> small variants, copy-number candidates, structural variants, coverage per exon and uncertain intervals, followed by tool versions, the invocation and limitations. It is produced as HTML and Markdown in English or German and as JSON (schema <code>genome.brca12.v1</code>). Tool versions are captured at run time, every task copies its command script into <code>brca12_commands.sh</code>, and conda environments pin all tool versions. Unit tests and a stub run of the complete workflow run in GitHub Actions on every change.</p>
 
+<h3>2.6 Targeted sequencing and low allele fractions</h3>
+<p>With <code>--assay exome</code>, <code>panel</code> or <code>amplicon</code> and a target BED, the target intervals inside both genes are kept and exons without a target are reported as not assessable. Amplicon reads are not marked as duplicates; with a primer BED, primers are removed with <code>samtools ampliconclip</code> and the share of reads with a clipped primer is reported. CNVkit runs in hybrid or amplicon mode, optionally with a pooled normal reference, and the exon dosage baseline becomes the median exon depth of the sample. Single-end reads are accepted (Manta is skipped), and <code>--platform iontorrent</code> adds a warning to every indel. A read QC step reports mapping, pairing, duplicate and error rates and, for targets, mean depth, uniformity, fold-80 base penalty, on-target reads and weak targets. <code>--mosaic</code> adds Mutect2 candidates at low allele fraction (Section 3.6).</p>
+
 <h2>3 Validation</h2>
-<p>Four data sets were used (Figures 2 and 3). All scripts, sample lists and result files are in the <code>validation/</code> directory of the repository.</p>
+<p>Eight data sets were used (Figures 2 and 3). All scripts, sample lists and result files are in the <code>validation/</code> directory of the repository.</p>
 
 <h3>3.1 Genome in a Bottle truth sets</h3>
 <p>Small-variant calls were compared with the GIAB NIST v4.2.1 GRCh38 truth sets for HG001 and HG002 [@giab1, @giab2]. Illumina HiSeq 2×148 bp read pairs that the GIAB alignments placed within either gene ±10 kb were extracted, downsampled to about 36× and 30×, converted back to FASTQ and processed from FASTQ. Calls were matched with RTG Tools <code>vcfeval</code> [@vcfeval], which compares haplotypes and requires the genotype to agree, inside the GIAB high-confidence regions (91.9 % and 95.1 % of the 211,225 bp of both loci). The pipeline recovered {snv_k} of {snv_n} SNVs and {ind_k} of {ind_n} indels, and all {ex_n} variants in the exons ±20 bp without a false positive. The three discordant calls were intronic; two were genotype errors in homopolymers at 12× and 14× that carried the pipeline's own quality flags.</p>
@@ -740,32 +857,80 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <div class="cols">
 <p>{{SV_TEXT}}</p>
 
-<h3>3.5 Limits of this validation</h3>
+<h3>3.5 Exome and amplicon data</h3>
+<p>Three public GIAB data sets from targeted sequencing [@giabdata] were run from FASTQ with <code>--assay exome</code> or <code>--assay amplicon</code> (Table 4): an Agilent SureSelect v5 exome of HG002 (HiSeq 2×125 bp), an Illumina TruSeq exome of HG001 and an Ion AmpliSeq exome of HG002 (Ion Proton, single-end, run with <code>--platform iontorrent</code>). Reads over both genes ±10 kb were taken from the producers' hg19 alignments; vendor target intervals were moved to GRCh38 with one offset per locus, and for the Agilent kit, whose BED is not public, the MANE exons ±50 bp served as targets. Truth was GIAB v4.2.1 inside the targets and the high-confidence regions. Inside the targets {tg_snv_k} of {tg_snv_n} SNVs were found. All missed SNVs and indels of the two exomes lie in the 3′ UTR of <i>BRCA2</i> exon 27, where the source alignments have 0 to 2 reads; the report lists this stretch as an uncertain interval. The three SNV false positives of the Ion data had allele fractions of 10 to 20 % and carried the allele-balance flag; its 98 false indels are homopolymer errors of the platform, and with <code>--platform iontorrent</code> every indel carries a warning. Target QC reported the expected spread: uniformity from 83.9 to 91.6 % and the 1.27 % error rate of the Ion run as a flag.</p>
+</div>
+
+<table class="wide"><caption><strong>Table 4.</strong> Exome and amplicon data against GIAB v4.2.1, inside the targets. Uniformity: share of target bases with at least 0.2 × the mean depth. Fold-80: mean depth divided by the 20th percentile. Mosaic: candidates reported with <code>--mosaic</code>.</caption>
+<tr><th>Data set</th><th>Mean depth</th><th>Uniformity</th><th>Fold-80</th><th>SNVs</th><th>SNV FP</th><th>Indels</th><th>Indel FP</th><th>Mosaic</th></tr>
+{tg_rows}
+</table>
+
+<div class="cols">
+<h3>3.6 Low allele fractions</h3>
+<p>With <code>--mosaic</code> the pipeline runs GATK Mutect2 [@mutect2] in tumour-only mode with FilterMutectCalls over the same regions and reports PASS calls with an allele fraction of 2 to 30 %, at least three supporting reads and at least 20× depth that the germline caller did not report, as mosaic candidates. The {mos_n} small variants of Section 3.3 were spiked into the real HG002 reads at about 30× with 5, 10, 15, 20 and 30 % of the read pairs drawn from the variant haplotype (Table 5, Figure 7). At 20 % and above every variant was reported, by the germline caller or as a mosaic candidate; at 10 % {mos_at[10]['reportedEither']} of {mos_n} and at 5 % {mos_at[5]['reportedEither']} of {mos_n}. At 30× a 5 % variant is carried by about 1.5 reads on average, so low fractions need the depth of panels or exomes. The negative control and all spiked samples gave {mos_fp} false positives. The candidate filters were set after a first run on the exome and amplicon data of Section 3.5, where they removed four TruSeq candidates at 8× with two supporting reads each and 23 Ion indels; that is therefore not an independent test.</p>
+</div>
+
+<table><caption><strong>Table 5.</strong> Spiked variants at low allele fractions in real HG002 reads (about 30×). Mosaic: reported as mosaic candidate; germline: called by HaplotypeCaller (with the allele-balance flag below 25 %).</caption>
+<tr><th>Fraction</th><th>Mosaic</th><th>Germline</th><th>Either</th><th>False positives</th></tr>
+{mos_rows}
+</table>
+
+<figure><div class="frame">{fig_mosaic(d)}</div>
+<figcaption><strong>Figure 7. Spiked variants by allele fraction.</strong> Each bar is one sample with {mos_n} spiked small variants: reported as mosaic candidate (blue), called by the germline caller (green) or not reported (grey).</figcaption></figure>
+
+<div class="cols">
+<h3>3.7 Assembly-based truth</h3>
+<p>The {h_n} individuals of the Human Pangenome Reference Consortium [@hprc] that are also part of the 1000 Genomes 30× data [@kgp] provide a truth that does not depend on short reads: the haplotype-resolved long-read assemblies, here as the GRCh38-based VCF of the Minigraph-Cactus pangenome [@mgcactus]. It covers both genes completely, introns and repeats included. Read pairs were prepared as in Section 3.4 and compared per sample with <code>vcfeval</code>; positions where an assembly has no allele were excluded. In the exons ±20 bp {h_es[0]} of {h_es[1]} SNVs were found without a false positive (Table 6). {h_ei[3] - 2} of the {h_ei[3]} missed and 9 of the {h_ei[2]} false exon indels lie in one poly-T stretch of the <i>BRCA1</i> 3′ UTR (chr17:43,044,804–43,044,817), where assemblies and short reads disagree on the length of the homopolymer; outside it the exon indels were 41 of 43 with one false positive. Over the whole gene loci the figures include every intronic repeat and were not curated.</p>
+<p>Variants of 50 bp or more formed three sites. The common intronic Alu insertion in <i>BRCA2</i> showed the read-end signature in {h_alu['carriersWithReadEndSignal']} of {h_alu['carriers']} carriers and in {h_alu['referenceWithReadEndSignal']} of {h_alu['reference']} non-carriers, while Manta called it in {h_alu['carriersCalled']}. A VNTR in <i>BRCA1</i> intron 6 with alleles from −80 to +113 bp was called in {h_vntr['carriersCalled']} of {h_vntr['carriers']} carriers, with {h_vntr['referenceCalled']} calls in {h_vntr['reference']} non-carriers. A 126 bp insertion that adds one copy of an adjacent tandem repeat was found in {h_tr['carriersCalled']} of {h_tr['carriers']} carriers: the extra copy aligns to the existing one with soft-clipped ends only, which neither Manta nor the Alu-based signature recognises.</p>
+</div>
+
+<table><caption><strong>Table 6.</strong> {h_n} HPRC samples against assembly-based truth, small variants below 50 bp.</caption>
+<tr><th>Region</th><th>Type</th><th>Truth</th><th>TP</th><th>FP</th><th>FN</th><th>Recall</th></tr>
+{hprc_rows}
+</table>
+
+<div class="cols">
+<h3>3.8 Long reads</h3>
+<p>The structural variants of Section 3.4 come from short-read callsets. For the {ont_samples} of their samples that are in the 1KG-ONT cohort [@ont1kg], every site was genotyped in the Oxford Nanopore reads: a read spanning the site supports the variant when its alignment carries an insertion or deletion of at least half the expected length there. The pipeline result agreed with the long reads in {ont_agree} of {ont_pairs} sample-site pairs. {{ONT_PANEL}}</p>
+{{ONT_ALL}}
+
+<h3>3.9 Limits of this validation</h3>
 <ul>
-<li>Reads for Sections 3.1, 3.2 and 3.4 were taken from existing alignments near the genes and realigned against chr13 and chr17 only. This removes competition from paralogous sequence elsewhere, which may overstate precision. A whole-genome run against the complete reference is the next step.</li>
+<li>Reads for Sections 3.1, 3.2, 3.4, 3.5 and 3.7 were taken from existing alignments near the genes and realigned against chr13 and chr17 only. This removes competition from paralogous sequence elsewhere, which may overstate precision. A whole-genome run against the complete reference is the next step.</li>
 <li>Spiked variants are synthetic. They test whether a variant that is present in the reads is called and reported, not how real pathogenic rearrangements look. The spiked Alu element was copied from the reduced reference, which makes its detection easier than a real mobile element insertion.</li>
 <li>No Ensembl VEP cache was available on the validation machine, so annotation and the ACMG/AMP hints were not part of these runs. In Sections 3.1, 3.2 and 3.4 CNVkit was replaced by a neutral stand-in.</li>
-<li>Numbers are small. Ten carriers and twelve large events give wide confidence intervals (Figure 3).</li>
+<li>Numbers are small. Ten carriers and twelve large events give wide confidence intervals (Figure 3). The mosaic filters were tuned on the data of Section 3.5.</li>
 <li>The read-end signature was written after the missed Alu insertions had been inspected, so its result on these carriers is not an independent test.</li>
 <li>No real sample with a pathogenic exon deletion, duplication or Alu insertion was tested.</li>
 </ul>
 
 <h2>4 Comparison with existing workflows</h2>
-<table><caption><strong>Table 4.</strong> Feature comparison with BRCA-analyzer [@brcaanalyzer].</caption>
-<tr><th></th><th>brca12-wgs</th><th>BRCA-analyzer</th></tr>
-<tr><td>Data type</td><td>WGS (FASTQ or BAM/CRAM)</td><td>Amplicon panels</td></tr>
-<tr><td>Assembly</td><td>GRCh38, enforced</td><td>hg19</td></tr>
-<tr><td>Small variants</td><td>GATK 4 HaplotypeCaller or DeepVariant</td><td>GATK 3.6/3.7</td></tr>
-<tr><td>Copy number / SV</td><td>CNVkit + exon dosage / Manta</td><td>Not included</td></tr>
-<tr><td>Annotation</td><td>VEP, MANE Select, gnomAD, user ClinVar</td><td>ANNOVAR, snpEff, ClinVar 2018</td></tr>
-<tr><td>Interpretation support</td><td>ACMG/AMP criterion hints (ENIGMA v1.2), no classification</td><td>Not included</td></tr>
-<tr><td>Published validation</td><td>GIAB, real carriers, spike-ins</td><td>Not stated</td></tr>
+<table><caption><strong>Table 7.</strong> Feature comparison with BRCA-analyzer [@brcaanalyzer], as described in its repository.</caption>
+<tr><th></th><th>brca12-wgs 1.1</th><th>BRCA-analyzer</th></tr>
+<tr><td>Data type</td><td>WGS, exome, hybrid-capture and amplicon panels; paired or single-end; Illumina or Ion Torrent</td><td>Amplicon panels (MiSeq)</td></tr>
+<tr><td>Input</td><td>FASTQ, BAM or CRAM</td><td>FASTQ</td></tr>
+<tr><td>Assembly</td><td>GRCh38, enforced; GRCh37 position for every small variant</td><td>hg19</td></tr>
+<tr><td>Primer removal</td><td>samtools ampliconclip, share of clipped reads</td><td>cutPrimers, share of trimmed reads</td></tr>
+<tr><td>Small variants</td><td>GATK 4 HaplotypeCaller or DeepVariant</td><td>Pisces, GATK 3 UnifiedGenotyper or FreeBayes</td></tr>
+<tr><td>Low allele fraction</td><td>Mutect2 mosaic candidates, tested by spike-ins</td><td>Pisces calls low fractions</td></tr>
+<tr><td>Copy number / SV</td><td>CNVkit and exon dosage / Manta and Alu read-end signature</td><td>Not included</td></tr>
+<tr><td>Annotation</td><td>VEP, MANE Select, gnomAD, user ClinVar; BIC names</td><td>ANNOVAR (licence), snpEff, bundled ClinVar and BIC</td></tr>
+<tr><td>Interpretation support</td><td>ACMG/AMP criterion hints (ENIGMA v1.2), no classification</td><td>Class from ClinVar/BIC</td></tr>
+<tr><td>QC</td><td>Read QC, per exon and per target coverage, uniformity, fold-80, intervals below 10×</td><td>Read counts, amplicon coverage and uniformity</td></tr>
+<tr><td>Batches</td><td>Sample sheet, cohort table, contamination hint</td><td>Joint table, contamination hint</td></tr>
+<tr><td>Output</td><td>HTML, Markdown, PDF, Excel, JSON; English, German, Russian</td><td>Excel, Word; English, Russian</td></tr>
+<tr><td>Reproducibility</td><td>Nextflow, pinned conda, Docker/Singularity, command log, tests in CI</td><td>Python script, Docker image</td></tr>
+<tr><td>Open validation</td><td>GIAB WGS, exomes and amplicons, real carriers, spike-ins, HPRC assemblies, long reads</td><td>Example data</td></tr>
+<tr><td>Clinical validation</td><td>None (research use only)</td><td>More than 900 patient samples with Sanger confirmation, according to its documentation</td></tr>
 <tr><td>Licence</td><td>MIT</td><td>GPL-3.0</td></tr>
 </table>
 
 <h2>5 Limitations</h2>
 <ul>
-<li>Short-read WGS has limited sensitivity for mosaic variants below about 15 % allele fraction, for complex rearrangements and in regions with pseudogene homology such as <i>BRCA1</i> exons 1–2.</li>
+<li>At 30× WGS, variants below about 15 % allele fraction are often missed even with <code>--mosaic</code> (Section 3.6); low fractions need deeper targeted data. Sensitivity is also limited for complex rearrangements and in regions with pseudogene homology such as <i>BRCA1</i> exons 1–2.</li>
+<li>Insertions that add a copy of an adjacent tandem repeat are not detected (0 of {h_tr['carriers']} carriers of a 126 bp insertion in Section 3.7), and indel lengths in long homopolymers can differ from assembly-based truth.</li>
+<li>Ion Torrent indels are dominated by homopolymer errors and need confirmation; exons without a target or without reads in targeted data are reported as not assessable, not as negative.</li>
 <li>Copy-number results come from a single sample with a flat reference and are candidates only. In the spike-in experiment CNVkit alone missed every event below {cnv_min}; detection of exon-level events currently rests on Manta, which needs breakpoints inside mappable sequence.</li>
 <li>Mobile element insertions have no dedicated caller. Manta missed real Alu insertions in several carriers; the read-end signature recognises Alu sequence only, was developed on the same two insertion sites it is reported for here, and has not been tested on an independent set or on L1 and SVA elements (Section 3.4).</li>
 <li>The ACMG/AMP hints cover a subset of criteria. The PVS1 decision tree, functional (PS3/BS3), segregation (PP1), case-control (PS4) and same-codon (PS1/PM5) evidence are not evaluated.</li>
@@ -773,13 +938,13 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 </ul>
 
 <h2>6 Availability and requirements</h2>
-<p><strong>Repository:</strong> https://github.com/pjlabsdev/brca12-wgs · <strong>Archived version:</strong> DOI {esc(doi)} · <strong>Operating systems:</strong> Linux, macOS · <strong>Requirements:</strong> Nextflow ≥ 23.10, Java 17, conda/mamba or the listed tools, GRCh38 FASTA with index and dictionary, Ensembl VEP GRCh38 cache, ClinVar VCF · <strong>Licence:</strong> MIT.</p>
+<p><strong>Repository:</strong> https://github.com/pjlabsdev/brca12-wgs · <strong>Archived version:</strong> DOI {esc(doi)} · <strong>Operating systems:</strong> Linux, macOS · <strong>Requirements:</strong> Nextflow ≥ 23.10, Java 17, conda/mamba, Docker, Singularity or the listed tools, GRCh38 FASTA with index and dictionary, Ensembl VEP GRCh38 cache, ClinVar VCF · <strong>Licence:</strong> MIT.</p>
 <pre>nextflow run main.nf -profile conda \\
   --sample S --reads_r1 S_R1.fastq.gz --reads_r2 S_R2.fastq.gz \\
   --reference GRCh38.fa --vep_cache ~/.vep --clinvar_vcf clinvar.vcf.gz</pre>
 
 <h2>Acknowledgements</h2>
-<p>The software and this report were developed with the assistance of an AI coding assistant (Claude, Anthropic). The author reviewed the design and is responsible for the content. This work used data of the Genome in a Bottle Consortium and of the 1000 Genomes Project (New York Genome Center high-coverage sequencing).</p>
+<p>The software and this report were developed with the assistance of an AI coding assistant (Claude, Anthropic). The author reviewed the design and is responsible for the content. This work used data of the Genome in a Bottle Consortium and of the 1000 Genomes Project (New York Genome Center high-coverage sequencing), the exome and amplicon data of the GIAB producers (Oslo University Hospital, University of Nebraska, Thermo Fisher Scientific), the assemblies of the Human Pangenome Reference Consortium and the long reads of the 1KG-ONT cohort. The 1KG-ONT data were generated at the Institute of Molecular Pathology (Vienna, Austria) with funds provided by Boehringer-Ingelheim.</p>
 <h2>Conflict of interest</h2>
 <p>None declared.</p>
 
@@ -860,6 +1025,43 @@ def sv_text(d):
     return " ".join(x for x in parts if x)
 
 
+def ont_panel_text(d):
+    """Pairs where the long reads and the 1000 Genomes panel disagree."""
+    wrong = [r for r in d.ont if (r["longReads"] == "present") != (r["panel"] == "present")]
+    if not wrong:
+        return "The long reads also agreed with the panel genotypes."
+    parts = []
+    for r in wrong:
+        n = r["supportingReads"].split("/")[1]
+        parts.append(f"{r['sample']} at {r['site']} ({'absent' if r['longReads'] == 'absent' else 'present'} in all {n} spanning long reads, "
+                     f"{'carrier' if r['panel'] == 'present' else 'non-carrier'} in the panel)")
+    return ("The long reads disagreed with the panel only for " + "; ".join(parts) +
+            ". This is the carrier of the 271 bp deletion without a call in Section 3.4, whose short-read depth showed no deletion either: "
+            "the panel genotype is most likely wrong.")
+
+
+def ont_all_text(d):
+    """Discovery of all events of 50 bp or more in the long reads of the whole cohort."""
+    a = d.ont_all
+    if not a:
+        return ""
+    sites = a["sites"]
+    by = {s["id"]: s for s in sites}
+    def site(chrom, pos, kind):
+        return min((s for s in sites if s["chrom"] == chrom and s["type"] == kind), key=lambda s: abs(s["pos"] - pos))
+    def share(s):
+        n = len(s["carriers"]) + s["absent"]
+        return f"{len(s['carriers']):,} of {n:,}"
+    alu, tr, dl = site("chr13", 32348296, "INS"), site("chr17", 43128264, "INS"), site("chr17", 43071626, "DEL")
+    single = sum(1 for s in sites if len(s["carriers"]) == 1)
+    return (f"<p>In addition, all insertions and deletions of 50 bp or more inside both gene loci were collected from the long reads of all "
+            f"{a['samples']:,} samples of the cohort and every sample was genotyped at every site ({len(sites)} sites, none in an exon ±20 bp; "
+            f"{single} seen in a single sample). The intronic <i>BRCA2</i> Alu insertion was present in {share(alu)} evaluable samples, "
+            f"the 1,081 bp <i>BRCA1</i> deletion in {share(dl)} and the 126 bp tandem-repeat insertion of Section 3.7 in {share(tr)}. "
+            "The last one is therefore a common allele; that the pipeline does not detect it (Section 3.7) is a blind spot for this class "
+            "of event rather than a rare miss.</p>")
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--fonts")
@@ -876,6 +1078,8 @@ def main(argv=None):
     page = page.replace("{SV_NOMATES}", f"{alu_nomates} of {alu_total} Alu insertions were called and {sig_nomates} of {alu_total} "
                                         "showed the read-end signature")
     page = page.replace("{SV_TEXT}", sv_text(d))
+    page = page.replace("{ONT_PANEL}", ont_panel_text(d))
+    page = page.replace("{ONT_ALL}", ont_all_text(d))
     page = number_citations(page)
     sys.stdout.write(page)
     return 0

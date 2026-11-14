@@ -54,20 +54,21 @@ def cluster(all_events, gap):
     """all_events: (kind, chrom, pos, end, length, sample). Greedy clustering by position and length."""
     sites = []
     for kind, chrom, pos, end, length, sample in sorted(all_events, key=lambda x: (x[0], x[1], x[2], x[4])):
+        target = None
         for s in reversed(sites):
-            if s["type"] != kind or s["chrom"] != chrom or pos - s["last"] > gap:
-                if s["type"] != kind or s["chrom"] != chrom or pos - s["last"] > 10 * gap:
-                    break
-                continue
-            if abs(length - s["median"]) <= 0.3 * max(length, s["median"]):
-                s["members"].append((pos, end, length, sample))
-                s["last"] = max(s["last"], pos)
-                lens = sorted(m[2] for m in s["members"])
-                s["median"] = lens[len(lens) // 2]
+            if s["type"] != kind or s["chrom"] != chrom or pos - s["last"] > 10 * gap:
                 break
-        else:
+            if pos - s["last"] <= gap and abs(length - s["median"]) <= 0.3 * max(length, s["median"]):
+                target = s
+                break
+        if target is None:
             sites.append({"type": kind, "chrom": chrom, "last": pos, "median": length,
                           "members": [(pos, end, length, sample)]})
+            continue
+        target["members"].append((pos, end, length, sample))
+        target["last"] = max(target["last"], pos)
+        lens = sorted(m[2] for m in target["members"])
+        target["median"] = lens[len(lens) // 2]
     return sites
 
 
@@ -143,6 +144,9 @@ def main(argv=None):
         m = sorted(c["members"])
         mid = m[len(m) // 2]
         gene = next(g for ch, lo, hi, g in GENES if ch == c["chrom"])
+        lo, hi = next((lo, hi) for ch, lo, hi, g in GENES if ch == c["chrom"])
+        if not lo <= mid[0] <= hi:
+            continue          # reads reach beyond the gene locus; events there are not part of the test
         sites.append({"gene": gene, "chrom": c["chrom"], "pos": mid[0], "end": mid[1], "type": c["type"],
                       "length": c["median"], "minLength": min(x[2] for x in m), "maxLength": max(x[2] for x in m)})
     sites.sort(key=lambda s: (s["chrom"], s["pos"], s["type"]))
@@ -156,6 +160,12 @@ def main(argv=None):
         for s in site["carriers"]:
             rows.append((s, site["id"], calls[s][1], calls[s][2]))
     sites = [s for s in sites if s["carriers"]]
+    # a long insertion that some reads align in two pieces gives a second, shorter cluster with the
+    # same carriers next to it: keep the longer one
+    dup = {id(b) for a in sites for b in sites if a is not b and a["type"] == b["type"] == "INS"
+           and a["chrom"] == b["chrom"] and abs(a["pos"] - b["pos"]) <= args.cluster and b["length"] < a["length"]
+           and set(b["carriers"]) <= set(a["carriers"])}
+    sites = [s for s in sites if id(s) not in dup]
     with open(args.out + ".json", "w") as fh:
         json.dump({"source": "1KG-ONT Vienna, hg38 CRAM (s3://1kg-ont-vienna/hg38)", "samples": len(data),
                    "failedSamples": failed, "sites": sites}, fh, indent=1)
