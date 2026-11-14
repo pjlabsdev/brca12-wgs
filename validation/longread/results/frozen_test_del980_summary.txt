@@ -1,0 +1,2 @@
+del980 carriers found 10/10 (95 % CI 0.692-1.000), non-carriers without call 198/198 (95 % CI 0.982-1.000)
+del980 zygosity agreement with long reads: 10/10

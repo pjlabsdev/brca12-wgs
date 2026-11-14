@@ -261,7 +261,7 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
   well, and 2 of the 3 signals are required (tuning set: 24 of 25 carriers, 0 of 25 non-carriers;
   independent set: 67 of 67 carriers, 1 of 53 non-carriers); together with allele realignment it
   found 116 of 116 carriers in a preregistered test (4 calls in 84 non-carriers with thin long-read
-  coverage). Realignment needs the allele sequence and covers two known alleles so far. Other tandem
+  coverage). Realignment needs the allele sequence and covers three known alleles so far. Other tandem
   copies rely on clipped reads
   alone and can be missed at low depth. Indel lengths in long homopolymers can differ from
   assembly-based truth (BRCA1 3' UTR poly-T).
@@ -379,7 +379,8 @@ allele haplotype. This method was frozen and its test registered before the data
 (`validation/longread/frozen/`): in 200 new 1KG-ONT samples it found the tandem copy in 116 of 116
 long-read carriers (4 calls in 84 non-carriers, all with 3 to 6 spanning long reads) and the Alu
 insertion in 25 of 25 carriers with no call in 175 non-carriers and the right genotype in 25 of 25.
-Read-end signatures alone found 97 of 116 and 19 of 25. ExpansionHunter v5 with a locus definition
+Read-end signatures alone found 97 of 116 and 19 of 25. A registered addendum added the 980 bp
+BRCA1 intronic deletion: 10 of 10 carriers, no call in 198 non-carriers, genotype 10 of 10. ExpansionHunter v5 with a locus definition
 for the tandem copy found 14 of 19 HPRC carriers and 54 of 64 independent carriers.
 
 Oxford Nanopore reads of the 1KG-ONT cohort (`validation/longread/`) confirm the short-read SV
