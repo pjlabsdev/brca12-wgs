@@ -76,6 +76,11 @@ REFS = {
     'giabdata': 'Zook JM, Catoe D, McDaniel J, et al. Extensive sequencing of seven human genomes to characterize benchmark reference materials. Sci Data. 2016;3:160025.',
     'hprc': 'Liao WW, Asri M, Ebler J, et al. A draft human pangenome reference. Nature. 2023;617:312–324.',
     'mgcactus': 'Hickey G, Monlong J, Ebler J, et al. Pangenome graph construction from genome alignments with Minigraph-Cactus. Nat Biotechnol. 2024;42:663–673.',
+    'paragraph': 'Chen S, Krusche P, Dolzhenko E, et al. Paragraph: a graph-based structural variant genotyper for short-read sequence data. Genome Biol. 2019;20:291.',
+    'pangenie': 'Ebler J, Ebert P, Clarke WE, et al. Pangenome-based genome inference allows efficient and accurate genotyping across a wide spectrum of variant classes. Nat Genet. 2022;54:518–525.',
+    'danbing': 'Lu TY, Human Genome Structural Variation Consortium, Chaisson MJP. Profiling variable-number tandem repeat variation across populations using repeat-pangenome graphs. Nat Commun. 2021;12:4250.',
+    'expansionhunter': 'Dolzhenko E, Deshpande V, Schlesinger F, et al. ExpansionHunter: a sequence-graph-based tool to analyze variation in short tandem repeat regions. Bioinformatics. 2019;35(22):4754–4756.',
+    'myers': 'Myers G. A fast bit-vector algorithm for approximate string matching based on dynamic programming. J ACM. 1999;46(3):395–415.',
     'ont1kg': 'Schloissnig S, Pani S, Ebler J, et al. Structural variation in 1,019 diverse humans based on long-read sequencing. Nature. 2025;644(8076):442–452.',
     'wilson': 'Wilson EB. Probable inference, the law of succession, and statistical inference. J Am Stat Assoc. 1927;22(158):209–212.',
 }
@@ -149,6 +154,7 @@ class Data:
         self.ont = tsv(os.path.join(VAL, "longread", "results", "ours_vs_shortread.tsv"))
         self.tandem_hprc = tsv(os.path.join(VAL, "hprc", "results", "tandem_copy.tsv"))
         self.tandem_ont = tsv(os.path.join(VAL, "longread", "results", "tandem_copy.tsv"))
+        self.frozen = tsv(os.path.join(VAL, "longread", "results", "frozen_test.tsv"))
         self.tandem_ind = tsv(os.path.join(VAL, "longread", "results", "tandem_copy_independent.tsv"))
         self.tandem_ind_truth = {r[0]: r for r in (l.rstrip("\n").split("\t") for l in open(os.path.join(
             VAL, "longread", "results", "tandem_copy_independent_truth.tsv"))) if r and not r[0].startswith("#")}
@@ -383,6 +389,9 @@ def recall_rows(d):
     rows.append(("", "Same insertion, tandem-copy signature", *d.tandem(d.tandem_hprc, "carrier")))
     rows.append(("Long reads (1KG-ONT)", "Same insertion, tandem-copy signature", *d.tandem(d.tandem_ont, "carrier")))
     rows.append(("", "Same, independent samples", *d.tandem(d.tandem_ind, "carrier")))
+    for i, (site, label) in enumerate((("tandem126", "126 bp copy, frozen rules"), ("alu_brca2", "BRCA2 Alu, frozen rules"))):
+        car = [r for r in d.frozen if r["site"] == site and r["truth"] == "carrier"]
+        rows.append(("Preregistered test (200 ONT)" if i == 0 else "", label, sum(r["called"] == "yes" for r in car), len(car)))
     for i, m in enumerate(r for r in d.mosaic if r["spikedEvents"]):
         rows.append(("Spike-in, low allele fraction" if i == 0 else "", f"{m['spikedAlleleFraction'] * 100:.0f} % of reads, any call", m["reportedEither"], m["spikedEvents"]))
     return rows
@@ -807,7 +816,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <p>The input check reads the FASTA index and accepts the reference only if chr13 and chr17 have the GRCh38 lengths; GRCh37 is rejected with an explicit message. Gene loci are fixed to chr17:43,044,295–43,170,327 (<i>BRCA1</i>) and chr13:32,315,077–32,400,268 (<i>BRCA2</i>). Exons are taken from the MANE Select transcripts [@mane] NM_007294.4 (23 exons) and NM_000059.4 (27 exons). For <i>BRCA1</i> the report also shows the legacy exon numbering, which omits exon 4.</p>
 
 <h3>2.2 Variant calling</h3>
-<p>Reads are aligned with BWA-MEM [@bwa]; sorting, mate fixing and duplicate marking use samtools [@samtools]. Small variants are called with GATK HaplotypeCaller [@gatk] restricted to the padded gene regions, or optionally with DeepVariant [@deepvariant]. Manta [@manta] is run with call regions extending 1 Mb around both genes, so that rearrangements with one breakpoint inside a gene are retained, including breakend (BND) pairs. Two breakends a few bases apart whose mates lie elsewhere are flagged as a possible insertion of foreign sequence such as a mobile element. In addition, soft-clipped read ends inside the genes are searched for the signature of an insertion: reads from the left clipped at one position, reads from the right clipped at a position up to 30 bp before it (the target-site duplication), at least three clipped reads on each side and a clipped fraction of at least 15 %. Such a pair is listed as an insertion signature when the clipped sequence contains k-mers of the Alu consensus; it is a hint from the reads, not a variant call. A second signature marks an extra copy of a tandem repeat unit: reads clipped at the end of a unit whose clipped part matches the start of that unit in the reference, and reads clipped at its start whose clipped part matches its end, both pointing to the same unit length of 50 to 1,000 bp, with at least two reads at each border (clip positions within 10 bp pooled). For the common extra copy upstream of <i>BRCA1</i> exon 1 a marker base is checked as well: the extra copy repeats unit 1, which differs from unit 2 at chr17:43,128,365, so its reads placed on unit 2 show C instead of T there. A third signal is the haplotype the copy sits on: five SNPs 3 to 21 kb downstream that are inherited together with it in the assemblies and long reads (Section 3.7). The known copy is reported when two of the three signals (clipped reads, marker base, at least three tag SNPs with the alternative allele) agree, and the number of haplotype copies gives the likely zygosity. For copy number, CNVkit [@cnvkit] is run in WGS mode with 1 kb bins over chr13 and chr17 and a flat reference; bins with almost no coverage are excluded from segmentation (Section 3.3). Segments overlapping a gene with an estimated copy number different from two are reported as candidates with the affected exons. Independently, the mean depth of each exon is divided by the median depth of 100 kb windows on the same chromosome; ratios below 0.65 or above 1.35 are listed as dosage hints. Because only a single sample is available, both are labelled as candidates that require MLPA [@mlpa] or another validated method.</p>
+<p>Reads are aligned with BWA-MEM [@bwa]; sorting, mate fixing and duplicate marking use samtools [@samtools]. Small variants are called with GATK HaplotypeCaller [@gatk] restricted to the padded gene regions, or optionally with DeepVariant [@deepvariant]. Manta [@manta] is run with call regions extending 1 Mb around both genes, so that rearrangements with one breakpoint inside a gene are retained, including breakend (BND) pairs. Two breakends a few bases apart whose mates lie elsewhere are flagged as a possible insertion of foreign sequence such as a mobile element. In addition, soft-clipped read ends inside the genes are searched for the signature of an insertion: reads from the left clipped at one position, reads from the right clipped at a position up to 30 bp before it (the target-site duplication), at least three clipped reads on each side and a clipped fraction of at least 15 %. Such a pair is listed as an insertion signature when the clipped sequence contains k-mers of the Alu consensus; it is a hint from the reads, not a variant call. A second signature marks an extra copy of a tandem repeat unit: reads clipped at the end of a unit whose clipped part matches the start of that unit in the reference, and reads clipped at its start whose clipped part matches its end, both pointing to the same unit length of 50 to 1,000 bp, with at least two reads at each border (clip positions within 10 bp pooled). For the common extra copy upstream of <i>BRCA1</i> exon 1 a marker base is checked as well: the extra copy repeats unit 1, which differs from unit 2 at chr17:43,128,365, so its reads placed on unit 2 show C instead of T there. A third signal is the haplotype the copy sits on: five SNPs 3 to 21 kb downstream that are inherited together with it in the assemblies and long reads (Section 3.7). The known copy is reported when two of the three signals (clipped reads, marker base, at least three tag SNPs with the alternative allele) agree, and the number of haplotype copies gives the likely zygosity. Known alleles from the assemblies (this copy and the common intronic <i>BRCA2</i> Alu insertion) are in addition genotyped by allele-aware realignment, in the spirit of graph genotypers such as Paragraph [@paragraph] and PanGenie [@pangenie] but restricted to the two genes: every read near the site, unmapped mates included, is aligned to the reference haplotype and to the haplotype with the allele (edit distance with free ends, bit-vector algorithm [@myers]); a read supports the haplotype it fits with at least two fewer edits, and two allele-supporting reads make a call. The tandem copy is reported on this evidence alone or on two of the three other signals. For copy number, CNVkit [@cnvkit] is run in WGS mode with 1 kb bins over chr13 and chr17 and a flat reference; bins with almost no coverage are excluded from segmentation (Section 3.3). Segments overlapping a gene with an estimated copy number different from two are reported as candidates with the affected exons. Independently, the mean depth of each exon is divided by the median depth of 100 kb windows on the same chromosome; ratios below 0.65 or above 1.35 are listed as dosage hints. Because only a single sample is available, both are labelled as candidates that require MLPA [@mlpa] or another validated method.</p>
 
 <h3>2.3 Annotation and ACMG/AMP hints</h3>
 <p>VEP [@vep] annotates consequences, HGVS notation and exon or intron number on the MANE Select transcript. ClinVar [@clinvar] significance, review status and condition come from a user-supplied ClinVar VCF, so that the ClinVar version is under the user's control. The pipeline then evaluates single ACMG/AMP criteria [@acmg] following version 1.2 of the ClinGen ENIGMA BRCA1/BRCA2 specification [@enigma]: BA1, BS1 and BS1_Supporting from gnomAD [@gnomad] non-cancer filtering allele frequencies in non-founder populations, PM2_Supporting for substitutions absent from both gnomAD data sets, PP3 and BP4 from BayesDel [@bayesdel] and SpliceAI [@spliceai] inside the defined functional domains, BP1_Strong outside them and BP7 for silent and deep intronic variants. The gnomAD, SpliceAI and BayesDel files are supplied by the user; without them the corresponding hints are reported as open or as approximations. Truncating and canonical splice variants are reported as PVS1 candidates, restricted in the last exon [@pvs1]; the exon-specific PVS1 decision tree is not yet applied. No combination rule is used and no classification is assigned; the JSON field <code>clinicalClassification</code> is always null.</p>
@@ -946,7 +955,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <h2>5 Limitations</h2>
 <ul>
 <li>At 30× WGS, variants below about 15 % allele fraction are often missed even with <code>--mosaic</code> (Section 3.6); low fractions need deeper targeted data. Sensitivity is also limited for complex rearrangements and in regions with pseudogene homology such as <i>BRCA1</i> exons 1–2.</li>
-<li>Extra copies of a tandem repeat unit are reported only as hints. For the common 126 bp copy (Section 3.7) the thresholds were set on HPRC and ONT samples and then tested on 120 further ONT samples; the haplotype signal relies on linkage that may be weaker in populations not represented in these cohorts. Other tandem copies rely on clipped reads alone and can be missed at low depth. Indel lengths in long homopolymers can differ from assembly-based truth.</li>
+<li>Extra copies of a tandem repeat unit are reported only as hints. For the common 126 bp copy (Section 3.7) the thresholds were set on HPRC and ONT samples and then tested on 120 further ONT samples; the haplotype signal relies on linkage that may be weaker in populations not represented in these cohorts. Known alleles are genotyped by realignment only where the allele sequence is in the catalogue (two alleles so far); other tandem copies rely on clipped reads alone and can be missed at low depth, and length alleles of the <i>BRCA1</i> intron 6 VNTR would need a repeat-aware genotyper such as ExpansionHunter [@expansionhunter] or danbing-tk [@danbing]. Indel lengths in long homopolymers can differ from assembly-based truth.</li>
 <li>Ion Torrent indels are dominated by homopolymer errors and need confirmation; exons without a target or without reads in targeted data are reported as not assessable, not as negative.</li>
 <li>Copy-number results come from a single sample with a flat reference and are candidates only. In the spike-in experiment CNVkit alone missed every event below {cnv_min}; detection of exon-level events currently rests on Manta, which needs breakpoints inside mappable sequence.</li>
 <li>Mobile element insertions have no dedicated caller. Manta missed real Alu insertions in several carriers; the read-end signature recognises Alu sequence only, was developed on the same two insertion sites it is reported for here, and has not been tested on an independent set or on L1 and SVA elements (Section 3.4).</li>
@@ -1080,6 +1089,27 @@ def tandem_ind_text(d):
             f"and {one_het} of {len(one)} with one copy in only part of them.</p>")
 
 
+def frozen_text(d):
+    def stats(site, col):
+        sub = [r for r in d.frozen if r["site"] == site]
+        car = [r for r in sub if r["truth"] == "carrier"]
+        non = [r for r in sub if r["truth"] == "non-carrier"]
+        return sum(r[col] == "yes" for r in car), len(car), sum(r[col] == "yes" for r in non), len(non)
+    t, t0, a, a0 = stats("tandem126", "called"), stats("tandem126", "readEndSignature"), stats("alu_brca2", "called"), stats("alu_brca2", "readEndSignature")
+    zyg = {}
+    for site in ("tandem126", "alu_brca2"):
+        car = [r for r in d.frozen if r["site"] == site and r["truth"] == "carrier" and r["called"] == "yes"]
+        zyg[site] = (sum((r["zygosity"] == "homozygous") == (int(r["ontSupporting"]) / int(r["ontSpanning"]) >= 0.9) for r in car), len(car))
+    audit = [l.rstrip("\n").split("\t") for l in open(os.path.join(VAL, "longread", "results", "frozen_audit_ont.tsv"))][1:]
+    audit = [r for r in audit if r[0] != "HG02687"]
+    span = ", ".join(r[5] for r in audit)
+    with_ins = sum(int(r[6]) > 0 for r in audit)
+    return (f"<p>Because the rules above were developed on these samples, the final method was frozen and its test registered in the repository before any data were fetched: 200 further 1KG-ONT samples, drawn at random with a fixed seed from the 834 not used before, with the 1000 Genomes alignments as input and the long-read genotypes of Section 3.8 as truth. "
+            f"The 126 bp copy was found in {t[0]} of {t[1]} long-read carriers and reported in {t[2]} of {t[3]} non-carriers; read-end signatures alone found {t0[0]} of {t0[1]}. "
+            f"The <i>BRCA2</i> Alu insertion was found in {a[0]} of {a[1]} carriers with no call in {a[3]} non-carriers (read-end signature alone: {a0[0]} of {a0[1]}); its genotype agreed with the long reads in {zyg['alu_brca2'][0]} of {zyg['alu_brca2'][1]}, and that of the tandem copy in {zyg['tandem126'][0]} of {zyg['tandem126'][1]}. "
+            f"All {len(audit)} non-carriers with a call had several concordant signals and only {span} spanning long reads when genotyped again; {with_ins} of them had at least one long read with the insertion, so they may be gaps in the truth rather than false calls; the frozen analysis counts them as false.</p>")
+
+
 def ont_all_text(d):
     """Discovery of all events of 50 bp or more in the long reads of the whole cohort."""
     a = d.ont_all
@@ -1119,7 +1149,7 @@ def main(argv=None):
     page = page.replace("{SV_TEXT}", sv_text(d))
     page = page.replace("{ONT_PANEL}", ont_panel_text(d))
     page = page.replace("{ONT_ALL}", ont_all_text(d))
-    page = page.replace("{TANDEM_IND}", tandem_ind_text(d))
+    page = page.replace("{TANDEM_IND}", tandem_ind_text(d) + frozen_text(d))
     page = number_citations(page)
     sys.stdout.write(page)
     return 0

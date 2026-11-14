@@ -27,8 +27,14 @@
   Clip positions a few bases apart are pooled, clips from 10 bp count, and the common 126 bp copy
   upstream of BRCA1 exon 1 is also recognised by its marker base (chr17:43128365 C) and by tag SNPs
   of its haplotype; 2 of the 3 signals are required, and the haplotype gives the likely zygosity.
-  It is found in 19 of 19 HPRC and 5 of 6 ONT carriers, none in 25 non-carriers, and in an
+  It is found in 19 of 19 HPRC and 6 of 6 ONT carriers (with allele realignment, below), none in 25 non-carriers, and in an
   independent set of 120 1KG-ONT samples in 67 of 67 carriers and 1 of 53 non-carriers.
+- Known-allele genotyping by allele-aware realignment (`brca12_insertion_signals.py`): reads near
+  the 126 bp copy and the common intronic BRCA2 Alu insertion are aligned to the reference and the
+  allele haplotype (HPRC sequences, Myers bit-vector edit distance, no new dependency); fields
+  `realignedReads`, `zygosity`. Preregistered test on 200 new 1KG-ONT samples
+  (`validation/longread/frozen/`): tandem copy 116/116 carriers (4/84 non-carriers with calls),
+  Alu 25/25 and 0/175 with 25/25 correct genotypes.
 - Paper: sections on targeted data, low allele fractions, assembly truth and long reads; Figure 7.
 
 - GRCh37 position and BIC-style legacy names for every small variant (`grch37Pos`, `bicNames`,
