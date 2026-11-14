@@ -205,7 +205,9 @@ process CALL_CNV_CNVKIT {
     script:
     // CNVkit WGS mode with a flat reference on chr13 and chr17 (normalised across both
     // chromosomes). A single sample without a cohort yields candidates only; GATK gCNV
-    // would need a trained cohort model.
+    // would need a trained cohort model. --drop-low-coverage keeps bins with (almost) no reads
+    // out of the segmentation; without it such coverage holes dominate the CBS statistics and
+    // heterozygous deletions up to whole-gene size were missed in the spike-in validation.
     """
     set -euo pipefail
     ${params.cnvkit} access ${reference} -o access.bed
@@ -214,9 +216,13 @@ process CALL_CNV_CNVKIT {
     # In WGS mode CNVkit requires the same BED for --targets and --access.
     ${params.cnvkit} batch ${bam} --method wgs --normal --fasta ${reference} \\
       --targets wgs_regions.bed --access wgs_regions.bed --target-avg-size 1000 \\
+      --drop-low-coverage \\
       --output-reference flat_reference.cnn --output-dir cnvkit -p ${task.cpus}
-    mv cnvkit/${bam.baseName}.call.cns cnvkit/${params.sample}.call.cns
-    mv cnvkit/${bam.baseName}.cnr cnvkit/${params.sample}.cnr
+    # CNVkit names its output after the BAM; rename unless the BAM is already called like the sample.
+    if [ "${bam.baseName}" != "${params.sample}" ]; then
+      mv cnvkit/${bam.baseName}.call.cns cnvkit/${params.sample}.call.cns
+      mv cnvkit/${bam.baseName}.cnr cnvkit/${params.sample}.cnr
+    fi
     cp .command.sh cnv.command.sh
     """
 }
@@ -240,6 +246,7 @@ process EXON_COVERAGE {
     path 'gene_q20.per-base.bed.gz', emit: perbase
     path 'chrom_median.txt', emit: chrom_median
     path 'coverage.command.sh'
+    path 'insertion_signals.json', emit: insertion
 
     script:
     """
@@ -254,6 +261,9 @@ process EXON_COVERAGE {
       ${params.mosdepth} -t ${task.cpus} -f ${reference} -Q 20 -n --fast-mode --by 100000 -c \$C chrom_\$C ${bam}
     done
     ${params.python} ${projectDir}/bin/brca12_prepare.py --chrom-median chrom_*.regions.bed.gz --out-chrom-median chrom_median.txt
+    # Insertion signatures (e.g. Alu) from soft-clipped read ends inside the genes.
+    ${params.samtools} view -L ${exact_bed} --reference ${reference} ${bam} \\
+      | ${params.python} ${projectDir}/bin/brca12_insertion_signals.py --regions ${exact_bed} --out insertion_signals.json
     cp .command.sh coverage.command.sh
     """
 }
@@ -342,6 +352,7 @@ process REPORT {
     path cov_q0
     path cov_perbase
     path chrom_median
+    path insertion_signals
     path versions
     path command_files
     path evidence_files
@@ -369,6 +380,7 @@ process REPORT {
       --sv ${manta_vcf} --cnv ${cnv_cns} --cnr ${cnv_cnr} \\
       --cov-q20 ${cov_q20} --cov-thresholds ${cov_thresholds} --cov-q0 ${cov_q0} \\
       --cov-perbase ${cov_perbase} --chrom-median ${chrom_median} \\
+      --insertion-signals ${insertion_signals} \\
       --versions ${versions} --commands brca12_commands.sh \\
       --snv-caller ${params.snv_caller} \\
       --min-exon-depth ${params.min_exon_depth} --min-exon-pct20 ${params.min_exon_pct20} \\
@@ -431,6 +443,6 @@ workflow {
 
     REPORT(VALIDATE_INPUTS.out.check, VALIDATE_INPUTS.out.exons, VALIDATE_INPUTS.out.exact_bed,
            ann.brca1, ann.brca2, sv.vcf.map { it[0] }, cnv.cns, cnv.cnr,
-           cov.q20, cov.thresholds, cov.q0, cov.perbase, cov.chrom_median,
+           cov.q20, cov.thresholds, cov.q0, cov.perbase, cov.chrom_median, cov.insertion,
            versions.versions, commands, evidence_files)
 }

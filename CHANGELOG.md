@@ -11,6 +11,20 @@
     and SpliceAI (`--bayesdel_tsv`, `--spliceai_vcf`) instead of being reported as open.
   - The blanket "BP4/BP7 candidate" for every non-coding variant is gone.
 - New JSON fields per variant: `gnomadFAF`, `spliceAI`, `bayesDel`; top level `evidenceSources`.
+- Validation with pathogenic variants (`validation/pathogenic/`): ten real carriers from the
+  1000 Genomes Project, 185 small and 12 large variants spiked into real reads, and real Alu
+  insertions and deletions in 1000 Genomes samples. Results and limits are in
+  `validation/pathogenic/README.md`.
+- CNVkit segmentation now runs with `--drop-low-coverage`. Without it, bins without coverage
+  dominated the segmentation and no spiked deletion, not even a whole-gene deletion, was reported.
+- Exon dosage hints are no longer suppressed for exons that are also flagged as uncertain; a deleted
+  exon is both. The hint says that loss and a coverage problem cannot be told apart.
+- New: insertion signatures from soft-clipped read ends inside the genes
+  (`bin/brca12_insertion_signals.py`, JSON `insertionSignals[]`, listed in the SV table). Only
+  signatures whose clipped sequence contains Alu consensus k-mers are listed. Hints, not calls.
+- Manta insertions whose inserted sequence carries an Alu signature, and pairs of breakends at the
+  same site, are flagged as possible mobile element insertions.
+- `--bam` input whose file name equals `<sample>.bam` no longer fails in the CNVkit step.
 
 ## 1.0.2 (2026-11-13)
 

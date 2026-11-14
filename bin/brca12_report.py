@@ -24,7 +24,7 @@ LIMITATIONS = [
     "Nur GRCh38/hg38. Koordinaten BRCA1 chr17:43044295-43170327 (Minus-Strang), BRCA2 chr13:32315077-32400268 (Plus-Strang).",
     "Kurz-Read-WGS erfasst Mosaike unter etwa 15 % Allelanteil, komplexe Umlagerungen und Bereiche mit Pseudogen-Homologie (BRCA1-Exons 1-2 und BRCA1P1) nur eingeschränkt.",
     "CNVs stammen aus einer Einzelprobe mit flacher CNVkit-Referenz und gelten nur als Kandidaten. Einzelexon-Deletionen oder -Duplikationen unter etwa 1 kb sind unsicher; MLPA ist die übliche Bestätigung.",
-    "Manta meldet nur SVs mit Bruchpunkt im Suchfenster um BRCA1/BRCA2. Insertionen mobiler Elemente (z. B. Alu in BRCA2-Exon 3) werden nicht sicher erkannt.",
+    "Manta meldet nur SVs mit Bruchpunkt im Suchfenster um BRCA1/BRCA2. Insertionen mobiler Elemente werden nicht sicher erkannt; die zusätzliche Suche nach Insertionssignaturen in abgeschnittenen Leseenden erkennt nur Alu-Sequenz, braucht mindestens 3 Lesungen je Bruchstelle und liefert Hinweise, keine Aufrufe.",
     "ACMG/AMP: nur maschinelle Hinweise auf einzelne Kriterien nach ClinGen ENIGMA v1.2. Keine Klassifikation; PVS1-Flussdiagramm mit Exon-Gewichten, PM5_PTC, PS1, PS3/BS3, PP1, PS4 und RNA-Daten fehlen. Die gnomAD-Lesetiefe wird nicht geprüft.",
     "ClinVar-Angaben hängen von der Version der verwendeten ClinVar-VCF ab.",
 ]
@@ -34,7 +34,7 @@ LIMITATIONS_EN = [
     "GRCh38/hg38 only. Coordinates BRCA1 chr17:43044295-43170327 (minus strand), BRCA2 chr13:32315077-32400268 (plus strand).",
     "Short-read WGS has limited sensitivity for mosaics below about 15% allele fraction, complex rearrangements and regions with pseudogene homology (BRCA1 exons 1-2 and BRCA1P1).",
     "CNVs come from a single sample with a flat CNVkit reference and are candidates only. Single-exon deletions or duplications below about 1 kb are uncertain; MLPA is the usual confirmation.",
-    "Manta only reports SVs with a breakpoint in the search window around BRCA1/BRCA2. Mobile element insertions (e.g. Alu in BRCA2 exon 3) are not reliably detected.",
+    "Manta only reports SVs with a breakpoint in the search window around BRCA1/BRCA2. Mobile element insertions are not reliably detected; the additional search for insertion signatures in clipped read ends recognises Alu sequence only, needs at least 3 reads per junction and gives hints, not calls.",
     "ACMG/AMP: automated hints on individual criteria following ClinGen ENIGMA v1.2. No classification; the PVS1 flowchart with exon weights, PM5_PTC, PS1, PS3/BS3, PP1, PS4 and RNA data are missing. gnomAD read depth is not checked.",
     "ClinVar entries depend on the version of the ClinVar VCF used.",
 ]
@@ -108,6 +108,7 @@ def build(args):
         "cnvSegmentsChecked": len(cnvs),
         "exonDosageHints": structural.exon_dosage_hints(exons),
         "svs": svs,
+        "insertionSignals": structural.insertion_signals(args.insertion_signals, exons),
         "toolVersions": versions,
         "invocation": invocation,
         "nextflowSession": args.session_id,
@@ -131,9 +132,10 @@ def summarize(result):
         "cnvCandidateCount": len(result["cnvs"]),
         "exonDosageHintCount": len(result["exonDosageHints"]),
         "svCount": len(result["svs"]),
+        "insertionSignalCount": len(result["insertionSignals"]),
         "uncertainExonCount": sum(1 for e in result["exonCoverage"] if e["status"] != "ok"),
         "lowCoverageIntervalCount": len(result["lowCoverageIntervals"]),
-        "needsAttention": bool(clinvar_plp or lof or result["cnvs"] or result["svs"]),
+        "needsAttention": bool(clinvar_plp or lof or result["cnvs"] or result["svs"] or result["insertionSignals"]),
     }
 
 
@@ -144,6 +146,7 @@ def main(argv=None):
                  "chrom-median", "versions", "commands", "out-json", "out-md", "out-html"):
         p.add_argument(f"--{name}", required=True)
     p.add_argument("--small", action="append", default=[])
+    p.add_argument("--insertion-signals", default=None)
     p.add_argument("--snv-caller", default="haplotypecaller")
     p.add_argument("--min-exon-depth", type=float, default=20)
     p.add_argument("--min-exon-pct20", type=float, default=95)

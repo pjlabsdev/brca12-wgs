@@ -1,4 +1,5 @@
 """CNV-Kandidaten (CNVkit) und strukturelle Varianten (Manta) in BRCA1/BRCA2."""
+import json
 import re
 
 from .vcf import VCF, to_int
@@ -54,20 +55,27 @@ def cnv_segments(cns_path, cnr_path, regions, exons):
 
 
 def exon_dosage_hints(exons, low=0.65, high=1.35):
+    """Exon depth relative to the chromosome median. A heterozygous deletion halves the depth and
+    thereby also makes the exon "unsicher" (low depth), so such exons must not be skipped."""
     hints = []
     for exon in exons:
         ratio = exon.get("dosageRatio")
-        if ratio is None or exon["status"] != "ok":
+        if ratio is None:
             continue
         if ratio < low or ratio > high:
+            note = "Exonweise Tiefe relativ zum Chromosomen-Median; nur ein Hinweis, kein CNV-Call."
+            if exon["status"] != "ok":
+                note += " Exon ist zugleich als unsicher markiert: Verlust oder Abdeckungsproblem, nicht unterscheidbar."
             hints.append({
                 "gene": exon["gene"], "exon": exon["label"], "ratio": ratio,
                 "type": "möglicher Verlust" if ratio < low else "möglicher Zugewinn",
-                "note": "Exonweise Tiefe relativ zum Chromosomen-Median; nur ein Hinweis, kein CNV-Call.",
+                "note": note,
             })
     return hints
 
 
+# start of the Alu consensus (left monomer) and its reverse complement
+_ALU_MOTIFS = ("GGCCGGGCGCGGTGGCTCA", "TGAGCCACCGCGCCCGGCC")
 _BND_MATE = re.compile(r"[\[\]]([^:\[\]]+):(\d+)[\[\]]")
 
 
@@ -112,6 +120,9 @@ def structural_variants(path, regions, exons):
                 flags.append(f"FILTER={record['filter']}")
             if "IMPRECISE" in info:
                 flags.append("unpräzise Bruchpunkte")
+            inserted = " ".join([alt, str(info.get("LEFT_SVINSSEQ", "")), str(info.get("RIGHT_SVINSSEQ", ""))]).upper()
+            if svtype == "INS" and any(motif in inserted for motif in _ALU_MOTIFS):
+                flags.append("eingefügte Sequenz mit Alu-Signatur: mögliche Alu-Insertion")
             flags.append("Bestätigung mit orthogonaler Methode nötig")
             results.append({
                 "gene": gene, "id": record["id"], "type": svtype, "chrom": chrom, "pos": pos,
@@ -123,4 +134,31 @@ def structural_variants(path, regions, exons):
                 "affectedExons": _affected_exons(chrom, pos, end, exons, gene),
                 "caller": "Manta", "flags": flags,
             })
+    # Two breakends a few bases apart whose mates lie elsewhere are the signature of an insertion
+    # of foreign sequence (e.g. a mobile element such as Alu); Manta cannot name it as INS.
+    bnds = [r for r in results if r["type"] == "BND"]
+    for a in bnds:
+        if any(b is not a and b["gene"] == a["gene"] and b["chrom"] == a["chrom"] and abs(b["pos"] - a["pos"]) <= 50
+               for b in bnds):
+            a["flags"].insert(0, "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)")
+    return results
+
+
+def insertion_signals(path, exons):
+    """Insertionssignaturen aus abgeschnittenen Leseenden (brca12_insertion_signals.py)."""
+    if not path:
+        return []
+    with open(path) as handle:
+        rows = json.load(handle)
+    results = []
+    for row in rows:
+        flags = []
+        if "Alu" in row.get("signature", []):
+            flags.append("abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion")
+        else:
+            flags.append("abgeschnittene Leseenden von beiden Seiten: mögliche Insertion")
+        flags.append("Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig")
+        results.append(dict(row, type="Insertionssignatur",
+                            affectedExons=_affected_exons(row["chrom"], row["pos"], row["end"], exons, row["gene"]),
+                            caller="brca12_insertion_signals (Leseenden)", flags=flags))
     return results

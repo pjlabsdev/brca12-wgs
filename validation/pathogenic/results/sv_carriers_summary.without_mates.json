@@ -1,0 +1,1488 @@
+{
+  "rows": [
+    {
+      "sample": "HG01274",
+      "population": "CLM",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|1",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [
+        {
+          "gene": "BRCA2",
+          "chrom": "chr13",
+          "pos": 32348296,
+          "end": 32348302,
+          "targetSiteDuplication": 7,
+          "clippedReadsLeftJunction": 10,
+          "clippedReadsRightJunction": 12,
+          "spanningReads": 3,
+          "clippedFraction": 0.88,
+          "signature": [
+            "Alu",
+            "poly-A"
+          ]
+        }
+      ],
+      "readsAtSite": {
+        "reads": 38,
+        "clippedAtSite": 24
+      }
+    },
+    {
+      "sample": "HG01922",
+      "population": "PEL",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|1",
+      "reported": true,
+      "manta": [],
+      "smallVariantCaller": [
+        {
+          "pos": 32348302,
+          "refLength": 1,
+          "altLength": 55,
+          "genotype": "0/1"
+        }
+      ],
+      "readEndSignal": [
+        {
+          "gene": "BRCA2",
+          "chrom": "chr13",
+          "pos": 32348296,
+          "end": 32348302,
+          "targetSiteDuplication": 7,
+          "clippedReadsLeftJunction": 11,
+          "clippedReadsRightJunction": 4,
+          "spanningReads": 1,
+          "clippedFraction": 0.94,
+          "signature": [
+            "Alu",
+            "poly-A"
+          ]
+        }
+      ],
+      "readsAtSite": {
+        "reads": 32,
+        "clippedAtSite": 18
+      }
+    },
+    {
+      "sample": "HG02856",
+      "population": "GWD",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|1",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [
+        {
+          "gene": "BRCA2",
+          "chrom": "chr13",
+          "pos": 32348296,
+          "end": 32348302,
+          "targetSiteDuplication": 7,
+          "clippedReadsLeftJunction": 12,
+          "clippedReadsRightJunction": 7,
+          "spanningReads": 0,
+          "clippedFraction": 1.0,
+          "signature": [
+            "Alu",
+            "poly-A"
+          ]
+        }
+      ],
+      "readsAtSite": {
+        "reads": 32,
+        "clippedAtSite": 22
+      }
+    },
+    {
+      "sample": "HG00117",
+      "population": "GBR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|1",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [
+        {
+          "gene": "BRCA2",
+          "chrom": "chr13",
+          "pos": 32348296,
+          "end": 32348302,
+          "targetSiteDuplication": 7,
+          "clippedReadsLeftJunction": 5,
+          "clippedReadsRightJunction": 4,
+          "spanningReads": 21,
+          "clippedFraction": 0.3,
+          "signature": [
+            "Alu",
+            "poly-A"
+          ]
+        }
+      ],
+      "readsAtSite": {
+        "reads": 44,
+        "clippedAtSite": 10
+      }
+    },
+    {
+      "sample": "HG00122",
+      "population": "GBR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [
+        {
+          "gene": "BRCA2",
+          "chrom": "chr13",
+          "pos": 32348296,
+          "end": 32348302,
+          "targetSiteDuplication": 7,
+          "clippedReadsLeftJunction": 4,
+          "clippedReadsRightJunction": 5,
+          "spanningReads": 14,
+          "clippedFraction": 0.39,
+          "signature": [
+            "Alu",
+            "poly-A"
+          ]
+        }
+      ],
+      "readsAtSite": {
+        "reads": 38,
+        "clippedAtSite": 12
+      }
+    },
+    {
+      "sample": "HG00145",
+      "population": "GBR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [
+        {
+          "gene": "BRCA2",
+          "chrom": "chr13",
+          "pos": 32348296,
+          "end": 32348302,
+          "targetSiteDuplication": 7,
+          "clippedReadsLeftJunction": 4,
+          "clippedReadsRightJunction": 3,
+          "spanningReads": 10,
+          "clippedFraction": 0.41,
+          "signature": [
+            "Alu",
+            "poly-A"
+          ]
+        }
+      ],
+      "readsAtSite": {
+        "reads": 27,
+        "clippedAtSite": 9
+      }
+    },
+    {
+      "sample": "HG00559",
+      "population": "CHS",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|1",
+      "reported": true,
+      "manta": [],
+      "smallVariantCaller": [
+        {
+          "pos": 32392272,
+          "refLength": 1,
+          "altLength": 60,
+          "genotype": "0/1"
+        }
+      ],
+      "readEndSignal": [
+        {
+          "gene": "BRCA2",
+          "chrom": "chr13",
+          "pos": 32392259,
+          "end": 32392272,
+          "targetSiteDuplication": 14,
+          "clippedReadsLeftJunction": 6,
+          "clippedReadsRightJunction": 6,
+          "spanningReads": 15,
+          "clippedFraction": 0.44,
+          "signature": [
+            "Alu",
+            "poly-A"
+          ]
+        }
+      ],
+      "readsAtSite": {
+        "reads": 37,
+        "clippedAtSite": 13
+      }
+    },
+    {
+      "sample": "HG02392",
+      "population": "CDX",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [
+        {
+          "gene": "BRCA2",
+          "chrom": "chr13",
+          "pos": 32392259,
+          "end": 32392272,
+          "targetSiteDuplication": 14,
+          "clippedReadsLeftJunction": 4,
+          "clippedReadsRightJunction": 6,
+          "spanningReads": 13,
+          "clippedFraction": 0.43,
+          "signature": [
+            "Alu",
+            "poly-A"
+          ]
+        }
+      ],
+      "readsAtSite": {
+        "reads": 37,
+        "clippedAtSite": 13
+      }
+    },
+    {
+      "sample": "HG01796",
+      "population": "CDX",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 45,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01796",
+      "population": "CDX",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 47,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01796",
+      "population": "CDX",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|1",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG02601",
+      "population": "PJL",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [
+        {
+          "gene": "BRCA2",
+          "chrom": "chr13",
+          "pos": 32348296,
+          "end": 32348302,
+          "targetSiteDuplication": 7,
+          "clippedReadsLeftJunction": 7,
+          "clippedReadsRightJunction": 3,
+          "spanningReads": 12,
+          "clippedFraction": 0.45,
+          "signature": [
+            "Alu",
+            "poly-A"
+          ]
+        }
+      ],
+      "readsAtSite": {
+        "reads": 32,
+        "clippedAtSite": 10
+      }
+    },
+    {
+      "sample": "HG02601",
+      "population": "PJL",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 36,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02601",
+      "population": "PJL",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "1|0",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43045922,
+          "end": 43046229,
+          "length": 307,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": -36,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG02602",
+      "population": "PJL",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 39,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02602",
+      "population": "PJL",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 56,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02602",
+      "population": "PJL",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|1",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43045922,
+          "end": 43046229,
+          "length": 307,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": -36,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG02322",
+      "population": "ACB",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 33,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02322",
+      "population": "ACB",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 38,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02322",
+      "population": "ACB",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "1|1",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "1/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG00637",
+      "population": "PUR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "1|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 16,
+        "clippedAtSite": 2
+      }
+    },
+    {
+      "sample": "HG00637",
+      "population": "PUR",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 49,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG00637",
+      "population": "PUR",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|1",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG01323",
+      "population": "PUR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 32,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01323",
+      "population": "PUR",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 64,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01323",
+      "population": "PUR",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "1|0",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG01393",
+      "population": "PUR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 31,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01393",
+      "population": "PUR",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 47,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01393",
+      "population": "PUR",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|1",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG01395",
+      "population": "PUR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 42,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01395",
+      "population": "PUR",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 45,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01395",
+      "population": "PUR",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "1|0",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG01990",
+      "population": "ACB",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 45,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01990",
+      "population": "ACB",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 31,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01990",
+      "population": "ACB",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "1|0",
+      "reported": true,
+      "manta": [
+        {
+          "type": "DEL",
+          "pos": 43071727,
+          "end": 43072707,
+          "length": 980,
+          "genotype": "0/1",
+          "filter": "PASS",
+          "flags": [
+            "Bestätigung mit orthogonaler Methode nötig"
+          ],
+          "startDifference": 101,
+          "endDifference": 0
+        }
+      ],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG00096",
+      "population": "GBR",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 42,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG00096",
+      "population": "GBR",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 42,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG00096",
+      "population": "GBR",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG00096",
+      "population": "GBR",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG01369",
+      "population": "CLM",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 42,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01369",
+      "population": "CLM",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 46,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01369",
+      "population": "CLM",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG01369",
+      "population": "CLM",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG02348",
+      "population": "PEL",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 36,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02348",
+      "population": "PEL",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 45,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02348",
+      "population": "PEL",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG02348",
+      "population": "PEL",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG03519",
+      "population": "ESN",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 50,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG03519",
+      "population": "ESN",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 61,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG03519",
+      "population": "ESN",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG03519",
+      "population": "ESN",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "NA18489",
+      "population": "YRI",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 72,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "NA18489",
+      "population": "YRI",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 87,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "NA18489",
+      "population": "YRI",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "NA18489",
+      "population": "YRI",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "NA19776",
+      "population": "MXL",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 37,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "NA19776",
+      "population": "MXL",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 41,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "NA19776",
+      "population": "MXL",
+      "site": "HGSV_216996",
+      "type": "DEL",
+      "length": 271,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "NA19776",
+      "population": "MXL",
+      "site": "HGSV_216998",
+      "type": "DEL",
+      "length": 1081,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": []
+    },
+    {
+      "sample": "HG00365",
+      "population": "",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 40,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG00365",
+      "population": "",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 31,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG00611",
+      "population": "",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 52,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG00611",
+      "population": "",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 39,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG00612",
+      "population": "",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 41,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG00612",
+      "population": "",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 39,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG01377",
+      "population": "",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|1",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 30,
+        "clippedAtSite": 2
+      }
+    },
+    {
+      "sample": "HG01377",
+      "population": "",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 38,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02164",
+      "population": "",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 47,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02164",
+      "population": "",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 46,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02274",
+      "population": "",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 41,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG02274",
+      "population": "",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 52,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG03929",
+      "population": "",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 44,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "HG03929",
+      "population": "",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 38,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "NA19130",
+      "population": "",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 44,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "NA19130",
+      "population": "",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 50,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "NA19132",
+      "population": "",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 31,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "NA19132",
+      "population": "",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 43,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "NA19397",
+      "population": "",
+      "site": "HGSV_181048",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 41,
+        "clippedAtSite": 0
+      }
+    },
+    {
+      "sample": "NA19397",
+      "population": "",
+      "site": "HGSV_181052",
+      "type": "ALU",
+      "length": 281,
+      "panelGenotype": "0|0",
+      "reported": false,
+      "manta": [],
+      "smallVariantCaller": [],
+      "readEndSignal": [],
+      "readsAtSite": {
+        "reads": 49,
+        "clippedAtSite": 0
+      }
+    }
+  ],
+  "bySite": {
+    "HGSV_181048": {
+      "carriers": 9,
+      "carriersReported": 1,
+      "carriersWithReadEndSignal": 7,
+      "controls": 22,
+      "controlsReported": 0,
+      "controlsWithReadEndSignal": 0
+    },
+    "HGSV_181052": {
+      "carriers": 2,
+      "carriersReported": 1,
+      "carriersWithReadEndSignal": 2,
+      "controls": 25,
+      "controlsReported": 0,
+      "controlsWithReadEndSignal": 0
+    },
+    "HGSV_216996": {
+      "carriers": 3,
+      "carriersReported": 2,
+      "carriersWithReadEndSignal": 0,
+      "controls": 6,
+      "controlsReported": 0,
+      "controlsWithReadEndSignal": 0
+    },
+    "HGSV_216998": {
+      "carriers": 6,
+      "carriersReported": 6,
+      "carriersWithReadEndSignal": 0,
+      "controls": 6,
+      "controlsReported": 0,
+      "controlsWithReadEndSignal": 0
+    }
+  }
+}

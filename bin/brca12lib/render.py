@@ -50,6 +50,9 @@ def sections(result, lang="en"):
     sv_rows = [[s["gene"], s["type"], f"{s['chrom']}:{s['pos']}" + (f"-{s['end']}" if s["end"] else ""),
                 f"{s['mateChrom']}:{s['matePos']}" if s["mateChrom"] else None, s["genotype"],
                 s["pairedReads"], s["splitReads"], s["filter"], _join(s["flags"], lang)] for s in result["svs"]]
+    sv_rows += [[i["gene"], i["type"], f"{i['chrom']}:{i['pos']}-{i['end']}", None, None, None,
+                 f"{i['clippedReadsLeftJunction']}+{i['clippedReadsRightJunction']}", None, _join(i["flags"], lang)]
+                for i in result.get("insertionSignals", [])]
     out.append((ui("sv_title", lang), _table(ui("sv_headers", lang), sv_rows, lang), ui("no_sv", lang)))
     exon_rows = [[e["gene"], e["label"], f"{e['chrom']}:{e['start']}-{e['end']}", e["meanDepth"],
                   e["pct10x"], e["pct20x"], e["pct30x"], e["lowMapqFraction"], e["status"],

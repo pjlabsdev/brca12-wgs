@@ -1,0 +1,11 @@
+#sample	run	s3_prefix	population	gene	chrom	pos	ref	alt	hgvs_c	consequence	clinvar_in_1000g_annotation	nygc_filter
+HG02164	ERR3242171	data	CDX	BRCA1	chr17	43124063	G	A	c.34C>T	p.Gln12Ter, nonsense	pathogenic	PASS
+HG03929	ERR3989231	additional_698_related/data	BEB	BRCA1	chr17	43092128	G	A	c.3403C>T	p.Gln1135Ter, nonsense	pathogenic	PASS
+HG00365	ERR3240265	data	FIN	BRCA1	chr17	43082403	C	T	c.4357+1G>A	canonical splice donor	pathogenic	PASS
+NA19397	ERR3239747	data	LWK	BRCA2	chr13	32336632	TTTATA	T	c.2279_2283del	frameshift	pathogenic	VQSRTrancheINDEL99.00to100.00
+HG02274	ERR3242821	data	PEL	BRCA2	chr13	32339498	TTGTA	T	c.5146_5149del	frameshift	pathogenic	PASS
+NA19130	ERR3239625	data	YRI	BRCA2	chr13	32339596	C	CTA	c.5241_5242insTA	frameshift	pathogenic	PASS
+NA19132	ERR3989383	additional_698_related/data	YRI	BRCA2	chr13	32339596	C	CTA	c.5241_5242insTA	frameshift	pathogenic	PASS
+HG01377	ERR3241880	data	CLM	BRCA2	chr13	32354916	G	T	c.7063G>T	p.Glu2355Ter, nonsense	not annotated	PASS
+HG00611	ERR3241716	data	CHS	BRCA2	chr13	32357820	G	GA	c.7697dup	frameshift	pathogenic	PASS
+HG00612	ERR3988801	additional_698_related/data	CHS	BRCA2	chr13	32357820	G	GA	c.7697dup	frameshift	pathogenic	PASS

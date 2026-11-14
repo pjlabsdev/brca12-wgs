@@ -1,0 +1,5 @@
+#id	gene	chrom	pos	end	type	length	callers_in_panel	note
+HGSV_181048	BRCA2	chr13	32348302	32348303	ALU	281	MELT (GATK-SV)	intronic Alu insertion, common (allele frequency 0.068); deviates from Hardy-Weinberg in the panel
+HGSV_181052	BRCA2	chr13	32392272	32392323	ALU	281	MELT (GATK-SV)	intronic Alu insertion, 2 carriers
+HGSV_216996	BRCA1	chr17	43045958	43046229	DEL	271	svtools	271 bp deletion, 3 carriers
+HGSV_216998	BRCA1	chr17	43071626	43072707	DEL	1081	Manta, Wham (GATK-SV)	1,081 bp intronic deletion, 25 carriers

@@ -329,3 +329,87 @@ class EnigmaRulesTest(unittest.TestCase):
         found = src.for_variant("chr17", 43045050, "C", "T", "BRCA1")
         self.assertEqual((found["spliceai"], found["bayesdel"], found["gnomad"]), (0.35, 0.31, None))
         self.assertIsNone(src.for_variant("chr17", 43045050, "C", "A", "BRCA1")["spliceai"])
+
+
+class InsertionSignalTest(unittest.TestCase):
+    """Soft-clip signature of an insertion: clips from both sides, overlapping by the target-site duplication."""
+
+    ALU = "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGG"
+
+    @staticmethod
+    def sam(name, pos, cigar, seq):
+        return "\t".join([name, "0", "chr13", str(pos), "60", cigar, "*", "0", "0", seq, "I" * len(seq)])
+
+    def lines(self, clip):
+        tail = "T" * 20 + clip[:20]
+        out = [self.sam(f"r{i}", 1000 - i, f"{60 + i}M40S", "A" * (60 + i) + clip[:40]) for i in range(4)]
+        out += [self.sam(f"l{i}", 1045, f"40S{60}M", (tail)[-40:] + "C" * 60) for i in range(4)]
+        out += [self.sam(f"s{i}", 950 + i, "150M", "G" * 150) for i in range(10)]
+        return out
+
+    def run_scan(self, clip, **kw):
+        import brca12_insertion_signals as mod
+        regions = [("chr13", 0, 5000, "BRCA2")]
+        return mod.candidates(*mod.scan(self.lines(clip)), regions, **kw)
+
+    def test_alu_clips_give_a_candidate_with_target_site_duplication(self):
+        found = self.run_scan(self.ALU)
+        self.assertEqual(len(found), 1)
+        self.assertEqual((found[0]["gene"], found[0]["pos"], found[0]["end"]), ("BRCA2", 1045, 1059))
+        self.assertEqual(found[0]["targetSiteDuplication"], 15)
+        self.assertIn("Alu", found[0]["signature"])
+        self.assertEqual(found[0]["spanningReads"], 10)
+
+    def test_clips_without_alu_sequence_are_dropped_by_default(self):
+        clip = "ACGTTGCA" * 6
+        self.assertEqual(self.run_scan(clip), [])
+        self.assertEqual(len(self.run_scan(clip, keep_all=True)), 1)
+
+    def test_report_rows_carry_exon_and_flags(self):
+        import json, tempfile
+        found = self.run_scan(self.ALU)
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
+            json.dump(found, handle)
+        exons = [{"gene": "BRCA2", "chrom": "chr13", "start": 1040, "end": 1100, "label": "Exon 3"}]
+        rows = structural.insertion_signals(handle.name, exons)
+        self.assertEqual(rows[0]["affectedExons"], ["Exon 3"])
+        self.assertEqual(rows[0]["type"], "Insertionssignatur")
+        self.assertTrue(rows[0]["flags"][0].startswith("abgeschnittene Leseenden mit Alu-Sequenz"))
+        self.assertEqual(structural.insertion_signals(None, exons), [])
+
+
+class SpikeInFindingsTest(unittest.TestCase):
+    """Fixes that came out of the spike-in validation."""
+
+    def test_dosage_hint_for_exon_flagged_uncertain(self):
+        exons = [{"gene": "BRCA2", "label": "Exon 15", "dosageRatio": 0.49, "status": "unsicher"},
+                 {"gene": "BRCA2", "label": "Exon 11", "dosageRatio": 1.02, "status": "ok"}]
+        hints = structural.exon_dosage_hints(exons)
+        self.assertEqual([(h["exon"], h["type"]) for h in hints], [("Exon 15", "möglicher Verlust")])
+        self.assertIn("unsicher markiert", hints[0]["note"])
+
+    def test_breakend_pair_is_flagged_as_possible_insertion(self):
+        header = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS\n"
+        rows = ("chr13\t32319152\tb1\tA\t]chr17:43152885]A\t999\tPASS\tSVTYPE=BND;MATEID=m1\tGT:PR:SR\t0/1:53,11:33,12\n"
+                "chr13\t32319164\tb2\tA\tA[chr17:43152572[\t999\tPASS\tSVTYPE=BND;MATEID=m2\tGT:PR:SR\t0/1:51,20:32,13\n"
+                "chr13\t32350000\tb3\tA\tA[chr5:100[\t999\tPASS\tSVTYPE=BND;MATEID=m3\tGT:PR:SR\t0/1:9,4:3,2\n")
+        with tempfile.TemporaryDirectory() as d:
+            path = f"{d}/sv.vcf"
+            with open(path, "w") as handle:
+                handle.write(header + rows)
+            regions = [("chr13", 32315076, 32400268, "BRCA2")]
+            found = structural.structural_variants(path, regions, [])
+        flagged = [sv["pos"] for sv in found if any("mögliche Insertion" in f for f in sv["flags"])]
+        self.assertEqual(flagged, [32319152, 32319164])
+
+    def test_inserted_alu_sequence_is_flagged(self):
+        header = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS\n"
+        rows = ("chr13\t32348302\ti1\tT\tTTTGGCCGGGCGCGGTGGCTCACGCCTGTAATCC\t500\tPASS\tEND=32348302;SVTYPE=INS;SVLEN=33\tGT:PR:SR\t1/1:0,28:4,24\n"
+                "chr13\t32350000\ti2\tT\tTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT\t500\tPASS\tEND=32350000;SVTYPE=INS;SVLEN=52\tGT:PR:SR\t0/1:9,4:3,2\n")
+        with tempfile.TemporaryDirectory() as d:
+            path = f"{d}/sv.vcf"
+            with open(path, "w") as handle:
+                handle.write(header + rows)
+            found = structural.structural_variants(path, [("chr13", 32315076, 32400268, "BRCA2")], [])
+        flagged = [sv["pos"] for sv in found if any("Alu-Signatur" in f for f in sv["flags"])]
+        self.assertEqual(flagged, [32348302])

@@ -58,6 +58,19 @@ EXACT = {
     "Bestätigung mit orthogonaler Methode nötig": "confirmation with an orthogonal method required",
     "Kandidat, Bestätigung per MLPA oder validierter CNV-Analyse nötig":
         "candidate, confirmation by MLPA or validated CNV analysis required",
+    "eingefügte Sequenz mit Alu-Signatur: mögliche Alu-Insertion":
+        "inserted sequence with an Alu signature: possible Alu insertion",
+    "abgeschnittene Leseenden mit Alu-Sequenz: mögliche Alu-Insertion":
+        "clipped read ends with Alu sequence: possible Alu insertion",
+    "abgeschnittene Leseenden von beiden Seiten: mögliche Insertion":
+        "clipped read ends from both sides: possible insertion",
+    "Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig":
+        "hint from read ends, not a variant call; confirmation with an orthogonal method required",
+    "Insertionssignatur": "insertion signature",
+    "Bruchpunktpaar an derselben Stelle: mögliche Insertion (z. B. mobiles Element wie Alu)":
+        "pair of breakends at the same site: possible insertion (e.g. a mobile element such as Alu)",
+    "Exonweise Tiefe relativ zum Chromosomen-Median; nur ein Hinweis, kein CNV-Call. Exon ist zugleich als unsicher markiert: Verlust oder Abdeckungsproblem, nicht unterscheidbar.":
+        "Exon depth relative to the chromosome median; a hint only, not a CNV call. The exon is also flagged as uncertain: loss or coverage problem, cannot be told apart.",
     "Exonweise Tiefe relativ zum Chromosomen-Median; nur ein Hinweis, kein CNV-Call.":
         "Exon depth relative to the chromosome median; a hint only, not a CNV call.",
 }
