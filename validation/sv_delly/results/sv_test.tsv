@@ -1,0 +1,346 @@
+test	sample	group	reads	type	chrom	start	end	size	delly	dellyFalse	dellyUnfiltered	dellyUnfilteredFalse	manta	mantaFalse	readpairs	readpairsFalse
+DEL_01.f1	DEL_01	new test	all	DEL	chr17	43115733	43116138	406	yes	0	yes	0	yes	0	yes	0
+DEL_01.f2	DEL_01	new test	1/2	DEL	chr17	43115733	43116138	406	yes	0	yes	0	yes	0	yes	0
+DEL_01.f3	DEL_01	new test	1/3	DEL	chr17	43115733	43116138	406	no	0	no	0	no	0	no	0
+DEL_02.f1	DEL_02	new test	all	DEL	chr13	32329235	32329775	541	yes	0	yes	0	yes	0	yes	0
+DEL_02.f2	DEL_02	new test	1/2	DEL	chr13	32329235	32329775	541	yes	0	yes	0	yes	0	yes	0
+DEL_02.f3	DEL_02	new test	1/3	DEL	chr13	32329235	32329775	541	no	0	no	0	no	0	no	0
+DEL_03.f1	DEL_03	new test	all	DEL	chr17	43085838	43095070	9233	yes	0	yes	0	yes	0	yes	0
+DEL_03.f2	DEL_03	new test	1/2	DEL	chr17	43085838	43095070	9233	yes	0	yes	0	yes	0	yes	0
+DEL_03.f3	DEL_03	new test	1/3	DEL	chr17	43085838	43095070	9233	yes	0	yes	0	yes	0	yes	0
+DEL_04.f1	DEL_04	new test	all	DEL	chr17	43125281	43125882	602	yes	0	yes	0	yes	0	yes	0
+DEL_04.f2	DEL_04	new test	1/2	DEL	chr17	43125281	43125882	602	yes	0	yes	0	yes	0	no	0
+DEL_04.f3	DEL_04	new test	1/3	DEL	chr17	43125281	43125882	602	no	0	no	0	no	0	no	0
+DEL_05.f1	DEL_05	new test	all	DEL	chr17	43099287	43100054	768	yes	0	yes	0	yes	0	yes	0
+DEL_05.f2	DEL_05	new test	1/2	DEL	chr17	43099287	43100054	768	yes	0	yes	0	yes	0	yes	0
+DEL_05.f3	DEL_05	new test	1/3	DEL	chr17	43099287	43100054	768	yes	0	yes	0	no	0	yes	0
+DEL_06.f1	DEL_06	new test	all	DEL	chr13	32396916	32396996	81	yes	0	yes	0	yes	0	yes	0
+DEL_06.f2	DEL_06	new test	1/2	DEL	chr13	32396916	32396996	81	yes	0	yes	0	yes	0	yes	0
+DEL_06.f3	DEL_06	new test	1/3	DEL	chr13	32396916	32396996	81	no	0	no	0	no	0	no	0
+DEL_07.f1	DEL_07	new test	all	DEL	chr17	43103335	43105965	2631	yes	0	yes	0	yes	0	yes	0
+DEL_07.f2	DEL_07	new test	1/2	DEL	chr17	43103335	43105965	2631	yes	0	yes	0	yes	0	yes	0
+DEL_07.f3	DEL_07	new test	1/3	DEL	chr17	43103335	43105965	2631	yes	0	yes	0	yes	0	yes	0
+DEL_08.f1	DEL_08	new test	all	DEL	chr13	32328157	32330787	2631	yes	0	yes	0	yes	0	yes	0
+DEL_08.f2	DEL_08	new test	1/2	DEL	chr13	32328157	32330787	2631	yes	0	yes	0	yes	0	yes	0
+DEL_08.f3	DEL_08	new test	1/3	DEL	chr13	32328157	32330787	2631	yes	0	yes	0	yes	0	yes	0
+DEL_09.f1	DEL_09	new test	all	DEL	chr17	43074276	43074352	77	yes	0	yes	0	yes	0	yes	0
+DEL_09.f2	DEL_09	new test	1/2	DEL	chr17	43074276	43074352	77	yes	0	yes	0	yes	0	yes	0
+DEL_09.f3	DEL_09	new test	1/3	DEL	chr17	43074276	43074352	77	yes	0	yes	0	yes	0	yes	0
+DEL_10.f1	DEL_10	new test	all	DEL	chr17	43097266	43097330	65	yes	0	yes	0	yes	0	yes	0
+DEL_10.f2	DEL_10	new test	1/2	DEL	chr17	43097266	43097330	65	yes	0	yes	0	yes	0	yes	0
+DEL_10.f3	DEL_10	new test	1/3	DEL	chr17	43097266	43097330	65	yes	0	yes	0	yes	0	yes	0
+DEL_11.f1	DEL_11	new test	all	DEL	chr17	43090921	43091003	83	yes	0	yes	0	yes	0	yes	0
+DEL_11.f2	DEL_11	new test	1/2	DEL	chr17	43090921	43091003	83	no	0	no	0	no	0	no	0
+DEL_11.f3	DEL_11	new test	1/3	DEL	chr17	43090921	43091003	83	yes	0	yes	0	yes	0	no	0
+DEL_12.f1	DEL_12	new test	all	DEL	chr13	32356746	32357966	1221	yes	0	yes	0	yes	0	yes	0
+DEL_12.f2	DEL_12	new test	1/2	DEL	chr13	32356746	32357966	1221	yes	0	yes	0	yes	0	yes	0
+DEL_12.f3	DEL_12	new test	1/3	DEL	chr13	32356746	32357966	1221	yes	0	yes	0	yes	0	yes	0
+DEL_13.f1	DEL_13	new test	all	DEL	chr13	32370380	32370508	129	yes	0	yes	0	yes	0	yes	0
+DEL_13.f2	DEL_13	new test	1/2	DEL	chr13	32370380	32370508	129	yes	0	yes	0	yes	0	yes	0
+DEL_13.f3	DEL_13	new test	1/3	DEL	chr13	32370380	32370508	129	yes	0	yes	0	yes	0	yes	0
+DEL_14.f1	DEL_14	new test	all	DEL	chr13	32370580	32390267	19688	yes	0	yes	0	yes	0	yes	0
+DEL_14.f2	DEL_14	new test	1/2	DEL	chr13	32370580	32390267	19688	yes	0	yes	0	yes	0	yes	0
+DEL_14.f3	DEL_14	new test	1/3	DEL	chr13	32370580	32390267	19688	yes	0	yes	0	yes	0	yes	0
+DEL_15.f1	DEL_15	new test	all	DEL	chr17	43094696	43098008	3313	yes	0	yes	0	yes	0	yes	0
+DEL_15.f2	DEL_15	new test	1/2	DEL	chr17	43094696	43098008	3313	yes	0	yes	0	yes	0	yes	0
+DEL_15.f3	DEL_15	new test	1/3	DEL	chr17	43094696	43098008	3313	yes	0	yes	0	yes	0	yes	0
+DEL_16.f1	DEL_16	new test	all	DEL	chr17	43074183	43078493	4311	yes	0	yes	0	yes	0	yes	0
+DEL_16.f2	DEL_16	new test	1/2	DEL	chr17	43074183	43078493	4311	yes	0	yes	0	yes	0	yes	0
+DEL_16.f3	DEL_16	new test	1/3	DEL	chr17	43074183	43078493	4311	yes	0	yes	0	yes	0	yes	0
+DEL_17.f1	DEL_17	new test	all	DEL	chr13	32339540	32342268	2729	yes	0	yes	0	yes	0	yes	0
+DEL_17.f2	DEL_17	new test	1/2	DEL	chr13	32339540	32342268	2729	yes	0	yes	0	yes	0	yes	0
+DEL_17.f3	DEL_17	new test	1/3	DEL	chr13	32339540	32342268	2729	yes	0	yes	0	yes	0	yes	0
+DEL_18.f1	DEL_18	new test	all	DEL	chr13	32325031	32326807	1777	yes	0	yes	0	yes	0	yes	0
+DEL_18.f2	DEL_18	new test	1/2	DEL	chr13	32325031	32326807	1777	yes	0	yes	0	yes	0	yes	0
+DEL_18.f3	DEL_18	new test	1/3	DEL	chr13	32325031	32326807	1777	yes	0	yes	0	yes	0	yes	0
+DEL_19.f1	DEL_19	new test	all	DEL	chr13	32325416	32330454	5039	yes	0	yes	0	yes	0	yes	0
+DEL_19.f2	DEL_19	new test	1/2	DEL	chr13	32325416	32330454	5039	yes	0	yes	0	yes	0	yes	0
+DEL_19.f3	DEL_19	new test	1/3	DEL	chr13	32325416	32330454	5039	yes	0	yes	0	yes	0	yes	0
+DEL_20.f1	DEL_20	new test	all	DEL	chr17	43104855	43105041	187	yes	0	yes	0	yes	0	yes	0
+DEL_20.f2	DEL_20	new test	1/2	DEL	chr17	43104855	43105041	187	yes	0	yes	0	yes	0	yes	0
+DEL_20.f3	DEL_20	new test	1/3	DEL	chr17	43104855	43105041	187	yes	0	yes	0	yes	0	yes	0
+DEL_21.f1	DEL_21	new test	all	DEL	chr13	32362589	32367894	5306	yes	0	yes	0	yes	0	yes	0
+DEL_21.f2	DEL_21	new test	1/2	DEL	chr13	32362589	32367894	5306	yes	0	yes	0	yes	0	yes	0
+DEL_21.f3	DEL_21	new test	1/3	DEL	chr13	32362589	32367894	5306	yes	0	yes	0	yes	0	yes	0
+DEL_22.f1	DEL_22	new test	all	DEL	chr17	43067671	43071275	3605	yes	0	yes	0	yes	0	yes	0
+DEL_22.f2	DEL_22	new test	1/2	DEL	chr17	43067671	43071275	3605	yes	0	yes	0	yes	0	yes	0
+DEL_22.f3	DEL_22	new test	1/3	DEL	chr17	43067671	43071275	3605	yes	0	yes	0	yes	0	yes	0
+DEL_23.f1	DEL_23	new test	all	DEL	chr13	32334508	32345616	11109	yes	0	yes	0	yes	0	yes	0
+DEL_23.f2	DEL_23	new test	1/2	DEL	chr13	32334508	32345616	11109	yes	0	yes	0	yes	0	yes	0
+DEL_23.f3	DEL_23	new test	1/3	DEL	chr13	32334508	32345616	11109	yes	0	yes	0	yes	0	yes	0
+DEL_24.f1	DEL_24	new test	all	DEL	chr13	32373953	32388156	14204	yes	0	yes	0	yes	0	yes	0
+DEL_24.f2	DEL_24	new test	1/2	DEL	chr13	32373953	32388156	14204	yes	0	yes	0	yes	0	yes	0
+DEL_24.f3	DEL_24	new test	1/3	DEL	chr13	32373953	32388156	14204	yes	0	yes	0	yes	0	yes	0
+DEL_25.f1	DEL_25	new test	all	DEL	chr17	43070017	43076565	6549	yes	0	yes	0	yes	0	yes	0
+DEL_25.f2	DEL_25	new test	1/2	DEL	chr17	43070017	43076565	6549	yes	0	yes	0	yes	0	yes	0
+DEL_25.f3	DEL_25	new test	1/3	DEL	chr17	43070017	43076565	6549	yes	0	yes	0	yes	0	yes	0
+DEL_26.f1	DEL_26	new test	all	DEL	chr13	32363372	32363434	63	yes	0	yes	0	yes	0	yes	0
+DEL_26.f2	DEL_26	new test	1/2	DEL	chr13	32363372	32363434	63	yes	0	yes	0	yes	0	yes	0
+DEL_26.f3	DEL_26	new test	1/3	DEL	chr13	32363372	32363434	63	no	0	no	0	no	0	no	0
+DEL_27.f1	DEL_27	new test	all	DEL	chr13	32326232	32326385	154	yes	0	yes	0	yes	0	yes	0
+DEL_27.f2	DEL_27	new test	1/2	DEL	chr13	32326232	32326385	154	yes	0	yes	0	yes	0	yes	0
+DEL_27.f3	DEL_27	new test	1/3	DEL	chr13	32326232	32326385	154	yes	0	yes	0	yes	0	no	0
+DEL_28.f1	DEL_28	new test	all	DEL	chr13	32330605	32331855	1251	yes	0	yes	0	yes	0	yes	0
+DEL_28.f2	DEL_28	new test	1/2	DEL	chr13	32330605	32331855	1251	yes	0	yes	0	yes	0	yes	0
+DEL_28.f3	DEL_28	new test	1/3	DEL	chr13	32330605	32331855	1251	yes	0	yes	0	no	0	yes	0
+DEL_29.f1	DEL_29	new test	all	DEL	chr13	32319154	32319240	87	yes	0	yes	0	yes	0	yes	0
+DEL_29.f2	DEL_29	new test	1/2	DEL	chr13	32319154	32319240	87	yes	0	yes	0	yes	0	yes	0
+DEL_29.f3	DEL_29	new test	1/3	DEL	chr13	32319154	32319240	87	no	0	no	0	no	0	no	0
+DEL_30.f1	DEL_30	new test	all	DEL	chr17	43047406	43049145	1740	yes	0	yes	0	yes	0	yes	0
+DEL_30.f2	DEL_30	new test	1/2	DEL	chr17	43047406	43049145	1740	yes	0	yes	0	yes	0	yes	0
+DEL_30.f3	DEL_30	new test	1/3	DEL	chr17	43047406	43049145	1740	yes	0	yes	0	yes	0	yes	0
+DEL_31.f1	DEL_31	new test	all	DEL	chr17	43094185	43094323	139	yes	0	yes	0	yes	0	yes	0
+DEL_31.f2	DEL_31	new test	1/2	DEL	chr17	43094185	43094323	139	yes	0	yes	0	yes	0	yes	0
+DEL_31.f3	DEL_31	new test	1/3	DEL	chr17	43094185	43094323	139	no	0	no	0	no	0	no	0
+DEL_32.f1	DEL_32	new test	all	DEL	chr17	43062474	43065029	2556	yes	0	yes	0	yes	0	yes	0
+DEL_32.f2	DEL_32	new test	1/2	DEL	chr17	43062474	43065029	2556	yes	0	yes	0	yes	0	yes	0
+DEL_32.f3	DEL_32	new test	1/3	DEL	chr17	43062474	43065029	2556	yes	0	yes	0	no	0	yes	0
+DEL_33.f1	DEL_33	new test	all	DEL	chr17	43063214	43063547	334	yes	0	yes	0	yes	0	yes	0
+DEL_33.f2	DEL_33	new test	1/2	DEL	chr17	43063214	43063547	334	yes	0	yes	0	yes	0	yes	0
+DEL_33.f3	DEL_33	new test	1/3	DEL	chr17	43063214	43063547	334	no	0	no	0	no	0	no	0
+DEL_34.f1	DEL_34	new test	all	DEL	chr13	32328582	32332225	3644	yes	0	yes	0	yes	0	yes	0
+DEL_34.f2	DEL_34	new test	1/2	DEL	chr13	32328582	32332225	3644	yes	0	yes	0	yes	0	yes	0
+DEL_34.f3	DEL_34	new test	1/3	DEL	chr13	32328582	32332225	3644	yes	0	yes	0	yes	0	yes	0
+DEL_35.f1	DEL_35	new test	all	DEL	chr13	32376577	32384500	7924	yes	0	yes	0	yes	0	yes	0
+DEL_35.f2	DEL_35	new test	1/2	DEL	chr13	32376577	32384500	7924	yes	0	yes	0	yes	0	yes	0
+DEL_35.f3	DEL_35	new test	1/3	DEL	chr13	32376577	32384500	7924	yes	0	yes	0	yes	0	yes	0
+DEL_36.f1	DEL_36	new test	all	DEL	chr13	32376611	32376782	172	yes	0	yes	0	yes	0	yes	0
+DEL_36.f2	DEL_36	new test	1/2	DEL	chr13	32376611	32376782	172	yes	0	yes	0	yes	0	yes	0
+DEL_36.f3	DEL_36	new test	1/3	DEL	chr13	32376611	32376782	172	yes	0	yes	0	yes	0	yes	0
+DEL_37.f1	DEL_37	new test	all	DEL	chr17	43123726	43137442	13717	yes	0	yes	0	yes	0	yes	0
+DEL_37.f2	DEL_37	new test	1/2	DEL	chr17	43123726	43137442	13717	yes	0	yes	0	yes	0	yes	0
+DEL_37.f3	DEL_37	new test	1/3	DEL	chr17	43123726	43137442	13717	yes	0	yes	0	yes	0	yes	0
+DEL_38.f1	DEL_38	new test	all	DEL	chr17	43047567	43047645	79	yes	0	yes	0	yes	0	yes	0
+DEL_38.f2	DEL_38	new test	1/2	DEL	chr17	43047567	43047645	79	yes	0	yes	0	yes	0	yes	0
+DEL_38.f3	DEL_38	new test	1/3	DEL	chr17	43047567	43047645	79	no	0	no	0	no	0	no	0
+DEL_39.f1	DEL_39	new test	all	DEL	chr17	43066414	43075864	9451	yes	0	yes	0	yes	0	yes	0
+DEL_39.f2	DEL_39	new test	1/2	DEL	chr17	43066414	43075864	9451	yes	0	yes	0	yes	0	yes	0
+DEL_39.f3	DEL_39	new test	1/3	DEL	chr17	43066414	43075864	9451	yes	0	yes	0	yes	0	yes	0
+DEL_40.f1	DEL_40	new test	all	DEL	chr17	43063251	43063492	242	yes	0	yes	0	yes	0	yes	0
+DEL_40.f2	DEL_40	new test	1/2	DEL	chr17	43063251	43063492	242	no	0	no	0	no	0	no	0
+DEL_40.f3	DEL_40	new test	1/3	DEL	chr17	43063251	43063492	242	no	0	no	0	no	0	no	0
+INV_01.f1	INV_01	new test	all	INV	chr13	32377045	32385752	8708	yes	0	yes	0	yes	0	yes	0
+INV_01.f2	INV_01	new test	1/2	INV	chr13	32377045	32385752	8708	yes	0	yes	0	yes	0	yes	0
+INV_01.f3	INV_01	new test	1/3	INV	chr13	32377045	32385752	8708	yes	0	yes	0	yes	0	yes	0
+INV_02.f1	INV_02	new test	all	INV	chr13	32361986	32365749	3764	yes	0	yes	0	yes	0	yes	0
+INV_02.f2	INV_02	new test	1/2	INV	chr13	32361986	32365749	3764	yes	0	yes	0	yes	0	yes	0
+INV_02.f3	INV_02	new test	1/3	INV	chr13	32361986	32365749	3764	yes	0	yes	0	yes	0	yes	0
+INV_03.f1	INV_03	new test	all	INV	chr13	32377609	32383494	5886	yes	0	yes	0	yes	0	yes	0
+INV_03.f2	INV_03	new test	1/2	INV	chr13	32377609	32383494	5886	yes	0	yes	0	yes	0	yes	0
+INV_03.f3	INV_03	new test	1/3	INV	chr13	32377609	32383494	5886	yes	0	yes	0	yes	0	yes	0
+INV_04.f1	INV_04	new test	all	INV	chr13	32355112	32366701	11590	yes	0	yes	0	yes	0	yes	0
+INV_04.f2	INV_04	new test	1/2	INV	chr13	32355112	32366701	11590	yes	0	yes	0	yes	0	yes	0
+INV_04.f3	INV_04	new test	1/3	INV	chr13	32355112	32366701	11590	yes	0	yes	0	yes	0	yes	0
+INV_05.f1	INV_05	new test	all	INV	chr13	32344271	32356945	12675	yes	0	yes	0	yes	0	yes	0
+INV_05.f2	INV_05	new test	1/2	INV	chr13	32344271	32356945	12675	yes	0	yes	0	yes	0	yes	0
+INV_05.f3	INV_05	new test	1/3	INV	chr13	32344271	32356945	12675	yes	0	yes	0	yes	0	yes	0
+INV_06.f1	INV_06	new test	all	INV	chr13	32376413	32379693	3281	yes	0	yes	0	yes	0	yes	0
+INV_06.f2	INV_06	new test	1/2	INV	chr13	32376413	32379693	3281	yes	0	yes	0	yes	0	yes	0
+INV_06.f3	INV_06	new test	1/3	INV	chr13	32376413	32379693	3281	yes	0	yes	0	yes	0	yes	0
+INV_07.f1	INV_07	new test	all	INV	chr17	43098595	43108980	10386	yes	0	yes	0	yes	0	yes	0
+INV_07.f2	INV_07	new test	1/2	INV	chr17	43098595	43108980	10386	yes	0	yes	0	yes	0	yes	0
+INV_07.f3	INV_07	new test	1/3	INV	chr17	43098595	43108980	10386	yes	0	yes	0	yes	0	yes	0
+INV_08.f1	INV_08	new test	all	INV	chr13	32363592	32371231	7640	yes	0	yes	0	yes	0	yes	0
+INV_08.f2	INV_08	new test	1/2	INV	chr13	32363592	32371231	7640	yes	0	yes	0	yes	0	yes	0
+INV_08.f3	INV_08	new test	1/3	INV	chr13	32363592	32371231	7640	yes	0	yes	0	yes	0	yes	0
+INV_09.f1	INV_09	new test	all	INV	chr13	32360471	32364707	4237	yes	0	yes	0	yes	0	yes	0
+INV_09.f2	INV_09	new test	1/2	INV	chr13	32360471	32364707	4237	yes	0	yes	0	yes	0	yes	0
+INV_09.f3	INV_09	new test	1/3	INV	chr13	32360471	32364707	4237	yes	0	yes	0	yes	0	yes	0
+INV_10.f1	INV_10	new test	all	INV	chr17	43058854	43078680	19827	yes	0	yes	0	yes	0	yes	0
+INV_10.f2	INV_10	new test	1/2	INV	chr17	43058854	43078680	19827	yes	0	yes	0	yes	0	yes	0
+INV_10.f3	INV_10	new test	1/3	INV	chr17	43058854	43078680	19827	yes	0	yes	0	yes	0	yes	0
+INV_11.f1	INV_11	new test	all	INV	chr13	32362806	32363975	1170	yes	0	yes	0	yes	0	yes	0
+INV_11.f2	INV_11	new test	1/2	INV	chr13	32362806	32363975	1170	yes	0	yes	0	yes	0	yes	0
+INV_11.f3	INV_11	new test	1/3	INV	chr13	32362806	32363975	1170	yes	0	yes	0	yes	0	yes	0
+INV_12.f1	INV_12	new test	all	INV	chr13	32329078	32330092	1015	yes	0	yes	0	yes	0	yes	0
+INV_12.f2	INV_12	new test	1/2	INV	chr13	32329078	32330092	1015	yes	0	yes	0	yes	0	yes	0
+INV_12.f3	INV_12	new test	1/3	INV	chr13	32329078	32330092	1015	yes	0	yes	0	yes	0	yes	0
+INV_13.f1	INV_13	new test	all	INV	chr13	32345193	32353222	8030	yes	0	yes	0	yes	0	yes	0
+INV_13.f2	INV_13	new test	1/2	INV	chr13	32345193	32353222	8030	yes	0	yes	0	yes	0	yes	0
+INV_13.f3	INV_13	new test	1/3	INV	chr13	32345193	32353222	8030	yes	0	yes	0	yes	0	yes	0
+INV_14.f1	INV_14	new test	all	INV	chr13	32352450	32367360	14911	yes	0	yes	0	yes	0	yes	0
+INV_14.f2	INV_14	new test	1/2	INV	chr13	32352450	32367360	14911	yes	0	yes	0	yes	0	yes	0
+INV_14.f3	INV_14	new test	1/3	INV	chr13	32352450	32367360	14911	yes	0	yes	0	yes	0	yes	0
+INV_15.f1	INV_15	new test	all	INV	chr13	32319568	32337558	17991	yes	0	yes	0	yes	0	yes	0
+INV_15.f2	INV_15	new test	1/2	INV	chr13	32319568	32337558	17991	yes	0	yes	0	yes	0	yes	0
+INV_15.f3	INV_15	new test	1/3	INV	chr13	32319568	32337558	17991	yes	0	yes	0	yes	0	yes	0
+INV_16.f1	INV_16	new test	all	INV	chr17	43061674	43073419	11746	yes	0	yes	0	yes	0	yes	0
+INV_16.f2	INV_16	new test	1/2	INV	chr17	43061674	43073419	11746	yes	0	yes	0	yes	0	yes	0
+INV_16.f3	INV_16	new test	1/3	INV	chr17	43061674	43073419	11746	yes	0	yes	0	yes	0	yes	0
+INV_17.f1	INV_17	new test	all	INV	chr13	32356622	32367329	10708	yes	0	yes	0	yes	0	yes	0
+INV_17.f2	INV_17	new test	1/2	INV	chr13	32356622	32367329	10708	yes	0	yes	0	yes	0	yes	0
+INV_17.f3	INV_17	new test	1/3	INV	chr13	32356622	32367329	10708	yes	0	yes	0	yes	0	yes	0
+INV_18.f1	INV_18	new test	all	INV	chr13	32352003	32360394	8392	yes	0	yes	0	yes	0	yes	0
+INV_18.f2	INV_18	new test	1/2	INV	chr13	32352003	32360394	8392	yes	0	yes	0	yes	0	yes	0
+INV_18.f3	INV_18	new test	1/3	INV	chr13	32352003	32360394	8392	yes	0	yes	0	yes	0	yes	0
+INV_19.f1	INV_19	new test	all	INV	chr13	32345511	32358401	12891	yes	0	yes	0	yes	0	yes	0
+INV_19.f2	INV_19	new test	1/2	INV	chr13	32345511	32358401	12891	yes	0	yes	0	yes	0	yes	0
+INV_19.f3	INV_19	new test	1/3	INV	chr13	32345511	32358401	12891	yes	0	yes	0	yes	0	yes	0
+INV_20.f1	INV_20	new test	all	INV	chr13	32379072	32380104	1033	yes	0	yes	0	yes	0	yes	0
+INV_20.f2	INV_20	new test	1/2	INV	chr13	32379072	32380104	1033	yes	0	yes	0	yes	0	yes	0
+INV_20.f3	INV_20	new test	1/3	INV	chr13	32379072	32380104	1033	yes	0	yes	0	yes	0	yes	0
+SPIKE_L1.f1	SPIKE_L1	earlier spike-ins (seen in tuning)	all	DEL	chr17	43048950	43049459	510	yes	2	yes	2	yes	2	yes	0
+SPIKE_L1.f1	SPIKE_L1	earlier spike-ins (seen in tuning)	all	INS	chr13	32319165	32319165	1	no	0	no	0	yes	0	no	0
+SPIKE_L1.f2	SPIKE_L1	earlier spike-ins (seen in tuning)	1/2	DEL	chr17	43048950	43049459	510	yes	2	yes	2	yes	2	yes	0
+SPIKE_L1.f2	SPIKE_L1	earlier spike-ins (seen in tuning)	1/2	INS	chr13	32319165	32319165	1	no	0	no	0	yes	0	no	0
+SPIKE_L1.f3	SPIKE_L1	earlier spike-ins (seen in tuning)	1/3	DEL	chr17	43048950	43049459	510	yes	1	yes	1	yes	0	no	0
+SPIKE_L1.f3	SPIKE_L1	earlier spike-ins (seen in tuning)	1/3	INS	chr13	32319165	32319165	1	no	0	no	0	no	0	no	0
+SPIKE_L2.f1	SPIKE_L2	earlier spike-ins (seen in tuning)	all	DEL	chr17	43080500	43084334	3835	yes	0	yes	0	yes	0	yes	0
+SPIKE_L2.f1	SPIKE_L2	earlier spike-ins (seen in tuning)	all	DEL	chr13	32352000	32360499	8500	yes	0	yes	0	yes	0	yes	0
+SPIKE_L2.f2	SPIKE_L2	earlier spike-ins (seen in tuning)	1/2	DEL	chr17	43080500	43084334	3835	yes	0	yes	0	yes	0	yes	0
+SPIKE_L2.f2	SPIKE_L2	earlier spike-ins (seen in tuning)	1/2	DEL	chr13	32352000	32360499	8500	yes	0	yes	0	yes	0	yes	0
+SPIKE_L2.f3	SPIKE_L2	earlier spike-ins (seen in tuning)	1/3	DEL	chr17	43080500	43084334	3835	yes	0	yes	0	yes	0	yes	0
+SPIKE_L2.f3	SPIKE_L2	earlier spike-ins (seen in tuning)	1/3	DEL	chr13	32352000	32360499	8500	yes	0	yes	0	yes	0	yes	0
+SPIKE_L3.f1	SPIKE_L3	earlier spike-ins (seen in tuning)	all	DUP	chr17	43079800	43085799	6000	yes	0	yes	0	yes	0	yes	0
+SPIKE_L3.f1	SPIKE_L3	earlier spike-ins (seen in tuning)	all	DEL	chr13	32376000	32377499	1500	yes	0	yes	0	yes	0	yes	0
+SPIKE_L3.f2	SPIKE_L3	earlier spike-ins (seen in tuning)	1/2	DUP	chr17	43079800	43085799	6000	yes	0	yes	0	yes	0	yes	0
+SPIKE_L3.f2	SPIKE_L3	earlier spike-ins (seen in tuning)	1/2	DEL	chr13	32376000	32377499	1500	yes	0	yes	0	yes	0	yes	0
+SPIKE_L3.f3	SPIKE_L3	earlier spike-ins (seen in tuning)	1/3	DUP	chr17	43079800	43085799	6000	yes	0	yes	0	yes	0	yes	0
+SPIKE_L3.f3	SPIKE_L3	earlier spike-ins (seen in tuning)	1/3	DEL	chr13	32376000	32377499	1500	yes	0	yes	0	yes	0	yes	0
+SPIKE_L4.f1	SPIKE_L4	earlier spike-ins (seen in tuning)	all	DEL	chr17	43120000	43130999	11000	yes	0	yes	0	yes	0	yes	0
+SPIKE_L4.f1	SPIKE_L4	earlier spike-ins (seen in tuning)	all	DEL	chr13	32338000	32338119	120	yes	0	yes	0	yes	0	yes	0
+SPIKE_L4.f2	SPIKE_L4	earlier spike-ins (seen in tuning)	1/2	DEL	chr17	43120000	43130999	11000	yes	0	yes	0	yes	0	yes	0
+SPIKE_L4.f2	SPIKE_L4	earlier spike-ins (seen in tuning)	1/2	DEL	chr13	32338000	32338119	120	yes	0	yes	0	yes	0	yes	0
+SPIKE_L4.f3	SPIKE_L4	earlier spike-ins (seen in tuning)	1/3	DEL	chr17	43120000	43130999	11000	yes	0	yes	0	yes	0	yes	0
+SPIKE_L4.f3	SPIKE_L4	earlier spike-ins (seen in tuning)	1/3	DEL	chr13	32338000	32338119	120	yes	0	yes	0	yes	0	no	0
+SPIKE_L5.f1	SPIKE_L5	earlier spike-ins (seen in tuning)	all	DEL	chr17	43040000	43174999	135000	yes	0	yes	0	yes	0	no	0
+SPIKE_L5.f1	SPIKE_L5	earlier spike-ins (seen in tuning)	all	DUP	chr13	32369000	32373999	5000	yes	0	yes	0	yes	0	yes	0
+SPIKE_L5.f2	SPIKE_L5	earlier spike-ins (seen in tuning)	1/2	DEL	chr17	43040000	43174999	135000	yes	0	yes	0	yes	0	no	0
+SPIKE_L5.f2	SPIKE_L5	earlier spike-ins (seen in tuning)	1/2	DUP	chr13	32369000	32373999	5000	yes	0	yes	0	yes	0	no	0
+SPIKE_L5.f3	SPIKE_L5	earlier spike-ins (seen in tuning)	1/3	DEL	chr17	43040000	43174999	135000	no	0	no	0	no	0	no	0
+SPIKE_L5.f3	SPIKE_L5	earlier spike-ins (seen in tuning)	1/3	DUP	chr13	32369000	32373999	5000	yes	0	yes	0	yes	0	yes	0
+SPIKE_L6.f1	SPIKE_L6	earlier spike-ins (seen in tuning)	all	DEL	chr17	43093000	43093299	300	yes	0	yes	0	yes	0	yes	0
+SPIKE_L6.f1	SPIKE_L6	earlier spike-ins (seen in tuning)	all	DEL	chr13	32310000	32404999	95000	yes	0	yes	0	yes	0	no	0
+SPIKE_L6.f2	SPIKE_L6	earlier spike-ins (seen in tuning)	1/2	DEL	chr17	43093000	43093299	300	yes	0	yes	0	yes	0	yes	0
+SPIKE_L6.f2	SPIKE_L6	earlier spike-ins (seen in tuning)	1/2	DEL	chr13	32310000	32404999	95000	yes	0	yes	0	yes	0	no	0
+SPIKE_L6.f3	SPIKE_L6	earlier spike-ins (seen in tuning)	1/3	DEL	chr17	43093000	43093299	300	no	0	no	0	no	0	no	0
+SPIKE_L6.f3	SPIKE_L6	earlier spike-ins (seen in tuning)	1/3	DEL	chr13	32310000	32404999	95000	yes	0	yes	0	yes	0	no	0
+SPIKE_NEG.f1	SPIKE_NEG	earlier spike-ins (seen in tuning)	all	none		0	0	0	n/a	0	n/a	0	n/a	0	n/a	0
+SPIKE_NEG.f2	SPIKE_NEG	earlier spike-ins (seen in tuning)	1/2	none		0	0	0	n/a	0	n/a	0	n/a	0	n/a	0
+SPIKE_NEG.f3	SPIKE_NEG	earlier spike-ins (seen in tuning)	1/3	none		0	0	0	n/a	0	n/a	0	n/a	0	n/a	0
+SPIKE_S1.f1	SPIKE_S1	earlier spike-ins (seen in tuning)	all	none		0	0	0	n/a	0	n/a	4	n/a	0	n/a	0
+SPIKE_S1.f2	SPIKE_S1	earlier spike-ins (seen in tuning)	1/2	none		0	0	0	n/a	0	n/a	4	n/a	0	n/a	0
+SPIKE_S1.f3	SPIKE_S1	earlier spike-ins (seen in tuning)	1/3	none		0	0	0	n/a	0	n/a	2	n/a	0	n/a	0
+SPIKE_S2.f1	SPIKE_S2	earlier spike-ins (seen in tuning)	all	none		0	0	0	n/a	0	n/a	4	n/a	0	n/a	0
+SPIKE_S2.f2	SPIKE_S2	earlier spike-ins (seen in tuning)	1/2	none		0	0	0	n/a	0	n/a	4	n/a	0	n/a	0
+SPIKE_S2.f3	SPIKE_S2	earlier spike-ins (seen in tuning)	1/3	none		0	0	0	n/a	0	n/a	3	n/a	0	n/a	0
+TDUP_01.f1	TDUP_01	tandem duplications (../tandem_dup)	all	DUP	chr17	43103328	43104987	1660	yes	0	yes	0	yes	0	yes	0
+TDUP_01.f2	TDUP_01	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43103328	43104987	1660	yes	0	yes	0	yes	0	yes	0
+TDUP_01.f3	TDUP_01	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43103328	43104987	1660	yes	0	yes	0	no	0	yes	0
+TDUP_02.f1	TDUP_02	tandem duplications (../tandem_dup)	all	DUP	chr17	43124614	43127028	2415	yes	0	yes	0	yes	0	yes	0
+TDUP_02.f2	TDUP_02	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43124614	43127028	2415	yes	0	yes	0	yes	0	yes	0
+TDUP_02.f3	TDUP_02	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43124614	43127028	2415	yes	0	yes	0	yes	0	yes	0
+TDUP_03.f1	TDUP_03	tandem duplications (../tandem_dup)	all	DUP	chr13	32362970	32374587	11618	yes	0	yes	0	yes	0	yes	0
+TDUP_03.f2	TDUP_03	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32362970	32374587	11618	yes	0	yes	0	yes	0	yes	0
+TDUP_03.f3	TDUP_03	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32362970	32374587	11618	yes	0	yes	0	no	0	yes	0
+TDUP_04.f1	TDUP_04	tandem duplications (../tandem_dup)	all	DUP	chr13	32356995	32358232	1238	yes	0	yes	0	yes	0	yes	0
+TDUP_04.f2	TDUP_04	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32356995	32358232	1238	yes	0	yes	0	yes	0	yes	0
+TDUP_04.f3	TDUP_04	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32356995	32358232	1238	yes	0	yes	0	yes	0	yes	0
+TDUP_05.f1	TDUP_05	tandem duplications (../tandem_dup)	all	DUP	chr13	32331464	32333679	2216	yes	0	yes	0	yes	0	yes	0
+TDUP_05.f2	TDUP_05	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32331464	32333679	2216	yes	0	yes	0	yes	0	yes	0
+TDUP_05.f3	TDUP_05	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32331464	32333679	2216	yes	0	yes	0	yes	0	yes	0
+TDUP_06.f1	TDUP_06	tandem duplications (../tandem_dup)	all	DUP	chr13	32324765	32337210	12446	yes	0	yes	0	yes	0	yes	0
+TDUP_06.f2	TDUP_06	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32324765	32337210	12446	yes	0	yes	0	yes	0	yes	0
+TDUP_06.f3	TDUP_06	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32324765	32337210	12446	yes	0	yes	0	yes	0	yes	0
+TDUP_07.f1	TDUP_07	tandem duplications (../tandem_dup)	all	DUP	chr17	43077451	43090585	13135	yes	0	yes	0	yes	0	yes	0
+TDUP_07.f2	TDUP_07	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43077451	43090585	13135	yes	0	yes	0	yes	0	yes	0
+TDUP_07.f3	TDUP_07	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43077451	43090585	13135	yes	0	yes	0	yes	0	yes	0
+TDUP_08.f1	TDUP_08	tandem duplications (../tandem_dup)	all	DUP	chr13	32324921	32326283	1363	yes	0	yes	0	yes	0	yes	0
+TDUP_08.f2	TDUP_08	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32324921	32326283	1363	yes	0	yes	0	yes	0	yes	0
+TDUP_08.f3	TDUP_08	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32324921	32326283	1363	yes	0	yes	0	yes	0	yes	0
+TDUP_09.f1	TDUP_09	tandem duplications (../tandem_dup)	all	DUP	chr17	43046539	43054799	8261	yes	0	yes	0	yes	0	yes	0
+TDUP_09.f2	TDUP_09	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43046539	43054799	8261	yes	0	yes	0	yes	0	yes	0
+TDUP_09.f3	TDUP_09	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43046539	43054799	8261	yes	0	yes	0	yes	0	yes	0
+TDUP_10.f1	TDUP_10	tandem duplications (../tandem_dup)	all	DUP	chr17	43114022	43128674	14653	yes	0	yes	0	yes	0	yes	0
+TDUP_10.f2	TDUP_10	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43114022	43128674	14653	yes	0	yes	0	yes	0	yes	0
+TDUP_10.f3	TDUP_10	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43114022	43128674	14653	yes	0	yes	0	yes	0	yes	0
+TDUP_11.f1	TDUP_11	tandem duplications (../tandem_dup)	all	DUP	chr17	43047334	43051729	4396	yes	0	yes	0	yes	0	yes	0
+TDUP_11.f2	TDUP_11	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43047334	43051729	4396	yes	0	yes	0	yes	0	yes	0
+TDUP_11.f3	TDUP_11	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43047334	43051729	4396	yes	0	yes	0	yes	0	yes	0
+TDUP_12.f1	TDUP_12	tandem duplications (../tandem_dup)	all	DUP	chr17	43074775	43077224	2450	yes	0	yes	0	yes	0	yes	0
+TDUP_12.f2	TDUP_12	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43074775	43077224	2450	yes	0	yes	0	yes	0	yes	0
+TDUP_12.f3	TDUP_12	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43074775	43077224	2450	yes	0	yes	0	yes	0	yes	0
+TDUP_13.f1	TDUP_13	tandem duplications (../tandem_dup)	all	DUP	chr13	32355973	32367356	11384	yes	0	yes	0	yes	0	yes	0
+TDUP_13.f2	TDUP_13	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32355973	32367356	11384	yes	0	yes	0	yes	0	yes	0
+TDUP_13.f3	TDUP_13	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32355973	32367356	11384	yes	0	yes	0	yes	0	yes	0
+TDUP_14.f1	TDUP_14	tandem duplications (../tandem_dup)	all	DUP	chr17	43081903	43083239	1337	yes	0	yes	0	yes	0	yes	0
+TDUP_14.f2	TDUP_14	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43081903	43083239	1337	yes	0	yes	0	yes	0	yes	0
+TDUP_14.f3	TDUP_14	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43081903	43083239	1337	no	0	no	0	yes	0	yes	0
+TDUP_15.f1	TDUP_15	tandem duplications (../tandem_dup)	all	DUP	chr13	32320690	32334212	13523	yes	0	yes	0	yes	0	yes	0
+TDUP_15.f2	TDUP_15	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32320690	32334212	13523	yes	0	yes	0	yes	0	yes	0
+TDUP_15.f3	TDUP_15	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32320690	32334212	13523	yes	0	yes	0	yes	0	yes	0
+TDUP_16.f1	TDUP_16	tandem duplications (../tandem_dup)	all	DUP	chr17	43057712	43074647	16936	yes	0	yes	0	yes	0	yes	0
+TDUP_16.f2	TDUP_16	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43057712	43074647	16936	yes	0	yes	0	yes	0	yes	0
+TDUP_16.f3	TDUP_16	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43057712	43074647	16936	yes	0	yes	0	yes	0	yes	0
+TDUP_17.f1	TDUP_17	tandem duplications (../tandem_dup)	all	DUP	chr17	43088800	43091141	2342	yes	0	yes	0	yes	0	yes	0
+TDUP_17.f2	TDUP_17	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43088800	43091141	2342	yes	0	yes	0	yes	0	yes	0
+TDUP_17.f3	TDUP_17	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43088800	43091141	2342	yes	0	yes	0	yes	0	yes	0
+TDUP_18.f1	TDUP_18	tandem duplications (../tandem_dup)	all	DUP	chr17	43075620	43077011	1392	yes	0	yes	0	yes	0	yes	0
+TDUP_18.f2	TDUP_18	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43075620	43077011	1392	yes	0	yes	0	yes	0	yes	0
+TDUP_18.f3	TDUP_18	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43075620	43077011	1392	yes	0	yes	0	yes	0	yes	0
+TDUP_19.f1	TDUP_19	tandem duplications (../tandem_dup)	all	DUP	chr13	32375006	32380843	5838	yes	0	yes	0	yes	0	yes	0
+TDUP_19.f2	TDUP_19	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32375006	32380843	5838	yes	0	yes	0	yes	0	yes	0
+TDUP_19.f3	TDUP_19	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32375006	32380843	5838	yes	0	yes	0	yes	0	yes	0
+TDUP_20.f1	TDUP_20	tandem duplications (../tandem_dup)	all	DUP	chr13	32324502	32331055	6554	yes	0	yes	0	yes	0	yes	0
+TDUP_20.f2	TDUP_20	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32324502	32331055	6554	yes	0	yes	0	yes	0	yes	0
+TDUP_20.f3	TDUP_20	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32324502	32331055	6554	yes	0	yes	0	yes	0	yes	0
+TDUP_21.f1	TDUP_21	tandem duplications (../tandem_dup)	all	DUP	chr17	43050178	43053967	3790	yes	0	yes	0	yes	0	yes	0
+TDUP_21.f2	TDUP_21	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43050178	43053967	3790	yes	0	yes	0	yes	0	yes	0
+TDUP_21.f3	TDUP_21	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43050178	43053967	3790	yes	0	yes	0	yes	0	yes	0
+TDUP_22.f1	TDUP_22	tandem duplications (../tandem_dup)	all	DUP	chr17	43121075	43130400	9326	yes	0	yes	0	yes	0	yes	0
+TDUP_22.f2	TDUP_22	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43121075	43130400	9326	yes	0	yes	0	yes	0	yes	0
+TDUP_22.f3	TDUP_22	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43121075	43130400	9326	yes	0	yes	0	yes	0	yes	0
+TDUP_23.f1	TDUP_23	tandem duplications (../tandem_dup)	all	DUP	chr13	32343711	32346306	2596	yes	0	yes	0	yes	0	yes	0
+TDUP_23.f2	TDUP_23	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32343711	32346306	2596	yes	0	yes	0	yes	0	yes	0
+TDUP_23.f3	TDUP_23	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32343711	32346306	2596	yes	0	yes	0	no	0	yes	0
+TDUP_24.f1	TDUP_24	tandem duplications (../tandem_dup)	all	DUP	chr17	43060159	43076698	16540	yes	0	yes	0	yes	0	yes	0
+TDUP_24.f2	TDUP_24	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43060159	43076698	16540	yes	0	yes	0	yes	0	yes	0
+TDUP_24.f3	TDUP_24	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43060159	43076698	16540	yes	0	yes	0	no	0	yes	0
+TDUP_25.f1	TDUP_25	tandem duplications (../tandem_dup)	all	DUP	chr13	32319363	32328688	9326	yes	0	yes	0	yes	0	yes	0
+TDUP_25.f2	TDUP_25	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32319363	32328688	9326	yes	0	yes	0	yes	0	yes	0
+TDUP_25.f3	TDUP_25	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32319363	32328688	9326	yes	0	yes	0	yes	0	yes	0
+TDUP_26.f1	TDUP_26	tandem duplications (../tandem_dup)	all	DUP	chr13	32369779	32377382	7604	yes	0	yes	0	yes	0	yes	0
+TDUP_26.f2	TDUP_26	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32369779	32377382	7604	yes	0	yes	0	yes	0	yes	0
+TDUP_26.f3	TDUP_26	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32369779	32377382	7604	yes	0	yes	0	yes	0	yes	0
+TDUP_27.f1	TDUP_27	tandem duplications (../tandem_dup)	all	DUP	chr17	43093954	43098825	4872	yes	0	yes	0	yes	0	yes	0
+TDUP_27.f2	TDUP_27	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43093954	43098825	4872	yes	0	yes	0	yes	0	yes	0
+TDUP_27.f3	TDUP_27	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43093954	43098825	4872	yes	0	yes	0	yes	0	yes	0
+TDUP_28.f1	TDUP_28	tandem duplications (../tandem_dup)	all	DUP	chr13	32353793	32363013	9221	yes	0	yes	0	yes	0	yes	0
+TDUP_28.f2	TDUP_28	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32353793	32363013	9221	yes	0	yes	0	yes	0	yes	0
+TDUP_28.f3	TDUP_28	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32353793	32363013	9221	yes	0	yes	0	yes	0	yes	0
+TDUP_29.f1	TDUP_29	tandem duplications (../tandem_dup)	all	DUP	chr17	43046394	43048998	2605	yes	0	yes	0	yes	0	yes	0
+TDUP_29.f2	TDUP_29	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43046394	43048998	2605	yes	0	yes	0	yes	0	yes	0
+TDUP_29.f3	TDUP_29	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43046394	43048998	2605	yes	0	yes	0	yes	0	yes	0
+TDUP_30.f1	TDUP_30	tandem duplications (../tandem_dup)	all	DUP	chr13	32328744	32337546	8803	yes	0	yes	0	yes	0	yes	0
+TDUP_30.f2	TDUP_30	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32328744	32337546	8803	yes	0	yes	0	yes	0	yes	0
+TDUP_30.f3	TDUP_30	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32328744	32337546	8803	yes	0	yes	0	yes	0	yes	0
+TDUP_31.f1	TDUP_31	tandem duplications (../tandem_dup)	all	DUP	chr13	32357099	32374611	17513	yes	0	yes	0	yes	0	yes	0
+TDUP_31.f2	TDUP_31	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32357099	32374611	17513	yes	0	yes	0	yes	0	yes	0
+TDUP_31.f3	TDUP_31	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32357099	32374611	17513	yes	0	yes	0	yes	0	yes	0
+TDUP_32.f1	TDUP_32	tandem duplications (../tandem_dup)	all	DUP	chr13	32324574	32325910	1337	yes	0	yes	0	yes	0	yes	0
+TDUP_32.f2	TDUP_32	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32324574	32325910	1337	yes	0	yes	0	no	0	yes	0
+TDUP_32.f3	TDUP_32	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32324574	32325910	1337	yes	0	yes	0	yes	0	yes	0
+TDUP_33.f1	TDUP_33	tandem duplications (../tandem_dup)	all	DUP	chr13	32365139	32383942	18804	yes	0	yes	0	yes	0	yes	0
+TDUP_33.f2	TDUP_33	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32365139	32383942	18804	yes	0	yes	0	yes	0	yes	0
+TDUP_33.f3	TDUP_33	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32365139	32383942	18804	yes	0	yes	0	no	0	yes	0
+TDUP_34.f1	TDUP_34	tandem duplications (../tandem_dup)	all	DUP	chr17	43122751	43125433	2683	yes	0	yes	0	yes	0	yes	0
+TDUP_34.f2	TDUP_34	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43122751	43125433	2683	yes	0	yes	0	yes	0	yes	0
+TDUP_34.f3	TDUP_34	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43122751	43125433	2683	no	0	no	0	no	0	no	0
+TDUP_35.f1	TDUP_35	tandem duplications (../tandem_dup)	all	DUP	chr17	43112885	43116969	4085	yes	0	yes	0	yes	0	yes	0
+TDUP_35.f2	TDUP_35	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43112885	43116969	4085	yes	0	yes	0	yes	0	yes	0
+TDUP_35.f3	TDUP_35	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43112885	43116969	4085	yes	0	yes	0	no	0	yes	0
+TDUP_36.f1	TDUP_36	tandem duplications (../tandem_dup)	all	DUP	chr17	43069528	43071587	2060	yes	0	yes	0	yes	0	yes	0
+TDUP_36.f2	TDUP_36	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43069528	43071587	2060	yes	0	yes	0	yes	0	yes	0
+TDUP_36.f3	TDUP_36	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43069528	43071587	2060	yes	0	yes	0	yes	0	yes	0
+TDUP_37.f1	TDUP_37	tandem duplications (../tandem_dup)	all	DUP	chr13	32369140	32376526	7387	yes	0	yes	0	yes	0	yes	0
+TDUP_37.f2	TDUP_37	tandem duplications (../tandem_dup)	1/2	DUP	chr13	32369140	32376526	7387	yes	0	yes	0	yes	0	yes	0
+TDUP_37.f3	TDUP_37	tandem duplications (../tandem_dup)	1/3	DUP	chr13	32369140	32376526	7387	yes	0	yes	0	yes	0	yes	0
+TDUP_38.f1	TDUP_38	tandem duplications (../tandem_dup)	all	DUP	chr17	43062799	43065579	2781	yes	0	yes	0	yes	0	yes	0
+TDUP_38.f2	TDUP_38	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43062799	43065579	2781	yes	0	yes	0	no	0	yes	0
+TDUP_38.f3	TDUP_38	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43062799	43065579	2781	yes	0	yes	0	no	0	yes	0
+TDUP_39.f1	TDUP_39	tandem duplications (../tandem_dup)	all	DUP	chr17	43090260	43091325	1066	yes	0	yes	0	yes	0	yes	0
+TDUP_39.f2	TDUP_39	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43090260	43091325	1066	yes	0	yes	0	yes	0	yes	0
+TDUP_39.f3	TDUP_39	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43090260	43091325	1066	yes	0	yes	0	yes	0	yes	0
+TDUP_40.f1	TDUP_40	tandem duplications (../tandem_dup)	all	DUP	chr17	43095886	43109889	14004	yes	0	yes	0	yes	0	yes	0
+TDUP_40.f2	TDUP_40	tandem duplications (../tandem_dup)	1/2	DUP	chr17	43095886	43109889	14004	yes	0	yes	0	yes	0	yes	0
+TDUP_40.f3	TDUP_40	tandem duplications (../tandem_dup)	1/3	DUP	chr17	43095886	43109889	14004	yes	0	yes	0	no	0	yes	0

@@ -309,6 +309,7 @@ Three further experiments, all for research use and none a clinical validation:
 | 12 large events spiked into real reads (120 bp to whole gene, 2 duplications, 1 Alu) | Manta 12 of 12; CNVkit 3 of 12 (0 of 12 before a fix in 1.1.0); exon dosage hint 9 of 11 |
 | Real deletions in BRCA1 (1000 Genomes, not disease-causing) | 1,081 bp: 6 of 6 carriers; 271 bp: 2 of 3 |
 | Real Alu insertions in BRCA2 (1000 Genomes, not disease-causing) | called in 4 of 11 carriers; read-end signature in 11 of 11 and in 0 of 47 non-carrier evaluations |
+| Delly 1.3.3 versus Manta 1.6, preregistered: 40 deletions, 20 inversions, 40 tandem duplications spiked into real reads, 3 depths | deletions 108 vs 105 of 120, inversions 60 vs 60, duplications 118 vs 109 of 120, no false call for either; 200 real genomes: 1 call the long reads do not confirm ([validation/sv_delly](validation/sv_delly/README.md)) |
 | 40 tandem duplications of 1 to 20 kb spiked into real reads, 3 depths (preregistered) | outward read pairs 119 of 120 (Manta 109 of 120), no false call in 147 simulated analyses; 1 unconfirmed call in 200 real genomes ([validation/tandem_dup](validation/tandem_dup/README.md)) |
 
 Spiked variants are simulated variants in real reads, not patient samples. Single-sample CNVkit

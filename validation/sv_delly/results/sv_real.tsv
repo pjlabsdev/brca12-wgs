@@ -1,0 +1,215 @@
+sample	set	ontDeletions	inOntCohort	dellyFound	dellyUnconfirmed	dellyUnfilteredFound	dellyUnfilteredUnconfirmed	readpairsFound	readpairsUnconfirmed
+HG00114	200 frozen genomes	none	yes	0		0		0	
+HG00130	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG00149	200 frozen genomes	none	yes	0		0		0	
+HG00188	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG00235	200 frozen genomes	none	yes	0		0		0	
+HG00242	200 frozen genomes	none	yes	0		0		0	
+HG00252	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG00255	200 frozen genomes	none	yes	0		0		0	
+HG00313	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG00334	200 frozen genomes	none	yes	0		0		0	
+HG00368	200 frozen genomes	none	yes	0		0		0	
+HG00378	200 frozen genomes	none	yes	0		0		0	
+HG00409	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG00427	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG00513	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG00530	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG00651	200 frozen genomes	none	yes	0		0		0	
+HG01028	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01058	200 frozen genomes	none	yes	0		0		0	
+HG01072	200 frozen genomes	none	yes	0		0		0	
+HG01086	200 frozen genomes	none	yes	0		0		0	
+HG01107	200 frozen genomes	none	yes	0		0		0	
+HG01136	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01137	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01174	200 frozen genomes	none	yes	0		0		0	
+HG01278	200 frozen genomes	none	yes	0		0		0	
+HG01284	200 frozen genomes	none	yes	0		0		0	
+HG01286	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01323	real carrier list	none	unknown	0	DEL:chr17:43071727-43072707	0	DEL:chr13:32386567-32386598;DEL:chr17:43071727-43072707	0	
+HG01344	200 frozen genomes	none	yes	0		0		0	
+HG01345	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01347	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01348	200 frozen genomes	none	yes	0		0		0	
+HG01356	200 frozen genomes	none	yes	0		0		0	
+HG01375	200 frozen genomes	none	yes	0		0		0	
+HG01384	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01393	real carrier list	none	unknown	0	DEL:chr17:43071727-43072707	0	DEL:chr17:43071727-43072707	0	
+HG01395	real carrier list	none	unknown	0	DEL:chr17:43071727-43072707	0	DEL:chr13:32386567-32386598;DEL:chr17:43071727-43072707	0	
+HG01474	200 frozen genomes	none	yes	0		0		0	
+HG01506	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01513	200 frozen genomes	none	yes	0		0		0	
+HG01527	200 frozen genomes	none	yes	0		0		0	
+HG01550	200 frozen genomes	none	yes	0		0		0	
+HG01551	200 frozen genomes	none	yes	0		0		0	
+HG01566	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01577	200 frozen genomes	chr17:43088267-43088322	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01589	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01595	200 frozen genomes	none	yes	0		0		0	
+HG01608	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01617	200 frozen genomes	chr17:43118974-43119377	yes	0		0		0	
+HG01676	200 frozen genomes	none	yes	0		0		0	
+HG01694	200 frozen genomes	none	yes	0		0		0	
+HG01773	200 frozen genomes	none	yes	0		0		0	
+HG01779	200 frozen genomes	none	yes	0		0		0	
+HG01786	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01796	real carrier list	none	unknown	0		0	DEL:chr13:32386567-32386598	0	
+HG01806	200 frozen genomes	none	yes	0		0		0	
+HG01853	200 frozen genomes	none	yes	0		0		0	
+HG01859	200 frozen genomes	none	yes	0		0		0	
+HG01873	200 frozen genomes	none	yes	0		0		0	
+HG01923	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01932	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01935	200 frozen genomes	none	yes	0		0		0	
+HG01942	200 frozen genomes	chr17:43100607-43100658	yes	0		0		0	
+HG01948	200 frozen genomes	none	yes	0		0		0	
+HG01988	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG01990	real carrier list	chr17:43071728-43072708	yes	1		1		0	
+HG01997	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02017	200 frozen genomes	none	yes	0		0		0	
+HG02031	200 frozen genomes	none	yes	0		0		0	
+HG02064	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02067	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02069	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02111	200 frozen genomes	none	yes	0		0		0	
+HG02128	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02156	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02180	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02182	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02184	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02224	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02277	200 frozen genomes	none	yes	0		0		0	
+HG02285	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02410	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02429	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02445	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02496	200 frozen genomes	none	yes	0		0		0	
+HG02522	200 frozen genomes	none	yes	0		0		0	
+HG02602	real carrier list	none	unknown	0	DEL:chr17:43045922-43046229	0	DEL:chr17:43045922-43046229	0	DEL:chr17:43045959-43046229
+HG02611	200 frozen genomes	none	yes	0		0		0	
+HG02634	real carrier list	chr17:43071728-43072708	yes	1		1		0	
+HG02657	200 frozen genomes	none	yes	0		0		0	
+HG02688	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02721	200 frozen genomes	none	yes	0		0		0	
+HG02728	200 frozen genomes	chr17:43100607-43100658	yes	0		0		0	
+HG02737	200 frozen genomes	none	yes	0		0		0	
+HG02768	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02789	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02895	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG02938	200 frozen genomes	none	yes	0		0		0	
+HG02944	200 frozen genomes	none	yes	0		0		0	
+HG02970	200 frozen genomes	none	yes	0		0		0	
+HG02976	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03009	200 frozen genomes	none	yes	0		0		0	
+HG03048	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03074	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03086	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03097	200 frozen genomes	none	yes	0		0		0	
+HG03111	200 frozen genomes	none	yes	0		0		0	
+HG03114	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03172	real carrier list	chr17:43071728-43072708	yes	1		1		0	
+HG03212	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03228	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03240	200 frozen genomes	none	yes	0		0		0	
+HG03247	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03311	200 frozen genomes	none	yes	0		0		0	
+HG03372	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03388	200 frozen genomes	none	yes	0		0		0	
+HG03437	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03439	200 frozen genomes	chr17:43071728-43072708	yes	1		1	DEL:chr13:32386567-32386598	0	
+HG03442	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03455	real carrier list	chr17:43071728-43072708	yes	1		1		0	
+HG03461	200 frozen genomes	none	yes	0		0		0	
+HG03499	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03518	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03548	200 frozen genomes	none	yes	0		0		0	
+HG03577	200 frozen genomes	none	yes	0		0		0	
+HG03593	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03600	200 frozen genomes	none	yes	0		0		0	
+HG03708	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03722	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03730	200 frozen genomes	none	yes	0		0		0	
+HG03742	200 frozen genomes	none	yes	0		0		0	
+HG03746	200 frozen genomes	none	yes	0		0		0	
+HG03780	200 frozen genomes	none	yes	0		0		0	
+HG03781	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03784	200 frozen genomes	none	yes	0		0		0	
+HG03793	200 frozen genomes	none	yes	0		0		0	
+HG03802	200 frozen genomes	chr17:43114231-43114351	yes	0	DEL:chr17:43112256-43114343	0	DEL:chr17:43112256-43114343	0	DEL:chr17:43112257-43114349
+HG03821	200 frozen genomes	none	yes	0		0		0	
+HG03836	200 frozen genomes	none	yes	0		0		0	
+HG03844	200 frozen genomes	none	yes	0		0		0	
+HG03848	200 frozen genomes	none	yes	0		0		0	
+HG03870	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03871	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG03888	200 frozen genomes	none	yes	0		0		0	
+HG03904	200 frozen genomes	none	yes	0		0		0	
+HG03973	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG04014	200 frozen genomes	none	yes	0		0		0	
+HG04147	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598;DEL:chr17:43101190-43101217	0	
+HG04177	200 frozen genomes	none	yes	0		0		0	
+HG04180	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG04200	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+HG04227	200 frozen genomes	none	yes	0		0		0	
+NA06989	200 frozen genomes	none	yes	0		0		0	
+NA07014	200 frozen genomes	none	yes	0		0		0	
+NA10859	200 frozen genomes	none	yes	0		0		0	
+NA12890	200 frozen genomes	none	yes	0		0		0	
+NA18520	200 frozen genomes	none	yes	0		0		0	
+NA18528	200 frozen genomes	chr17:43100607-43100658	yes	0		0		0	
+NA18544	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA18552	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA18565	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA18570	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA18592	200 frozen genomes	none	yes	0		0		0	
+NA18595	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA18868	200 frozen genomes	none	yes	0		0		0	
+NA18940	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA18941	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA18947	200 frozen genomes	none	yes	0		0	DEL:chr13:32355641-32355685;DEL:chr13:32386567-32386598	0	
+NA18953	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA18960	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA18965	200 frozen genomes	none	yes	0		0		0	
+NA19001	200 frozen genomes	none	yes	0		0		0	
+NA19003	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA19017	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA19019	real carrier list	chr17:43071728-43072708	yes	1		1		0	
+NA19043	200 frozen genomes	none	yes	0		0		0	
+NA19128	200 frozen genomes	none	yes	0		0		0	
+NA19144	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA19153	200 frozen genomes	none	yes	0		0		0	
+NA19207	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA19328	real carrier list	chr17:43071728-43072708	yes	1		1		0	
+NA19351	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA19385	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA19391	200 frozen genomes	none	yes	0		0		0	
+NA19393	200 frozen genomes	none	yes	0		0		0	
+NA19399	real carrier list	chr17:43071728-43072708	yes	1		1		0	
+NA19449	200 frozen genomes	none	yes	0		0		0	
+NA19734	200 frozen genomes	none	yes	0		0		0	
+NA19789	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA19818	200 frozen genomes	none	yes	0		0		0	
+NA19819	200 frozen genomes	chr17:43071728-43072708	yes	1		1		0	
+NA19900	200 frozen genomes	none	yes	0		0		0	
+NA19901	real carrier list	chr17:43071728-43072708	yes	1		1		0	
+NA19909	200 frozen genomes	none	yes	0		0		0	
+NA20278	200 frozen genomes	none	yes	0		0		0	
+NA20289	200 frozen genomes	none	yes	0		0		0	
+NA20298	200 frozen genomes	none	yes	0		0		0	
+NA20334	real carrier list	chr17:43071728-43072708	yes	1		1		0	
+NA20348	200 frozen genomes	none	yes	0		0		0	
+NA20357	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA20359	200 frozen genomes	none	yes	0		0		0	
+NA20530	200 frozen genomes	none	yes	0		0		0	
+NA20540	200 frozen genomes	none	yes	0		0		0	
+NA20761	200 frozen genomes	none	yes	0		0	DEL:chr13:32386567-32386598	0	
+NA20764	200 frozen genomes	none	yes	0		0		0	
+NA20775	200 frozen genomes	none	yes	0		0		0	
+NA20813	200 frozen genomes	chr17:43100607-43100658	yes	0		0		0	
+NA20846	200 frozen genomes	none	yes	0		0		0	
+NA20888	200 frozen genomes	none	yes	0		0		0	
+NA20896	200 frozen genomes	none	yes	0		0		0	
+NA21103	200 frozen genomes	none	yes	0		0		0	
+NA21114	200 frozen genomes	none	yes	0		0		0	
+NA21117	200 frozen genomes	none	yes	0		0		0	

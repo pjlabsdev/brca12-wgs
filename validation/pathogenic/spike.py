@@ -294,6 +294,9 @@ def load_events(args, sample):
                     edits[gene].append((start - ws, end - start + 1, ""))
                 elif kind == "LDUP":
                     edits[gene].append((end + 1 - ws, 0, fetch(args.reference, chrom, start, end)))
+                elif kind == "LINV":
+                    seg = fetch(args.reference, chrom, start, end).upper()
+                    edits[gene].append((start - ws, end - start + 1, seg[::-1].translate(str.maketrans("ACGTN", "TGCAN"))))
                 elif kind == "ALU":
                     if getattr(args, "alu_sequence", None):
                         with open(args.alu_sequence) as handle:
