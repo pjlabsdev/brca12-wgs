@@ -54,6 +54,20 @@ def cnv_segments(cns_path, cnr_path, regions, exons):
     return results
 
 
+def dosage_baseline(exons, medians, min_fraction=0.25):
+    """Is the chromosome median a usable baseline for the per-exon dosage? It is not when it lies far
+    below the typical exon depth, e.g. when only the gene regions were read. Returns (ok, info)."""
+    depths = sorted(e["meanDepth"] for e in exons if e.get("meanDepth"))
+    if not depths or not medians:
+        return True, {}
+    median_exon = depths[len(depths) // 2]
+    for chrom in sorted({e["chrom"] for e in exons}):
+        baseline = medians.get(chrom)
+        if baseline is not None and baseline < min_fraction * median_exon:
+            return False, {"chromosome": chrom, "chromosomeMedian": baseline, "medianExonDepth": median_exon}
+    return True, {"medianExonDepth": median_exon}
+
+
 def exon_dosage_hints(exons, low=0.65, high=1.35):
     """Exon depth relative to the chromosome median. A heterozygous deletion halves the depth and
     thereby also makes the exon "unsicher" (low depth), so such exons must not be skipped."""

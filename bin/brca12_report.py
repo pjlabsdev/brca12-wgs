@@ -170,7 +170,13 @@ def build(args):
     for cnv in cnvs:
         add_exon_event_codes(cnv, "DEL" if cnv["type"] == "Deletion" else "DUP" if cnv["type"] == "Duplikation" else None,
                              cnv.get("affectedExons", []))
-    dosage_hints = structural.exon_dosage_hints(exons)
+    baseline_ok, baseline_info = structural.dosage_baseline(exons, medians)
+    if not baseline_ok:
+        # the chromosome median is no usable baseline (e.g. only the gene regions were read): no ratios,
+        # no hints, and a note in the limitations instead of one hint per exon
+        for exon in exons:
+            exon["dosageRatio"] = None
+    dosage_hints = structural.exon_dosage_hints(exons) if baseline_ok else []
     for item in dosage_hints:
         add_exon_event_codes(item, "DEL" if item["type"] == "möglicher Verlust" else "DUP", [item["exon"]])
     exon_cnv = load_exon_cnv(args.exon_cnv)
@@ -235,6 +241,7 @@ def build(args):
         "cnvs": [c for c in cnvs if c["type"] != "kein Hinweis"],
         "cnvSegmentsChecked": len(cnvs),
         "exonDosageHints": dosage_hints,
+        "exonDosageBaseline": dict(baseline_info, plausible=baseline_ok),
         "exonCopyNumber": exon_cnv,
         "svs": svs,
         "insertionSignals": structural.insertion_signals(args.insertion_signals, exons),
@@ -247,6 +254,10 @@ def build(args):
     if ion:
         result["limitations"].append("Ion Torrent: Insertionen und Deletionen in Homopolymeren sind mit GATK HaplotypeCaller unzuverlässig (plattformtypische Lesefehler); Mosaik-Kandidaten werden nur für SNVs gemeldet.")
         result["limitationsEN"].append("Ion Torrent: insertions and deletions in homopolymers are unreliable with GATK HaplotypeCaller (platform-specific read errors); mosaic candidates are reported for SNVs only.")
+    if not baseline_ok:
+        b = baseline_info
+        result["limitations"].append(f"Exonweise Dosis abgeschaltet: Der Median von {b['chromosome']} ({b['chromosomeMedian']:g}x) liegt weit unter der mittleren Exon-Tiefe ({b['medianExonDepth']:g}x), etwa weil nur die Genregionen eingelesen wurden.")
+        result["limitationsEN"].append(f"Per-exon dosage switched off: the median of {b['chromosome']} ({b['chromosomeMedian']:g}x) lies far below the typical exon depth ({b['medianExonDepth']:g}x), for example because only the gene regions were read.")
     if result["input"]["singleEnd"]:
         result["limitations"].append("Einzel-Reads (single-end): Der SV-Rufer (Delly oder Manta) wurde übersprungen, strukturelle Varianten werden nicht gesucht; Duplikate lassen sich nur nach Startposition erkennen.")
         result["limitationsEN"].append("Single-end reads: the SV caller (Delly or Manta) was skipped, structural variants are not searched; duplicates can only be recognised by start position.")

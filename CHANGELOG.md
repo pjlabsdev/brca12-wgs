@@ -2,6 +2,9 @@
 
 ## Unreleased (1.1.0)
 
+- Per-exon dosage: when the chromosome median lies below a quarter of the median exon depth (for
+  example when only the gene regions were read), the ratios and hints are switched off with a
+  limitation instead of one hint per exon (`exonDosageBaseline`).
 - Small variants: before HaplotypeCaller and Mutect2 the reads of the calling regions are written to
   a BAM in which soft-clipped poly-G read-through tails (two-colour chemistry) are hard-clipped
   (`bin/brca12_clip_polyg.py`). GATK assembles soft-clipped bases and made a false three-record
