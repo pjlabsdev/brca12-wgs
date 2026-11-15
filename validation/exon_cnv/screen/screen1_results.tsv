@@ -1,0 +1,4 @@
+sample	tier	gene	type	exons	quality	mean_log2	exon_span	depth_ratio	breakpoint_pairs	max_edge_clips	status	posthoc_local_outward_pairs
+HG01917	hint	BRCA1	Duplikation	Exon 8 (Legacy 9)	5	0.549	chr17:43097244-43097289	1.24	4	2	not confirmed	0
+HG01092	call	BRCA2	Deletion	Exon 26	13	-0.628	chr13:32396898-32397044	0.82	0	6	not confirmed	0
+HG02139	hint	BRCA1	Deletion	Exon 3	5	-0.709	chr17:43115726-43115779	0.81	0	1	not confirmed	0
