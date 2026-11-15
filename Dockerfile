@@ -29,4 +29,4 @@ RUN set -e; \
     v samtools --version; v bcftools --version; v mosdepth --version; v cnvkit.py version; \
     out=$(gatk --version 2>&1 || true); printf '%s\n' "$out" | grep "Genome Analysis Toolkit"; \
     out=$(vep --help 2>&1 || true); printf '%s\n' "$out" | grep ensembl-vep; \
-    v /opt/conda/envs/manta/bin/configManta.py --version; v ps --version
+    v delly --version; v /opt/conda/envs/manta/bin/configManta.py --version; v ps --version

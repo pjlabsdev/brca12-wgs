@@ -2,6 +2,10 @@
 
 ## Unreleased (1.1.0)
 
+- Structural variants: Delly 1.3.3 is the default SV caller (`--sv_caller delly|manta`); it runs
+  natively on Apple Silicon. PASS calls with a non-reference genotype; DEL/DUP/INV need both ends in
+  the search windows (genes +/- `--sv_padding`) and at least 50 bp, as Manta's call regions
+  (`bin/brca12_filter_sv.py`). Manta 1.6 remains available. Report reads Delly DR/DV and RR/RV.
 - Report languages: English and German only; the Russian report language (`--report_lang ru`,
   added earlier in this release cycle) has been removed.
 - Tandem duplications from outward-facing read pairs (`insertionSignals[]`, type

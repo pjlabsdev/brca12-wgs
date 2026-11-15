@@ -42,7 +42,7 @@ elif name=="gatk":
     touch(o+".tbi")
 elif name=="bcftools":
     if a[0]=="--version": print("bcftools 1.21"); sys.exit(0)
-    o=opt("-o"); srcs=[x for x in a if x.endswith(".vcf.gz") and x!=o]
+    o=opt("-o"); srcs=[x for x in a if x.endswith((".vcf.gz", ".bcf")) and x!=o]
     lines=open(srcs[-1]).read().splitlines(True) if srcs and a[-1]!="-" else sys.stdin.read().splitlines(True)
     if a[0]=="view" and "-R" in a:
         bed=open(opt("-R")).read().split()
@@ -64,6 +64,10 @@ elif name=="vep":
             c=["-","frameshift_variant","HIGH",g,"E","Transcript","ENST00000357654","protein_coding","10/23","","c.3000del","p.Ser1000fs","deletion","YES","NM_007294.4","1","","","","","Pathogenic","reviewed_by_expert_panel","Hereditary_breast_ovarian_cancer_syndrome",""] if g=="BRCA1" else ["G","synonymous_variant","LOW",g,"E","Transcript","ENST00000380152","protein_coding","11/27","","c.4000A>G","p.=","SNV","YES","NM_000059.4","1","0.3","","","","Benign","reviewed_by_expert_panel","not_specified",""]
             f[7]+=";CSQ="+"|".join(c); out.append("\t".join(f)+"\n")
     open(o,"w").writelines(out)
+elif name=="delly":
+    if "--version" in a: sys.stderr.write("Delly version: v1.3.3\n"); sys.exit(0)
+    open(opt("-o"),"w").write("##fileformat=VCFv4.2\n##source=DELLY\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS\n"
+        "chr17\t43090000\tDEL00000001\tN\t<DEL>\t500\tPASS\tPRECISE;SVTYPE=DEL;END=43096000;PE=8;SR=6\tGT:DR:DV:RR:RV\t0/1:20:8:15:6\n")
 elif name=="configManta.py":
     if "--version" in a: print("1.6.0"); sys.exit(0)
     rd=opt("--runDir"); os.makedirs(rd,exist_ok=True)

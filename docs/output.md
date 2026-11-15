@@ -8,7 +8,7 @@ brca12_results/
   brca12_commands.sh        every executed command, verbatim
   qc/reference_check.json   GRCh38 check, regions and exon counts
   alignment/                BAM + index + duplicate stats (FASTQ input only)
-  calls/                    raw HaplotypeCaller/DeepVariant, Manta and CNVkit output
+  calls/                    raw HaplotypeCaller/DeepVariant, Delly or Manta and CNVkit output
   variants/                 per-gene VEP-annotated VCFs (BRCA1, BRCA2)
   coverage/                 mosdepth tables and per-base depth inside the genes
   pipeline_info/            Nextflow trace, timeline and report
@@ -30,11 +30,11 @@ downstream parsers do not depend on the report language. Main fields:
 | `exonDosageHints[]` | exons whose depth ratio to the chromosome median is < 0.65 or > 1.35 |
 | `exonCopyNumber` | exon copy number against a reference cohort: `enabled` (false without a panel for the assay, with `reason`), `panel`, `panelSize`, `pad`, `minQuality`, `normaliserDepth`, `exons[]` (`log2Deviation`, `z`, `copyNumber`, `pTwoCopies`) and `calls[]` (`type` Deletion or Duplikation, `copyNumber`, `exons`, `affectedExons`, `quality`, `meanLog2Deviation`, `flags`, `enigmaCodes`), `hints[]` (same fields, quality 5 to 9), `hintQuality`, `alleleBalance`, `hetSitesUsed`; calls and hints also appear in the CNV table of the report |
 | `insertionSignals[]` | insertion signatures from soft-clipped read ends inside the genes (two clip positions facing each other, overlap 0 to 30 bp, clipped sequence with Alu k-mers; `type` Insertionssignatur) and extra tandem repeat copies (clips at both borders of a repeat unit pointing to the same length, `duplicatedLength`, `type` Tandemkopie-Signatur; for the known 126 bp copy upstream of BRCA1 exon 1 also `markerPosition`, `markerReads`, `evidence` (2 of: clipped reads, marker base, haplotype), `haplotypeTags`, `haplotypeCopies`, `realignedReads` from allele realignment; the known BRCA2 Alu allele also has `zygosity`; known alleles from the catalog have `label`, `realignedReads`, `zygosity` (`unknown` for a tandem duplication), `clinicalSignificance` (`pathogenic` for the founder rearrangements, `type` Bekannte pathogene Insertion, Deletion or Duplikation) and for duplications `discordantPairs`); tandem duplications from outward-facing read pairs (`signature` tandem duplication, `type` Tandemduplikation (Lesepaare), `outwardPairs`, `splitReads`, `duplicatedLength`, `breakpointPrecision` approximate); hints, not calls |
-| `svs[]` | Manta calls with a breakpoint in a gene (`type`, `pos`, `end`, mate, `PR`/`SR`, flags) |
+| `svs[]` | SV calls with a breakpoint in a gene (`caller` Delly or Manta, `type`, `pos`, `end`, mate, `pairedReads` and `splitReads` as reference,alternative: Manta PR/SR, Delly DR,DV and RR,RV; `length`, flags) |
 | `exonCoverage[]` | per exon: mean depth, % ≥ 10/20/30x, MAPQ < 20 fraction, dosage ratio, `status`, `reasons[]` |
 | `lowCoverageIntervals[]` | intervals below `--low_depth` inside the genes |
 | `assay`, `platform` | `wgs`/`exome`/`panel`/`amplicon`; `illumina`/`iontorrent` |
-| `input.singleEnd` | `true` for single-end FASTQ (Manta skipped) |
+| `input.singleEnd` | `true` for single-end FASTQ (SV caller skipped) |
 | `readQC` | `regionStats` (reads, mapped/paired/duplicate/MAPQ-0 %, insert size, error rate, read length, base quality), for targeted assays `targets[]` (mean/min depth, % ≥ 20x, `status`) and `targetSummary` (mean depth, % ≥ 20x, `uniformityPct`, `fold80BasePenalty`, `onTargetReadPct`, `weakTargetCount`), for amplicons `primerClipping`, and `flags[]` |
 | `mosaicCalling`, `mosaicCandidates[]` | settings of `--mosaic` and Mutect2 calls between the allele-fraction limits that the germline caller did not report; same fields as `smallVariants[]`, `genotype` = `Mosaik-Kandidat` |
 | `toolVersions` | versions that actually ran |

@@ -1,4 +1,4 @@
-"""CNV-Kandidaten (CNVkit) und strukturelle Varianten (Manta) in BRCA1/BRCA2."""
+"""CNV-Kandidaten (CNVkit) und strukturelle Varianten (Delly, Standard, oder Manta) in BRCA1/BRCA2."""
 import json
 import re
 
@@ -112,8 +112,14 @@ def structural_variants(path, regions, exons):
         if not genes:
             continue
         sample = record["sample"]
-        pr = sample.get("PR", "")
-        sr = sample.get("SR", "")
+        # Manta: PR/SR = reference,alternative read pairs / split reads. Delly: DR,DV (pairs) and RR,RV
+        # (junction reads) in the same reference,alternative order.
+        delly = "DV" in sample or "RV" in sample
+        pr = (f"{sample.get('DR', '0')},{sample.get('DV', '0')}" if delly else sample.get("PR", ""))
+        sr = (f"{sample.get('RR', '0')},{sample.get('RV', '0')}" if delly else sample.get("SR", ""))
+        length = to_int(str(info.get("SVLEN", "")).lstrip("-"))
+        if length is None and svtype not in ("BND", "INS") and end > pos:
+            length = end - pos
         for gene in sorted(genes):
             flags = []
             if record["filter"] not in ("PASS", "."):
@@ -128,11 +134,11 @@ def structural_variants(path, regions, exons):
                 "gene": gene, "id": record["id"], "type": svtype, "chrom": chrom, "pos": pos,
                 "end": end if svtype != "BND" else None,
                 "mateChrom": mate_chrom, "matePos": mate_pos,
-                "length": to_int(str(info.get("SVLEN", "")).lstrip("-")),
+                "length": length,
                 "genotype": sample.get("GT"), "pairedReads": pr or None, "splitReads": sr or None,
                 "filter": record["filter"],
                 "affectedExons": _affected_exons(chrom, pos, end, exons, gene),
-                "caller": "Manta", "flags": flags,
+                "caller": "Delly" if delly else "Manta", "flags": flags,
             })
     # Two breakends a few bases apart whose mates lie elsewhere are the signature of an insertion
     # of foreign sequence (e.g. a mobile element such as Alu); Manta cannot name it as INS.

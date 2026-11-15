@@ -7,7 +7,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 FAKE="$WORK/fake"; mkdir -p "$FAKE"
-for tool in bwa samtools gatk bcftools tabix bgzip vep configManta.py cnvkit.py mosdepth; do
+for tool in bwa samtools gatk bcftools tabix bgzip vep configManta.py delly cnvkit.py mosdepth; do
   ln -s "$ROOT/tests/fake_tools/faketool.py" "$FAKE/$tool"
 done
 cd "$WORK"
@@ -22,7 +22,7 @@ PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
 for f in brca12_report.html brca12_report.md brca12_results.json brca12_commands.sh brca12_report.xlsx; do
   test -s "$WORK/out/$f" || { echo "missing $f"; exit 1; }
 done
-python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['schema']=='genome.brca12.v1'; assert r['genes']['BRCA1']['smallVariants']; assert r['readQC']['regionStats']['readsInRegions']==1000; assert 'exonCopyNumber' in r and 'exonCopyNumberCallCount' in r['summary']; print('stub pipeline (WGS) OK')" "$WORK/out/brca12_results.json"
+python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['schema']=='genome.brca12.v1'; assert r['genes']['BRCA1']['smallVariants']; assert r['readQC']['regionStats']['readsInRegions']==1000; assert 'exonCopyNumber' in r and 'exonCopyNumberCallCount' in r['summary']; assert any(s['caller']=='Delly' for s in r['svs']), r['svs']; assert r['toolVersions'].get('delly')=='v1.3.3', r['toolVersions']; print('stub pipeline (WGS) OK')" "$WORK/out/brca12_results.json"
 
 # Single-end amplicon panel with primer clipping, target QC and mosaic candidates.
 printf "chr17\t43044900\t43045200\tBRCA1_amp1\nchr13\t32315400\t32315700\tBRCA2_amp1\n" > targets.bed

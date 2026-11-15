@@ -30,7 +30,7 @@ validation (last row).
 | SNVs/indels | GATK 4 HaplotypeCaller or DeepVariant | Pisces (default), GATK 3 UnifiedGenotyper or FreeBayes, GATK 3 realignment/BQSR |
 | Low allele fraction | mosaic candidates with GATK Mutect2 (`--mosaic`), validated by spike-ins | Pisces calls low fractions |
 | CNVs | CNVkit (WGS, hybrid or amplicon mode, optional pooled normal reference) and per-exon dosage | none |
-| Structural variants | Manta, plus read-end signatures for Alu insertions and extra tandem repeat copies, and read-pair tandem duplications | none |
+| Structural variants | Delly 1.3.3 (default) or Manta 1.6 (`--sv_caller manta`), plus read-end signatures for Alu insertions and extra tandem repeat copies, and read-pair tandem duplications | none |
 | Annotation | Ensembl VEP (MANE Select, HGVS, gnomAD, SIFT/PolyPhen), your ClinVar VCF, optional SpliceAI/BayesDel | ANNOVAR (licence required), snpEff, ClinVar 2016 bundled |
 | Legacy names | BIC-style names (e.g. 185delAG, 5382insC, 6174delT) computed from the MANE CDS | BIC names from the bundled BIC database |
 | ACMG/AMP | hints per ClinGen ENIGMA v1.2 criterion incl. ENIGMA tables 4 and 9, never a classification | class from ClinVar/BIC |
@@ -113,7 +113,8 @@ or without `chr`). Only targets that overlap BRCA1/BRCA2 are used.
   the median exon depth of both genes as baseline, so a whole-gene loss stays visible.
   The exon copy-number model against a reference cohort needs a panel of normal samples of the same
   assay (`brca12lib.exon_cnv.build_panel`); without one (`--exon_cnv_panel`) it is switched off.
-- **Structural variants:** Manta in exome mode; skipped for single-end reads.
+- **Structural variants:** Delly (default) on the targeted reads, or Manta in exome mode
+  (`--sv_caller manta`); skipped for single-end reads.
 - **Coverage:** every target with mean and minimum depth and share of bases ≥ 20x; targets below
   `--min_target_depth` (30x) are listed. Summary: uniformity (share of target bases with at least
   0.2 x the mean depth), fold-80 base penalty, on-target rate and, for amplicons, the share of reads
@@ -144,7 +145,7 @@ germline variants. They always need confirmation by an orthogonal method; detect
 | Read and target QC | samtools stats/idxstats/depth | `qc/read_qc.json` |
 | SNVs/indels | GATK HaplotypeCaller (default) or DeepVariant (`--snv_caller deepvariant`) | `calls/<sample>.small.vcf.gz` |
 | Mosaic candidates (`--mosaic`) | GATK Mutect2 + FilterMutectCalls | `calls/<sample>.mosaic.vcf.gz` |
-| Structural variants | Manta, breakpoints within ±1 Mb of the genes | `calls/<sample>.manta.diploidSV.vcf.gz` |
+| Structural variants | Delly (default; PASS, non-reference genotype, both ends of DEL/DUP/INV within ±1 Mb of the genes, at least 50 bp) or Manta (`--sv_caller manta`, breakpoints within ±1 Mb) | `calls/<sample>.delly.sv.vcf.gz` or `calls/<sample>.manta.diploidSV.vcf.gz` |
 | CNVs | CNVkit (WGS, hybrid or amplicon; flat or `--cnv_reference`), plus per-exon dosage and, for WGS, exon copy number against an 80-genome reference cohort (`--exon_cnv_panel`, HMM over exons; `validation/exon_cnv/`) | `calls/cnvkit/`, `coverage/exon_cnv.json` |
 | Per-gene extraction | bcftools norm/view with `brca12_regions.bed` | `variants/BRCA1.*`, `variants/BRCA2.*` |
 | Annotation | Ensembl VEP (MANE, gnomAD, HGVS) + ClinVar (`--custom`) | `variants/*.vep.vcf.gz` |
@@ -239,8 +240,9 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
 
 ## Reproducibility
 
-- Pinned versions in `envs/brca12.yml` and `envs/manta.yml` (Manta 1.6 needs Python 2.7; on Apple
-  Silicon use `CONDA_SUBDIR=osx-64`).
+- Pinned versions in `envs/brca12.yml` (including Delly 1.3.3, native on Apple Silicon) and
+  `envs/manta.yml` (optional Manta 1.6, Python 2.7; its osx-64 package ships Linux binaries, so on a
+  Mac run Manta from the container `quay.io/biocontainers/manta:1.6.0--h9ee0642_2`).
 - The report lists the tool versions that actually ran.
 - `brca12_commands.sh` contains every executed command verbatim; `pipeline_info/` holds the
   Nextflow trace, timeline and report.
