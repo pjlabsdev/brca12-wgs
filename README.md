@@ -240,7 +240,8 @@ spelling (for example `343del4` instead of `343delAAAG`). HGVS remains the refer
 
 ## Reproducibility
 
-- Pinned versions in `envs/brca12.yml` (including Delly 1.3.3, native on Apple Silicon) and
+- Pinned versions in `envs/brca12.yml`, `envs/delly.yml` (Delly 1.3.3, native on Apple Silicon; its
+  own environment because it needs a newer zlib than the VEP 113 perl stack) and
   `envs/manta.yml` (optional Manta 1.6, Python 2.7; its osx-64 package ships Linux binaries, so on a
   Mac run Manta from the container `quay.io/biocontainers/manta:1.6.0--h9ee0642_2`).
 - The report lists the tool versions that actually ran.
