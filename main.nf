@@ -59,6 +59,7 @@ params.deepvariant = 'run_deepvariant'
 params.manta_config = 'configManta.py'
 params.delly     = 'delly'
 params.cnvkit    = 'cnvkit.py'
+params.rscript   = null       // Rscript with Bioconductor DNAcopy for CNVkit; default: next to cnvkit, else PATH
 params.vep       = 'vep'
 params.mosdepth  = 'mosdepth'
 params.python    = 'python3'
@@ -424,29 +425,50 @@ process CALL_CNV_CNVKIT {
     // --cnv_reference a reference built from normal samples of the same assay replaces the flat one.
     def method = params.assay == 'wgs' ? 'wgs' : params.assay == 'amplicon' ? 'amplicon' : 'hybrid'
     def useReference = cnv_reference.name != 'NO_CNV_REFERENCE'
+    // CNVkit segments with R (DNAcopy). Another Rscript earlier on PATH (for example a conda base
+    // without DNAcopy) made batch silently skip segmentation: with -p it does not pass on errors of
+    // its worker processes. Rscript is therefore resolved explicitly and checked before the run, and
+    // the outputs are checked afterwards.
+    def rscript = params.rscript ?: ''
     """
     set -euo pipefail
+    RSCRIPT="${rscript}"
+    if [ -z "\$RSCRIPT" ]; then
+      CNVKIT_BIN=\$(dirname "\$(command -v ${params.cnvkit} || true)")
+      if [ -x "\$CNVKIT_BIN/Rscript" ]; then RSCRIPT="\$CNVKIT_BIN/Rscript"; else RSCRIPT=Rscript; fi
+    fi
+    if ! "\$RSCRIPT" --no-restore --no-environ -e 'suppressMessages(library(DNAcopy))' > rscript_check.log 2>&1; then
+      cat rscript_check.log >&2
+      echo "ERROR: CNVkit needs R with the Bioconductor package DNAcopy; '\$RSCRIPT' cannot load it. Install DNAcopy in that R or pass --rscript /path/to/Rscript." >&2
+      exit 1
+    fi
     ${params.cnvkit} access ${reference} -o access.bed
     ${params.python} ${projectDir}/bin/brca12_prepare.py --cnv-targets ${reference_check} \\
       --cnv-access access.bed --out-cnv-targets wgs_regions.bed
     if [ "${useReference}" = "true" ]; then
       ${params.cnvkit} batch ${bam} --reference ${cnv_reference} --method ${method} \\
-        --drop-low-coverage --output-dir cnvkit -p ${task.cpus}
+        --drop-low-coverage --output-dir cnvkit -p ${task.cpus} --rscript-path "\$RSCRIPT"
     elif [ "${method}" = "wgs" ]; then
       # In WGS mode CNVkit requires the same BED for --targets and --access.
       ${params.cnvkit} batch ${bam} --method wgs --normal --fasta ${reference} \\
         --targets wgs_regions.bed --access wgs_regions.bed --target-avg-size 1000 \\
         --drop-low-coverage \\
-        --output-reference flat_reference.cnn --output-dir cnvkit -p ${task.cpus}
+        --output-reference flat_reference.cnn --output-dir cnvkit -p ${task.cpus} --rscript-path "\$RSCRIPT"
     elif [ "${method}" = "hybrid" ]; then
       ${params.cnvkit} batch ${bam} --method hybrid --normal --fasta ${reference} \\
         --targets ${targets} --access wgs_regions.bed --drop-low-coverage \\
-        --output-reference flat_reference.cnn --output-dir cnvkit -p ${task.cpus}
+        --output-reference flat_reference.cnn --output-dir cnvkit -p ${task.cpus} --rscript-path "\$RSCRIPT"
     else
       ${params.cnvkit} batch ${bam} --method amplicon --normal --fasta ${reference} \\
         --targets ${targets} --drop-low-coverage \\
-        --output-reference flat_reference.cnn --output-dir cnvkit -p ${task.cpus}
+        --output-reference flat_reference.cnn --output-dir cnvkit -p ${task.cpus} --rscript-path "\$RSCRIPT"
     fi
+    for f in call.cns cnr; do
+      if [ ! -s "cnvkit/${bam.baseName}.\$f" ]; then
+        echo "ERROR: CNVkit batch finished without cnvkit/${bam.baseName}.\$f. With -p CNVkit does not report errors of its worker processes; run '${params.cnvkit} segment' on the .cnr to see the cause." >&2
+        exit 1
+      fi
+    done
     # CNVkit names its output after the BAM; rename unless the BAM is already called like the sample.
     if [ "${bam.baseName}" != "${params.sample}" ]; then
       mv cnvkit/${bam.baseName}.call.cns cnvkit/${params.sample}.call.cns
@@ -586,6 +608,8 @@ process TOOL_VERSIONS {
       echo -e "manta\\t\$(${params.manta_config} --version 2>/dev/null | tail -1)"
       echo -e "delly\\t\$(${params.delly} --version 2>&1 | awk '/Delly version/{print \$NF; exit}')"
       echo -e "cnvkit\\t\$(${params.cnvkit} version 2>/dev/null | tail -1)"
+      R_FOR_CNVKIT="${params.rscript ?: ''}"; [ -n "\$R_FOR_CNVKIT" ] || { d=\$(dirname "\$(command -v ${params.cnvkit} || true)"); [ -x "\$d/Rscript" ] && R_FOR_CNVKIT="\$d/Rscript" || R_FOR_CNVKIT=Rscript; }
+      echo -e "dnacopy\\t\$("\$R_FOR_CNVKIT" --no-restore --no-environ -e 'cat(as.character(packageVersion("DNAcopy")))' 2>/dev/null || true)"
       echo -e "ensembl-vep\\t\$(${params.vep} --help 2>/dev/null | awk '/ensembl-vep/{print \$NF; exit}')"
       echo -e "mosdepth\\t\$(${params.mosdepth} --version 2>/dev/null | awk '{print \$2}')"
       echo -e "python\\t\$(${params.python} --version 2>&1 | awk '{print \$2}')"
