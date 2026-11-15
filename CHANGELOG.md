@@ -2,6 +2,8 @@
 
 ## Unreleased (1.1.0)
 
+- Report languages: English and German only; the Russian report language (`--report_lang ru`,
+  added earlier in this release cycle) has been removed.
 - Tandem duplications from outward-facing read pairs (`insertionSignals[]`, type
   Tandemduplikation (Lesepaare)): at least 4 outward pairs or joining split reads, MAPQ >= 20,
   span 1 to 200 kb, independent of read depth. Preregistered test with 40 simulated exon-spanning

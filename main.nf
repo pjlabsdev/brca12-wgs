@@ -60,7 +60,7 @@ params.cnvkit    = 'cnvkit.py'
 params.vep       = 'vep'
 params.mosdepth  = 'mosdepth'
 params.python    = 'python3'
-params.report_lang = 'en'      // language of brca12_report.html/.md: en, de or ru
+params.report_lang = 'en'      // language of brca12_report.html/.md: en or de
 
 // Assay. 'wgs' (default) or targeted data: 'exome', 'panel' (hybrid capture) or 'amplicon'.
 params.assay            = 'wgs'

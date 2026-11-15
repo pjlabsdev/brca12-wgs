@@ -40,7 +40,7 @@ validation (last row).
 | Contamination | hint when a low-fraction variant is clearly present in another sample of the batch | same idea |
 | Figures | depth per exon and MLPA-like exon dosage plot per gene | amplicon uniformity |
 | Output | HTML, Markdown, PDF, Excel and JSON (schema `genome.brca12.v1`) | Excel, Word |
-| Report language | English, German, Russian (Russian not reviewed by a native speaker) | English, Russian |
+| Report language | English, German | English, Russian |
 | Reproducibility | Nextflow, pinned conda environments, Docker/Singularity image, every command and tool version in the report | Python script, Docker image |
 | Tests | unit tests and three full pipeline runs in CI | none in the repository |
 | Open validation | GIAB HG001/HG002 (WGS, 2 exomes, Ion AmpliSeq), real pathogenic carriers, spike-ins incl. mosaics, real SVs checked in ONT long reads, 39 HPRC samples against assembly-based truth; all scripts in `validation/` | example data only |
@@ -169,10 +169,8 @@ band 0.65 to 1.35, an MLPA-like view of possible exon losses or gains. Plain inl
 print; dosage outliers are candidates, not CNV calls.
 ## Report languages and PDF
 
-`--report_lang en|de|ru` sets the language of the HTML and Markdown report. **The Russian version is
-a machine-assisted translation that has not been reviewed by a native speaker**; the texts of the
-individual ACMG/AMP hints stay in English there. The JSON keeps German values (stable schema) and
-carries the disclaimer and limitations in all three languages.
+`--report_lang en|de` sets the language of the HTML and Markdown report. The JSON keeps German
+values (stable schema) and carries the disclaimer and limitations in both languages.
 
 `--report_pdf` also writes `brca12_report.pdf`, printed from the HTML report with headless
 Chrome/Chromium (`--chrome /path/to/chrome`, otherwise searched on `PATH` and in the usual macOS

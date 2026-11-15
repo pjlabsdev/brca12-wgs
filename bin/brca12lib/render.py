@@ -15,14 +15,9 @@ DISCLAIMER_EN = ("Research use only (RUO). These results must not be interpreted
                  "result does not rule out a hereditary BRCA1/BRCA2 predisposition.")
 
 
-DISCLAIMER_RU = ("Только для исследований (RUO). Эти результаты нельзя интерпретировать в медицинских целях без "
-                 "клинически валидированного подтверждения (аккредитованная лаборатория, например секвенирование по "
-                 "Сэнгеру или MLPA). Указания ACMG/AMP являются автоматическими подсказками по отдельным критериям, "
-                 "а не классификацией. Отсутствие находок не исключает наследственную предрасположенность BRCA1/BRCA2.")
-
 
 def disclaimer(lang):
-    return {"de": DISCLAIMER_DE, "ru": DISCLAIMER_RU}.get(lang, DISCLAIMER_EN)
+    return DISCLAIMER_DE if lang == "de" else DISCLAIMER_EN
 
 
 def _table(headers, rows, lang):
@@ -124,8 +119,6 @@ def sections(result, lang="en"):
 def _limitations(result, lang):
     if lang == "de":
         return result["limitations"]
-    if lang == "ru" and result.get("limitationsRU"):
-        return result["limitationsRU"]
     return result.get("limitationsEN", result["limitations"])
 
 

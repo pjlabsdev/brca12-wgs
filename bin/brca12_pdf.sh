@@ -23,6 +23,12 @@ trap 'rm -rf "$profile"' EXIT
 # Some Chromium builds keep running after printing; the timeout ends them (the PDF is already written).
 timeout "${BRCA12_PDF_TIMEOUT:-120}" "$chrome" --headless --disable-gpu --no-sandbox --no-first-run --user-data-dir="$profile" \
   --print-to-pdf="$pdf" "file://$abs" >/dev/null 2>&1 || true
+if [ ! -s "$pdf" ]; then
+  # Some builds (e.g. Chrome for Testing on macOS) hang with a fresh --user-data-dir and never print;
+  # retry once with the browser's default profile.
+  timeout "${BRCA12_PDF_TIMEOUT:-120}" "$chrome" --headless --disable-gpu --no-sandbox --no-first-run \
+    --print-to-pdf="$pdf" "file://$abs" >/dev/null 2>&1 || true
+fi
 if [ -s "$pdf" ]; then
   echo "[brca12] PDF report written: $pdf" >&2
 else
