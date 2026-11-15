@@ -296,6 +296,15 @@ part of BRCA1/BRCA2. Reads were taken from GIAB Illumina data at about 30-36x an
 | HG002 | 95/95 · 1.000 | 19/20 · 0.950 | 12/12 found, 0 FP |
 
 Both indel misses are genotype errors in intronic homopolymers at 12-14x, and the report flags both.
+
+Five more GIAB genomes (HG003 to HG007, two further ancestries) were tested with a plan frozen
+before the first run ([validation/giab_more](validation/giab_more/README.md)): all 94 exonic
+variants found, no false positive in the exons; in the whole gene loci 891 of 894 SNVs and 158 of
+160 indels. Two samples missed the preset SNV threshold of 0.99 (HG004 precision 0.977, HG005
+recall 0.988). The HG004 errors came from soft-clipped poly-G read ends and are fixed (such ends
+are now hard-clipped before calling); the three HG005 misses are intronic sites with 8 to 22 reads
+in 2x250 bp reads and remain.
+
 This is a targeted benchmark: reads were extracted around the genes and realigned to chr13/chr17
 only. Annotation and CNVs were not part of it, and neither sample carries a pathogenic variant.
 Method, the three discordant calls, limitations and a script to reproduce it are in

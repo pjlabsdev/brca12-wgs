@@ -2,6 +2,17 @@
 
 ## Unreleased (1.1.0)
 
+- Small variants: before HaplotypeCaller and Mutect2 the reads of the calling regions are written to
+  a BAM in which soft-clipped poly-G read-through tails (two-colour chemistry) are hard-clipped
+  (`bin/brca12_clip_polyg.py`). GATK assembles soft-clipped bases and made a false three-record
+  haplotype from such tails in GIAB HG004. The same step fixes CRAM input on which htsjdk fails
+  while converting the .crai ("Attempt to create a bai entry for an unmapped slice", for example
+  the 1000 Genomes 30x CRAMs).
+- GIAB HG003 to HG007, preregistered (`validation/giab_more/`): every exonic variant found (94 of
+  94), no false positive in the exons. Before the poly-G fix 891/894 SNVs with 3 false positives
+  and 158/160 indels with 1; two samples missed the 0.99 SNV threshold (HG004 precision 0.977,
+  HG005 recall 0.988). After it 1 SNV false positive and no indel false positive; HG005 still
+  misses three intronic SNVs in 2x250 bp reads.
 - Structural variants: Delly 1.3.3 is the default SV caller (`--sv_caller delly|manta`); it runs
   natively on Apple Silicon. PASS calls with a non-reference genotype; DEL/DUP/INV need both ends in
   the search windows (genes +/- `--sv_padding`) and at least 50 bp, as Manta's call regions
