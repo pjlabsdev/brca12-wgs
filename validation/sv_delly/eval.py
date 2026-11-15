@@ -67,7 +67,22 @@ def vcf_records(path):
                 out.append(("BND", f[0], a, b))
             elif t in ("DEL", "DUP", "INV", "INS"):
                 out.append((t, f[0], pos, int(info.get("END", pos))))
-    return [r for r in out if in_gene(r[1], r[2], r[3])]
+    return out
+
+
+def locus(records):
+    return [r for r in records if in_gene(r[1], r[2], r[3])]
+
+
+WINDOWS = [(c, s - 1000000, e + 1000000) for c, s, e in GENES]
+
+
+def window_filter(records):
+    """Pipeline filter after Delly (bin/brca12_filter_sv.py, ADDENDUM_filter.md)."""
+    def inside(c, p):
+        return any(c == wc and ws < p <= we for wc, ws, we in WINDOWS)
+    return [r for r in records if inside(r[1], r[2]) and
+            (r[0] == "BND" or (inside(r[1], r[3]) and r[3] - r[2] >= 50))]
 
 
 def ours(path):
@@ -105,8 +120,9 @@ def main():
         events = NEW.get(name) or TDUP.get(name) or SPIKE.get(name) or []
         group = "new test" if name in NEW else "tandem duplications (../tandem_dup)" if name in TDUP else \
             "earlier spike-ins (seen in tuning)"
-        arms = {"delly": vcf_records(os.path.join(out, "res", t + ".delly.vcf")),
-                "manta": vcf_records(os.path.join(out, "res", t + ".manta.vcf.gz")),
+        raw = vcf_records(os.path.join(out, "res", t + ".delly.vcf"))
+        arms = {"delly": locus(window_filter(raw)), "dellyUnfiltered": locus(raw),
+                "manta": locus(vcf_records(os.path.join(out, "res", t + ".manta.vcf.gz"))),
                 "readpairs": ours(path)}
         res = {k: score(v, events) for k, v in arms.items()}
         for i, e in enumerate(events or [None]):
@@ -142,7 +158,8 @@ def main():
     for path in sorted(glob.glob(os.path.join(out, "real", "*.json"))):
         s = os.path.basename(path)[:-5]
         truth = [e for e in ont.get(s, []) if e[0] in ("DEL", "INV")]
-        arms = {"delly": vcf_records(os.path.join(out, "real", s + ".delly.vcf")), "readpairs": ours(path)}
+        raw = vcf_records(os.path.join(out, "real", s + ".delly.vcf"))
+        arms = {"delly": locus(window_filter(raw)), "dellyUnfiltered": locus(raw), "readpairs": ours(path)}
         row = {"sample": s, "set": "real carrier list" if s in extra else "200 frozen genomes",
                "ontDeletions": ";".join(f"{c}:{a}-{b}" for _, c, a, b in truth) or "none",
                "inOntCohort": "yes" if s in ont or s not in extra else "unknown"}
@@ -172,7 +189,7 @@ def main():
             sub = [r for r in g if r["type"] == typ]
             if not sub:
                 continue
-            lines.append(f"  {typ}: Delly {rate(sub, 'delly')}, Manta {rate(sub, 'manta')}, read pairs {rate(sub, 'readpairs')}")
+            lines.append(f"  {typ}: Delly {rate(sub, 'delly')} (unfiltered {rate(sub, 'dellyUnfiltered')}), Manta {rate(sub, 'manta')}, read pairs {rate(sub, 'readpairs')}")
             for reads in ("all", "1/2", "1/3"):
                 s2 = [r for r in sub if r["reads"] == reads]
                 lines.append(f"    reads {reads}: Delly {rate(s2, 'delly')}, Manta {rate(s2, 'manta')}, read pairs {rate(s2, 'readpairs')}")
@@ -184,7 +201,7 @@ def main():
     n_an = len({r["test"] for r in fsim})
     lines.append("")
     lines.append(f"false calls in {n_an} simulated analyses (new test, tandem duplications, SPIKE_NEG/S1/S2): "
-                 f"Delly {sum(r['dellyFalse'] for r in fsim)}, Manta {sum(r['mantaFalse'] for r in fsim)}, "
+                 f"Delly {sum(r['dellyFalse'] for r in fsim)} (unfiltered {sum(r['dellyUnfilteredFalse'] for r in fsim)}), Manta {sum(r['mantaFalse'] for r in fsim)}, "
                  f"read pairs {sum(r['readpairsFalse'] for r in fsim)}")
     if real:
         for st in ("200 frozen genomes", "real carrier list"):
@@ -192,7 +209,7 @@ def main():
             n_true = sum(len(r["ontDeletions"].split(";")) for r in sub if r["ontDeletions"] != "none")
             lines.append(f"{st} ({len(sub)}): ONT deletions {n_true}; found Delly {sum(r['dellyFound'] for r in sub)}, "
                          f"read pairs {sum(r['readpairsFound'] for r in sub)}; samples with unconfirmed calls Delly "
-                         f"{sum(1 for r in sub if r['dellyUnconfirmed'])}, read pairs {sum(1 for r in sub if r['readpairsUnconfirmed'])}")
+                         f"{sum(1 for r in sub if r['dellyUnconfirmed'])} (unfiltered {sum(1 for r in sub if r['dellyUnfilteredUnconfirmed'])}), read pairs {sum(1 for r in sub if r['readpairsUnconfirmed'])}")
     text = "\n".join(lines) + "\n"
     open(os.path.join(HERE, "results", "sv_summary.txt"), "w").write(text)
     print(text)
