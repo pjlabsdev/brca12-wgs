@@ -248,12 +248,20 @@ process CALL_MOSAIC {
     path 'mosaic.command.sh'
 
     script:
+    // GATK reads a BAM of the calling regions written by samtools, for two reasons: htsjdk fails on some
+    // CRAMs when it converts the .crai ("Attempt to create a bai entry for an unmapped slice", e.g. the
+    // 1000 Genomes 30x CRAMs), and soft-clipped poly-G read-through tails (two-colour chemistry) are
+    // hard-clipped first, because GATK assembles soft-clipped bases and calls false variants from them.
     // Tumour-only Mutect2 reports variants at any allele fraction; germline heterozygous calls are
     // removed later by allele fraction (--mosaic_max_af) and by comparison with the germline calls.
     def amplicon = params.assay == 'amplicon' ? '--max-reads-per-alignment-start 0' : ''
     """
     set -euo pipefail
-    ${params.gatk} --java-options "-Xmx4g" Mutect2 -R ${reference} -I ${bam} -L ${calling_bed} \\
+    ${params.samtools} view -h -M -T ${reference} -L ${calling_bed} ${bam} \\
+      | ${params.python} ${projectDir}/bin/brca12_clip_polyg.py \\
+      | ${params.samtools} view -b -o calling_regions.bam -
+    ${params.samtools} index calling_regions.bam
+    ${params.gatk} --java-options "-Xmx4g" Mutect2 -R ${reference} -I calling_regions.bam -L ${calling_bed} \\
       --native-pair-hmm-threads ${task.cpus} ${amplicon} -O mosaic.unfiltered.vcf.gz
     ${params.gatk} --java-options "-Xmx4g" FilterMutectCalls -R ${reference} -V mosaic.unfiltered.vcf.gz \\
       -O ${params.sample}.mosaic.vcf.gz
@@ -277,6 +285,7 @@ process CALL_SMALL_VARIANTS {
     path 'small_variants.command.sh'
 
     script:
+    // HaplotypeCaller reads a region BAM with hard-clipped poly-G tails, see CALL_MOSAIC.
     if (params.snv_caller == 'deepvariant')
         """
         set -euo pipefail
@@ -289,8 +298,12 @@ process CALL_SMALL_VARIANTS {
     else
         """
         set -euo pipefail
+        ${params.samtools} view -h -M -T ${reference} -L ${calling_bed} ${bam} \\
+          | ${params.python} ${projectDir}/bin/brca12_clip_polyg.py \\
+          | ${params.samtools} view -b -o calling_regions.bam -
+        ${params.samtools} index calling_regions.bam
         ${params.gatk} --java-options "-Xmx4g" HaplotypeCaller \\
-          -R ${reference} -I ${bam} -L ${calling_bed} \\
+          -R ${reference} -I calling_regions.bam -L ${calling_bed} \\
           --native-pair-hmm-threads ${task.cpus} ${params.assay == 'amplicon' ? '--max-reads-per-alignment-start 0' : ''} \\
           -O ${params.sample}.small.vcf.gz
         cp .command.sh small_variants.command.sh

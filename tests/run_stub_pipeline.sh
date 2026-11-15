@@ -51,5 +51,5 @@ printf 'cram' > "$WORK/IN.cram"; printf 'crai' > "$WORK/IN.cram.crai"
 PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
   --sample CRAMIN --reference "$WORK/ref.fa" --bam "$WORK/IN.cram" \
   --vep_cache "$WORK/vep" --clinvar_vcf "$WORK/clinvar.vcf.gz" \
-  --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$WORK/out_cram"
-python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['input']['mode']=='bam' and r['input']['files']==['IN.cram'], r['input']; print('stub pipeline (CRAM input) OK')" "$WORK/out_cram/brca12_results.json"
+  --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$WORK/out_cram" --mosaic
+python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['input']['mode']=='bam' and r['input']['files']==['IN.cram'], r['input']; assert r['genes']['BRCA1']['smallVariants'] and r['mosaicCalling']['enabled']; print('stub pipeline (CRAM input) OK')" "$WORK/out_cram/brca12_results.json"

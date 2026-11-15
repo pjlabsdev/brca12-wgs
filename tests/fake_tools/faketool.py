@@ -23,6 +23,10 @@ elif name=="samtools":
         print("chr13\t114364328\t50000\t10\nchr17\t83257441\t60000\t20\n*\t0\t0\t100")
     elif a[0]=="view" and "-c" in a:
         print(95000)
+    elif a[0]=="view" and "-o" in a:
+        open(opt("-o"),"w").write(sys.stdin.read() if a[-1]=="-" else "bam")
+    elif a[0]=="view" and "-h" in a:
+        print("@HD\tVN:1.6")
     elif a[0]=="ampliconclip":
         sys.stdout.write(sys.stdin.read())
         open(opt("-f"),"w").write("COMMAND: fake\nTOTAL READS: 1000\nTOTAL CLIPPED: 930\nEXCLUDED: 10\nFILTERED: 4\n")
@@ -31,6 +35,9 @@ elif name=="samtools":
         for p in range(43045001,43045101): print(f"chr17\t{p}\t{5 if p<43045041 else 25}")
 elif name=="gatk":
     if a[0]=="--version": print("The Genome Analysis Toolkit (GATK) v4.6.1.0"); sys.exit(0)
+    if ("HaplotypeCaller" in a or "Mutect2" in a) and (opt("-I") or "").endswith(".cram"):
+        # like htsjdk on some CRAMs: "Attempt to create a bai entry for an unmapped slice ..."
+        sys.exit("htsjdk.samtools.cram.CRAMException: Attempt to create a bai entry for an unmapped slice")
     o=opt("-O")
     if "Mutect2" in a or "FilterMutectCalls" in a:
         # one germline heterozygous call (removed by the report) and one low-fraction candidate
