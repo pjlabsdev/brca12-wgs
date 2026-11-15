@@ -36,5 +36,5 @@ earlier spike-ins (seen in tuning)
     reads 1/3: Delly 0/1 (0.0-97.5 %), Manta 0/1 (0.0-97.5 %), read pairs 0/1 (0.0-97.5 %)
 
 false calls in 309 simulated analyses (new test, tandem duplications, SPIKE_NEG/S1/S2): Delly 0 (unfiltered 21), Manta 0, read pairs 0
-200 frozen genomes (200): ONT deletions 9; found Delly 0, read pairs 0; samples with unconfirmed calls Delly 0 (unfiltered 0), read pairs 1
-real carrier list (14): ONT deletions 9; found Delly 0, read pairs 0; samples with unconfirmed calls Delly 0 (unfiltered 0), read pairs 1
+200 frozen genomes (200): ONT deletions 9; found Delly 2, read pairs 0; samples with unconfirmed calls Delly 1 (unfiltered 86), read pairs 1
+real carrier list (14): ONT deletions 9; found Delly 9, read pairs 0; samples with unconfirmed calls Delly 4 (unfiltered 5), read pairs 1
