@@ -301,6 +301,14 @@ only. Annotation and CNVs were not part of it, and neither sample carries a path
 Method, the three discordant calls, limitations and a script to reproduce it are in
 [validation/README.md](validation/README.md).
 
+Five more GIAB genomes (HG003 to HG007, two further ancestries) were tested with a plan frozen
+before the first run ([validation/giab_more](validation/giab_more/README.md)): all 94 exonic
+variants found, no false positive in the exons; in the whole gene loci 891 of 894 SNVs and 158 of
+160 indels. Two samples missed the preset SNV threshold of 0.99 (HG004 precision 0.977, HG005
+recall 0.988). The HG004 errors came from soft-clipped poly-G read ends and are fixed (such ends
+are now hard-clipped before calling); the three HG005 misses are intronic sites with 8 to 22 reads
+in 2x250 bp reads and remain.
+
 ## Validation with pathogenic variants, large deletions and Alu insertions
 
 Three further experiments, all for research use and none a clinical validation:
