@@ -13,3 +13,11 @@ On NA18949 this removed a 31 bp deletion (also called by HaplotypeCaller as a sm
 inversion whose END lay in a distant control window. The evaluation reports Delly with this filter as
 the primary Delly arm (it is what the pipeline reports) and the unfiltered frozen rule next to it. The
 success criterion is unchanged.
+
+## Harness fix for the real genomes (after the first run)
+
+In the first run Delly wrote no output for any real genome: the region reads fetched from the 1000 Genomes
+CRAMs carry @SQ lines for all GRCh38 contigs, while the test reference holds only chr13 and chr17, and
+Delly stops on the mismatch. The simulated sets were not affected. `realneg.sh` now keeps only the chr13 and
+chr17 @SQ lines before sorting; the real genomes were fetched and analysed again. The method and the
+evaluation are unchanged. The pipeline itself uses the full reference and is not affected.
