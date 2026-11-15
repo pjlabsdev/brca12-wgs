@@ -42,6 +42,7 @@ params.threads         = 8
 params.snv_caller      = 'haplotypecaller'   // or 'deepvariant'
 params.calling_padding = 200       // bp around BRCA1/BRCA2 for variant calling
 params.sv_padding      = 1000000   // bp search window for Manta breakpoints
+params.sv_caller       = 'delly'   // structural variants: 'delly' (default, native on Apple Silicon) or 'manta'
 params.min_exon_depth  = 20        // exon flagged uncertain if its mean depth is below this
 params.min_exon_pct20  = 95        // or if fewer than N % of bases reach 20x
 params.low_depth       = 10        // intervals below this depth are listed as uncertain
@@ -56,6 +57,7 @@ params.bgzip     = 'bgzip'
 params.gatk      = 'gatk'
 params.deepvariant = 'run_deepvariant'
 params.manta_config = 'configManta.py'
+params.delly     = 'delly'
 params.cnvkit    = 'cnvkit.py'
 params.vep       = 'vep'
 params.mosdepth  = 'mosdepth'
@@ -334,6 +336,53 @@ process CALL_SV_MANTA {
     """
 }
 
+process CALL_SV_DELLY {
+    tag "${params.sample}"
+    cpus 2
+    publishDir "${params.outdir}/calls", mode: 'copy'
+
+    input:
+    tuple path(bam), path(bai)
+    path reference
+    path reference_index_files
+    path sv_bed
+
+    output:
+    tuple path("${params.sample}.delly.sv.vcf.gz"), path("${params.sample}.delly.sv.vcf.gz.tbi"), emit: vcf
+    path 'delly.command.sh'
+
+    script:
+    if (params.reads_r1 && !params.reads_r2)
+        // Delly needs read pairs; with single-end reads an empty SV call set is written.
+        """
+        set -euo pipefail
+        printf '##fileformat=VCFv4.2\\n##brca12=Delly skipped: single-end reads\\n#CHROM\\tPOS\\tID\\tREF\\tALT\\tQUAL\\tFILTER\\tINFO\\tFORMAT\\t${params.sample}\\n' \\
+          | ${params.bgzip} -c > ${params.sample}.delly.sv.vcf.gz
+        ${params.tabix} -f -p vcf ${params.sample}.delly.sv.vcf.gz
+        cp .command.sh delly.command.sh
+        """
+    else
+    """
+    set -euo pipefail
+    # Only the chromosomes of the gene windows are analysed; all other contigs are excluded.
+    cut -f1 ${sv_bed} | sort -u > keep_contigs.txt
+    awk 'NR==FNR{keep[\$1]=1; next} !(\$1 in keep){print \$1"\\t0\\t"\$2}' keep_contigs.txt ${reference}.fai > exclude.bed
+    exclude=""
+    if [ -s exclude.bed ]; then exclude="-x exclude.bed"; fi   # Delly rejects an empty exclude file
+    ${params.delly} call -g ${reference} \$exclude -o delly.bcf ${bam}
+    # Germline calls of one sample: PASS, non-reference genotype, DEL/DUP/INV/BND (insertions are handled
+    # by the insertion signatures and the known-allele realignment); then, as Manta's --callRegions, both
+    # ends of DEL/DUP/INV inside the search windows and at least 50 bp (shorter events are small variants).
+    ${params.bcftools} view -f PASS \\
+      -i 'GT!="0/0" && GT!="./." && (SVTYPE=="DEL" || SVTYPE=="DUP" || SVTYPE=="INV" || SVTYPE=="BND")' \\
+      delly.bcf \\
+      | ${params.python} ${projectDir}/bin/brca12_filter_sv.py --windows ${sv_bed} --min-length 50 \\
+      | ${params.bgzip} -c > ${params.sample}.delly.sv.vcf.gz
+    ${params.tabix} -f -p vcf ${params.sample}.delly.sv.vcf.gz
+    cp .command.sh delly.command.sh
+    """
+}
+
 process CALL_CNV_CNVKIT {
     tag "${params.sample}"
     cpus params.threads
@@ -522,6 +571,7 @@ process TOOL_VERSIONS {
         echo -e "gatk\\t\$(${params.gatk} --version 2>/dev/null | awk '/The Genome Analysis Toolkit/{print \$NF}')"
       fi
       echo -e "manta\\t\$(${params.manta_config} --version 2>/dev/null | tail -1)"
+      echo -e "delly\\t\$(${params.delly} --version 2>&1 | awk '/Delly version/{print \$NF; exit}')"
       echo -e "cnvkit\\t\$(${params.cnvkit} version 2>/dev/null | tail -1)"
       echo -e "ensembl-vep\\t\$(${params.vep} --help 2>/dev/null | awk '/ensembl-vep/{print \$NF; exit}')"
       echo -e "mosdepth\\t\$(${params.mosdepth} --version 2>/dev/null | awk '{print \$2}')"
@@ -656,6 +706,9 @@ workflow {
     if (!(params.assay in ['wgs', 'exome', 'panel', 'amplicon'])) {
         error "--assay must be wgs, exome, panel or amplicon (got '${params.assay}')."
     }
+    if (!(params.sv_caller in ['delly', 'manta'])) {
+        error "--sv_caller must be delly or manta (got '${params.sv_caller}')."
+    }
     if (params.assay != 'wgs' && !params.targets_bed) {
         error "--assay ${params.assay} needs --targets_bed (the capture or amplicon intervals)."
     }
@@ -669,9 +722,13 @@ workflow {
     targets_ch = VALIDATE_INPUTS.out.targets.ifEmpty(file("${projectDir}/assets/NO_TARGETS"))
 
     if (params.bam) {
-        def bai = file("${params.bam}.bai").exists() ? file("${params.bam}.bai")
-                : file("${params.bam}".replaceAll(/\.bam$/, '.bai')).exists() ? file("${params.bam}".replaceAll(/\.bam$/, '.bai'))
-                : file("${params.bam}.crai", checkIfExists: true)
+        // Index next to the alignment: BAM -> .bam.bai, .bai or .bam.csi; CRAM -> .cram.crai or .crai.
+        def stem = "${params.bam}".replaceAll(/\.(bam|cram)$/, '')
+        def candidates = "${params.bam}".endsWith('.cram') ? ["${params.bam}.crai", "${stem}.crai"]
+                       : ["${params.bam}.bai", "${stem}.bai", "${params.bam}.csi"]
+        def found = candidates.find { file(it).exists() }
+        if (!found) { error "No index for ${params.bam} (looked for ${candidates.join(', ')})." }
+        def bai = file(found)
         aligned_ch = Channel.value(tuple(file(params.bam, checkIfExists: true), bai))
     } else {
         r2 = params.reads_r2 ? file(params.reads_r2, checkIfExists: true) : file("${projectDir}/assets/NO_R2")
@@ -691,7 +748,13 @@ workflow {
     READ_QC(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.calling_bed, qc_extras)
 
     small = CALL_SMALL_VARIANTS(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.calling_bed)
-    sv = CALL_SV_MANTA(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.sv_bed)
+    if (params.sv_caller == 'manta') {
+        sv = CALL_SV_MANTA(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.sv_bed)
+        sv_cmd = CALL_SV_MANTA.out[1]
+    } else {
+        sv = CALL_SV_DELLY(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.sv_bed)
+        sv_cmd = CALL_SV_DELLY.out[1]
+    }
     cnv = CALL_CNV_CNVKIT(bam_ch, reference, ref_files, VALIDATE_INPUTS.out.check, targets_ch,
                           file(params.cnv_reference ?: "${projectDir}/assets/NO_CNV_REFERENCE", checkIfExists: true))
     exon_cnv_panel_in = file(params.exon_cnv_panel && params.exon_cnv_panel != 'none' ? params.exon_cnv_panel
@@ -716,7 +779,7 @@ workflow {
         .mix(VALIDATE_INPUTS.out[5])
         .mix(params.bam ? Channel.empty() : ALIGN_BWA_MEM.out[2])
         .mix(params.primers_bed ? PRIMER_CLIP.out[2] : Channel.empty(), READ_QC.out[2], mosaic_cmd)
-        .mix(CALL_SMALL_VARIANTS.out[1], CALL_SV_MANTA.out[1], CALL_CNV_CNVKIT.out[2],
+        .mix(CALL_SMALL_VARIANTS.out[1], sv_cmd, CALL_CNV_CNVKIT.out[2],
              EXON_COVERAGE.out[5], EXTRACT_AND_ANNOTATE.out[2])
         .collect()
 

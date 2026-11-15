@@ -2,6 +2,10 @@
 
 ## Unreleased (1.1.0)
 
+- Structural variants: Delly 1.3.3 is the default SV caller (`--sv_caller delly|manta`); it runs
+  natively on Apple Silicon. PASS calls with a non-reference genotype; DEL/DUP/INV need both ends in
+  the search windows (genes +/- `--sv_padding`) and at least 50 bp, as Manta's call regions
+  (`bin/brca12_filter_sv.py`). Manta 1.6 remains available. Report reads Delly DR/DV and RR/RV.
 - Delly 1.3.3 versus Manta 1.6, preregistered head-to-head (`validation/sv_delly/`): 40 simulated
   deletions (50 bp-20 kb), 20 inversions and 40 tandem duplications at three depths: Delly 108/120,
   60/60 and 118/120, Manta 105/120, 60/60 and 109/120, no false call for either in 309 simulated analyses;

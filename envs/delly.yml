@@ -1,0 +1,12 @@
+# Delly has its own environment: delly 1.3.3 needs zlib >= 1.3.1, while the perl stack of
+# ensembl-vep 113 in envs/brca12.yml still needs zlib < 1.3, so the two cannot be solved together.
+# bcftools, htslib (bgzip, tabix) and python are here too, because CALL_SV_DELLY filters its calls.
+name: genome-brca12-delly
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.10
+  - delly=1.3.3
+  - bcftools=1.21
+  - htslib=1.21

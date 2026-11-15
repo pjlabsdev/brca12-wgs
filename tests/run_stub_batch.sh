@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 FAKE="$WORK/fake"; mkdir -p "$FAKE"
-for tool in bwa samtools gatk bcftools tabix bgzip vep configManta.py cnvkit.py mosdepth; do
+for tool in bwa samtools gatk bcftools tabix bgzip vep configManta.py delly cnvkit.py mosdepth; do
   ln -s "$ROOT/tests/fake_tools/faketool.py" "$FAKE/$tool"
 done
 cd "$WORK"
