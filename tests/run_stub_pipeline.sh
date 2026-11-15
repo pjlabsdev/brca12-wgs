@@ -45,3 +45,11 @@ assert any("Amplikon" in item for item in r["limitations"])
 assert r["input"]["singleEnd"] and r["svs"] == []
 print("stub pipeline (amplicon, mosaic) OK")
 PY
+
+# Aligned input as CRAM with a .crai index (regression: the CRAM itself was taken as its own index).
+printf 'cram' > "$WORK/IN.cram"; printf 'crai' > "$WORK/IN.cram.crai"
+PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
+  --sample CRAMIN --reference "$WORK/ref.fa" --bam "$WORK/IN.cram" \
+  --vep_cache "$WORK/vep" --clinvar_vcf "$WORK/clinvar.vcf.gz" \
+  --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$WORK/out_cram"
+python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['input']['mode']=='bam' and r['input']['files']==['IN.cram'], r['input']; print('stub pipeline (CRAM input) OK')" "$WORK/out_cram/brca12_results.json"

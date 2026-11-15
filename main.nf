@@ -722,9 +722,13 @@ workflow {
     targets_ch = VALIDATE_INPUTS.out.targets.ifEmpty(file("${projectDir}/assets/NO_TARGETS"))
 
     if (params.bam) {
-        def bai = file("${params.bam}.bai").exists() ? file("${params.bam}.bai")
-                : file("${params.bam}".replaceAll(/\.bam$/, '.bai')).exists() ? file("${params.bam}".replaceAll(/\.bam$/, '.bai'))
-                : file("${params.bam}.crai", checkIfExists: true)
+        // Index next to the alignment: BAM -> .bam.bai, .bai or .bam.csi; CRAM -> .cram.crai or .crai.
+        def stem = "${params.bam}".replaceAll(/\.(bam|cram)$/, '')
+        def candidates = "${params.bam}".endsWith('.cram') ? ["${params.bam}.crai", "${stem}.crai"]
+                       : ["${params.bam}.bai", "${stem}.bai", "${params.bam}.csi"]
+        def found = candidates.find { file(it).exists() }
+        if (!found) { error "No index for ${params.bam} (looked for ${candidates.join(', ')})." }
+        def bai = file(found)
         aligned_ch = Channel.value(tuple(file(params.bam, checkIfExists: true), bai))
     } else {
         r2 = params.reads_r2 ? file(params.reads_r2, checkIfExists: true) : file("${projectDir}/assets/NO_R2")

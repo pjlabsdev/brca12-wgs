@@ -80,7 +80,7 @@ elif name=="cnvkit.py":
         open(opt("-o"),"w").write("chr1\t0\t1000\nchr13\t10000\t114000000\nchr17\t60000\t83000000\n"); sys.exit(0)
     if opt("--method")=="wgs" and opt("--access") != opt("--targets"): sys.exit("cnvkit: WGS mode needs the same --targets and --access")
     if opt("--method")!="wgs" and not (opt("--targets") or opt("--reference")): sys.exit("cnvkit: targets missing")
-    d=opt("--output-dir"); os.makedirs(d,exist_ok=True); stem=os.path.basename(a[1])[:-4]
+    d=opt("--output-dir"); os.makedirs(d,exist_ok=True); stem=os.path.splitext(os.path.basename(a[1]))[0]
     open(f"{d}/{stem}.call.cns","w").write("chromosome\tstart\tend\tgene\tlog2\tcn\tdepth\tprobes\tweight\nchr17\t40000000\t46000000\t-\t0.0\t2\t30\t6000\t1\nchr13\t30000000\t35000000\t-\t0.01\t2\t30\t5000\t1\n")
     open(f"{d}/{stem}.cnr","w").write("chromosome\tstart\tend\tgene\tdepth\tlog2\tweight\nchr17\t43090000\t43091000\t-\t30\t0.0\t1\n")
 elif name=="mosdepth":
