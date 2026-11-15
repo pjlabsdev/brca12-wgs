@@ -68,3 +68,20 @@ What remains, and why it was left alone:
 - HG003, one SNV with 4 of 29 reads on both strands: a real low-fraction signal in the reads,
   flagged in the report for its allele fraction.
 - HG005 and HG007, one indel each in a homopolymer of 14 T and 10 A.
+
+## Effect on data not used for the fix: 39 HPRC genomes and 10 real carriers
+
+The aligned reads of the 39 HPRC samples (`validation/hprc`) and the 10 real carriers of
+pathogenic variants (`validation/pathogenic`) were called again with the poly-G step and compared
+with the earlier calls. 1,298 read tails were hard-clipped; 13,729 of 13,733 calls are identical
+(`results/polyg_clip_old_vs_new_49_samples.tsv`). The four differences, checked in the HPRC
+assemblies:
+
+| Sample | Site | Before | After | Assembly |
+|---|---|---|---|---|
+| HG02145 | chr17:43108706 C>A | called (4 of 16 reads) | not called | no variant: a false call is gone |
+| HG02622 | chr13:32365109, T homopolymer | one inserted T, heterozygous | one deleted and one inserted T | one deletion and one insertion: now correct |
+| NA18906 | chr17:43066812, 18 T | no call | inserted T (4 of 9 reads) | no variant: a new false call |
+
+Two calls became right and one became wrong, all in introns. All ten pathogenic variants of the
+real carriers are called as before.
