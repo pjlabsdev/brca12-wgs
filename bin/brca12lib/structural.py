@@ -160,7 +160,16 @@ def insertion_signals(path, exons):
     for row in rows:
         flags = []
         kind = "Insertionssignatur"
-        if "tandem duplication" in row.get("signature", []):
+        if "read-pair deletion" in row.get("signature", []) or "inversion" in row.get("signature", []):
+            inv = "inversion" in row.get("signature", [])
+            kind = "Inversion (Lesepaare)" if inv else "Deletion (Lesepaare)"
+            flags.append(f"{row.get('discordantPairs', 0)} abweichende Lesepaare, "
+                         f"{row.get('splitReads', 0)} geteilte Lesungen über die Bruchstelle")
+            length = row.get("invertedLength" if inv else "deletedLength", 0)
+            flags.append(f"{'invertierte' if inv else 'deletierte'} Länge {length} bp; Bruchpunkte "
+                         + ("genau (geteilte Lesungen)" if row.get("breakpointPrecision", "").startswith("exact")
+                            else "ungefähr (Spannweite der Lesepaare)"))
+        elif "tandem duplication" in row.get("signature", []):
             kind = "Tandemduplikation (Lesepaare)"
             flags.append(f"{row.get('outwardPairs', 0)} nach außen gerichtete Lesepaare, "
                          f"{row.get('splitReads', 0)} geteilte Lesungen über die neue Verbindungsstelle")
@@ -223,7 +232,7 @@ def insertion_signals(path, exons):
         if "known allele" in row.get("signature", []) and "Alu" in row.get("signature", []) and \
                 "allele realignment" in row.get("evidence", []):
             flags.append("Lesungen passen besser zur bekannten Allelsequenz als zur Referenz (Neuausrichtung)")
-        pairs = "tandem duplication" in row.get("signature", [])
+        pairs = bool({"tandem duplication", "read-pair deletion", "inversion"} & set(row.get("signature", [])))
         flags.append(("Hinweis aus Lesepaaren" if pairs else "Hinweis aus Leseenden") +
                      ", kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig")
         results.append(dict(row, type=kind,

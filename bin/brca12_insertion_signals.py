@@ -366,6 +366,143 @@ def tandem_duplications(lines, regions, exons=None, min_support=4, min_span=1000
     return out
 
 
+def _insert_stats(tlens):
+    """Median and robust spread of the insert size of properly paired reads."""
+    v = sorted(tlens)
+    if len(v) < 100:
+        return 450.0, 100.0
+    med = v[len(v) // 2]
+    sample = v[:: max(1, len(v) // 5000)]
+    mad = sorted(abs(x - med) for x in sample)[len(sample) // 2]
+    return float(med), max(1.4826 * mad, 20.0)
+
+
+def sv_signals(lines, regions, min_mapq=20):
+    """Read pairs and split reads that point to deletions or inversions inside the gene regions.
+    Deletion pairs: forward read, reverse mate further right, insert above median + 6 spreads.
+    Inversion pairs: read and mate on the same strand, mate at least 300 bp further right.
+    Split reads: supplementary alignment (SA tag) on the same chromosome; same strand with a gap in
+    reference order is a deletion junction, opposite strand an inversion junction."""
+    reads, tlens = [], []
+    for line in lines:
+        if line.startswith("@"):
+            continue
+        f = line.split("\t")
+        if len(f) < 11:
+            continue
+        flag = int(f[1])
+        if flag & 0xF0C or int(f[4]) < min_mapq:
+            continue
+        chrom, pos = f[2], int(f[3])
+        if not any(c == chrom and s < pos <= e for c, s, e, g in regions):
+            continue
+        cig = CIGAR.findall(f[5])
+        span = sum(int(n) for n, op in cig if op in "MD=X")
+        reads.append((f, flag, chrom, pos, cig, span))
+        if flag & 2 and f[6] == "=" and 0 < int(f[8]) < 2000:
+            tlens.append(int(f[8]))
+    med, sd = _insert_stats(tlens)
+    cut = med + 6 * sd
+    dpairs, ipairs, dsplit, isplit = [], [], [], []
+    for f, flag, chrom, pos, cig, span in reads:
+        name = f[0]
+        if flag & 1 and f[6] == "=" and not flag & 8:
+            mpos = int(f[7])
+            rev, mrev = bool(flag & 16), bool(flag & 32)
+            if mpos > pos:
+                if not rev and mrev and mpos + len(f[9]) - pos > cut:
+                    dpairs.append((chrom, pos + span, mpos, name))
+                elif rev == mrev and mpos - pos > 300:
+                    ipairs.append((chrom, pos, mpos, name, "--" if rev else "++"))
+        sa = next((x[5:] for x in f[11:] if x.startswith("SA:Z:")), None)
+        if not sa or not cig:
+            continue
+        strand = "-" if flag & 16 else "+"
+        for entry in sa.rstrip(";").split(";"):
+            p = entry.split(",")
+            if len(p) < 6 or p[0] != chrom or int(p[4]) < min_mapq:
+                continue
+            opos, ocig = int(p[1]), CIGAR.findall(p[3])
+            ospan = sum(int(n) for n, op in ocig if op in "MD=X")
+            if not ocig:
+                continue
+            if p[2] == strand:
+                if cig[-1][1] in "SH" and opos > pos + span + 30 and ocig[0][1] in "SH":
+                    dsplit.append((chrom, pos + span, opos, name))
+                elif cig[0][1] in "SH" and opos + ospan + 30 < pos and ocig[-1][1] in "SH":
+                    dsplit.append((chrom, opos + ospan, pos, name))
+            else:
+                def junction(start, c, length):
+                    right = c[-1][1] in "SH" and not (c[0][1] in "SH" and int(c[0][0]) > int(c[-1][0]))
+                    return start + length if right else start
+                a, b = sorted((junction(pos, cig, span), junction(opos, ocig, ospan)))
+                if b - a > 300:
+                    isplit.append((chrom, a, b, name))
+    return dpairs, ipairs, dsplit, isplit, (med, sd)
+
+
+def _clusters(items, window):
+    out = []
+    for it in sorted(items):
+        home = next((c for c in out if c[0] == it[0] and abs(c[1] - it[1]) <= window and
+                     abs(c[2] - it[2]) <= window), None)
+        if home:
+            home[3].append(it)
+        else:
+            out.append([it[0], it[1], it[2], [it]])
+    return out
+
+
+def _sv_entry(regions, chrom, start, end, signature, pairs, split, precise, kind_len):
+    gene = next((g for c, s, e, g in regions if c == chrom and s < start <= e), "")
+    return {"gene": gene, "chrom": chrom, "pos": start, "end": end, kind_len: end - start + 1,
+            "signature": signature, "evidence": (["read pairs"] if pairs else []) + (["split reads"] if split else []),
+            "discordantPairs": pairs, "splitReads": split,
+            "breakpointPrecision": "exact (split reads)" if precise else "approximate (read-pair span)",
+            "clippedReadsLeftJunction": 0, "clippedReadsRightJunction": 0}
+
+
+def read_pair_svs(lines, regions, min_support=4, min_del=50, min_inv=300, max_size=200000):
+    """Deletions and inversions from discordant read pairs and split reads (distinct read names >= min_support)."""
+    dpairs, ipairs, dsplit, isplit, (med, sd) = sv_signals(lines, regions)
+    w = int(med + 6 * sd)
+    out, used = [], set()
+    for chrom, a, b, its in _clusters(dsplit, 20):
+        (s, e), _ = Counter((x[1], x[2]) for x in its).most_common(1)[0]
+        names = {x[3] for x in its}
+        pnames = {x[3] for x in dpairs if x[0] == chrom and s - w <= x[1] <= s + 20 and e - 20 <= x[2] <= e + w}
+        if len(names | pnames) >= min_support and min_del <= e - s <= max_size:
+            out.append(_sv_entry(regions, chrom, s, e - 1, ["read-pair deletion"], len(pnames), len(names), True,
+                                 "deletedLength"))
+            used |= pnames
+    for chrom, a, b, its in _clusters([x for x in dpairs if x[3] not in used], w):
+        names = {x[3] for x in its}
+        s, e = max(x[1] for x in its), min(x[2] for x in its)
+        if len(names) >= min_support and min_del <= e - s <= max_size and not any(
+                o["chrom"] == chrom and abs(o["pos"] - s) < w and abs(o["end"] - e) < w for o in out):
+            out.append(_sv_entry(regions, chrom, s, e - 1, ["read-pair deletion"], len(names), 0, False,
+                                 "deletedLength"))
+    wi = int(med + 5 * sd)
+    invs = []
+    for chrom, a, b, its in _clusters(ipairs, wi):
+        names = {x[3] for x in its}
+        pp, mm = [x for x in its if x[4] == "++"], [x for x in its if x[4] == "--"]
+        sp = [x for x in isplit if x[0] == chrom and abs(x[1] - a) <= wi and abs(x[2] - b) <= wi]
+        A, B = a, b
+        if pp and mm:
+            A = (max(x[1] for x in pp) + 150 + min(x[1] for x in mm)) // 2
+            B = (max(x[2] for x in pp) + 150 + min(x[2] for x in mm)) // 2
+        if sp:
+            A, B = sorted(x[1] for x in sp)[len(sp) // 2], sorted(x[2] for x in sp)[len(sp) // 2]
+        if any(o["chrom"] == chrom and abs(o["pos"] - A) <= wi and abs(o["end"] - B) <= wi for o in invs):
+            continue
+        spn = {x[3] for x in sp}
+        if len(names | spn) >= min_support and min_inv <= B - A <= max_size:
+            invs.append(_sv_entry(regions, chrom, A, B - 1, ["inversion", "read pairs"], len(names), len(spn),
+                                  bool(sp), "invertedLength"))
+    return out + invs
+
+
 def realigned_alleles(counts, regions, haplotypes=None, min_reads=2, pairs=None, min_pairs=3):
     """Report entries for known alleles found by realignment (non-tandem insertions and deletions)."""
     out = []
@@ -600,6 +737,8 @@ def main(argv=None):
     p.add_argument("--min-clip", type=int, default=10)
     p.add_argument("--min-fraction", type=float, default=0.15)
     p.add_argument("--all", action="store_true", help="also write candidates without Alu sequence in the clips")
+    p.add_argument("--read-pair-svs", action="store_true",
+                   help="also report deletions and inversions from discordant read pairs (research arm, off by default)")
     p.add_argument("--gene-fasta", help="reference sequence of the gene regions (samtools faidx output); "
                                         "enables the search for extra tandem repeat copies")
     args = p.parse_args(argv)
@@ -647,6 +786,13 @@ def main(argv=None):
             if not any(d["chrom"] == dup["chrom"] and "duplication" in d.get("signature", []) and
                        abs(d["pos"] - dup["pos"]) <= 600 and abs(d["end"] - dup["end"]) <= 600 for d in found):
                 found.append(dup)
+    # research arm, off by default (Delly is the structural-variant caller): deletions and inversions from
+    # discordant pairs and split reads, unless a known allele covers them
+    if args.read_pair_svs:
+        for sv in read_pair_svs(lines, regions):
+            if not any(d["chrom"] == sv["chrom"] and "deletion" in d.get("signature", []) and
+                       abs(d["pos"] - sv["pos"]) <= 600 and abs(d["end"] - sv["end"]) <= 600 for d in found):
+                found.append(sv)
     with open(args.out, "w") as handle:
         json.dump(found, handle, indent=2)
     return 0

@@ -105,6 +105,8 @@ EXACT = {
         "hint from read ends, not a variant call; confirmation with an orthogonal method required",
     "Insertionssignatur": "insertion signature",
     "Tandemduplikation (Lesepaare)": "tandem duplication (read pairs)",
+    "Deletion (Lesepaare)": "deletion (read pairs)",
+    "Inversion (Lesepaare)": "inversion (read pairs)",
     "Hinweis aus Lesepaaren, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig":
         "hint from read pairs, not a variant call; confirmation with an orthogonal method required",
     "Tandemkopie-Signatur": "tandem copy signature",
@@ -169,6 +171,12 @@ PATTERNS = [
      r"\1 outward-facing read pairs, \2 split reads across the new junction"),
     (re.compile(r"^duplizierte Länge etwa (\d+) bp; Bruchpunkte ungefähr \(Spannweite der Lesepaare\)$"),
      r"duplicated length about \1 bp; approximate breakpoints (read-pair span)"),
+    (re.compile(r"^(\d+) abweichende Lesepaare, (\d+) geteilte Lesungen über die Bruchstelle$"),
+     r"\1 discordant read pairs, \2 split reads across the breakpoint"),
+    (re.compile(r"^(deletierte|invertierte) Länge (\d+) bp; Bruchpunkte genau \(geteilte Lesungen\)$"),
+     lambda m: f"{'deleted' if m.group(1) == 'deletierte' else 'inverted'} length {m.group(2)} bp; exact breakpoints (split reads)"),
+    (re.compile(r"^(deletierte|invertierte) Länge (\d+) bp; Bruchpunkte ungefähr \(Spannweite der Lesepaare\)$"),
+     lambda m: f"{'deleted' if m.group(1) == 'deletierte' else 'inverted'} length {m.group(2)} bp; approximate breakpoints (read-pair span)"),
 ]
 
 

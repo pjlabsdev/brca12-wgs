@@ -85,6 +85,7 @@ REFS = {
     'dup13group': 'The BRCA1 Exon 13 Duplication Screening Group. The exon 13 duplication in the BRCA1 gene is a founder mutation present in geographically diverse populations. Am J Hum Genet. 2000;67(1):207–212.',
     'ardnor': 'Edwinsdotter Ardnor C, Rosén A, Ljuslinder I, Melin B. The BRCA1 exon 13 duplication: clinical characteristics of 22 families in Northern Sweden. Fam Cancer. 2019;18(1):37–42.',
     'zeegers': 'Zeegers MP, van Poppel F, Vlietinck R, Spruijt L, Ostrer H. Founder mutations among the Dutch. Eur J Hum Genet. 2004;12(7):591–600.',
+    'delly': 'Rausch T, Zichner T, Schlattl A, Stütz AM, Benes V, Korbel JO. DELLY: structural variant discovery by integrated paired-end and split-read analysis. Bioinformatics. 2012;28(18):i333-i339.',
     'dfam': 'Storer J, Hubley R, Rosen J, Wheeler TJ, Smit AF. The Dfam community resource of transposable element families, sequence models, and genome annotation. Mob DNA. 2021;12:2.',
     'ont1kg': 'Schloissnig S, Pani S, Ebler J, et al. Structural variation in 1,019 diverse humans based on long-read sequencing. Nature. 2025;644(8076):442–452.',
     'wilson': 'Wilson EB. Probable inference, the law of succession, and statistical inference. J Am Stat Assoc. 1927;22(158):209–212.',
@@ -1187,6 +1188,24 @@ def tandem_dup_text(d):
             f"Real duplications often join two Alu elements, which leaves fewer uniquely mapped pairs than these clean simulated copies.</p>")
 
 
+def delly_text(d):
+    """Delly versus Manta (validation/sv_delly)."""
+    path = os.path.join(VAL, "sv_delly", "results", "sv_test.tsv")
+    if not os.path.exists(path):
+        return ""
+    rows = [r for r in tsv(path) if r["group"] != "earlier spike-ins (seen in tuning)"]
+    def k(typ, col):
+        sub = [r for r in rows if r["type"] == typ]
+        return sum(r[col] == "yes" for r in sub), len(sub)
+    (dd, nd), (md, _), (di, ni), (mi, _), (du, nu), (mu, _) = (k("DEL", "delly"), k("DEL", "manta"), k("INV", "delly"),
+                                                              k("INV", "manta"), k("DUP", "delly"), k("DUP", "manta"))
+    return (f"<p>Manta is no longer developed and has no native build for Apple Silicon, so Delly 1.3.3 [@delly] was compared with it on the same reads in a preregistered test: "
+            f"40 simulated deletions of 50 bp to 20 kb and 20 inversions of 1 to 20 kb, each affecting a coding exon, plus the tandem duplications above, at three depths. "
+            f"Delly found {dd} of {nd} deletions (Manta {md}), {di} of {ni} inversions (Manta {mi}) and {du} of {nu} duplications (Manta {mu}), neither made a false call, "
+            "and in the 200 real genomes Delly made one call the long reads do not confirm while finding both long-read carriers of the 980 bp intronic deletion. "
+            "Deletions below about 300 bp and inside tandem repeats remain the weak point of both. Delly is now the default.</p>")
+
+
 def ont_all_text(d):
     """Discovery of all events of 50 bp or more in the long reads of the whole cohort."""
     a = d.ont_all
@@ -1226,7 +1245,7 @@ def main(argv=None):
     page = page.replace("{SV_TEXT}", sv_text(d))
     page = page.replace("{ONT_PANEL}", ont_panel_text(d))
     page = page.replace("{ONT_ALL}", ont_all_text(d))
-    page = page.replace("{FOUNDER}", founder_text(d) + tandem_dup_text(d))
+    page = page.replace("{FOUNDER}", founder_text(d) + tandem_dup_text(d) + delly_text(d))
     page = page.replace("{TANDEM_IND}", tandem_ind_text(d) + frozen_text(d))
     page = number_citations(page)
     sys.stdout.write(page)
