@@ -817,7 +817,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <tr><td>Copy number</td><td>CNVkit 0.9.11 [@cnvkit]</td><td>WGS, hybrid or amplicon mode, flat or pooled reference; per-exon depth ratios</td></tr>
 <tr><td>Annotation</td><td>Ensembl VEP 113 [@vep], bcftools</td><td>MANE Select [@mane], HGVS, gnomAD [@gnomad], ClinVar [@clinvar]</td></tr>
 <tr><td>Coverage</td><td>mosdepth 0.3.10 [@mosdepth]</td><td>Per exon at MAPQ ≥ 20 and ≥ 0; 10/20/30×</td></tr>
-<tr><td>Report</td><td>Python (standard library)</td><td>HTML, Markdown, PDF, Excel (English, German or Russian), JSON</td></tr>
+<tr><td>Report</td><td>Python (standard library)</td><td>HTML, Markdown, PDF, Excel (English or German), JSON</td></tr>
 </table>
 
 <h3>2.1 Reference and regions</h3>
@@ -954,7 +954,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
 <tr><td>Interpretation support</td><td>ACMG/AMP criterion hints (ENIGMA v1.2), no classification</td><td>Class from ClinVar/BIC</td></tr>
 <tr><td>QC</td><td>Read QC, per exon and per target coverage, uniformity, fold-80, intervals below 10×</td><td>Read counts, amplicon coverage and uniformity</td></tr>
 <tr><td>Batches</td><td>Sample sheet, cohort table, contamination hint</td><td>Joint table, contamination hint</td></tr>
-<tr><td>Output</td><td>HTML, Markdown, PDF, Excel, JSON; English, German, Russian</td><td>Excel, Word; English, Russian</td></tr>
+<tr><td>Output</td><td>HTML, Markdown, PDF, Excel, JSON; English, German</td><td>Excel, Word; English, Russian</td></tr>
 <tr><td>Reproducibility</td><td>Nextflow, pinned conda, Docker/Singularity, command log, tests in CI</td><td>Python script, Docker image</td></tr>
 <tr><td>Open validation</td><td>GIAB WGS, exomes and amplicons, real carriers, spike-ins, HPRC assemblies, long reads</td><td>Example data</td></tr>
 <tr><td>Clinical validation</td><td>None (research use only)</td><td>More than 900 patient samples with Sanger confirmation, according to its documentation</td></tr>

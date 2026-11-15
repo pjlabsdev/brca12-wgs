@@ -1,4 +1,4 @@
-"""Russian report language and the optional PDF step (bin/brca12_pdf.sh)."""
+"""Report languages (German, English) and the optional PDF step (bin/brca12_pdf.sh)."""
 import json
 import os
 import subprocess
@@ -16,35 +16,22 @@ with open(os.path.join(ROOT, "tests", "fixtures", "brca12_results.sample.json"))
     RESULT = json.load(handle)
 
 
-class RussianTest(unittest.TestCase):
-    def test_every_ui_key_and_value_has_a_russian_text(self):
-        self.assertEqual(set(i18n.UI) - set(i18n.UI_RU), set())
-        self.assertEqual(set(i18n.EXACT) - set(i18n.EXACT_RU), set())
-        self.assertEqual(len(i18n.PATTERNS), len(i18n.PATTERNS_RU))
-
-    def test_report_in_russian(self):
-        html = render.html_report(RESULT, "ru")
-        self.assertIn("<html lang='ru'>", html)
-        self.assertIn("Отчёт BRCA1/BRCA2", html)
-        self.assertIn("Только для исследований (RUO)", html)
-        self.assertIn("гетерозигота", html)
-        self.assertNotIn("heterozygot<", html)
-        md = render.markdown(RESULT, "ru")
-        self.assertIn("Ограничения", md)
-
-    def test_unknown_values_fall_back_to_english(self):
-        self.assertEqual(i18n.tr("Exon 3 (Legacy 4)", "ru"), "Экзон 3 (устар. нумерация 4)")
-        self.assertEqual(i18n.tr("Hinweis aus Leseenden, kein Variantenaufruf; Bestätigung mit orthogonaler Methode nötig", "ru")[:8], "указание")
+class LanguageTest(unittest.TestCase):
+    def test_only_german_and_english(self):
+        self.assertEqual(i18n.LANGUAGES, ("de", "en"))
+        self.assertFalse(hasattr(i18n, "UI_RU"))
+        self.assertFalse(hasattr(render, "DISCLAIMER_RU"))
 
     def test_german_and_english_unchanged(self):
         self.assertEqual(i18n.ui("title", "de"), "BRCA1/BRCA2-Bericht")
         self.assertEqual(i18n.tr("heterozygot", "en"), "heterozygous")
         self.assertEqual(i18n.tr("heterozygot", "de"), "heterozygot")
 
-    def test_report_script_accepts_ru(self):
-        out = subprocess.run([sys.executable, os.path.join(BIN, "brca12_report.py"), "--help"],
-                             capture_output=True, text=True).stdout
-        self.assertIn("ru", out)
+    def test_report_script_rejects_ru(self):
+        r = subprocess.run([sys.executable, os.path.join(BIN, "brca12_report.py"), "--lang", "ru"],
+                           capture_output=True, text=True)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("invalid choice", r.stderr)
 
 
 class PdfTest(unittest.TestCase):

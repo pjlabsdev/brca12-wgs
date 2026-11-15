@@ -45,17 +45,6 @@ LIMITATIONS_EN = [
 ]
 
 
-# Russian limitations (not reviewed by a native speaker); keep in step with LIMITATIONS_EN.
-LIMITATIONS_RU = [
-    "Только GRCh38/hg38. Координаты BRCA1 chr17:43044295-43170327 (минус-цепь), BRCA2 chr13:32315077-32400268 (плюс-цепь).",
-    "Полногеномное секвенирование короткими прочтениями имеет ограниченную чувствительность к мозаицизму с долей аллеля ниже примерно 15 %, к сложным перестройкам и к областям с гомологией псевдогенов (экзоны 1-2 BRCA1 и BRCA1P1).",
-    "CNV получены по одному образцу с плоской референсной моделью CNVkit и являются только кандидатами. Делеции или дупликации одного экзона короче примерно 1 т. п. н. неопределённы; обычное подтверждение: MLPA.",
-    "Manta сообщает только о SV с точкой разрыва в окне поиска вокруг BRCA1/BRCA2. Вставки мобильных элементов надёжно не выявляются; дополнительный поиск сигнатур вставок по обрезанным концам прочтений распознаёт только последовательность Alu, требует не менее 3 прочтений на стык и даёт указания, а не вызовы. Дополнительные копии единицы тандемного повтора (от 50 до 1000 п. н.) сообщаются только как указание (обрезанные прочтения на обеих границах, для частой копии 126 п. н. перед экзоном 1 BRCA1 также маркерное основание и сцепленный гаплотип, не менее 2 из 3 сигналов); при очень малом числе прочтений они могут быть пропущены.",
-    "Тандемные дупликации от 1 до 200 т.п.н. дополнительно ищутся по обращённым наружу парам прочтений и разделённым прочтениям (не менее 4, качество картирования от 20) и сообщаются только как указания с приблизительными точками разрыва; зиготность и точные точки разрыва требуют лабораторного метода.",
-    "ACMG/AMP: только автоматические указания по отдельным критериям согласно ClinGen ENIGMA v1.2. Без классификации; PVS1/PM5_PTC (таблица 4), PS3/BS3 (таблица 9) и PP4/BP5 взяты из прилагаемых таблиц ENIGMA, PS1, PM3, BS2, BS4, PP1, PS4 и РНК-данные образца отсутствуют. Глубина прочтения gnomAD не проверяется.",
-    "Данные ClinVar зависят от версии используемого ClinVar VCF.",
-]
-
 
 def read_versions(path):
     versions = {}
@@ -223,7 +212,7 @@ def build(args):
         "generatedAt": datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat(),
         "assembly": "GRCh38",
         "researchUseOnly": True,
-        "disclaimer": {"de": render.DISCLAIMER_DE, "en": render.DISCLAIMER_EN, "ru": render.DISCLAIMER_RU},
+        "disclaimer": {"de": render.DISCLAIMER_DE, "en": render.DISCLAIMER_EN},
         "clinicalClassification": None,
         "input": {"mode": args.input_mode, "files": [os.path.basename(p) for p in args.inputs.split(",") if p],
                   "singleEnd": args.input_mode == "fastq" and len([p for p in args.inputs.split(",") if p]) == 1},
@@ -254,16 +243,13 @@ def build(args):
         "nextflowSession": args.session_id,
         "limitations": LIMITATIONS + ([ASSAY_LIMITATIONS[args.assay][0]] if args.assay in ASSAY_LIMITATIONS else []),
         "limitationsEN": LIMITATIONS_EN + ([ASSAY_LIMITATIONS[args.assay][1]] if args.assay in ASSAY_LIMITATIONS else []),
-        "limitationsRU": LIMITATIONS_RU + ([ASSAY_LIMITATIONS[args.assay][1]] if args.assay in ASSAY_LIMITATIONS else []),
     }
     if ion:
         result["limitations"].append("Ion Torrent: Insertionen und Deletionen in Homopolymeren sind mit GATK HaplotypeCaller unzuverlässig (plattformtypische Lesefehler); Mosaik-Kandidaten werden nur für SNVs gemeldet.")
         result["limitationsEN"].append("Ion Torrent: insertions and deletions in homopolymers are unreliable with GATK HaplotypeCaller (platform-specific read errors); mosaic candidates are reported for SNVs only.")
-        result["limitationsRU"].append(result["limitationsEN"][-1])
     if result["input"]["singleEnd"]:
         result["limitations"].append("Einzel-Reads (single-end): Manta wurde übersprungen, strukturelle Varianten werden nicht gesucht; Duplikate lassen sich nur nach Startposition erkennen.")
         result["limitationsEN"].append("Single-end reads: Manta was skipped, structural variants are not searched; duplicates can only be recognised by start position.")
-        result["limitationsRU"].append(result["limitationsEN"][-1])
     result["summary"] = summarize(result)
     return result
 
@@ -323,7 +309,7 @@ def main(argv=None):
     p.add_argument("--spliceai", default=None, help="SpliceAI precomputed scores VCF (bgzip + tabix)")
     p.add_argument("--bayesdel", default=None, help="TSV chrom,pos,ref,alt,BayesDel_noAF (bgzip + tabix)")
     p.add_argument("--tabix", default="tabix")
-    p.add_argument("--lang", choices=("en", "de", "ru"), default="en", help="language of the HTML/Markdown report (ru: not reviewed by a native speaker)")
+    p.add_argument("--lang", choices=("en", "de"), default="en", help="language of the HTML/Markdown report")
     args = p.parse_args(argv)
     result = build(args)
     with open(args.out_json, "w") as handle:
