@@ -57,7 +57,7 @@ ol.refs { font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; } ol.refs li 
 <line x1="144" y1="40.92" x2="144" y2="59.08" stroke="#A57A27" stroke-width="5" stroke-linecap="round"/>
 <line x1="170" y1="34.90" x2="170" y2="65.10" stroke="#A57A27" stroke-width="5" stroke-linecap="round"/>
 <line x1="196" y1="40.92" x2="196" y2="59.08" stroke="#A57A27" stroke-width="5" stroke-linecap="round"/></g>
-<text x="315" y="72" font-family="'IBM Plex Mono', ui-monospace, Menlo, monospace" font-weight="500" font-size="46" fill="#141413">PJ Labs</text></svg></div><div class="kind">Software report · preprint<br>Version 1.1.0 (in preparation) · 14 November 2026</div></div>
+<text x="315" y="72" font-family="'IBM Plex Mono', ui-monospace, Menlo, monospace" font-weight="500" font-size="46" fill="#141413">PJ Labs</text></svg></div><div class="kind">Software report · preprint<br>Version 1.1.0 (in preparation) · 15 November 2026</div></div>
 
 <h1>brca12-wgs: a reproducible Nextflow pipeline for <i>BRCA1</i>/<i>BRCA2</i> germline analysis from genome, exome and panel sequencing on GRCh38</h1>
 <div class="meta"><strong>Peter Jungwirth, MSc</strong> · PJ Labs, Austria</div>
@@ -106,7 +106,7 @@ ol.refs { font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; } ol.refs li 
 <tr><td>Copy number</td><td>CNVkit 0.9.11 [<a class="cite" href="#ref-14">14</a>]</td><td>WGS, hybrid or amplicon mode, flat or pooled reference; per-exon depth ratios</td></tr>
 <tr><td>Annotation</td><td>Ensembl VEP 113 [<a class="cite" href="#ref-15">15</a>], bcftools</td><td>MANE Select [<a class="cite" href="#ref-16">16</a>], HGVS, gnomAD [<a class="cite" href="#ref-17">17</a>], ClinVar [<a class="cite" href="#ref-18">18</a>]</td></tr>
 <tr><td>Coverage</td><td>mosdepth 0.3.10 [<a class="cite" href="#ref-19">19</a>]</td><td>Per exon at MAPQ ≥ 20 and ≥ 0; 10/20/30×</td></tr>
-<tr><td>Report</td><td>Python (standard library)</td><td>HTML, Markdown, PDF, Excel (English, German or Russian), JSON</td></tr>
+<tr><td>Report</td><td>Python (standard library)</td><td>HTML, Markdown, PDF, Excel (English or German), JSON</td></tr>
 </table>
 
 <h3>2.1 Reference and regions</h3>
@@ -243,7 +243,7 @@ ol.refs { font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; } ol.refs li 
 <tr><td>Interpretation support</td><td>ACMG/AMP criterion hints (ENIGMA v1.2), no classification</td><td>Class from ClinVar/BIC</td></tr>
 <tr><td>QC</td><td>Read QC, per exon and per target coverage, uniformity, fold-80, intervals below 10×</td><td>Read counts, amplicon coverage and uniformity</td></tr>
 <tr><td>Batches</td><td>Sample sheet, cohort table, contamination hint</td><td>Joint table, contamination hint</td></tr>
-<tr><td>Output</td><td>HTML, Markdown, PDF, Excel, JSON; English, German, Russian</td><td>Excel, Word; English, Russian</td></tr>
+<tr><td>Output</td><td>HTML, Markdown, PDF, Excel, JSON; English, German</td><td>Excel, Word; English, Russian</td></tr>
 <tr><td>Reproducibility</td><td>Nextflow, pinned conda, Docker/Singularity, command log, tests in CI</td><td>Python script, Docker image</td></tr>
 <tr><td>Open validation</td><td>GIAB WGS, exomes and amplicons, real carriers, spike-ins, HPRC assemblies, long reads</td><td>Example data</td></tr>
 <tr><td>Clinical validation</td><td>None (research use only)</td><td>More than 900 patient samples with Sanger confirmation, according to its documentation</td></tr>
