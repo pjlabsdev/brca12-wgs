@@ -520,6 +520,31 @@ class InsertionSignalTest(unittest.TestCase):
         self.assertEqual((rows[0]["type"], rows[0]["affectedExons"]), ("Tandemduplikation (Lesepaare)", ["Exon 5"]))
         self.assertTrue(rows[0]["flags"][0].startswith("4 nach außen gerichtete Lesepaare"))
 
+    def test_deletion_and_inversion_from_read_pairs(self):
+        import brca12_insertion_signals as mod
+        regions = [("chr13", 0, 100000, "BRCA2")]
+        def rd(name, flag, pos, mpos, cigar="150M", tags=()):
+            return "\t".join([name, str(flag), "chr13", str(pos), "60", cigar, "=", str(mpos), "0",
+                              "A" * 150, "I" * 150] + list(tags))
+        normal = [rd(f"n{i}", 99, 1000 + 10 * i, 1300 + 10 * i).replace("\t0\tA", "\t450\tA") for i in range(150)]
+        # deletion 30000-31999: forward reads before, reverse mates after
+        dels = [rd(f"d{i}", 97, 29700 + 20 * i, 32100 + 20 * i) for i in range(4)]
+        splits = [rd(f"s{i}", 97, 29900 + i, 40000, "%dM%dS" % (100 - i, 50 + i),
+                     ["SA:Z:chr13,32000,+,%dS%dM,60,0;" % (100 - i, 50 + i)]) for i in range(3)]
+        found = mod.read_pair_svs(normal + dels + splits, regions)
+        self.assertEqual([(f["signature"][0], f["pos"], f["end"]) for f in found], [("read-pair deletion", 30000, 31999)])
+        self.assertEqual((found[0]["discordantPairs"], found[0]["splitReads"]), (4, 3))
+        self.assertEqual(mod.read_pair_svs(normal + dels[:3], regions), [])            # three pairs: too few
+        # inversion 50000-55999: ++ pairs left of each breakpoint, -- pairs right of each breakpoint
+        inv = [rd(f"p{i}", 65, 49700 + 20 * i, 55700 + 20 * i) for i in range(3)] + \
+              [rd(f"m{i}", 113, 50100 + 20 * i, 56100 + 20 * i) for i in range(3)]
+        found = mod.read_pair_svs(normal + inv, regions)
+        self.assertEqual([f["signature"][0] for f in found], ["inversion"])
+        self.assertEqual(found[0]["discordantPairs"], 6)
+        rows = structural.insertion_signals(self._dump(found), [])
+        self.assertEqual(rows[0]["type"], "Inversion (Lesepaare)")
+        self.assertTrue(rows[0]["flags"][0].startswith("6 abweichende Lesepaare"))
+
     @staticmethod
     def _dump(rows):
         import json, tempfile
