@@ -81,6 +81,10 @@ elif name=="configManta.py":
     w=os.path.join(rd,"runWorkflow.py")
     open(w,"w").write("#!/bin/sh\nmkdir -p manta_run/results/variants\nprintf '##fileformat=VCFv4.2\\n#CHROM\\tPOS\\tID\\tREF\\tALT\\tQUAL\\tFILTER\\tINFO\\tFORMAT\\tS\\nchr17\\t43090000\\tMantaDEL:1\\tN\\t<DEL>\\t200\\tPASS\\tSVTYPE=DEL;END=43096000;SVLEN=-6000\\tGT:PR:SR\\t0/1:20,8:15,6\\n' > manta_run/results/variants/diploidSV.vcf.gz\ntouch manta_run/results/variants/diploidSV.vcf.gz.tbi\n")
     os.chmod(w,0o755)
+elif name=="Rscript":
+    # FAKE_NO_DNACOPY=1 stands for an R without the Bioconductor package DNAcopy.
+    if os.environ.get("FAKE_NO_DNACOPY"): print("Error in library(DNAcopy): there is no package called 'DNAcopy'", file=sys.stderr); sys.exit(1)
+    if any("packageVersion" in x for x in a): print("1.76.0", end="")
 elif name=="cnvkit.py":
     if a[0]=="version": print("0.9.11"); sys.exit(0)
     if a[0]=="access":

@@ -14,6 +14,7 @@ dependencies:
   - htslib=1.21
   - gatk4=4.6.1.0
   - cnvkit=0.9.11
+  - bioconductor-dnacopy    # CNVkit segmentation (CBS); checked before the CNVkit step
   - mosdepth=0.3.10
   - ensembl-vep=113.0
   - perl-list-moreutils    # missing VEP dependency in some ensembl-vep 113 builds

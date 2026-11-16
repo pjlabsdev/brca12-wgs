@@ -2,6 +2,11 @@
 
 ## Unreleased (1.1.0)
 
+- CNVkit: `Rscript` is resolved explicitly (next to `--cnvkit`, else `PATH`, or `--rscript`) and
+  passed with `--rscript-path`; before the run it must load DNAcopy, after `batch` the segments and
+  the .cnr must exist, otherwise the step stops with a clear message. Before, an `Rscript` without
+  DNAcopy earlier on `PATH` (a conda base) made `batch -p` end without segments and without an
+  error message (whole-genome NA18949 run). The DNAcopy version is listed in the tool versions.
 - Per-exon dosage: when the chromosome median lies below a quarter of the median exon depth (for
   example when only the gene regions were read), the ratios and hints are switched off with a
   limitation instead of one hint per exon (`exonDosageBaseline`).

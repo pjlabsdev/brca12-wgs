@@ -113,6 +113,11 @@ or without `chr`). Only targets that overlap BRCA1/BRCA2 are used.
   the median exon depth of both genes as baseline, so a whole-gene loss stays visible.
   The exon copy-number model against a reference cohort needs a panel of normal samples of the same
   assay (`brca12lib.exon_cnv.build_panel`); without one (`--exon_cnv_panel`) it is switched off.
+- **R for CNVkit:** CNVkit segments with R and the Bioconductor package DNAcopy. The pipeline uses
+  the `Rscript` next to `--cnvkit` (same environment), else the one on `PATH`, or `--rscript
+  /path/to/Rscript`, checks before the run that it loads DNAcopy and stops with a clear message if
+  not. After `cnvkit.py batch` it checks that segments were written: with `-p` CNVkit does not pass
+  on errors of its worker processes.
 - **Structural variants:** Delly (default) on the targeted reads, or Manta in exome mode
   (`--sv_caller manta`); skipped for single-end reads.
 - **Coverage:** every target with mean and minimum depth and share of bases ≥ 20x; targets below
