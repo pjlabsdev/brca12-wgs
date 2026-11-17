@@ -504,10 +504,19 @@ process EXON_COVERAGE {
     script:
     """
     set -euo pipefail
-    ${params.mosdepth} -t ${task.cpus} -f ${reference} -Q 20 -n --by ${exons} --thresholds 10,20,30 exons_q20 ${bam}
-    ${params.mosdepth} -t ${task.cpus} -f ${reference} -Q 0  -n --by ${exons} exons_q0 ${bam}
+    # All reads that overlap an analysed interval are fetched once through the index (-M) into a
+    # small BAM. Without this, mosdepth --by and samtools view -L read the whole alignment file
+    # (hours for a 70 GB genome) although only the gene regions are needed. Depths are unchanged:
+    # every read overlapping the intervals is in the small BAM.
+    ${params.python} ${projectDir}/bin/brca12_exon_cnv.py --panel ${exon_cnv_panel} --write-bed exon_cnv_regions.bed
+    cat ${exons} ${exact_bed} exon_cnv_regions.bed | grep -v -e '^#' -e '^track' -e '^browser' \\
+      | cut -f1-3 | sort -k1,1 -k2,2n > coverage_regions.bed
+    ${params.samtools} view -b -M -L coverage_regions.bed -T ${reference} -o coverage_regions.bam ${bam}
+    ${params.samtools} index coverage_regions.bam
+    ${params.mosdepth} -t ${task.cpus} -f ${reference} -Q 20 -n --by ${exons} --thresholds 10,20,30 exons_q20 coverage_regions.bam
+    ${params.mosdepth} -t ${task.cpus} -f ${reference} -Q 0  -n --by ${exons} exons_q0 coverage_regions.bam
     # Per-base depth inside BRCA1/BRCA2 only (MAPQ >= 20, no duplicates) for uncertain intervals.
-    ${params.samtools} depth -a -Q 20 -b ${exact_bed} --reference ${reference} ${bam} \\
+    ${params.samtools} depth -a -Q 20 -b ${exact_bed} --reference ${reference} coverage_regions.bam \\
       | awk 'BEGIN{OFS="\\t"} {print \$1, \$2-1, \$2, \$3}' | gzip -c > gene_q20.per-base.bed.gz
     if [ "${params.assay}" = "wgs" ]; then
       # Chromosome median depth (chr13/chr17) as baseline for per-exon dosage.
@@ -521,12 +530,11 @@ process EXON_COVERAGE {
     fi
     # Insertion signatures (Alu, extra tandem repeat copies) from soft-clipped read ends inside the genes.
     ${params.samtools} faidx ${reference} \$(awk '{print \$1":"\$2+1"-"\$3}' ${exact_bed}) > genes.fa
-    ${params.samtools} view -L ${exact_bed} --reference ${reference} ${bam} \\
+    ${params.samtools} view -L ${exact_bed} --reference ${reference} coverage_regions.bam \\
       | ${params.python} ${projectDir}/bin/brca12_insertion_signals.py --regions ${exact_bed} --gene-fasta genes.fa --out insertion_signals.json
     # Exon copy number against a reference cohort: depth over exons +/- pad and control windows (MAPQ >= 20).
-    ${params.python} ${projectDir}/bin/brca12_exon_cnv.py --panel ${exon_cnv_panel} --write-bed exon_cnv_regions.bed
     if [ -s exon_cnv_regions.bed ]; then
-      ${params.samtools} depth -a -Q 20 -b exon_cnv_regions.bed --reference ${reference} ${bam} \\
+      ${params.samtools} depth -a -Q 20 -b exon_cnv_regions.bed --reference ${reference} coverage_regions.bam \\
         | ${params.python} ${projectDir}/bin/brca12_exon_cnv.py --panel ${exon_cnv_panel} --out exon_cnv.json
     else
       ${params.python} ${projectDir}/bin/brca12_exon_cnv.py --panel ${exon_cnv_panel} --out exon_cnv.json

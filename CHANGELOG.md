@@ -2,6 +2,10 @@
 
 ## Unreleased (1.1.0)
 
+- Exon coverage: the reads overlapping the analysed intervals are fetched once through the index
+  (`samtools view -M -L`) into a small BAM, and mosdepth, `samtools depth` and the insertion
+  signals read that file. Before, `mosdepth --by` and `samtools view -L` read the whole alignment
+  twice or more, which took hours on a 70 GB genome. Depths are identical (checked on GIAB HG003).
 - CNVkit: `Rscript` is resolved explicitly (next to `--cnvkit`, else `PATH`, or `--rscript`) and
   passed with `--rscript-path`; before the run it must load DNAcopy, after `batch` the segments and
   the .cnr must exist, otherwise the step stops with a clear message. Before, an `Rscript` without
