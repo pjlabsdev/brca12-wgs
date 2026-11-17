@@ -24,6 +24,11 @@ for f in brca12_report.html brca12_report.md brca12_results.json brca12_commands
 done
 python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['schema']=='genome.brca12.v1'; assert r['genes']['BRCA1']['smallVariants']; assert r['readQC']['regionStats']['readsInRegions']==1000; assert 'exonCopyNumber' in r and 'exonCopyNumberCallCount' in r['summary']; assert any(s['caller']=='Delly' for s in r['svs']), r['svs']; assert r['toolVersions'].get('delly')=='v1.3.3', r['toolVersions']; assert r['toolVersions'].get('dnacopy')=='1.76.0', r['toolVersions']; print('stub pipeline (WGS) OK')" "$WORK/out/brca12_results.json"
 
+# The coverage step must read only the analysed regions through the index, not the whole alignment.
+grep -q -- "view -b -M -L coverage_regions.bed" "$WORK/out/coverage/coverage.command.sh" || { echo "coverage step does not fetch regions through the index"; exit 1; }
+if grep -E "mosdepth .*--by [^ ]*exons" "$WORK/out/coverage/coverage.command.sh" | grep -v -q "coverage_regions.bam"; then echo "mosdepth --by still reads the whole alignment"; exit 1; fi
+echo "stub pipeline (coverage reads regions only) OK"
+
 # An R without DNAcopy must stop the run with a clear message instead of a silent CNVkit result
 # without segments (CNVkit batch -p does not pass on errors of its worker processes).
 if FAKE_NO_DNACOPY=1 PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
