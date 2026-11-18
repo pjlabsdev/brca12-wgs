@@ -2,6 +2,14 @@
 
 ## Unreleased (1.1.0)
 
+- CNVkit candidates: a segment with copy number != 2 that reaches beyond the gene counts as a
+  candidate only if the bins inside the gene show the change too. If their mean log2 lies in
+  CNVkit's own two-copy range (above -0.25, at most 0.2) the segment is listed under
+  `cnvSegmentsNotSupported` with a limitation instead. In a 30x DNBSEQ genome two segments of 96 Mb
+  and 24 Mb (log2 -0.30 and -0.59 against the flat reference) had been reported as whole-gene
+  deletion candidates of BRCA2 and BRCA1 although the gene bins were at -0.05 and -0.10 and both
+  genes carried heterozygous variants. Segments inside a gene and the simulated deletions of the
+  spike-in tests are unchanged.
 - Exon coverage: the reads overlapping the analysed intervals are fetched once through the index
   (`samtools view -M -L`) into a small BAM, and mosdepth, `samtools depth` and the insertion
   signals read that file. Before, `mosdepth --by` and `samtools view -L` read the whole alignment

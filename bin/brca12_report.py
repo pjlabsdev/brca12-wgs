@@ -240,6 +240,7 @@ def build(args):
         "lowCoverageIntervals": low,
         "cnvs": [c for c in cnvs if c["type"] != "kein Hinweis"],
         "cnvSegmentsChecked": len(cnvs),
+        "cnvSegmentsNotSupported": [c for c in cnvs if not c["supportedInGene"]],
         "exonDosageHints": dosage_hints,
         "exonDosageBaseline": dict(baseline_info, plausible=baseline_ok),
         "exonCopyNumber": exon_cnv,
@@ -254,6 +255,16 @@ def build(args):
     if ion:
         result["limitations"].append("Ion Torrent: Insertionen und Deletionen in Homopolymeren sind mit GATK HaplotypeCaller unzuverlässig (plattformtypische Lesefehler); Mosaik-Kandidaten werden nur für SNVs gemeldet.")
         result["limitationsEN"].append("Ion Torrent: insertions and deletions in homopolymers are unreliable with GATK HaplotypeCaller (platform-specific read errors); mosaic candidates are reported for SNVs only.")
+    for c in result["cnvSegmentsNotSupported"]:
+        size = (c["end"] - c["start"] + 1) / 1e6
+        result["limitations"].append(
+            f"CNVkit: Segment {c['chrom']}:{c['start']}-{c['end']} ({size:.1f} Mb, log2 {c['log2']:g}, Kopienzahl {c['copyNumber']}) "
+            f"reicht über {c['gene']} hinaus, die Bins im Gen liegen aber im Zwei-Kopien-Bereich (Mittel log2 {c['overlapBinMeanLog2']:g}); "
+            f"es wird deshalb nicht als CNV-Kandidat für {c['gene']} gewertet.")
+        result["limitationsEN"].append(
+            f"CNVkit: segment {c['chrom']}:{c['start']}-{c['end']} ({size:.1f} Mb, log2 {c['log2']:g}, copy number {c['copyNumber']}) "
+            f"reaches beyond {c['gene']}, but the bins inside the gene lie in the two-copy range (mean log2 {c['overlapBinMeanLog2']:g}); "
+            f"it is therefore not counted as a CNV candidate for {c['gene']}.")
     if not baseline_ok:
         b = baseline_info
         result["limitations"].append(f"Exonweise Dosis abgeschaltet: Der Median von {b['chromosome']} ({b['chromosomeMedian']:g}x) liegt weit unter der mittleren Exon-Tiefe ({b['medianExonDepth']:g}x), etwa weil nur die Genregionen eingelesen wurden.")

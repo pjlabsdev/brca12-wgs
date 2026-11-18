@@ -27,8 +27,13 @@ def read_table(path):
                 yield dict(zip(header, line.rstrip("\n").split("\t")))
 
 
+# log2 range that `cnvkit.py call` (default thresholds -1.1, -0.25, 0.2, 0.7) assigns to two copies
+NEUTRAL_LOG2 = (-0.25, 0.2)
+
+
 def cnv_segments(cns_path, cnr_path, regions, exons):
-    """CNVkit-Segmente, die BRCA1/BRCA2 überlappen. cn != 2 gilt als Kandidat."""
+    """CNVkit-Segmente, die BRCA1/BRCA2 überlappen. cn != 2 gilt als Kandidat, außer das Segment reicht
+    über das Gen hinaus und die Bins im Gen liegen selbst im Zwei-Kopien-Bereich (supportedInGene false)."""
     bins = list(read_table(cnr_path))
     results = []
     for seg in read_table(cns_path):
@@ -41,7 +46,23 @@ def cnv_segments(cns_path, cnr_path, regions, exons):
                          if b["chromosome"] == chrom and _overlaps(chrom, int(b["start"]), int(b["end"]), region)]
             kind = "Deletion" if cn is not None and cn < 2 else "Duplikation" if cn is not None and cn > 2 else "kein Hinweis"
             overlap_start, overlap_end = max(start, region[1]), min(end, region[2])
+            # A segment that reaches beyond the gene (often a chromosome arm with a slightly shifted
+            # level, typical for a single sample against a flat reference) says something about the
+            # gene only if the bins inside the gene show the same change. If their mean lies in
+            # CNVkit's own two-copy range, the segment is listed as not supported instead of as a
+            # candidate.
+            overlap_bins = [float(b["log2"]) for b in bins
+                            if b["chromosome"] == chrom and int(b["start"]) < overlap_end and int(b["end"]) > overlap_start]
+            overlap_mean = sum(overlap_bins) / len(overlap_bins) if overlap_bins else None
+            beyond_gene = start < region[1] or end > region[2]
+            supported = not (kind != "kein Hinweis" and beyond_gene and overlap_mean is not None
+                             and NEUTRAL_LOG2[0] < overlap_mean <= NEUTRAL_LOG2[1])
+            segment_kind = kind
+            if not supported:
+                kind = "kein Hinweis"
             results.append({
+                "segmentType": segment_kind, "supportedInGene": supported,
+                "overlapBinMeanLog2": round(overlap_mean, 3) if overlap_mean is not None else None,
                 "gene": gene, "chrom": chrom, "start": start + 1, "end": end,
                 "overlapStart": overlap_start + 1, "overlapEnd": overlap_end,
                 "log2": round(log2, 3), "copyNumber": cn, "type": kind,
