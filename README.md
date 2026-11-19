@@ -77,6 +77,17 @@ tool at the pinned versions; VEP cache, reference and ClinVar are mounted from t
 `.fai`, `.dict` and the BWA index next to the FASTA. VEP needs an offline GRCh38 cache
 (`vep_install -a cf -s homo_sapiens -y GRCh38`). ClinVar: `clinvar.vcf.gz` + `.tbi` from NCBI (GRCh38).
 
+## Start file
+
+`start/brca12-wgs-start.command` starts a run without typing a Nextflow command. On macOS a
+double-click opens it in Terminal; elsewhere run it with `bash`. It asks for a BAM or CRAM (drag the
+file into the window, which inserts its path, or type the path), then for the reference the reads were
+aligned to, shows input, reference and output folder (`~/Downloads/brca12-<sample>`, always a new
+folder) and starts the pipeline after Enter. At the end it lists the reports and opens the HTML
+report. Reference, VEP cache, ClinVar VCF, the Nextflow program and the profile are asked once and
+kept in `~/.config/brca12-wgs/start.conf`; further Nextflow options (for example `--report_pdf true`
+or local tool paths) go into `EXTRA_ARGS` there. `BRCA12_DRYRUN=1` stops after the overview.
+
 ## Several samples (batch) and Excel
 
 Every run also writes `brca12_report.xlsx` (overview with the research-use note, small variants with
