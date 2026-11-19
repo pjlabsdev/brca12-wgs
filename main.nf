@@ -112,7 +112,7 @@ process VALIDATE_INPUTS {
     def targets = targets_in.name != 'NO_TARGETS' ? "--targets ${targets_in} --out-targets targets.brca.bed" : ''
     def primers = primers_in.name != 'NO_PRIMERS' ? "--primers ${primers_in} --out-primers primers.brca.bed" : ''
     """
-    ${params.python} ${projectDir}/bin/brca12_prepare.py \\
+    ${params.python} "${projectDir}/bin/brca12_prepare.py" \\
         --fai ${reference_fai} --regions ${regions_bed} --exons ${exons_bed} ${targets} ${primers} \\
         --calling-padding ${params.calling_padding} --sv-padding ${params.sv_padding} \\
         --out-check reference_check.json --out-calling regions.calling.bed \\
@@ -227,7 +227,7 @@ process READ_QC {
     fi
     if [ -s primer_clip.stats.txt ]; then OPTS="\$OPTS --clip-stats primer_clip.stats.txt"; fi
     if [ -s idxstats.txt ]; then OPTS="\$OPTS --idxstats idxstats.txt"; fi
-    ${params.python} ${projectDir}/bin/brca12_read_qc.py --assay ${params.assay} --stats region.samtools.stats.txt \\
+    ${params.python} "${projectDir}/bin/brca12_read_qc.py" --assay ${params.assay} --stats region.samtools.stats.txt \\
       --min-target-depth ${params.min_target_depth} \$OPTS --out read_qc.json
     cp .command.sh read_qc.command.sh
     """
@@ -259,7 +259,7 @@ process CALL_MOSAIC {
     """
     set -euo pipefail
     ${params.samtools} view -h -M -T ${reference} -L ${calling_bed} ${bam} \\
-      | ${params.python} ${projectDir}/bin/brca12_clip_polyg.py \\
+      | ${params.python} "${projectDir}/bin/brca12_clip_polyg.py" \\
       | ${params.samtools} view -b -o calling_regions.bam -
     ${params.samtools} index calling_regions.bam
     ${params.gatk} --java-options "-Xmx4g" Mutect2 -R ${reference} -I calling_regions.bam -L ${calling_bed} \\
@@ -300,7 +300,7 @@ process CALL_SMALL_VARIANTS {
         """
         set -euo pipefail
         ${params.samtools} view -h -M -T ${reference} -L ${calling_bed} ${bam} \\
-          | ${params.python} ${projectDir}/bin/brca12_clip_polyg.py \\
+          | ${params.python} "${projectDir}/bin/brca12_clip_polyg.py" \\
           | ${params.samtools} view -b -o calling_regions.bam -
         ${params.samtools} index calling_regions.bam
         ${params.gatk} --java-options "-Xmx4g" HaplotypeCaller \\
@@ -390,7 +390,7 @@ process CALL_SV_DELLY {
     ${params.bcftools} view -f PASS \\
       -i 'GT!="0/0" && GT!="./." && (SVTYPE=="DEL" || SVTYPE=="DUP" || SVTYPE=="INV" || SVTYPE=="BND")' \\
       delly.bcf \\
-      | ${params.python} ${projectDir}/bin/brca12_filter_sv.py --windows ${sv_bed} --min-length 50 \\
+      | ${params.python} "${projectDir}/bin/brca12_filter_sv.py" --windows ${sv_bed} --min-length 50 \\
       | ${params.bgzip} -c > ${params.sample}.delly.sv.vcf.gz
     ${params.tabix} -f -p vcf ${params.sample}.delly.sv.vcf.gz
     cp .command.sh delly.command.sh
@@ -443,7 +443,7 @@ process CALL_CNV_CNVKIT {
       exit 1
     fi
     ${params.cnvkit} access ${reference} -o access.bed
-    ${params.python} ${projectDir}/bin/brca12_prepare.py --cnv-targets ${reference_check} \\
+    ${params.python} "${projectDir}/bin/brca12_prepare.py" --cnv-targets ${reference_check} \\
       --cnv-access access.bed --out-cnv-targets wgs_regions.bed
     if [ "${useReference}" = "true" ]; then
       ${params.cnvkit} batch ${bam} --reference ${cnv_reference} --method ${method} \\
@@ -508,7 +508,7 @@ process EXON_COVERAGE {
     # small BAM. Without this, mosdepth --by and samtools view -L read the whole alignment file
     # (hours for a 70 GB genome) although only the gene regions are needed. Depths are unchanged:
     # every read overlapping the intervals is in the small BAM.
-    ${params.python} ${projectDir}/bin/brca12_exon_cnv.py --panel ${exon_cnv_panel} --write-bed exon_cnv_regions.bed
+    ${params.python} "${projectDir}/bin/brca12_exon_cnv.py" --panel ${exon_cnv_panel} --write-bed exon_cnv_regions.bed
     cat ${exons} ${exact_bed} exon_cnv_regions.bed | grep -v -e '^#' -e '^track' -e '^browser' \\
       | cut -f1-3 | sort -k1,1 -k2,2n > coverage_regions.bed
     ${params.samtools} view -b -M -L coverage_regions.bed -T ${reference} -o coverage_regions.bam ${bam}
@@ -523,21 +523,21 @@ process EXON_COVERAGE {
       for C in \$(cut -f1 ${exact_bed} | sort -u); do
         ${params.mosdepth} -t ${task.cpus} -f ${reference} -Q 20 -n --fast-mode --by 100000 -c \$C chrom_\$C ${bam}
       done
-      ${params.python} ${projectDir}/bin/brca12_prepare.py --chrom-median chrom_*.regions.bed.gz --out-chrom-median chrom_median.txt
+      ${params.python} "${projectDir}/bin/brca12_prepare.py" --chrom-median chrom_*.regions.bed.gz --out-chrom-median chrom_median.txt
     else
       # Targeted data: median exon depth over both genes as baseline (a whole-gene loss stays visible).
-      ${params.python} ${projectDir}/bin/brca12_prepare.py --exon-baseline exons_q20.regions.bed.gz --out-chrom-median chrom_median.txt
+      ${params.python} "${projectDir}/bin/brca12_prepare.py" --exon-baseline exons_q20.regions.bed.gz --out-chrom-median chrom_median.txt
     fi
     # Insertion signatures (Alu, extra tandem repeat copies) from soft-clipped read ends inside the genes.
     ${params.samtools} faidx ${reference} \$(awk '{print \$1":"\$2+1"-"\$3}' ${exact_bed}) > genes.fa
     ${params.samtools} view -L ${exact_bed} --reference ${reference} coverage_regions.bam \\
-      | ${params.python} ${projectDir}/bin/brca12_insertion_signals.py --regions ${exact_bed} --gene-fasta genes.fa --out insertion_signals.json
+      | ${params.python} "${projectDir}/bin/brca12_insertion_signals.py" --regions ${exact_bed} --gene-fasta genes.fa --out insertion_signals.json
     # Exon copy number against a reference cohort: depth over exons +/- pad and control windows (MAPQ >= 20).
     if [ -s exon_cnv_regions.bed ]; then
       ${params.samtools} depth -a -Q 20 -b exon_cnv_regions.bed --reference ${reference} coverage_regions.bam \\
-        | ${params.python} ${projectDir}/bin/brca12_exon_cnv.py --panel ${exon_cnv_panel} --out exon_cnv.json
+        | ${params.python} "${projectDir}/bin/brca12_exon_cnv.py" --panel ${exon_cnv_panel} --out exon_cnv.json
     else
-      ${params.python} ${projectDir}/bin/brca12_exon_cnv.py --panel ${exon_cnv_panel} --out exon_cnv.json
+      ${params.python} "${projectDir}/bin/brca12_exon_cnv.py" --panel ${exon_cnv_panel} --out exon_cnv.json
     fi
     cp .command.sh coverage.command.sh
     """
@@ -674,9 +674,9 @@ process REPORT {
     }
     """
     cat ${command_files} > brca12_commands.sh
-    ${params.python} ${projectDir}/bin/brca12_report.py \\
+    ${params.python} "${projectDir}/bin/brca12_report.py" \\
       --sample ${params.sample} --input-mode ${input_mode} --inputs '${inputs}' \\
-      --reference ${params.reference} --reference-check ${reference_check} \\
+      --reference '${params.reference}' --reference-check ${reference_check} \\
       --exons ${exons} --regions ${exact_bed} \\
       --small BRCA1=${brca1_vcf} --small BRCA2=${brca2_vcf} \\
       --sv ${manta_vcf} --cnv ${cnv_cns} --cnr ${cnv_cnr} \\
@@ -707,7 +707,7 @@ process XLSX_EXPORT {
 
     script:
     """
-    ${params.python} ${projectDir}/bin/brca12_xlsx.py ${results_json} brca12_report.xlsx
+    ${params.python} "${projectDir}/bin/brca12_xlsx.py" ${results_json} brca12_report.xlsx
     """
 }
 
@@ -728,7 +728,7 @@ process REPORT_PDF {
 
     script:
     """
-    bash ${projectDir}/bin/brca12_pdf.sh ${report_html} brca12_report.pdf '${params.chrome ?: ''}'
+    bash "${projectDir}/bin/brca12_pdf.sh" ${report_html} brca12_report.pdf '${params.chrome ?: ''}'
     """
 }
 
