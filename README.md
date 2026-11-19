@@ -86,7 +86,8 @@ aligned to, shows input, reference and output folder (`~/Downloads/brca12-<sampl
 folder) and starts the pipeline after Enter. At the end it lists the reports and opens the HTML
 report. Reference, VEP cache, ClinVar VCF, the Nextflow program and the profile are asked once and
 kept in `~/.config/brca12-wgs/start.conf`; further Nextflow options (for example `--report_pdf true`
-or local tool paths) go into `EXTRA_ARGS` there. `BRCA12_DRYRUN=1` stops after the overview.
+or local tool paths) go into `EXTRA_ARGS` there, environment settings such as `JAVA_HOME` or `PATH` into
+`~/.config/brca12-wgs/env.sh`. `BRCA12_DRYRUN=1` stops after the overview.
 
 ## Several samples (batch) and Excel
 

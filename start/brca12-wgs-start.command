@@ -3,7 +3,8 @@
 # Asks for a BAM or CRAM (drag the file into the window, Terminal inserts its path, or type the path),
 # shows input and output folder, starts the Nextflow pipeline after Enter and opens the report.
 # Reference, VEP cache, ClinVar VCF and Nextflow options are asked once and kept in
-# ~/.config/brca12-wgs/start.conf (plain shell variables, editable).
+# ~/.config/brca12-wgs/start.conf (plain shell variables, editable); an optional env.sh next to it
+# can set the environment (for example JAVA_HOME and PATH for a local tool installation).
 # BRCA12_DRYRUN=1 stops after the overview without starting the pipeline.
 set -u
 
@@ -12,6 +13,8 @@ CONF="$HOME/.config/brca12-wgs/start.conf"
 mkdir -p "$(dirname "$CONF")"
 REPO="" REFERENCE="" VEP_CACHE="" CLINVAR_VCF="" PROFILE="conda" NEXTFLOW="" EXTRA_ARGS=""
 [ -f "$CONF" ] && . "$CONF"
+# optional environment for Nextflow and the tools (JAVA_HOME, PATH), kept apart from start.conf
+[ -f "$(dirname "$CONF")/env.sh" ] && . "$(dirname "$CONF")/env.sh"
 
 if [ "${LANG:-}" != "${LANG#de}" ] || [ "$(defaults read -g AppleLocale 2>/dev/null | cut -c1-2)" = "de" ]; then DE=1; else DE=0; fi
 say() { if [ "$DE" = 1 ]; then printf '%s\n' "$1"; else printf '%s\n' "$2"; fi; }
