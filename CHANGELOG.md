@@ -2,6 +2,10 @@
 
 ## Unreleased (1.1.0)
 
+- Paths with spaces: the pipeline scripts and the reference path are quoted in the process
+  commands. Before, a run from a folder such as `brca12-wgs Start 2` failed in the first step with
+  `can't open file '/…/brca12-wgs'`, and a reference path with a space failed in the report step.
+  The stub test now runs once with a space in the pipeline, input and output folders.
 - CNVkit candidates: a segment with copy number != 2 that reaches beyond the gene counts as a
   candidate only if the bins inside the gene show the change too. If their mean log2 lies in
   CNVkit's own two-copy range (above -0.25, at most 0.2) the segment is listed under

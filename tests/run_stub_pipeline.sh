@@ -69,3 +69,17 @@ PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
   --vep_cache "$WORK/vep" --clinvar_vcf "$WORK/clinvar.vcf.gz" \
   --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$WORK/out_cram" --mosaic
 python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['input']['mode']=='bam' and r['input']['files']==['IN.cram'], r['input']; assert r['genes']['BRCA1']['smallVariants'] and r['mosaicCalling']['enabled']; print('stub pipeline (CRAM input) OK')" "$WORK/out_cram/brca12_results.json"
+
+# Spaces in paths: the pipeline folder, the input folder and the output folder each contain a space
+# (for example a folder called "brca12-wgs Start 2" in Downloads).
+SP="$WORK/with space"; mkdir -p "$SP/pipeline copy" "$SP/in put"
+cp -R "$ROOT/main.nf" "$ROOT/nextflow.config" "$ROOT/bin" "$ROOT/assets" "$ROOT/envs" "$SP/pipeline copy/"
+cp "$WORK"/ref.* "$WORK"/R1.fq.gz "$WORK"/R2.fq.gz "$WORK"/clinvar.vcf.gz "$WORK"/clinvar.vcf.gz.tbi "$SP/in put/"
+PATH="$FAKE:$PATH" nextflow run "$SP/pipeline copy/main.nf" -profile standard \
+  --sample SPACE --reference "$SP/in put/ref.fa" --reads_r1 "$SP/in put/R1.fq.gz" --reads_r2 "$SP/in put/R2.fq.gz" \
+  --vep_cache "$WORK/vep" --clinvar_vcf "$SP/in put/clinvar.vcf.gz" \
+  --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$SP/out put"
+for f in brca12_report.html brca12_report.md brca12_results.json brca12_commands.sh brca12_report.xlsx; do
+  test -s "$SP/out put/$f" || { echo "missing $f (paths with spaces)"; exit 1; }
+done
+echo "stub pipeline (paths with spaces) OK"
