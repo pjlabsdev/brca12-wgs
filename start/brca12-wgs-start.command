@@ -99,7 +99,7 @@ say "Ausgabe:    $OUT" "Output:     $OUT"
 say "Threads:    $T · Profil $PROFILE · Bericht $RL" "Threads:    $T · profile $PROFILE · report $RL"
 say "Einstellungen: $CONF" "Settings:   $CONF"
 if [ "${BRCA12_DRYRUN:-0}" = 1 ]; then say "" ""; say "Trockenlauf: hier würde der Lauf starten." "Dry run: the run would start here."; exit 0; fi
-ask "Start mit Enter (oder Strg-C zum Abbrechen). Ein Genom dauert je nach Rechner mehrere Stunden." "Press Enter to start (or Ctrl-C to cancel). A genome takes several hours depending on the machine."; read -r _
+ask "Start mit Enter (oder Strg-C zum Abbrechen). Ein Genom dauert je nach Rechner mehrere Stunden." "Press Enter to start (or Ctrl-C to cancel). A genome takes several hours depending on the machine."; read -r _ || exit 1
 
 mkdir -p "$OUT"
 cd "$OUT" || finish 1
