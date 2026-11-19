@@ -100,11 +100,12 @@ row 2 "brca12-wgs" "$(date '+%d.%m.%Y  %H:%M')" "$ACC" "$MUT"
 printf '  %s%s%s\n' "$MUT" "$(tr_ "BRCA1/BRCA2 aus Genom-, Exom- oder Paneldaten · nur für Forschung (RUO)" "BRCA1/BRCA2 from genome, exome or panel data · research use only (RUO)")" "$RST"
 divider
 
-# pipeline folder (main.nf): next to this file, one level up, or as remembered
-if [ ! -f "$REPO/main.nf" ]; then
-  REPO=""
-  for c in "$HERE/.." "$HERE"; do [ -f "$c/main.nf" ] && REPO="$(cd "$c" && pwd)" && break; done
-fi
+# pipeline folder (main.nf): the one shipped with this file (pipeline/ next to it, as in the start
+# ZIP, or the repository one level up) comes first, then the remembered one
+for c in "$HERE/pipeline" "$HERE/.." "$HERE"; do
+  if [ -f "$c/main.nf" ]; then REPO="$(cd "$c" && pwd)"; break; fi
+done
+[ -f "$REPO/main.nf" ] || REPO=""
 if [ -z "$REPO" ]; then askpath "Ordner von brca12-wgs (mit main.nf) hineinziehen:" "Drop the brca12-wgs folder (with main.nf):" d; REPO="$REPLY_PATH"; fi
 [ -f "$REPO/main.nf" ] || stop "$(tr_ "In $REPO liegt keine main.nf." "No main.nf in $REPO.")"
 [ -z "$NEXTFLOW" ] && NEXTFLOW="$(command -v nextflow 2>/dev/null)"
