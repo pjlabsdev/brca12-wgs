@@ -980,7 +980,7 @@ ol.refs {{ font-size: 7.6pt; padding-left: 14pt; line-height: 1.33; }} ol.refs l
   --reference GRCh38.fa --vep_cache ~/.vep --clinvar_vcf clinvar.vcf.gz</pre>
 
 <h2>Acknowledgements</h2>
-<p>The software and this report were developed with the assistance of an AI coding assistant (Claude, Anthropic). The author reviewed the design and is responsible for the content. This work used data of the Genome in a Bottle Consortium and of the 1000 Genomes Project (New York Genome Center high-coverage sequencing), the exome and amplicon data of the GIAB producers (Oslo University Hospital, University of Nebraska, Thermo Fisher Scientific), the assemblies of the Human Pangenome Reference Consortium and the long reads of the 1KG-ONT cohort. The 1KG-ONT data were generated at the Institute of Molecular Pathology (Vienna, Austria) with funds provided by Boehringer-Ingelheim.</p>
+<p>This work used data of the Genome in a Bottle Consortium and of the 1000 Genomes Project (New York Genome Center high-coverage sequencing), the exome and amplicon data of the GIAB producers (Oslo University Hospital, University of Nebraska, Thermo Fisher Scientific), the assemblies of the Human Pangenome Reference Consortium and the long reads of the 1KG-ONT cohort. The 1KG-ONT data were generated at the Institute of Molecular Pathology (Vienna, Austria) with funds provided by Boehringer-Ingelheim.</p>
 <h2>Conflict of interest</h2>
 <p>None declared.</p>
 
