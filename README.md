@@ -16,11 +16,11 @@ with uncertain regions flagged.
 
 [BRCA-analyzer](https://github.com/aakechin/BRCA-analyzer) (Kechin et al. 2018, last commit February
 2020) is the best-known open BRCA1/BRCA2 workflow. The table compares it, as described in its README
-and code, with brca12-wgs 1.1.0. Feature by feature, brca12-wgs covers what BRCA-analyzer offers and
+and code, with brca12-wgs 1.1.1. Feature by feature, brca12-wgs covers what BRCA-analyzer offers and
 adds the rows it lacks; the one area where BRCA-analyzer is ahead is the size of its clinical
 validation (last row).
 
-| | brca12-wgs 1.1.0 | BRCA-analyzer |
+| | brca12-wgs 1.1.1 | BRCA-analyzer |
 |---|---|---|
 | Data types | WGS, exome, hybrid-capture panels and amplicon panels (`--assay`), paired or single-end, Illumina or Ion Torrent | amplicon panels (MiSeq) |
 | Input | FASTQ, BAM or CRAM | FASTQ |
@@ -65,7 +65,7 @@ nextflow run main.nf -profile conda --sample sample --bam sample.bam \
   --reference GRCh38.fa --vep_cache ~/.vep --clinvar_vcf clinvar.vcf.gz
 
 # Amplicon panel, single-end or paired, primers clipped, mosaic candidates, in the container
-docker build -t brca12-wgs:1.1.0 .
+docker build -t brca12-wgs:1.1.1 .
 nextflow run main.nf -profile docker --sample S1 --reads_r1 S1_R1.fastq.gz --reads_r2 S1_R2.fastq.gz \
   --assay amplicon --targets_bed amplicons.bed --primers_bed primers.bed --mosaic \
   --reference GRCh38.fa --vep_cache ~/.vep --clinvar_vcf clinvar.vcf.gz
@@ -483,7 +483,7 @@ validierte Bestätigung medizinisch interpretiert werden.
 ## Citation
 
 Jungwirth P. brca12-wgs: BRCA1/BRCA2 germline analysis from whole-genome sequencing (GRCh38),
-version 1.1.0. Zenodo, 2026. https://doi.org/10.5281/zenodo.24173638
+version 1.1.1. Zenodo, 2026. https://doi.org/10.5281/zenodo.24173638
 (see also [CITATION.cff](CITATION.cff)).
 
 ## Licence

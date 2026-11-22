@@ -2,7 +2,7 @@
 # Manta 1.6 needs Python 2.7 and lives in its own environment (/opt/conda/envs/manta); Delly needs a
 # newer zlib than the VEP perl stack and lives in /opt/conda/envs/delly (linked onto PATH).
 # The Ensembl VEP cache, the reference genome and ClinVar are NOT included; mount them at run time.
-#   docker build -t brca12-wgs:1.1.0 .
+#   docker build -t brca12-wgs:1.1.1 .
 #   nextflow run main.nf -profile docker ...
 FROM mambaorg/micromamba:1.5.10
 

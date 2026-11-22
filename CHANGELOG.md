@@ -1,7 +1,12 @@
 # Changelog
 
-## Unreleased
+## 1.1.1 (2026-11-22)
 
+- Result page: new table "Cancer types and BRCA1/BRCA2" under the overall statement. For breast cancer
+  (women and men), ovarian, prostate, pancreatic and testicular cancer it shows how strongly each is
+  linked to BRCA1 and BRCA2 (NCCN, ClinGen), the published risk for carriers of a disease-causing variant (Kuchenbaecker 2017, Tai 2007, Nyberg 2020, Li 2022; AlDubayan 2019 for testicular cancer) and what this result says about it:
+  no finding, only entries of uncertain significance, or a finding that needs confirmation, with the
+  gene named. It states that other genes for these cancers are not checked.
 - CNVkit `access` runs on chr13 and chr17 only (extracted with `samtools faidx`) instead of the whole
   reference: the same intervals, since access works per contig, about four times faster (38 s to 9 s
   on a GRCh38 genome). Checked on a 30x genome: CNV segments, dosage hints, SVs and all variants

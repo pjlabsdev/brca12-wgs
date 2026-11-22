@@ -62,6 +62,33 @@ TEXT = {
                   "Checked: small variants with ClinVar and loss-of-function hints, copy number (CNVkit and per exon), structural variants, insertion signals{mosaic}. An unremarkable result does not rule out a predisposition; only an accredited laboratory gives a medical statement."),
     "v_mosaic": (", Mosaike", ", mosaics"),
     "v_limited": ("Die Aussagekraft ist eingeschränkt: {reasons}.", "The result is limited: {reasons}."),
+    "cancer_h": ("Krebsarten und BRCA1/BRCA2", "Cancer types and BRCA1/BRCA2"),
+    "cancer_headers": (["Krebsart", "Zusammenhang mit BRCA1", "Zusammenhang mit BRCA2", "Risiko bei krankheitsverursachender Variante", "Dein Ergebnis"],
+                       ["Cancer type", "Link with BRCA1", "Link with BRCA2", "Risk with a disease-causing variant", "Your result"]),
+    "c_breast_f": ("Brustkrebs (Frauen)", "Breast cancer (women)"),
+    "c_breast_m": ("Brustkrebs (Männer)", "Breast cancer (men)"),
+    "c_ovarian": ("Eierstockkrebs (mit Eileiter und Bauchfell)", "Ovarian cancer (with fallopian tube and peritoneum)"),
+    "c_prostate": ("Prostatakrebs", "Prostate cancer"),
+    "c_pancreas": ("Bauchspeicheldrüsenkrebs", "Pancreatic cancer"),
+    "c_testis": ("Hodenkrebs", "Testicular cancer"),
+    "l_high": ("stark erhöht", "strongly increased"),
+    "l_up": ("erhöht", "increased"),
+    "l_some": ("leicht erhöht", "modestly increased"),
+    "l_none": ("kein gesicherter Zusammenhang", "no established link"),
+    "r_none": ("kein Befund in BRCA1/BRCA2, der dieses Risiko erhöht", "no finding in BRCA1/BRCA2 that raises this risk"),
+    "r_unclear": ("nur Einträge mit unklarer Bedeutung in {genes}, siehe „Zu prüfen“", "only entries of uncertain significance in {genes}, see \u201cTo review\u201d"),
+    "r_attention": ("Befund in {genes}, der dieses Risiko erhöhen kann; Bestätigung nötig, siehe „Zu prüfen“", "finding in {genes} that may raise this risk; needs confirmation, see \u201cTo review\u201d"),
+    "r_not_linked": ("BRCA1/BRCA2 sagen hierzu nichts aus", "BRCA1/BRCA2 say nothing about this"),
+    "k_breast_f": ("BRCA1 72 %, BRCA2 69 % bis 80 Jahre [1]", "BRCA1 72%, BRCA2 69% by age 80 [1]"),
+    "k_breast_m": ("BRCA1 1,2 %, BRCA2 6,8 % bis 70 Jahre [2]", "BRCA1 1.2%, BRCA2 6.8% by age 70 [2]"),
+    "k_ovarian": ("BRCA1 44 %, BRCA2 17 % bis 80 Jahre [1]", "BRCA1 44%, BRCA2 17% by age 80 [1]"),
+    "k_prostate": ("BRCA2 27 % bis 75 Jahre, oft aggressiv; BRCA1 geringer [3]", "BRCA2 27% by age 75, often aggressive; BRCA1 lower [3]"),
+    "k_pancreas": ("erhöht für beide Gene [4]", "increased for both genes [4]"),
+    "k_testis": ("kein gesicherter Zusammenhang; am besten belegt ist CHEK2 (nicht geprüft) [5]", "no established link; best supported is CHEK2 (not checked) [5]"),
+    "cancer_refs": ("[1] Kuchenbaecker 2017, JAMA, doi:10.1001/jama.2017.7112 · [2] Tai 2007, JNCI, doi:10.1093/jnci/djm203 · [3] Nyberg 2020, Eur Urol, doi:10.1016/j.eururo.2019.08.025 · [4] Li 2022, J Clin Oncol, doi:10.1200/JCO.21.02112 · [5] AlDubayan 2019, JAMA Oncol, doi:10.1001/jamaoncol.2018.6477. Die Risiken gelten für Trägerinnen und Träger einer krankheitsverursachenden Variante, nicht für dich, wenn keine gefunden wurde.",
+                    "[1] Kuchenbaecker 2017, JAMA, doi:10.1001/jama.2017.7112 · [2] Tai 2007, JNCI, doi:10.1093/jnci/djm203 · [3] Nyberg 2020, Eur Urol, doi:10.1016/j.eururo.2019.08.025 · [4] Li 2022, J Clin Oncol, doi:10.1200/JCO.21.02112 · [5] AlDubayan 2019, JAMA Oncol, doi:10.1001/jamaoncol.2018.6477. The risks apply to carriers of a disease-causing variant, not to you if none was found."),
+    "cancer_note": ("Zusammenhang nach NCCN Guidelines Genetic/Familial High-Risk Assessment: Breast, Ovarian, Pancreatic, and Prostate und ClinGen-Gen-Krankheits-Bewertungen; für Hodenkrebs ist kein Zusammenhang mit BRCA1/BRCA2 gesichert. Die Tabelle zeigt nur, ob in BRCA1 und BRCA2 etwas gefunden wurde. Andere Gene für diese Krebsarten (zum Beispiel PALB2, CHEK2, ATM, TP53, RAD51C, RAD51D, HOXB13, Mismatch-Reparatur-Gene) prüft brca12-wgs nicht. Kein Befund heißt nicht kein Risiko.",
+                    "Link after the NCCN Guidelines Genetic/Familial High-Risk Assessment: Breast, Ovarian, Pancreatic, and Prostate and ClinGen gene-disease curations; for testicular cancer no link with BRCA1/BRCA2 is established. The table only shows whether something was found in BRCA1 and BRCA2. Other genes for these cancers (for example PALB2, CHEK2, ATM, TP53, RAD51C, RAD51D, HOXB13, mismatch-repair genes) are not checked by brca12-wgs. No finding does not mean no risk."),
     "card_small": ("SNVs und Indels gegenüber der Referenz", "SNVs and indels relative to the reference"),
     "card_small_tip": ("Alle kleinen Varianten in BRCA1 und BRCA2, auch häufige und harmlose. Einzeln in den Details je Gen.",
                        "All small variants in BRCA1 and BRCA2, including common and benign ones. Listed in the details per gene."),
@@ -371,6 +398,48 @@ def verdict(result):
     return "none", 0
 
 
+# Cancer types with the strength of their link to BRCA1 and BRCA2 (NCCN Genetic/Familial High-Risk
+# Assessment: Breast, Ovarian, Pancreatic, and Prostate; ClinGen gene-disease validity). Levels only,
+# no percentages: the page states whether a finding exists, not a personal risk.
+CANCERS = (
+    ("c_breast_f", "l_high", "l_high"),
+    ("c_breast_m", "l_up", "l_high"),
+    ("c_ovarian", "l_high", "l_up"),
+    ("c_prostate", "l_some", "l_high"),
+    ("c_pancreas", "l_up", "l_up"),
+    ("c_testis", "l_none", "l_none"),
+)
+
+
+def gene_levels(result):
+    """Per gene 'none' | 'unclear' | 'attention', as the overall statement but for one gene."""
+    levels = {gene: "none" for gene in GENES}
+    for tier, gene, *_ in notable(result):
+        if gene in levels and levels[gene] != "attention":
+            levels[gene] = "attention" if tier == "attention" else "unclear"
+    return levels
+
+
+def cancer_rows(result, lang):
+    levels = gene_levels(result)
+    rows = []
+    for cancer, *links in CANCERS:
+        linked = [g for g, link in zip(GENES, links) if link != "l_none"]
+        cells = [_t(link, lang) for link in links]
+        if not linked:
+            outcome = _t("r_not_linked", lang)
+        else:
+            for level in ("attention", "unclear"):
+                hit = [g for g in linked if levels[g] == level]
+                if hit:
+                    outcome = _t(f"r_{level}", lang, genes=" & ".join(hit))
+                    break
+            else:
+                outcome = _t("r_none", lang)
+        rows.append([_t(cancer, lang)] + cells + [_t("k" + cancer[1:], lang), outcome])
+    return rows
+
+
 def _table_html(headers, rows, mark=None, css=""):
     esc = html.escape
     out = [f"<table{f' class={chr(39)}{css}{chr(39)}' if css else ''}><thead><tr>"
@@ -461,6 +530,9 @@ def _main(result, lang, sections_for, disclaimer, limitations):
     parts.append(f"<h2>{esc(t('verdict_h'))}</h2><div class='verdict v-{level}'><b>{esc(text)}</b>"
                  f"<p>{esc(t('v_checked', mosaic=mosaic))}</p>"
                  + ("" if passed else f"<p class='warn'>{esc(t('v_limited', reasons=reason_text))}</p>") + "</div>")
+    parts.append(f"<h2>{esc(t('cancer_h'))}</h2><div class='panel'>"
+                 + _table_html(t("cancer_headers"), cancer_rows(result, lang), css="cancer") + "</div>"
+                 f"<p class='note'>{esc(t('cancer_note'))}</p><p class='note'>{esc(t('cancer_refs'))}</p>")
     for gene, values in depth.items():
         if values[1] < minimum:
             parts.append(f"<div class='alert'>{esc(t('low_depth', gene=gene, depth=values[1], min=minimum))}</div>")
