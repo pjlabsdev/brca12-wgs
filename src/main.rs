@@ -3,6 +3,7 @@
 mod coverage;
 mod exons;
 mod reads;
+mod readstats;
 
 use std::io::{self, BufRead};
 
@@ -15,6 +16,8 @@ usage:
   brca12-wgs exons <BAM|CRAM> [--reference REF.fa] [--exons EXONS.bed] [--regions REGIONS.bed]
       exon table (depth, >= 10/20/30x, share of reads with MAPQ < 20, dosage against the chromosome
       median, status), chromosome medians and low-coverage intervals as JSON (1.1 schema)
+  brca12-wgs readqc <BAM|CRAM> [--reference REF.fa] [--regions REGIONS.bed] [--padding 200]
+      read statistics over the calling regions (gene regions +/- padding) like samtools stats
   brca12-wgs depth <BAM|CRAM> <chrom:start-end> [--reference REF.fa] [--min-mapq 20] [--no-mate-overlap]
       per-base depth (1-based positions), like mosdepth per-base or (--no-mate-overlap) samtools depth -a
 ";
@@ -94,12 +97,27 @@ fn cmd_exons(args: &[String]) -> io::Result<()> {
     Ok(())
 }
 
+fn cmd_readqc(args: &[String]) -> io::Result<()> {
+    let input = args.first().filter(|a| !a.starts_with("--")).cloned().ok_or_else(|| io::Error::other("input BAM/CRAM missing"))?;
+    let reference = arg(args, "--reference");
+    let pad: u64 = arg(args, "--padding").and_then(|v| v.parse().ok()).unwrap_or(200);
+    let mut regs: Vec<(String, u64, u64)> = read_bed(&arg(args, "--regions").unwrap_or_else(|| "assets/brca12_regions.bed".into()))?
+        .into_iter()
+        .map(|(c, s, e, _)| (c, s.saturating_sub(pad), e + pad))
+        .collect();
+    regs.sort();
+    let v = readstats::region_stats(&input, reference.as_deref(), &regs)?;
+    println!("{}", serde_json::to_string_pretty(&v).map_err(io::Error::other)?);
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let res = match args.first().map(|s| s.as_str()) {
         Some("coverage") => cmd_coverage(&args[1..]),
         Some("depth") => cmd_depth(&args[1..]),
         Some("exons") => cmd_exons(&args[1..]),
+        Some("readqc") => cmd_readqc(&args[1..]),
         Some("--version") | Some("-V") => {
             println!("brca12-wgs {}", env!("CARGO_PKG_VERSION"));
             Ok(())

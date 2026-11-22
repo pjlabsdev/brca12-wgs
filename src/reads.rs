@@ -29,6 +29,7 @@ pub struct Read {
     pub tlen: i64,
     pub seq: Vec<u8>,
     pub qual: Vec<u8>,
+    pub nm: Option<i64>, // NM tag (edit distance)
 }
 
 pub const UNMAPPED: u16 = 0x4;
@@ -81,6 +82,7 @@ fn convert(r: &RecordBuf, tid_of: &dyn Fn(Option<usize>) -> i32) -> Option<Read>
         tlen: r.template_length() as i64,
         seq: r.sequence().as_ref().to_vec(),
         qual: r.quality_scores().as_ref().to_vec(),
+        nm: r.data().get(&noodles::sam::alignment::record::data::field::Tag::EDIT_DISTANCE).and_then(|v| v.as_int()),
     })
 }
 
