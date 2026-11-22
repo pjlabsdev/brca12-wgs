@@ -70,8 +70,8 @@ TEXT = {
     "v_mosaic": (", Mosaike", ", mosaics"),
     "v_limited": ("Die Aussagekraft ist eingeschränkt: {reasons}.", "The result is limited: {reasons}."),
     "cancer_h": ("Krebsarten und BRCA1/BRCA2", "Cancer types and BRCA1/BRCA2"),
-    "cancer_headers": (["Krebsart", "Zusammenhang mit BRCA1", "Zusammenhang mit BRCA2", "Risiko bei krankheitsverursachender Variante", "Dein Ergebnis"],
-                       ["Cancer type", "Link with BRCA1", "Link with BRCA2", "Risk with a disease-causing variant", "Your result"]),
+    "cancer_headers": (["Krebsart", "Zusammenhang mit BRCA1", "Zusammenhang mit BRCA2", "Risiko bei krankheitsverursachender Variante", "Weitere Gene (nicht geprüft)", "Dein Ergebnis"],
+                       ["Cancer type", "Link with BRCA1", "Link with BRCA2", "Risk with a disease-causing variant", "Other genes (not checked)", "Your result"]),
     "c_breast_f": ("Brustkrebs (Frauen)", "Breast cancer (women)"),
     "c_breast_m": ("Brustkrebs (Männer)", "Breast cancer (men)"),
     "c_ovarian": ("Eierstockkrebs (mit Eileiter und Bauchfell)", "Ovarian cancer (with fallopian tube and peritoneum)"),
@@ -107,6 +107,8 @@ TEXT = {
                     "Counted as uncertain: ClinVar uncertain significance, mosaic candidates, structural variants without PASS and insertion signals other than known common alleles (such as the extra 126 bp copy upstream of BRCA1 exon 1). All other variants (benign, likely benign, common in the population, without a ClinVar entry and without loss of function) do not count as a finding; they are listed in the details per gene."),
     "how_rule": ("Gesamtaussage: mindestens ein Befund ergibt „bestätigen“, sonst ergeben unklare Einträge „unklar“, sonst „kein Hinweis“. Die Krebsarten-Tabelle wendet dieselbe Regel je Gen an und überträgt sie auf die Krebsarten, die mit diesem Gen verbunden sind. Die Qualität ist eingeschränkt, wenn ein Exon unsicher abgedeckt ist, die mittlere Tiefe unter {min:g}x liegt oder die Read-Prüfung einen Hinweis meldet.",
                  "Overall statement: at least one finding gives \u201cneeds confirmation\u201d, otherwise uncertain entries give \u201cuncertain\u201d, otherwise \u201cno sign\u201d. The cancer types table applies the same rule per gene and carries it over to the cancers linked to that gene. Quality is limited if an exon is covered uncertainly, the mean depth is below {min:g}x or the read check reports a note."),
+    "how_valid": ("Prüfung der Methode (Forschung, keine klinische Validierung): GIAB HG001 bis HG007 gegen die Wahrheit v4.2.1: alle 128 Varianten in den Exons (±20 bp) gefunden, keine Falsch-Positiven dort. 39 HPRC-Genome gegen Assemblierungen: SNVs in den Exons 590 von 590; Indels in den Exons außerhalb der BRCA1-Poly-T-Strecke 41 von 43. 10 von 10 echten Trägern krankheitsverursachender Varianten erkannt; 185 von 185 eingebauten kleinen Varianten. In echte Reads eingebaute Strukturvarianten: Deletionen 108 von 120, Tandem-Duplikationen 118 von 120, Inversionen 60 von 60. Einzelprobe-CNVkit findet Ereignisse unter etwa 10 kb nicht zuverlässig.",
+                  "Validation of the method (research, not a clinical validation): GIAB HG001 to HG007 against truth v4.2.1: all 128 variants in the exons (±20 bp) found, no false positive there. 39 HPRC genomes against assemblies: exon SNVs 590 of 590; exon indels outside the BRCA1 poly-T stretch 41 of 43. 10 of 10 real carriers of disease-causing variants detected; 185 of 185 spiked small variants. Structural variants spiked into real reads: deletions 108 of 120, tandem duplications 118 of 120, inversions 60 of 60. Single-sample CNVkit does not reliably find events below about 10 kb."),
     "how_trace": ("Nachvollziehbar: jeder Wert steht in brca12_results.json, jeder ausgeführte Befehl in brca12_commands.sh, alle Programmversionen unter „Details je Gen“ → „Lauf“. Methode und Prüfung an GIAB- und 1000-Genomes-Proben: Forschungsbeitrag {url}.",
                   "Traceable: every value is in brca12_results.json, every executed command in brca12_commands.sh, all program versions under \u201cDetails per gene\u201d \u2192 \u201cRun\u201d. Method and validation on GIAB and 1000 Genomes samples: research article {url}."),
     "card_small": ("SNVs und Indels gegenüber der Referenz", "SNVs and indels relative to the reference"),
@@ -436,6 +438,16 @@ def verdict(result):
 # Cancer types with the strength of their link to BRCA1 and BRCA2 (NCCN Genetic/Familial High-Risk
 # Assessment: Breast, Ovarian, Pancreatic, and Prostate; ClinGen gene-disease validity). Levels only,
 # no percentages: the page states whether a finding exists, not a personal risk.
+# Further genes with an established link (NCCN Genetic/Familial High-Risk Assessment; for testicular
+# cancer AlDubayan 2019); brca12-wgs does not check them.
+OTHER_GENES = {
+    "c_breast_f": "PALB2, CHEK2, ATM, TP53, PTEN, CDH1, STK11",
+    "c_breast_m": "PALB2, CHEK2",
+    "c_ovarian": "RAD51C, RAD51D, BRIP1, PALB2, MLH1, MSH2, MSH6, EPCAM",
+    "c_prostate": "HOXB13, ATM, CHEK2, PALB2, MLH1, MSH2, MSH6, PMS2",
+    "c_pancreas": "PALB2, ATM, CDKN2A, STK11, MLH1, MSH2, MSH6, TP53",
+    "c_testis": "CHEK2",
+}
 CANCERS = (
     ("c_breast_f", "l_high", "l_high"),
     ("c_breast_m", "l_up", "l_high"),
@@ -475,7 +487,7 @@ def cancer_rows(result, lang):
             else:
                 weak = [g for g in linked if g in limited]
                 outcome = _t("r_none_limited", lang, genes=" & ".join(weak)) if weak else _t("r_none", lang)
-        rows.append([_t(cancer, lang)] + cells + [_t("k" + cancer[1:], lang), outcome])
+        rows.append([_t(cancer, lang)] + cells + [_t("k" + cancer[1:], lang), OTHER_GENES[cancer], outcome])
     return rows
 
 
@@ -602,7 +614,7 @@ def _main(result, lang, sections_for, disclaimer, limitations):
                      t("how_sources", caller=result["snvCaller"], vep=versions.get("ensembl-vep") or ui("unknown", lang),
                        clinvar=clinvar_release or ui("unknown", lang),
                        gnomad=", ".join(sources.get("gnomad") or []) or "VEP cache"),
-                     t("how_attention"), t("how_unclear"), t("how_rule", min=minimum),
+                     t("how_attention"), t("how_unclear"), t("how_rule", min=minimum), t("how_valid"),
                      t("how_trace", url=RESEARCH_URL)))
                  + "</div>")
     parts.append(f"<h2>{esc(t('method'))}</h2><div class='panel prose'><p>{esc(t('method_text', caller=result['snvCaller']))}</p>"

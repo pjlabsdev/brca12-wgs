@@ -107,9 +107,10 @@ class ReportPageTest(unittest.TestCase):
                                  "Ovarian cancer (with fallopian tube and peritoneum)", "Prostate cancer",
                                  "Pancreatic cancer", "Testicular cancer"])
         rows = {row[0]: row for row in page.cancer_rows(clean(), "en")}
-        self.assertEqual(rows["Breast cancer (women)"][4], "no finding in BRCA1/BRCA2 that raises this risk")
+        self.assertEqual(rows["Breast cancer (women)"][5], "no finding in BRCA1/BRCA2 that raises this risk")
         self.assertEqual(rows["Testicular cancer"][1:3], ["no established link", "no established link"])
-        self.assertEqual(rows["Testicular cancer"][4], "BRCA1/BRCA2 say nothing about this")
+        self.assertEqual(rows["Testicular cancer"][4], "CHEK2")
+        self.assertEqual(rows["Testicular cancer"][5], "BRCA1/BRCA2 say nothing about this")
         self.assertEqual(rows["Ovarian cancer (with fallopian tube and peritoneum)"][3], "BRCA1 44%, BRCA2 17% by age 80 [1]")
         # no finding, but BRCA1 thinly covered: the rows linked to BRCA1 say so
         thin = clean()
@@ -117,9 +118,9 @@ class ReportPageTest(unittest.TestCase):
             if exon["gene"] == "BRCA1":
                 exon.update(meanDepth=8.0, status="unsicher")
         rows = {row[0]: row for row in page.cancer_rows(thin, "en")}
-        self.assertEqual(rows["Breast cancer (women)"][4],
+        self.assertEqual(rows["Breast cancer (women)"][5],
                          "no finding in BRCA1/BRCA2 that raises this risk; coverage of BRCA1 limited, see Quality")
-        self.assertEqual(rows["Testicular cancer"][4], "BRCA1/BRCA2 say nothing about this")
+        self.assertEqual(rows["Testicular cancer"][5], "BRCA1/BRCA2 say nothing about this")
         # a finding in one gene only marks the cancers linked to that gene and names it
         result = clean()
         variant = copy(RESULT["genes"]["BRCA1"]["smallVariants"][0])
@@ -128,12 +129,12 @@ class ReportPageTest(unittest.TestCase):
         result["genes"]["BRCA2"]["smallVariants"] = [variant]
         self.assertEqual(page.gene_levels(result), {"BRCA1": "none", "BRCA2": "attention"})
         rows = {row[0]: row for row in page.cancer_rows(result, "en")}
-        self.assertTrue(rows["Prostate cancer"][4].startswith("finding in BRCA2 that may raise this risk"))
-        self.assertEqual(rows["Testicular cancer"][4], "BRCA1/BRCA2 say nothing about this")
+        self.assertTrue(rows["Prostate cancer"][5].startswith("finding in BRCA2 that may raise this risk"))
+        self.assertEqual(rows["Testicular cancer"][5], "BRCA1/BRCA2 say nothing about this")
         variant["clinvar"]["significance"] = "Uncertain_significance"
         variant["acmgHints"] = []
         rows = {row[0]: row for row in page.cancer_rows(result, "de")}
-        self.assertTrue(rows["Eierstockkrebs (mit Eileiter und Bauchfell)"][4].startswith("nur Einträge mit unklarer Bedeutung in BRCA2"))
+        self.assertTrue(rows["Eierstockkrebs (mit Eileiter und Bauchfell)"][5].startswith("nur Einträge mit unklarer Bedeutung in BRCA2"))
         text = render.html_report(result, "en")
         self.assertIn("Cancer types and BRCA1/BRCA2", tab(text, "en", "r"))
         self.assertIn("Krebsarten und BRCA1/BRCA2", tab(text, "de", "r"))
