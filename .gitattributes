@@ -1,0 +1,4 @@
+start/*.bat text eol=crlf
+start/*.command text eol=lf
+start/*.sh text eol=lf
+*.woff2 binary

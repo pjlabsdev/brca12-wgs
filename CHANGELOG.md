@@ -2,6 +2,34 @@
 
 ## Unreleased (1.1.0)
 
+- Start packages for macOS, Linux and Windows: `brca12-wgs-macos/-linux/-windows.zip` (no version in
+  the name, so `releases/latest/download/` always finds the newest) with
+  the start file, `README.txt` (English, then German) and the pipeline, built by `start/build_zips.sh`
+  and attached to every release by a GitHub Action. Windows runs the start file in WSL 2
+  (`brca12-wgs-start.bat`); Windows paths are translated and the output goes to the Windows
+  Downloads folder. The start file is in English, German when the system language is German
+  (`BRCA12_LANG` sets it). At every start it checks for a newer release and offers the update (default
+  no), which replaces the program files in place and restarts; results and settings stay
+  (`BRCA12_NO_UPDATE=1` switches it off). Names and behaviour match the hla-wgs start packages.
+- Input file names with spaces or shell characters (for example `S 1.bam`) are linked under a safe
+  name before the run; before, such a BAM broke the CNVkit step. `--sample` is checked at the start
+  (letters, digits, dot, underscore, hyphen) instead of failing later in a tool command; the start
+  file builds the sample name accordingly.
+- Read QC: the sequencing platform is recognised from the read-name format (MGI/DNBSEQ or Illumina,
+  >= 90 % of up to 1,000 reads of the first calling region). MGI/DNBSEQ reads give a note that the
+  pipeline is validated on Illumina data, and a second one when the read group says ILLUMINA. A BAM
+  without a duplicate-marking step in its header (samtools/sambamba markdup, Picard/GATK
+  MarkDuplicates, bammarkduplicates, umi_tools dedup; a file name such as x.markdup.bam does not
+  count) and with 0 % duplicates gives a note too. Seen on a DNBSEQ genome aligned with bwa and
+  sorted only, with ILLUMINA in its read group.
+- A task killed by a signal (exit > 128, for example a bus error 138 or kill 137 when an external USB
+  disk drops out briefly) is run again, at most `--signal_retries` times (2); other errors stop the
+  run as before.
+- Start file (`start/brca12-wgs-start.command`): removes the macOS download quarantine from its own
+  folder so the shipped programs run on other Macs, and after a disk drop-out waits until the input
+  and the reference are readable again and continues with `-resume` (at most `BRCA12_RESUME`
+  times, 3). The output folder is created only after the start is confirmed, and an unreadable
+  confirmation stops the start. Both points follow the hla-wgs start file.
 - HTML report rebuilt after the hla-wgs result page: one file with German and English (switch at the
   top, `--report_lang` sets the language shown first), two tabs (Result with report header, counts
   and the entries to review; Details with all tables, figures, versions, commands and limitations),
@@ -9,7 +37,8 @@
   article. No script is used. A notice appears when the mean exon depth of a gene is below
   `--min_exon_depth`, and the header states the quality as passed or limited with the reason. The
   PDF prints both tabs with its own footer (sample, RUO note, page n / N). New JSON field
-  `pipeline` (name, version, DOI).
+  `pipeline` (name, version, DOI). Notes of the read check (platform, duplicate marking) are shown
+  on the Result tab and translated in the English report.
 - Paths with spaces: the pipeline scripts and the reference path are quoted in the process
   commands. Before, a run from a folder such as `brca12-wgs Start 2` failed in the first step with
   `can't open file '/…/brca12-wgs'`, and a reference path with a space failed in the report step.

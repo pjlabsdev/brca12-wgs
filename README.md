@@ -77,6 +77,39 @@ tool at the pinned versions; VEP cache, reference and ClinVar are mounted from t
 `.fai`, `.dict` and the BWA index next to the FASTA. VEP needs an offline GRCh38 cache
 (`vep_install -a cf -s homo_sapiens -y GRCh38`). ClinVar: `clinvar.vcf.gz` + `.tbi` from NCBI (GRCh38).
 
+## Start packages (macOS, Linux, Windows)
+
+Every release carries three ZIPs, `brca12-wgs-macos.zip`, `brca12-wgs-linux.zip` and
+`brca12-wgs-windows.zip`; the latest is always at
+`https://github.com/pjlabsdev/brca12-wgs/releases/latest/download/brca12-wgs-<system>.zip`. Each holds one folder with
+the start file, a `README.txt` (English, then German) and the pipeline in `pipeline/`. Reference genome,
+VEP cache, ClinVar and your data are not included; nothing is uploaded.
+
+| System | Start | Needs |
+|---|---|---|
+| macOS | double-click `brca12-wgs-start.command` (first time: right-click, Open) | Java 17+, Nextflow, conda/mamba or Docker |
+| Linux | `bash brca12-wgs-start.sh` | the same |
+| Windows | double-click `brca12-wgs-start.bat`; it runs the start file in WSL 2 | WSL 2 (`wsl --install`), the rest inside WSL |
+
+The start file asks for a BAM or CRAM (drag the file into the window, which inserts its path, or type
+the path; under WSL a Windows path such as `D:\data\x.bam` is translated), then for the reference the
+reads were aligned to, shows input, reference and output folder (`brca12-<sample>` in the Downloads
+folder, under WSL the Windows one; always a new folder) and starts the pipeline after Enter, with one
+line per finished step. At the end it lists the reports and opens the HTML report. Reference, VEP
+cache, ClinVar VCF, the Nextflow program and the profile are asked once and kept in
+`~/.config/brca12-wgs/start.conf`; further Nextflow options (for example `--report_pdf true` or local
+tool paths) go into `EXTRA_ARGS` there, environment settings such as `JAVA_HOME` or `PATH` into
+`~/.config/brca12-wgs/env.sh`.
+
+- **Language:** English; German when the system language is German. `BRCA12_LANG=en` or `=de` sets it.
+- **Updates:** at every start the file asks GitHub for the latest release (one request, nothing about
+  you or your data is sent). If it is newer, it offers the update (default no); on `y` the package for your system
+  replaces the program files of the folder in place and is started again. Results and settings stay. `BRCA12_NO_UPDATE=1` switches the check off.
+- **Disk drop-outs:** if the input or reference disk drops out (external USB disk), it waits until both
+  are readable again and continues with `-resume`, at most `BRCA12_RESUME` times (3).
+- `BRCA12_DRYRUN=1` stops after the overview. `start/build_zips.sh` builds the three ZIPs from the
+  committed state; a GitHub Action attaches them to every published release.
+
 ## Several samples (batch) and Excel
 
 Every run also writes `brca12_report.xlsx` (overview with the research-use note, small variants with
@@ -173,6 +206,15 @@ The HTML report shows two figures per gene: mean depth per exon with the 10x and
 (uncertain exons in orange) and the exon dosage relative to the chromosome median with the no-hint
 band 0.65 to 1.35, an MLPA-like view of possible exon losses or gains. Plain inline SVG, readable in
 print; dosage outliers are candidates, not CNV calls.
+## Read QC notes on platform and duplicates
+
+The read QC recognises the sequencing platform from the read-name format and notes MGI/DNBSEQ
+reads (the pipeline is validated on Illumina data), a read group that names another platform than
+the reads, and a BAM or CRAM without duplicate marking (no duplicate-marking step in the header and
+0 % duplicates). Mark duplicates before the analysis (`samtools markdup`, Picard `MarkDuplicates`);
+FASTQ input is marked by the pipeline itself. A task killed by a signal (external disk dropping out)
+is run again up to `--signal_retries` times (default 2).
+
 ## Report languages and PDF
 
 The HTML report is one file with both languages and two tabs. **Result** shows the report header

@@ -1,0 +1,32 @@
+name: Start packages
+# Builds the start ZIPs for macOS, Linux and Windows (start/build_zips.sh) and attaches them to every
+# published release, so that they can be downloaded from the release page and found by the update
+# check of the start file.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach the ZIPs to (e.g. v1.1.0)"
+        required: true
+permissions:
+  contents: write
+jobs:
+  zips:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+      - name: Check that the tag matches the version in nextflow.config
+        run: |
+          tag="${{ github.event.release.tag_name || inputs.tag }}"
+          version="$(sed -n "s/^ *version *= *'\([^']*\)'.*/\1/p" nextflow.config | head -1)"
+          [ "${tag#v}" = "$version" ] || { echo "tag $tag does not match version $version"; exit 1; }
+      - name: Build the ZIPs
+        run: bash start/build_zips.sh dist
+      - name: Attach them to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name || inputs.tag }}" dist/*.zip --clobber
