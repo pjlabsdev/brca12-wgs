@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (1.1.0)
+## 1.1.0 (2026-11-22)
 
 - Start packages for macOS, Linux and Windows: `brca12-wgs-macos/-linux/-windows.zip` (no version in
   the name, so `releases/latest/download/` always finds the newest) with
@@ -30,15 +30,15 @@
   and the reference are readable again and continues with `-resume` (at most `BRCA12_RESUME`
   times, 3). The output folder is created only after the start is confirmed, and an unreadable
   confirmation stops the start. Both points follow the hla-wgs start file.
-- HTML report rebuilt after the hla-wgs result page: one file with German and English (switch at the
-  top, `--report_lang` sets the language shown first), two tabs (Result with report header, counts
-  and the entries to review; Details with all tables, figures, versions, commands and limitations),
-  PJ Labs design with the embedded font, explanations on hover or tap, DOI and link to the research
-  article. No script is used. A notice appears when the mean exon depth of a gene is below
-  `--min_exon_depth`, and the header states the quality as passed or limited with the reason. The
-  PDF prints both tabs with its own footer (sample, RUO note, page n / N). New JSON field
-  `pipeline` (name, version, DOI). Notes of the read check (platform, duplicate marking) are shown
-  on the Result tab and translated in the English report.
+- HTML report rebuilt after the hla-wgs result page: one interactive file in English and German
+  (switch at the top, `--report_lang` sets the language shown first, the choice is remembered), tabs
+  Result and Details per gene, report header with report number, databases, depth and quality
+  (passed or limited with the reason), explanations on hover or tap, an overall statement for BRCA1
+  and BRCA2, notices for low depth and read-check notes (platform, duplicate marking; translated),
+  collapsible sections per gene with figures and all tables, PJ Labs design with the embedded font,
+  DOI and links to the research article and source. New JSON field `pipeline` (name, version, DOI).
+- The PDF step (`--report_pdf`, `--chrome`, `bin/brca12_pdf.sh`) is removed: the HTML page is the
+  report; printing from the browser prints the open tab with all genes expanded and page numbers.
 - Paths with spaces: the pipeline scripts and the reference path are quoted in the process
   commands. Before, a run from a folder such as `brca12-wgs Start 2` failed in the first step with
   `can't open file '/…/brca12-wgs'`, and a reference path with a space failed in the report step.
