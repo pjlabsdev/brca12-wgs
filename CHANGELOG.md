@@ -24,7 +24,8 @@
   article. No script is used. A notice appears when the mean exon depth of a gene is below
   `--min_exon_depth`, and the header states the quality as passed or limited with the reason. The
   PDF prints both tabs with its own footer (sample, RUO note, page n / N). New JSON field
-  `pipeline` (name, version, DOI).
+  `pipeline` (name, version, DOI). Notes of the read check (platform, duplicate marking) are shown
+  on the Result tab and translated in the English report.
 - Paths with spaces: the pipeline scripts and the reference path are quoted in the process
   commands. Before, a run from a folder such as `brca12-wgs Start 2` failed in the first step with
   `can't open file '/…/brca12-wgs'`, and a reference path with a space failed in the report step.

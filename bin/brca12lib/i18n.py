@@ -81,6 +81,18 @@ EXACT = {
     "unsicher": "uncertain", "ok": "ok",
     "Mosaik-Kandidat": "mosaic candidate", "schwach abgedeckt": "weakly covered",
     "nicht im Zielbereich des Panels": "not covered by a panel target",
+    "Lesenamen im MGI/DNBSEQ-Format: brca12-wgs ist auf Illumina-Daten validiert, "
+    "für diese Plattform liegen keine Validierungsdaten vor":
+        "Read names in MGI/DNBSEQ format: brca12-wgs is validated on Illumina data, "
+        "there are no validation data for this platform",
+    "Read-Group nennt ILLUMINA, die Lesenamen stammen aber von MGI/DNBSEQ":
+        "The read group names ILLUMINA, but the read names come from MGI/DNBSEQ",
+    "keine Duplikatmarkierung erkennbar (kein markdup im BAM-Header, 0 % Duplikate): "
+    "Duplikate zählen bei Tiefe und Allelanteil mit; vor der Analyse samtools markdup "
+    "oder Picard MarkDuplicates anwenden":
+        "No duplicate marking found (no markdup in the BAM header, 0% duplicates): "
+        "duplicates count towards depth and allele fraction; run samtools markdup "
+        "or Picard MarkDuplicates before the analysis",
     "Ion Torrent: Insertionen/Deletionen in Homopolymeren unzuverlässig":
         "Ion Torrent: insertions/deletions in homopolymers unreliable",
     "niedriger Allelanteil: Bestätigung mit orthogonaler Methode nötig":

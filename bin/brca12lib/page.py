@@ -319,6 +319,8 @@ def _main(result, lang, sections, disclaimer, limitations):
     for gene, values in depth.items():
         if values[1] < minimum:
             parts.append(f"<div class='alert'>{esc(t('low_depth', gene=gene, depth=values[1], min=minimum))}</div>")
+    for flag in (result.get("readQC") or {}).get("flags", []):
+        parts.append(f"<div class='alert'>{esc(str(tr(flag, lang)))}</div>")
     parts.append(f"<div class='alert soft'><strong>{esc(ui('important', lang))}:</strong> {esc(disclaimer)}</div>")
     parts.append(f"<h2>{esc(t('notable'))}</h2>")
     rows = notable_rows(result, lang)

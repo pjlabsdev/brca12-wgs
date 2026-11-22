@@ -76,6 +76,23 @@ class ReportPageTest(unittest.TestCase):
         self.assertIn("eingeschränkt", text)
         self.assertIn("Low depth: BRCA2", main_part(render.html_report(result, "de"), "en"))
 
+    def test_read_check_notes_are_shown_and_translated(self):
+        source = open(os.path.join(ROOT, "bin", "brca12_read_qc.py")).read()
+        flags = [m for m in re.findall(r'flags\.append\(((?:\s*"[^"]*")+)\)', source)]
+        notes = ["".join(re.findall(r'"([^"]*)"', f)) for f in flags]
+        platform_notes = [n for n in notes if "MGI" in n or "Duplikatmarkierung" in n]
+        self.assertEqual(len(platform_notes), 3)
+        result = json.loads(json.dumps(RESULT))
+        result["readQC"] = {"flags": platform_notes}
+        text = render.html_report(result, "de")
+        english = main_part(text, "en")
+        for note in platform_notes:
+            self.assertIn(note, main_part(text, "de"))
+            self.assertNotIn(note, english)
+        self.assertIn("validated on Illumina data", english)
+        self.assertIn("No duplicate marking found", english)
+        self.assertFalse(page.quality(result)[0])
+
     def test_nothing_to_review_keeps_the_caveat(self):
         result = json.loads(json.dumps(RESULT))
         for gene in result["genes"].values():
