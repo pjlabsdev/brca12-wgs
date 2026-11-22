@@ -12,7 +12,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from brca12lib import coverage, enigma_tables, evidence, render, structural, variants  # noqa: E402
+from brca12lib import coverage, enigma_tables, evidence, page, render, structural, variants  # noqa: E402
 from brca12lib import exon_cnv as exon_cnv_lib  # noqa: E402
 from brca12lib.vcf import VCF  # noqa: E402
 
@@ -214,6 +214,7 @@ def build(args):
                            "-profile <conda|docker|standard>"])
     result = {
         "schema": SCHEMA,
+        "pipeline": {"name": "brca12-wgs", "version": pipeline_version(), "doi": page.DOI},
         "sample": args.sample,
         "generatedAt": datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat(),
         "assembly": "GRCh38",
@@ -274,6 +275,17 @@ def build(args):
         result["limitationsEN"].append("Single-end reads: the SV caller (Delly or Manta) was skipped, structural variants are not searched; duplicates can only be recognised by start position.")
     result["summary"] = summarize(result)
     return result
+
+
+def pipeline_version():
+    """Version from the manifest in nextflow.config next to this script; None if it cannot be read."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "nextflow.config")
+    try:
+        with open(path) as handle:
+            found = re.search(r"^\s*version\s*=\s*['\"]([^'\"]+)['\"]", handle.read(), re.M)
+    except OSError:
+        return None
+    return found.group(1) if found else None
 
 
 def summarize(result):
