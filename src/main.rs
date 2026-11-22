@@ -1,6 +1,7 @@
 //! brca12-wgs 2.0 (in development): BRCA1/BRCA2 germline analysis from whole-genome sequencing in
 //! one program, without external tools. Research use only (RUO).
 mod coverage;
+mod exons;
 mod reads;
 
 use std::io::{self, BufRead};
@@ -11,6 +12,9 @@ usage:
   brca12-wgs coverage <BAM|CRAM> [--reference REF.fa] [--exons EXONS.bed] [--min-mapq 20]
       exon depth like mosdepth (MAPQ filter, flags 0x704 skipped, mate overlap once):
       name, mean depth and bases >= 10/20/30x per exon, tab-separated on stdout
+  brca12-wgs exons <BAM|CRAM> [--reference REF.fa] [--exons EXONS.bed] [--regions REGIONS.bed]
+      exon table (depth, >= 10/20/30x, share of reads with MAPQ < 20, dosage against the chromosome
+      median, status), chromosome medians and low-coverage intervals as JSON (1.1 schema)
   brca12-wgs depth <BAM|CRAM> <chrom:start-end> [--reference REF.fa] [--min-mapq 20] [--no-mate-overlap]
       per-base depth (1-based positions), like mosdepth per-base or (--no-mate-overlap) samtools depth -a
 ";
@@ -78,11 +82,24 @@ fn cmd_depth(args: &[String]) -> io::Result<()> {
     Ok(())
 }
 
+fn cmd_exons(args: &[String]) -> io::Result<()> {
+    let input = args.first().filter(|a| !a.starts_with("--")).cloned().ok_or_else(|| io::Error::other("input BAM/CRAM missing"))?;
+    let reference = arg(args, "--reference");
+    let exons = read_bed(&arg(args, "--exons").unwrap_or_else(|| "assets/brca12_exons.bed".into()))?;
+    let regions = read_bed(&arg(args, "--regions").unwrap_or_else(|| "assets/brca12_regions.bed".into()))?;
+    let contigs = reads::contigs(&input, reference.as_deref())?;
+    let len = |c: &str| contigs.iter().find(|(n, _)| n == c).map(|&(_, l)| l);
+    let v = exons::table(&input, reference.as_deref(), &exons, &regions, &len, &exons::DEFAULT)?;
+    println!("{}", serde_json::to_string_pretty(&v).map_err(io::Error::other)?);
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let res = match args.first().map(|s| s.as_str()) {
         Some("coverage") => cmd_coverage(&args[1..]),
         Some("depth") => cmd_depth(&args[1..]),
+        Some("exons") => cmd_exons(&args[1..]),
         Some("--version") | Some("-V") => {
             println!("brca12-wgs {}", env!("CARGO_PKG_VERSION"));
             Ok(())
