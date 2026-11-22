@@ -111,6 +111,15 @@ class ReportPageTest(unittest.TestCase):
         self.assertEqual(rows["Testicular cancer"][1:3], ["no established link", "no established link"])
         self.assertEqual(rows["Testicular cancer"][4], "BRCA1/BRCA2 say nothing about this")
         self.assertEqual(rows["Ovarian cancer (with fallopian tube and peritoneum)"][3], "BRCA1 44%, BRCA2 17% by age 80 [1]")
+        # no finding, but BRCA1 thinly covered: the rows linked to BRCA1 say so
+        thin = clean()
+        for exon in thin["exonCoverage"]:
+            if exon["gene"] == "BRCA1":
+                exon.update(meanDepth=8.0, status="unsicher")
+        rows = {row[0]: row for row in page.cancer_rows(thin, "en")}
+        self.assertEqual(rows["Breast cancer (women)"][4],
+                         "no finding in BRCA1/BRCA2 that raises this risk; coverage of BRCA1 limited, see Quality")
+        self.assertEqual(rows["Testicular cancer"][4], "BRCA1/BRCA2 say nothing about this")
         # a finding in one gene only marks the cancers linked to that gene and names it
         result = clean()
         variant = copy(RESULT["genes"]["BRCA1"]["smallVariants"][0])

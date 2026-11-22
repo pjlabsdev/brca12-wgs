@@ -78,6 +78,8 @@ TEXT = {
     "r_none": ("kein Befund in BRCA1/BRCA2, der dieses Risiko erhöht", "no finding in BRCA1/BRCA2 that raises this risk"),
     "r_unclear": ("nur Einträge mit unklarer Bedeutung in {genes}, siehe „Zu prüfen“", "only entries of uncertain significance in {genes}, see \u201cTo review\u201d"),
     "r_attention": ("Befund in {genes}, der dieses Risiko erhöhen kann; Bestätigung nötig, siehe „Zu prüfen“", "finding in {genes} that may raise this risk; needs confirmation, see \u201cTo review\u201d"),
+    "r_none_limited": ("kein Befund in BRCA1/BRCA2, der dieses Risiko erhöht; Abdeckung von {genes} eingeschränkt, siehe Qualität",
+                       "no finding in BRCA1/BRCA2 that raises this risk; coverage of {genes} limited, see Quality"),
     "r_not_linked": ("BRCA1/BRCA2 sagen hierzu nichts aus", "BRCA1/BRCA2 say nothing about this"),
     "k_breast_f": ("BRCA1 72 %, BRCA2 69 % bis 80 Jahre [1]", "BRCA1 72%, BRCA2 69% by age 80 [1]"),
     "k_breast_m": ("BRCA1 1,2 %, BRCA2 6,8 % bis 70 Jahre [2]", "BRCA1 1.2%, BRCA2 6.8% by age 70 [2]"),
@@ -433,6 +435,9 @@ def gene_levels(result):
 
 def cancer_rows(result, lang):
     levels = gene_levels(result)
+    minimum = result["thresholds"]["minExonDepth"]
+    depth = _gene_depth(result)
+    limited = {g for g, (_, mean, _, uncertain) in depth.items() if uncertain or mean < minimum}
     rows = []
     for cancer, *links in CANCERS:
         linked = [g for g, link in zip(GENES, links) if link != "l_none"]
@@ -446,7 +451,8 @@ def cancer_rows(result, lang):
                     outcome = _t(f"r_{level}", lang, genes=" & ".join(hit))
                     break
             else:
-                outcome = _t("r_none", lang)
+                weak = [g for g in linked if g in limited]
+                outcome = _t("r_none_limited", lang, genes=" & ".join(weak)) if weak else _t("r_none", lang)
         rows.append([_t(cancer, lang)] + cells + [_t("k" + cancer[1:], lang), outcome])
     return rows
 

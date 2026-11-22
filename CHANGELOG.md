@@ -8,6 +8,8 @@
   overall statement and the cancer types table, and where every value and command is kept.
 - The ClinVar release (`##fileDate` of the ClinVar VCF) is recorded under `toolVersions.clinvar` and
   shown in the header of the result page.
+- Cancer types table: where nothing was found but a linked gene is thinly covered (an uncertain exon
+  or mean depth below the threshold), the row says so instead of a plain "no finding".
 - `brca12_report.md` carries English and German like the HTML page (`--report_lang` sets which comes
   first).
 - Result page: new table "Cancer types and BRCA1/BRCA2" under the overall statement. For breast cancer
