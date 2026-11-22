@@ -227,6 +227,13 @@ process READ_QC {
     fi
     if [ -s primer_clip.stats.txt ]; then OPTS="\$OPTS --clip-stats primer_clip.stats.txt"; fi
     if [ -s idxstats.txt ]; then OPTS="\$OPTS --idxstats idxstats.txt"; fi
+    # header (read-group platform, duplicate-marking step) and read names of the first calling region
+    # (read-name format of the sequencing platform); both only feed QC notes
+    ${params.samtools} view -H ${bam} > bam_header.txt 2>/dev/null || true
+    FIRST=\$(awk 'NR == 1 {printf "%s:%d-%d", \$1, \$2 + 1, \$3}' ${calling_bed})
+    ( ${params.samtools} view --reference "${reference}" ${bam} \$FIRST 2>/dev/null || true ) | head -1000 | cut -f1 > read_names.txt || true
+    if [ -s bam_header.txt ]; then OPTS="\$OPTS --header bam_header.txt"; fi
+    if [ -s read_names.txt ]; then OPTS="\$OPTS --read-names read_names.txt"; fi
     ${params.python} "${projectDir}/bin/brca12_read_qc.py" --assay ${params.assay} --stats region.samtools.stats.txt \\
       --min-target-depth ${params.min_target_depth} \$OPTS --out read_qc.json
     cp .command.sh read_qc.command.sh

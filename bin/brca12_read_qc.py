@@ -11,6 +11,7 @@ For amplicon data with a primer BED it also reports how many reads had a primer 
 import argparse
 import gzip
 import json
+import re
 import statistics
 import sys
 
@@ -142,6 +143,44 @@ def read_clip_stats(path):
             "readsFilteredTooShort": values.get("FILTERED", 0)}
 
 
+MGI_NAME = re.compile(r"^[A-Z]?\d+L\d+C\d{3}R\d{3}\d+(/[12])?$")        # e.g. E250160051L1C025R01804404018
+ILLUMINA_NAME = re.compile(r"^[^:\s]+:\d+:[^:\s]+:\d+:\d+:\d+:\d+")    # e.g. A00132:44:HCLL7DSXX:2:2417:16857:29872
+# a duplicate-marking program, not just "markdup" in a file name (samtools view -o x.markdup.bam)
+MARKDUP_PG = re.compile(r"(?:^|[\s/])(?:samtools|sambamba)\S*\s+markdup\b|MarkDuplicates|bammarkduplicates"
+                        r"|umi_tools\s+dedup|\tPN:(?:samtools-markdup|MarkDuplicates)\b", re.I)
+
+
+def platform_from_read_names(path, min_reads=50):
+    """MGI/DNBSEQ or Illumina from the read name format (>= 90 % of the reads), else None."""
+    with open(path) as handle:
+        names = [line.strip() for line in handle if line.strip()]
+    if len(names) < min_reads:
+        return None
+    mgi = sum(bool(MGI_NAME.match(n)) for n in names) / len(names)
+    illumina = sum(bool(ILLUMINA_NAME.match(n)) for n in names) / len(names)
+    if mgi >= 0.9:
+        return "MGI/DNBSEQ"
+    if illumina >= 0.9:
+        return "Illumina"
+    return None
+
+
+def read_header(path):
+    """Read-group platforms (PL) and whether a duplicate-marking step is recorded in @PG."""
+    platforms, markdup = set(), False
+    with open(path) as handle:
+        for line in handle:
+            if line.startswith("@RG"):
+                for field in line.rstrip("\n").split("\t")[1:]:
+                    if field.startswith("PL:"):
+                        platforms.add(field[3:].upper())
+            elif line.startswith("@PG"):
+                fields = dict(f.split(":", 1) for f in line.rstrip("\n").split("\t")[1:] if ":" in f)
+                if MARKDUP_PG.search(fields.get("CL", "")) or MARKDUP_PG.search("\tPN:" + fields.get("PN", "")):
+                    markdup = True
+    return sorted(platforms), markdup
+
+
 def build(args):
     result = {"assay": args.assay, "regionStats": read_samtools_stats(args.stats)}
     flags = []
@@ -152,6 +191,23 @@ def build(args):
         flags.append(f"geringer Anteil kartierter Reads ({rs['mappedPct']:.1f} %)")
     if rs["errorRate"] is not None and rs["errorRate"] > 0.01:
         flags.append(f"hohe Fehlerrate ({100 * rs['errorRate']:.2f} %)")
+    if args.read_names:
+        names_platform = platform_from_read_names(args.read_names)
+        result["readNamePlatform"] = names_platform
+        if names_platform == "MGI/DNBSEQ":
+            flags.append("Lesenamen im MGI/DNBSEQ-Format: brca12-wgs ist auf Illumina-Daten validiert, "
+                         "für diese Plattform liegen keine Validierungsdaten vor")
+    if args.header:
+        platforms, markdup = read_header(args.header)
+        result["readGroupPlatforms"] = platforms
+        result["duplicateMarkingInHeader"] = markdup
+        if result.get("readNamePlatform") == "MGI/DNBSEQ" and "ILLUMINA" in platforms:
+            flags.append("Read-Group nennt ILLUMINA, die Lesenamen stammen aber von MGI/DNBSEQ")
+        if (not markdup and rs["duplicatePct"] is not None and rs["duplicatePct"] == 0
+                and args.assay != "amplicon"):
+            flags.append("keine Duplikatmarkierung erkennbar (kein markdup im BAM-Header, 0 % Duplikate): "
+                         "Duplikate zählen bei Tiefe und Allelanteil mit; vor der Analyse samtools markdup "
+                         "oder Picard MarkDuplicates anwenden")
     if args.idxstats:
         mapped, unmapped = read_idxstats(args.idxstats)
         result["totalMappedReads"] = mapped
@@ -190,6 +246,8 @@ def main(argv=None):
     p.add_argument("--assay", default="wgs", choices=("wgs", "exome", "panel", "amplicon"))
     p.add_argument("--stats", required=True, help="samtools stats output over the calling regions")
     p.add_argument("--idxstats", default=None)
+    p.add_argument("--header", default=None, help="BAM/CRAM header (samtools view -H)")
+    p.add_argument("--read-names", default=None, help="read names from the calling regions, one per line")
     p.add_argument("--targets", default=None, help="target BED (exome/panel/amplicon)")
     p.add_argument("--target-depth", default=None, help="samtools depth -a over the targets (gzip)")
     p.add_argument("--on-target-reads", default=None, help="file with the number of reads overlapping the targets")
