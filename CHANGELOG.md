@@ -17,6 +17,14 @@
   and the reference are readable again and continues with `-resume` (at most `BRCA12_RESUME`
   times, 3). The output folder is created only after the start is confirmed, and an unreadable
   confirmation stops the start. Both points follow the hla-wgs start file.
+- HTML report rebuilt after the hla-wgs result page: one file with German and English (switch at the
+  top, `--report_lang` sets the language shown first), two tabs (Result with report header, counts
+  and the entries to review; Details with all tables, figures, versions, commands and limitations),
+  PJ Labs design with the embedded font, explanations on hover or tap, DOI and link to the research
+  article. No script is used. A notice appears when the mean exon depth of a gene is below
+  `--min_exon_depth`, and the header states the quality as passed or limited with the reason. The
+  PDF prints both tabs with its own footer (sample, RUO note, page n / N). New JSON field
+  `pipeline` (name, version, DOI).
 - Paths with spaces: the pipeline scripts and the reference path are quoted in the process
   commands. Before, a run from a folder such as `brca12-wgs Start 2` failed in the first step with
   `can't open file '/…/brca12-wgs'`, and a reference path with a space failed in the report step.

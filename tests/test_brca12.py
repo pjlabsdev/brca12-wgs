@@ -214,7 +214,13 @@ class PipelineScriptsTest(unittest.TestCase):
         self.assertIn("BRCA1 SNVs/indels", html_en)
         self.assertIn("Exon 23 (legacy 24)", html_en)
         self.assertIn("heterozygous", html_en)
-        self.assertNotIn("unsicher", html_en)
+        self.assertTrue(html_en.startswith("<!DOCTYPE html><html lang='en'>"))
+        english = html_en[html_en.index("<main lang='en'"):]
+        english = english[:english.index("</main>")]
+        self.assertIn("BRCA1 SNVs/indels", english)
+        self.assertNotIn("unsicher", english)
+        self.assertEqual(result["pipeline"]["name"], "brca12-wgs")
+        self.assertRegex(result["pipeline"]["version"], r"^\d+\.\d+\.\d+")
 
 
 if __name__ == "__main__":

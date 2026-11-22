@@ -2,7 +2,8 @@
 # Print the HTML report to PDF with headless Chrome/Chromium.
 #   bin/brca12_pdf.sh brca12_report.html brca12_report.pdf [CHROME]
 # Without a usable Chrome/Chromium the step is skipped with a note (exit 0, no PDF).
-# Chrome's own header and footer are kept: title (sample and RUO note), date and page numbers.
+# The page brings its own footer (sample, program, RUO note, page n / N), so Chrome's header and
+# footer are switched off.
 set -euo pipefail
 html="$1"; pdf="$2"; chrome="${3:-}"
 if [ -z "$chrome" ]; then
@@ -22,12 +23,12 @@ profile="$(mktemp -d)"
 trap 'rm -rf "$profile"' EXIT
 # Some Chromium builds keep running after printing; the timeout ends them (the PDF is already written).
 timeout "${BRCA12_PDF_TIMEOUT:-120}" "$chrome" --headless --disable-gpu --no-sandbox --no-first-run --user-data-dir="$profile" \
-  --print-to-pdf="$pdf" "file://$abs" >/dev/null 2>&1 || true
+  --no-pdf-header-footer --print-to-pdf="$pdf" "file://$abs" >/dev/null 2>&1 || true
 if [ ! -s "$pdf" ]; then
   # Some builds (e.g. Chrome for Testing on macOS) hang with a fresh --user-data-dir and never print;
   # retry once with the browser's default profile.
   timeout "${BRCA12_PDF_TIMEOUT:-120}" "$chrome" --headless --disable-gpu --no-sandbox --no-first-run \
-    --print-to-pdf="$pdf" "file://$abs" >/dev/null 2>&1 || true
+    --no-pdf-header-footer --print-to-pdf="$pdf" "file://$abs" >/dev/null 2>&1 || true
 fi
 if [ -s "$pdf" ]; then
   echo "[brca12] PDF report written: $pdf" >&2
