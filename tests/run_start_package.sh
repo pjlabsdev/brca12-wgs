@@ -104,5 +104,5 @@ grep -q "Done" <<<"$out" || { echo "$out"; exit 1; }
 for f in brca12_report.html brca12_results.json; do
   test -s "$WORK/home/Downloads/brca12-S_1/results/$f" || { echo "missing $f"; exit 1; }
 done
-grep -q "id='lang-en' aria-label='English' checked" "$WORK/home/Downloads/brca12-S_1/results/brca12_report.html" || { echo "report does not show English first"; exit 1; }
+grep -q "<body data-lang='en' data-tab='r'>" "$WORK/home/Downloads/brca12-S_1/results/brca12_report.html" || { echo "report does not show English first"; exit 1; }
 echo "start file (whole run from the unpacked package, paths with spaces) OK"
