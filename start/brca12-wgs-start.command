@@ -7,10 +7,15 @@
 # ~/.config/brca12-wgs/start.conf (plain shell variables, editable); an optional env.sh next to it
 # can set the environment (for example JAVA_HOME and PATH for a local tool installation).
 # BRCA12_DRYRUN=1 stops after the overview without starting the pipeline.
+# If the input or reference disk drops out (external USB disk), the start file waits until both are
+# readable again and continues with -resume (finished steps are kept), at most BRCA12_RESUME times (3).
 set -u
 case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in *UTF-8*) ;; *) export LC_CTYPE=en_US.UTF-8 ;; esac
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
+# macOS: a downloaded start folder carries the quarantine flag and its programs would be blocked on
+# other Macs; drop it for this folder only (start file and the pipeline shipped next to it).
+if [ "$(uname)" = Darwin ]; then xattr -dr com.apple.quarantine "$HERE" 2>/dev/null || true; fi
 CONF="$HOME/.config/brca12-wgs/start.conf"
 mkdir -p "$(dirname "$CONF")"
 REPO="" REFERENCE="" VEP_CACHE="" CLINVAR_VCF="" PROFILE="conda" NEXTFLOW="" EXTRA_ARGS=""
@@ -162,9 +167,18 @@ printf '\n'
 title "brca12-wgs · $S"
 START=$(now)
 # shellcheck disable=SC2086  # EXTRA_ARGS holds further Nextflow options, split on purpose
-"$NEXTFLOW" -log "$OUT/.nextflow.log" run "$REPO/main.nf" -ansi-log false -profile "$PROFILE" -work-dir "$OUT/work" \
-  --sample "$S" --bam "$IN" --reference "$REFERENCE" --vep_cache "$VEP_CACHE" --clinvar_vcf "$CLINVAR_VCF" \
-  --report_lang "$RL" --threads "$T" --outdir "$OUT/results" $EXTRA_ARGS >"$LOG" 2>&1 & PID=$!
+launch() {
+  "$NEXTFLOW" -log "$OUT/.nextflow.log" run "$REPO/main.nf" -ansi-log false -resume -profile "$PROFILE" -work-dir "$OUT/work" \
+    --sample "$S" --bam "$IN" --reference "$REFERENCE" --vep_cache "$VEP_CACHE" --clinvar_vcf "$CLINVAR_VCF" \
+    --report_lang "$RL" --threads "$T" --outdir "$OUT/results" $EXTRA_ARGS >>"$LOG" 2>&1 & PID=$!
+}
+# a run that ended because a disk dropped out: input or reference unreadable now, or an I/O error or
+# a task killed by a signal (bus error, kill) in the log of this attempt
+disk_dropout() {
+  [ -r "$IN" ] && [ -r "$REFERENCE" ] || return 0
+  tail -n +"$1" "$LOG" | grep -qiE 'Input/output error|Device not configured|Bus error|exit status \((13[4-9]|14[0-3])\)'
+}
+launch
 
 # progress: submitted steps from the Nextflow log, finished steps from the trace file (one tick line
 # each with its run time), running steps next to the spinner
@@ -198,7 +212,25 @@ while kill -0 "$PID" 2>/dev/null; do
   i=$((i + 1)); sleep 0.25
 done
 wait "$PID"; rc=$?; PID=""
-show_done; clearline; cursor h
+show_done
+attempt=1
+while [ "$rc" != 0 ] && [ "$attempt" -le "${BRCA12_RESUME:-3}" ] && disk_dropout "${LOGLINE:-1}"; do
+  clearline
+  row 4 "$(tr_ "Datenträger nicht erreichbar, warte und setze fort ($attempt)" "Disk not reachable, waiting to resume ($attempt)")" "$(since "$START")" "$ERR"
+  until [ -r "$IN" ] && [ -r "$REFERENCE" ] && [ -w "$OUT" ]; do sleep 15; done
+  sleep 30
+  attempt=$((attempt + 1)); LOGLINE=$(($(wc -l < "$LOG") + 1)); shown=0
+  launch
+  while kill -0 "$PID" 2>/dev/null; do
+    show_done
+    sub=$(grep -c 'Submitted process >' "$LOG" 2>/dev/null)
+    spin "$i" "$(bar "$shown" "${sub:-0}" 20)  $MUT$(tr_ "fortgesetzt" "resumed")  $(since "$START")$RST"
+    i=$((i + 1)); sleep 0.25
+  done
+  wait "$PID"; rc=$?; PID=""
+  show_done
+done
+clearline; cursor h
 
 printf '\n'
 divider

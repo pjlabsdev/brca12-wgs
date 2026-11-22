@@ -185,6 +185,15 @@ The HTML report shows two figures per gene: mean depth per exon with the 10x and
 (uncertain exons in orange) and the exon dosage relative to the chromosome median with the no-hint
 band 0.65 to 1.35, an MLPA-like view of possible exon losses or gains. Plain inline SVG, readable in
 print; dosage outliers are candidates, not CNV calls.
+## Read QC notes on platform and duplicates
+
+The read QC recognises the sequencing platform from the read-name format and notes MGI/DNBSEQ
+reads (the pipeline is validated on Illumina data), a read group that names another platform than
+the reads, and a BAM or CRAM without duplicate marking (no duplicate-marking step in the header and
+0 % duplicates). Mark duplicates before the analysis (`samtools markdup`, Picard `MarkDuplicates`);
+FASTQ input is marked by the pipeline itself. A task killed by a signal (external disk dropping out)
+is run again up to `--signal_retries` times (default 2).
+
 ## Report languages and PDF
 
 `--report_lang en|de` sets the language of the HTML and Markdown report. The JSON keeps German
