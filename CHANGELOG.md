@@ -15,6 +15,10 @@
 - Start file: if a task hangs on a disk that dropped out, Nextflow never ends and the automatic
   resume could not start. A watchdog now stops Nextflow when the input or reference stays unreadable
   for `BRCA12_STALL` seconds (60); the start file then waits for the disk and resumes.
+- Known common alleles (the extra 126 bp copy upstream of BRCA1 exon 1, the common intronic BRCA2
+  Alu insertion) no longer count as uncertain in the overall statement or set `needsAttention`; the
+  statement lists them as known common alleles. Entries of uncertain significance that are common in
+  the population (BA1) are named as such, and single entries read in the singular.
 - `brca12_report.md` carries English and German like the HTML page (`--report_lang` sets which comes
   first).
 - Result page: new table "Cancer types and BRCA1/BRCA2" under the overall statement. For breast cancer

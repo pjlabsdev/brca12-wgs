@@ -153,6 +153,25 @@ class ReportPageTest(unittest.TestCase):
         self.assertIn("ClinVar-Ausgabe 2025-11-04", tab(text, "de", "r"))
         self.assertIn("ClinVar 20251104", main_part(text, "en"))
 
+    def test_common_alleles_and_ba1_do_not_alarm(self):
+        result = clean()
+        result["insertionSignals"] = [{"gene": "BRCA1", "chrom": "chr17", "pos": 43128247, "end": 43128372, "type": "Insertion",
+                                       "label": "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)",
+                                       "signature": ["tandem copy", "known allele"], "clippedReadsLeftJunction": 0,
+                                       "clippedReadsRightJunction": 0, "spanningReads": 30, "flags": []}]
+        self.assertEqual(page.verdict(result), ("none", 0))
+        text = main_part(render.html_report(result, "en"), "en")
+        self.assertIn("Known common alleles, not counted as a finding: extra 126 bp copy upstream of BRCA1 exon 1 (common allele).", text)
+        vus = copy(RESULT["genes"]["BRCA1"]["smallVariants"][0])
+        vus["clinvar"]["significance"] = "Uncertain_significance"
+        vus["acmgHints"] = [{"code": "BA1", "textDE": "über 0,1 %", "textEN": "above 0.1%"}]
+        result["genes"]["BRCA1"]["smallVariants"] = [vus]
+        self.assertEqual(page.verdict(result), ("unclear", 1))
+        text = main_part(render.html_report(result, "en"), "en")
+        self.assertIn("1 entry of uncertain significance.", text)
+        self.assertIn("1 of them common in the population (BA1)", text)
+        self.assertIn("1 Eintrag mit unklarer Bedeutung", main_part(render.html_report(result, "en"), "de"))
+
     def test_low_depth_notice_and_limited_quality(self):
         result = clean()
         for exon in result["exonCoverage"]:

@@ -312,7 +312,9 @@ def summarize(result):
         "uncertainExonCount": sum(1 for e in result["exonCoverage"] if e["status"] != "ok"),
         "lowCoverageIntervalCount": len(result["lowCoverageIntervals"]),
         "needsAttention": bool(clinvar_plp or lof or result["cnvs"] or result["exonCopyNumber"]["calls"]
-                               or result["svs"] or result["insertionSignals"]
+                               or result["svs"]
+                               # known common alleles (label "häufiges Allel") are reported but do not alarm
+                               or [i for i in result["insertionSignals"] if "häufiges Allel" not in (i.get("label") or "")]
                                or result.get("mosaicCandidates")),
     }
 
