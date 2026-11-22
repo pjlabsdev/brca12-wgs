@@ -19,6 +19,9 @@
   Alu insertion) no longer count as uncertain in the overall statement or set `needsAttention`; the
   statement lists them as known common alleles. Entries of uncertain significance that are common in
   the population (BA1) are named as such, and single entries read in the singular.
+- Cancer types table: a column with further genes linked to each cancer that brca12-wgs does not check
+  (NCCN; CHEK2 for testicular cancer). "How the statements are made" summarises the validation with
+  its numbers (GIAB, HPRC, carriers, spike-ins, structural variants).
 - `brca12_report.md` carries English and German like the HTML page (`--report_lang` sets which comes
   first).
 - Result page: new table "Cancer types and BRCA1/BRCA2" under the overall statement. For breast cancer
