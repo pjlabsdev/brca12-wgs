@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.1 (2026-11-22)
 
 - Result page: new table "Cancer types and BRCA1/BRCA2" under the overall statement. For breast cancer
   (women and men), ovarian, prostate, pancreatic and testicular cancer it shows how strongly each is
