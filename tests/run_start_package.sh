@@ -42,7 +42,9 @@ done
 } > "$WORK/home/.config/brca12-wgs/start.conf"
 run() { env HOME="$WORK/home" PATH="$FAKE:$PATH" LANG=C LC_ALL=C "$@" bash "$START"; }
 
+CONF_SUM="$(cksum < "$WORK/home/.config/brca12-wgs/start.conf")"
 out="$(printf '%s\n\n' "$DATA/S 1.bam" | run BRCA12_DRYRUN=1)"
+[ "$(cksum < "$WORK/home/.config/brca12-wgs/start.conf")" = "$CONF_SUM" ] || { echo "dry run must not rewrite start.conf"; exit 1; }
 grep -q "Dry run: the run would start here." <<<"$out" && grep -q "research use only (RUO)" <<<"$out" \
   && grep -q "Sample" <<<"$out" && ! grep -q "Probe\|Trockenlauf" <<<"$out" || { echo "$out"; echo "English dry run failed"; exit 1; }
 out="$(printf '%s\n\n' "'$DATA/S 1.bam'" | run BRCA12_DRYRUN=1 BRCA12_LANG=de)"
