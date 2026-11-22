@@ -200,6 +200,9 @@ def build(args):
     ion = args.platform == "iontorrent"
     mosaic = mosaic_candidates(mosaic_paths, germline, uncertain, sources, args.mosaic_min_af, args.mosaic_max_af,
                                args.mosaic_min_alt_reads, args.mosaic_min_depth, snv_only=ion) if mosaic_paths else []
+    for v in germline:
+        if in_weak_spot(v):
+            v["qualityFlags"].append(WEAK_SPOT_FLAG)
     if ion:
         for v in germline:
             if len(v["ref"]) != len(v["alt"]):
@@ -312,6 +315,24 @@ def summarize(result):
                                or result["svs"] or result["insertionSignals"]
                                or result.get("mosaicCandidates")),
     }
+
+
+# Known weak spot of the method: the poly-T stretch in the BRCA1 3' UTR (GRCh38). In the HPRC
+# validation (validation/hprc) 16 of 18 missed and 9 of 10 false exon indels lay here, because
+# assemblies and short reads disagree on the length of the homopolymer.
+WEAK_SPOTS = (("17", 43044804, 43044817),)
+WEAK_SPOT_FLAG = ("bekannte Schwachstelle: Poly-T-Strecke in der BRCA1-3'-UTR, dort waren in der Prüfung "
+                  "die meisten Indel-Fehler; Länge des Homopolymers unsicher")
+
+
+def in_weak_spot(v):
+    """True for an indel touching a known weak spot (anchor base and normalisation shift included)."""
+    if len(v["ref"]) == len(v["alt"]):
+        return False
+    chrom = str(v["chrom"])
+    chrom = chrom[3:] if chrom.startswith("chr") else chrom
+    end = v["pos"] + len(v["ref"])
+    return any(chrom == c and v["pos"] <= stop + 1 and end >= start - 1 for c, start, stop in WEAK_SPOTS)
 
 
 def main(argv=None):

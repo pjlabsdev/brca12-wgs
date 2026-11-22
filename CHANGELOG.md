@@ -10,6 +10,8 @@
   shown in the header of the result page.
 - Cancer types table: where nothing was found but a linked gene is thinly covered (an uncertain exon
   or mean depth below the threshold), the row says so instead of a plain "no finding".
+- Indels in the poly-T stretch of the BRCA1 3' UTR (chr17:43044804-43044817), where most indel
+  errors of the HPRC validation lay, carry the note "known weak spot" with the reason.
 - `brca12_report.md` carries English and German like the HTML page (`--report_lang` sets which comes
   first).
 - Result page: new table "Cancer types and BRCA1/BRCA2" under the overall statement. For breast cancer
