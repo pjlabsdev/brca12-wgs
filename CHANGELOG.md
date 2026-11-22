@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- CNVkit `access` runs on chr13 and chr17 only (extracted with `samtools faidx`) instead of the whole
+  reference: the same intervals, since access works per contig, about four times faster (38 s to 9 s
+  on a GRCh38 genome). Checked on a 30x genome: CNV segments, dosage hints, SVs and all variants
+  unchanged.
+- Tool versions are queried in parallel (each tool starts its own Java, Perl or R runtime).
+- A dry run of the start file (`BRCA12_DRYRUN=1`) no longer rewrites the saved settings.
+
 ## 1.1.0 (2026-11-22)
 
 - Start packages for macOS, Linux and Windows: `brca12-wgs-macos/-linux/-windows.zip` (no version in

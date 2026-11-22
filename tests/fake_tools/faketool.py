@@ -15,7 +15,8 @@ elif name=="samtools":
     elif a[0]=="sort": open(opt("-o"),"w").write(sys.stdin.read())
     elif a[0]=="markdup": open(a[-1],"w").write("bam"); open(opt("-f"),"w").write("stats")
     elif a[0]=="index": touch(a[-1]+".bai")
-    elif a[0]=="faidx":
+    elif a[0]=="faidx" and a[2:] and not any(":" in x for x in a[2:]):
+        # whole contigs: only CALL_CNV_CNVKIT asks for them, and only for the BRCA chromosomes
         if a[2:] not in (["chr13","chr17"],["13","17"]): sys.exit(f"samtools faidx: expected the BRCA chromosomes, got {a[2:]}")
         print(">chr13\nACGT\n>chr17\nACGT")
     elif a[0]=="stats":
