@@ -89,6 +89,17 @@ TEXT = {
                     "[1] Kuchenbaecker 2017, JAMA, doi:10.1001/jama.2017.7112 · [2] Tai 2007, JNCI, doi:10.1093/jnci/djm203 · [3] Nyberg 2020, Eur Urol, doi:10.1016/j.eururo.2019.08.025 · [4] Li 2022, J Clin Oncol, doi:10.1200/JCO.21.02112 · [5] AlDubayan 2019, JAMA Oncol, doi:10.1001/jamaoncol.2018.6477. The risks apply to carriers of a disease-causing variant, not to you if none was found."),
     "cancer_note": ("Zusammenhang nach NCCN Guidelines Genetic/Familial High-Risk Assessment: Breast, Ovarian, Pancreatic, and Prostate und ClinGen-Gen-Krankheits-Bewertungen; für Hodenkrebs ist kein Zusammenhang mit BRCA1/BRCA2 gesichert. Die Tabelle zeigt nur, ob in BRCA1 und BRCA2 etwas gefunden wurde. Andere Gene für diese Krebsarten (zum Beispiel PALB2, CHEK2, ATM, TP53, RAD51C, RAD51D, HOXB13, Mismatch-Reparatur-Gene) prüft brca12-wgs nicht. Kein Befund heißt nicht kein Risiko.",
                     "Link after the NCCN Guidelines Genetic/Familial High-Risk Assessment: Breast, Ovarian, Pancreatic, and Prostate and ClinGen gene-disease curations; for testicular cancer no link with BRCA1/BRCA2 is established. The table only shows whether something was found in BRCA1 and BRCA2. Other genes for these cancers (for example PALB2, CHEK2, ATM, TP53, RAD51C, RAD51D, HOXB13, mismatch-repair genes) are not checked by brca12-wgs. No finding does not mean no risk."),
+    "how_h": ("Wie die Aussagen zustande kommen", "How the statements are made"),
+    "how_sources": ("Datenquellen dieses Laufs: kleine Varianten mit {caller}; Annotation mit Ensembl VEP {vep} auf den MANE-Select-Transkripten (BRCA1 NM_007294.4, BRCA2 NM_000059.4); ClinVar-Ausgabe {clinvar}; Populationshäufigkeit gnomAD ({gnomad}); ACMG/AMP-Hinweise nach ClinGen ENIGMA BRCA1/BRCA2 VCEP v1.2; Exon-Kopienzahl gegen eine Kohorte von 1000-Genomes-Proben (30x).",
+                    "Data sources of this run: small variants with {caller}; annotation with Ensembl VEP {vep} on the MANE Select transcripts (BRCA1 NM_007294.4, BRCA2 NM_000059.4); ClinVar release {clinvar}; population frequency gnomAD ({gnomad}); ACMG/AMP hints after ClinGen ENIGMA BRCA1/BRCA2 VCEP v1.2; exon copy number against a cohort of 1000 Genomes samples (30x)."),
+    "how_attention": ("Als Befund, der bestätigt werden muss, zählt: eine Variante, die ClinVar ohne widersprüchliche Einträge als pathogen oder wahrscheinlich pathogen führt; ein Kandidat für Funktionsverlust (vorzeitiger Stopp, Leserasterverschiebung, Spleißstelle ±1/2 oder Startcodon, PVS1 nach ENIGMA Tabelle 4); ein Kopienzahl-Kandidat aus CNVkit; eine Exon-Kopienzahl-Abweichung gegenüber der Kohorte; eine strukturelle Variante mit FILTER PASS.",
+                      "Counted as a finding that needs confirmation: a variant that ClinVar lists as pathogenic or likely pathogenic without conflicting entries; a loss-of-function candidate (premature stop, frameshift, splice site ±1/2 or start codon, PVS1 after ENIGMA Table 4); a copy-number candidate from CNVkit; an exon copy-number deviation against the cohort; a structural variant with FILTER PASS."),
+    "how_unclear": ("Als unklar zählt: ClinVar unklare Bedeutung, Mosaik-Kandidaten, strukturelle Varianten ohne PASS und Einschub-Signale. Alle übrigen Varianten (gutartig, wahrscheinlich gutartig, häufig in der Bevölkerung, ohne ClinVar-Eintrag und ohne Funktionsverlust) zählen nicht als Befund; sie stehen in den Details je Gen.",
+                    "Counted as uncertain: ClinVar uncertain significance, mosaic candidates, structural variants without PASS and insertion signals. All other variants (benign, likely benign, common in the population, without a ClinVar entry and without loss of function) do not count as a finding; they are listed in the details per gene."),
+    "how_rule": ("Gesamtaussage: mindestens ein Befund ergibt „bestätigen“, sonst ergeben unklare Einträge „unklar“, sonst „kein Hinweis“. Die Krebsarten-Tabelle wendet dieselbe Regel je Gen an und überträgt sie auf die Krebsarten, die mit diesem Gen verbunden sind. Die Qualität ist eingeschränkt, wenn ein Exon unsicher abgedeckt ist, die mittlere Tiefe unter {min:g}x liegt oder die Read-Prüfung einen Hinweis meldet.",
+                 "Overall statement: at least one finding gives \u201cneeds confirmation\u201d, otherwise uncertain entries give \u201cuncertain\u201d, otherwise \u201cno sign\u201d. The cancer types table applies the same rule per gene and carries it over to the cancers linked to that gene. Quality is limited if an exon is covered uncertainly, the mean depth is below {min:g}x or the read check reports a note."),
+    "how_trace": ("Nachvollziehbar: jeder Wert steht in brca12_results.json, jeder ausgeführte Befehl in brca12_commands.sh, alle Programmversionen unter „Details je Gen“ → „Lauf“. Methode und Prüfung an GIAB- und 1000-Genomes-Proben: Forschungsbeitrag {url}.",
+                  "Traceable: every value is in brca12_results.json, every executed command in brca12_commands.sh, all program versions under \u201cDetails per gene\u201d \u2192 \u201cRun\u201d. Method and validation on GIAB and 1000 Genomes samples: research article {url}."),
     "card_small": ("SNVs und Indels gegenüber der Referenz", "SNVs and indels relative to the reference"),
     "card_small_tip": ("Alle kleinen Varianten in BRCA1 und BRCA2, auch häufige und harmlose. Einzeln in den Details je Gen.",
                        "All small variants in BRCA1 and BRCA2, including common and benign ones. Listed in the details per gene."),
@@ -495,7 +506,7 @@ def _main(result, lang, sections_for, disclaimer, limitations):
                                gnomad=", ".join(sources.get("gnomad") or []) or t("no"),
                                spliceai=t("yes") if sources.get("spliceai") else t("no"),
                                bayesdel=t("yes") if sources.get("bayesdel") else t("no"))),
-         esc(f"VEP {versions.get('ensembl-vep') or '?'} · ClinVar")),
+         esc(f"VEP {versions.get('ensembl-vep') or '?'} · ClinVar {versions.get('clinvar') or ''}".rstrip())),
         (_tip(t("depth"), t("depth_tip", min=minimum, pct=result["thresholds"].get("minExonPct20x", 0))),
          esc(" · ".join(f"{gene} {v[1]:g}x" for gene, v in depth.items()) or ui("na", lang))),
         (_tip(t("quality"), t("quality_tip", min=minimum)),
@@ -549,6 +560,17 @@ def _main(result, lang, sections_for, disclaimer, limitations):
         parts.append(f"<h2>{esc(t('coverage'))}</h2><div class='panel'>"
                      + _table_html(t("cov_headers"), [[g, v[0], f"{v[1]:g}x", f"{v[2]:g}x", v[3]] for g, v in depth.items()])
                      + "</div>")
+    clinvar_release = versions.get("clinvar") or ""
+    if len(clinvar_release) == 8 and clinvar_release.isdigit():
+        clinvar_release = f"{clinvar_release[:4]}-{clinvar_release[4:6]}-{clinvar_release[6:]}"
+    parts.append(f"<h2>{esc(t('how_h'))}</h2><div class='panel prose'>"
+                 + "".join(f"<p>{esc(x)}</p>" for x in (
+                     t("how_sources", caller=result["snvCaller"], vep=versions.get("ensembl-vep") or ui("unknown", lang),
+                       clinvar=clinvar_release or ui("unknown", lang),
+                       gnomad=", ".join(sources.get("gnomad") or []) or "VEP cache"),
+                     t("how_attention"), t("how_unclear"), t("how_rule", min=minimum),
+                     t("how_trace", url=RESEARCH_URL)))
+                 + "</div>")
     parts.append(f"<h2>{esc(t('method'))}</h2><div class='panel prose'><p>{esc(t('method_text', caller=result['snvCaller']))}</p>"
                  + "".join(f"<p>{esc(item)}</p>" for item in limitations)
                  + f"<p>{esc(disclaimer)}</p></div>")

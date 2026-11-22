@@ -2,6 +2,14 @@
 
 ## 1.1.1 (2026-11-22)
 
+- Result page: new section "How the statements are made": data sources of the run (caller, VEP
+  version, MANE transcripts, ClinVar release, gnomAD, ENIGMA specification, exon cohort), which
+  entries count as a finding that needs confirmation and which as uncertain, the rule behind the
+  overall statement and the cancer types table, and where every value and command is kept.
+- The ClinVar release (`##fileDate` of the ClinVar VCF) is recorded under `toolVersions.clinvar` and
+  shown in the header of the result page.
+- `brca12_report.md` carries English and German like the HTML page (`--report_lang` sets which comes
+  first).
 - Result page: new table "Cancer types and BRCA1/BRCA2" under the overall statement. For breast cancer
   (women and men), ovarian, prostate, pancreatic and testicular cancer it shows how strongly each is
   linked to BRCA1 and BRCA2 (NCCN, ClinGen), the published risk for carriers of a disease-causing variant (Kuchenbaecker 2017, Tai 2007, Nyberg 2020, Li 2022; AlDubayan 2019 for testicular cancer) and what this result says about it:

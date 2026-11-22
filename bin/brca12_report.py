@@ -349,7 +349,7 @@ def main(argv=None):
     with open(args.out_json, "w") as handle:
         json.dump(result, handle, indent=2, ensure_ascii=False)
     with open(args.out_md, "w") as handle:
-        handle.write(render.markdown(result, args.lang))
+        handle.write(render.markdown_both(result, args.lang))
     with open(args.out_html, "w") as handle:
         handle.write(render.html_report(result, args.lang))
     return 0

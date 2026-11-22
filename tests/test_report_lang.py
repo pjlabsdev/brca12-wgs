@@ -34,6 +34,15 @@ class LanguageTest(unittest.TestCase):
         self.assertIn("invalid choice", r.stderr)
 
 
+class MarkdownBothLanguagesTest(unittest.TestCase):
+    def test_markdown_has_both_languages_chosen_one_first(self):
+        text = render.markdown_both(RESULT, "en")
+        en, de = text.index(i18n.ui("title", "en")), text.index(i18n.ui("title", "de"))
+        self.assertLess(en, de)
+        text = render.markdown_both(RESULT, "de")
+        self.assertLess(text.index(i18n.ui("title", "de")), text.index(i18n.ui("title", "en")))
+
+
 class PageTitleTest(unittest.TestCase):
     def test_html_title_carries_sample_and_ruo(self):
         self.assertIn(f"<title>brca12-wgs · {RESULT['sample']}</title>", render.html_report(RESULT, "en"))

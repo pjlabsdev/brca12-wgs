@@ -131,6 +131,19 @@ class ReportPageTest(unittest.TestCase):
         self.assertIn("are not checked by brca12-wgs", tab(text, "en", "r"))
         self.assertIn("doi:10.1001/jama.2017.7112", tab(text, "en", "r"))
 
+    def test_how_the_statements_are_made(self):
+        result = copy()
+        result["toolVersions"]["clinvar"] = "20251104"
+        text = render.html_report(result, "en")
+        part = tab(text, "en", "r")
+        self.assertIn("How the statements are made", part)
+        self.assertIn("ClinVar release 2025-11-04", part)
+        self.assertIn("pathogenic or likely pathogenic without conflicting entries", part)
+        self.assertIn("structural variant with FILTER PASS", part)
+        self.assertIn("Wie die Aussagen zustande kommen", tab(text, "de", "r"))
+        self.assertIn("ClinVar-Ausgabe 2025-11-04", tab(text, "de", "r"))
+        self.assertIn("ClinVar 20251104", main_part(text, "en"))
+
     def test_low_depth_notice_and_limited_quality(self):
         result = clean()
         for exon in result["exonCoverage"]:
