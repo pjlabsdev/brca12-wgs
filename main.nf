@@ -449,7 +449,12 @@ process CALL_CNV_CNVKIT {
       echo "ERROR: CNVkit needs R with the Bioconductor package DNAcopy; '\$RSCRIPT' cannot load it. Install DNAcopy in that R or pass --rscript /path/to/Rscript." >&2
       exit 1
     fi
-    ${params.cnvkit} access ${reference} -o access.bed
+    # Accessible regions only on the BRCA chromosomes (chr13/chr17): the same intervals as on the
+    # whole genome, since access works per contig, but about four times faster.
+    BRCA_CHROMS=\$(${params.python} -c 'import json,sys; print(" ".join(json.load(open(sys.argv[1]))["chromLengths"]))' ${reference_check})
+    ${params.samtools} faidx ${reference} \$BRCA_CHROMS > access_ref.fa
+    ${params.cnvkit} access access_ref.fa -o access.bed
+    rm -f access_ref.fa access_ref.fa.fai
     ${params.python} "${projectDir}/bin/brca12_prepare.py" --cnv-targets ${reference_check} \\
       --cnv-access access.bed --out-cnv-targets wgs_regions.bed
     if [ "${useReference}" = "true" ]; then
@@ -610,25 +615,29 @@ process TOOL_VERSIONS {
 
     script:
     """
-    {
-      echo -e "nextflow\\t${workflow.nextflow.version}"
-      echo -e "bwa\\t\$( (${params.bwa} 2>&1 || true) | awk '/^Version/{print \$2}')"
-      echo -e "samtools\\t\$(${params.samtools} --version 2>/dev/null | head -1 | awk '{print \$2}')"
-      echo -e "bcftools\\t\$(${params.bcftools} --version 2>/dev/null | head -1 | awk '{print \$2}')"
-      if [ "${params.snv_caller}" = "deepvariant" ]; then
-        echo -e "deepvariant\\t\$(${params.deepvariant} --version 2>&1 | tail -1 | awk '{print \$NF}')"
-      else
-        echo -e "gatk\\t\$(${params.gatk} --version 2>/dev/null | awk '/The Genome Analysis Toolkit/{print \$NF}')"
-      fi
-      echo -e "manta\\t\$(${params.manta_config} --version 2>/dev/null | tail -1)"
-      echo -e "delly\\t\$(${params.delly} --version 2>&1 | awk '/Delly version/{print \$NF; exit}')"
-      echo -e "cnvkit\\t\$(${params.cnvkit} version 2>/dev/null | tail -1)"
+    # Each tool starts its own runtime (Java for GATK, Perl for VEP, R): queried in parallel, written in order.
+    echo -e "nextflow\\t${workflow.nextflow.version}" > tv_00
+    ( echo -e "bwa\\t\$( (${params.bwa} 2>&1 || true) | awk '/^Version/{print \$2}')" ) > tv_01 &
+    ( echo -e "samtools\\t\$(${params.samtools} --version 2>/dev/null | head -1 | awk '{print \$2}')" ) > tv_02 &
+    ( echo -e "bcftools\\t\$(${params.bcftools} --version 2>/dev/null | head -1 | awk '{print \$2}')" ) > tv_03 &
+    if [ "${params.snv_caller}" = "deepvariant" ]; then
+      ( echo -e "deepvariant\\t\$(${params.deepvariant} --version 2>&1 | tail -1 | awk '{print \$NF}')" ) > tv_04 &
+    else
+      ( echo -e "gatk\\t\$(${params.gatk} --version 2>/dev/null | awk '/The Genome Analysis Toolkit/{print \$NF}')" ) > tv_04 &
+    fi
+    ( echo -e "manta\\t\$(${params.manta_config} --version 2>/dev/null | tail -1)" ) > tv_05 &
+    ( echo -e "delly\\t\$(${params.delly} --version 2>&1 | awk '/Delly version/{print \$NF; exit}')" ) > tv_06 &
+    ( echo -e "cnvkit\\t\$(${params.cnvkit} version 2>/dev/null | tail -1)" ) > tv_07 &
+    (
       R_FOR_CNVKIT="${params.rscript ?: ''}"; [ -n "\$R_FOR_CNVKIT" ] || { d=\$(dirname "\$(command -v ${params.cnvkit} || true)"); [ -x "\$d/Rscript" ] && R_FOR_CNVKIT="\$d/Rscript" || R_FOR_CNVKIT=Rscript; }
       echo -e "dnacopy\\t\$("\$R_FOR_CNVKIT" --no-restore --no-environ -e 'cat(as.character(packageVersion("DNAcopy")))' 2>/dev/null || true)"
-      echo -e "ensembl-vep\\t\$(${params.vep} --help 2>/dev/null | awk '/ensembl-vep/{print \$NF; exit}')"
-      echo -e "mosdepth\\t\$(${params.mosdepth} --version 2>/dev/null | awk '{print \$2}')"
-      echo -e "python\\t\$(${params.python} --version 2>&1 | awk '{print \$2}')"
-    } > tool_versions.tsv
+    ) > tv_08 &
+    ( echo -e "ensembl-vep\\t\$(${params.vep} --help 2>/dev/null | awk '/ensembl-vep/{print \$NF; exit}')" ) > tv_09 &
+    ( echo -e "mosdepth\\t\$(${params.mosdepth} --version 2>/dev/null | awk '{print \$2}')" ) > tv_10 &
+    ( echo -e "python\\t\$(${params.python} --version 2>&1 | awk '{print \$2}')" ) > tv_11 &
+    wait
+    cat tv_?? > tool_versions.tsv
+    rm -f tv_??
     """
 }
 

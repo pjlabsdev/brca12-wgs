@@ -28,6 +28,9 @@ python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['schema']=
 grep -q -- "view -b -M -L coverage_regions.bed" "$WORK/out/coverage/coverage.command.sh" || { echo "coverage step does not fetch regions through the index"; exit 1; }
 if grep -E "mosdepth .*--by [^ ]*exons" "$WORK/out/coverage/coverage.command.sh" | grep -v -q "coverage_regions.bam"; then echo "mosdepth --by still reads the whole alignment"; exit 1; fi
 echo "stub pipeline (coverage reads regions only) OK"
+# CNVkit access runs on the BRCA chromosomes only; tool versions are queried in parallel but kept in order.
+grep -q -- "faidx .* \$BRCA_CHROMS > access_ref.fa" "$WORK/out/calls/cnv.command.sh" || { echo "CNVkit access does not use the BRCA chromosomes only"; exit 1; }
+python3 -c "import json,sys; v=list(json.load(open(sys.argv[1]))['toolVersions']); assert v[:4]==['nextflow','bwa','samtools','bcftools'] and v[-1]=='python', v; print('stub pipeline (CNVkit access, tool versions) OK')" "$WORK/out/brca12_results.json"
 
 # A sample name with a space must be refused at once with a clear message (it would break file names later).
 if PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
