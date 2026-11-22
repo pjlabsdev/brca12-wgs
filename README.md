@@ -175,13 +175,25 @@ band 0.65 to 1.35, an MLPA-like view of possible exon losses or gains. Plain inl
 print; dosage outliers are candidates, not CNV calls.
 ## Report languages and PDF
 
-`--report_lang en|de` sets the language of the HTML and Markdown report. The JSON keeps German
-values (stable schema) and carries the disclaimer and limitations in both languages.
+The HTML report is one file with both languages and two tabs. **Result** shows the report header
+(sample, input, reference, program version, depth over the exons, quality), four counts, a notice
+when the mean exon depth of a gene is below `--min_exon_depth`, and the entries to review: ClinVar
+pathogenic or likely pathogenic, uncertain significance, loss-of-function candidates, mosaic
+candidates, CNV candidates, exon copy number calls, structural variants and insertion signals.
+**Details** holds every table, the figures, tool versions, commands and limitations. Language and tab
+are switched without any script, so the file also works offline and with scripts blocked. Terms in
+the header explain themselves on hover or tap. The font (IBM Plex Mono, SIL OFL 1.1,
+`assets/fonts/OFL.txt`) is embedded.
+
+`--report_lang en|de` sets the language of the Markdown report and the language the HTML report
+shows first. The JSON keeps German values (stable schema) and carries the disclaimer and limitations
+in both languages.
 
 `--report_pdf` also writes `brca12_report.pdf`, printed from the HTML report with headless
 Chrome/Chromium (`--chrome /path/to/chrome`, otherwise searched on `PATH` and in the usual macOS
-locations). Without a browser the step is skipped with a note in the log. The PDF has A4 pages,
-a header with sample name and RUO note and page numbers.
+locations). Without a browser the step is skipped with a note in the log. The PDF has A4 pages in
+the language of `--report_lang`, both tabs one after the other, and a footer with sample name,
+RUO note and page numbers.
 
 ## Flagging uncertain results
 
