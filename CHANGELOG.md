@@ -2,6 +2,19 @@
 
 ## Unreleased (1.1.0)
 
+- Start packages for macOS, Linux and Windows: `brca12-wgs-macos/-linux/-windows.zip` (no version in
+  the name, so `releases/latest/download/` always finds the newest) with
+  the start file, `README.txt` (English, then German) and the pipeline, built by `start/build_zips.sh`
+  and attached to every release by a GitHub Action. Windows runs the start file in WSL 2
+  (`brca12-wgs-start.bat`); Windows paths are translated and the output goes to the Windows
+  Downloads folder. The start file is in English, German when the system language is German
+  (`BRCA12_LANG` sets it). At every start it checks for a newer release and offers the update (default
+  no), which replaces the program files in place and restarts; results and settings stay
+  (`BRCA12_NO_UPDATE=1` switches it off). Names and behaviour match the hla-wgs start packages.
+- Input file names with spaces or shell characters (for example `S 1.bam`) are linked under a safe
+  name before the run; before, such a BAM broke the CNVkit step. `--sample` is checked at the start
+  (letters, digits, dot, underscore, hyphen) instead of failing later in a tool command; the start
+  file builds the sample name accordingly.
 - Read QC: the sequencing platform is recognised from the read-name format (MGI/DNBSEQ or Illumina,
   >= 90 % of up to 1,000 reads of the first calling region). MGI/DNBSEQ reads give a note that the
   pipeline is validated on Illumina data, and a second one when the read group says ILLUMINA. A BAM

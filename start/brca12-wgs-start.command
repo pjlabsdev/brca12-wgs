@@ -1,5 +1,7 @@
 #!/bin/bash
-# brca12-wgs Start: double-click (macOS: .command opens in Terminal) or run `bash brca12-wgs-start.command`.
+# brca12-wgs Start: double-click (macOS: .command opens in Terminal), on Linux run
+# `bash brca12-wgs-start.sh` (the same file), on Windows double-click brca12-wgs-start.bat (runs it in WSL 2).
+# Language: English; German when the system language is German. BRCA12_LANG=en or =de sets it.
 # Asks for a BAM or CRAM (drag the file into the window, Terminal inserts its path, or type the path),
 # shows input and output folder, starts the Nextflow pipeline after Enter with an animated progress
 # display (one line per finished step, read from the Nextflow trace) and opens the report.
@@ -7,6 +9,10 @@
 # ~/.config/brca12-wgs/start.conf (plain shell variables, editable); an optional env.sh next to it
 # can set the environment (for example JAVA_HOME and PATH for a local tool installation).
 # BRCA12_DRYRUN=1 stops after the overview without starting the pipeline.
+# At every start it asks GitHub for the latest release (one request, 5 s limit, silent on errors; nothing
+# about you or your data is sent) and offers the update (default no). The new package replaces this
+# folder's program files in place and is started; results and settings stay. BRCA12_NO_UPDATE=1 switches
+# the check off.
 # If the input or reference disk drops out (external USB disk), the start file waits until both are
 # readable again and continues with -resume (finished steps are kept), at most BRCA12_RESUME times (3).
 set -u
@@ -23,7 +29,16 @@ REPO="" REFERENCE="" VEP_CACHE="" CLINVAR_VCF="" PROFILE="conda" NEXTFLOW="" EXT
 # optional environment for Nextflow and the tools (JAVA_HOME, PATH), kept apart from start.conf
 [ -f "$(dirname "$CONF")/env.sh" ] && . "$(dirname "$CONF")/env.sh"
 
-if [ "${LANG:-}" != "${LANG#de}" ] || [ "$(defaults read -g AppleLocale 2>/dev/null | cut -c1-2)" = "de" ]; then DE=1; else DE=0; fi
+# English is the main language; German is used when the system language is German or with BRCA12_LANG=de
+WSL=0; { grep -qi microsoft /proc/version 2>/dev/null || [ "${BRCA12_WSL:-0}" = 1 ]; } && command -v wslpath >/dev/null 2>&1 && WSL=1
+case "${BRCA12_LANG:-}" in
+  de*|DE*) DE=1 ;;
+  ?*) DE=0 ;;
+  *) syslang="${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}"
+     [ "$(uname)" = Darwin ] && syslang="$(defaults read -g AppleLocale 2>/dev/null || printf '%s' "$syslang")"
+     [ "$WSL" = 1 ] && syslang="$(powershell.exe -NoProfile -Command '(Get-UICulture).Name' 2>/dev/null | tr -d '\r' || printf '%s' "$syslang")"
+     case "$syslang" in de*) DE=1 ;; *) DE=0 ;; esac ;;
+esac
 tr_() { if [ "$DE" = 1 ]; then printf '%s' "$1"; else printf '%s' "$2"; fi; }
 
 # ── display (PJ Labs: gold accent, no bold) ──────────────────────────────────
@@ -70,6 +85,11 @@ trap 'cursor h; [ -n "$PID" ] && kill "$PID" 2>/dev/null; exit 130' INT TERM HUP
 clean() {
   local p="$1"
   p="${p#"${p%%[![:space:]]*}"}"; p="${p%"${p##*[![:space:]]}"}"
+  # Windows path (C:\Users\..., dragged into the window with or without quotes): translate for WSL
+  if [ "$WSL" = 1 ]; then
+    local w="$p"; w="${w#\"}"; w="${w%\"}"
+    case "$w" in [A-Za-z]:[\\/]*) wslpath -u "$w"; return ;; esac
+  fi
   case "$p" in \'*\') p="${p#\'}"; p="${p%\'}" ;; \"*\") p="${p#\"}"; p="${p%\"}" ;; *) p="$(printf '%s' "$p" | sed 's/\\\(.\)/\1/g')" ;; esac
   case "$p" in "~/"*) p="$HOME/${p#\~/}" ;; esac
   printf '%s' "$p"
@@ -101,7 +121,7 @@ short() { case "$1" in "$HOME"/*) printf '~/%s' "${1#"$HOME"/}" ;; *) printf '%s
 clear 2>/dev/null
 title "brca12-wgs"
 printf '\n'
-row 2 "brca12-wgs" "$(date '+%d.%m.%Y  %H:%M')" "$ACC" "$MUT"
+row 2 "brca12-wgs" "$(if [ "$DE" = 1 ]; then date '+%d.%m.%Y  %H:%M'; else date '+%Y-%m-%d  %H:%M'; fi)" "$ACC" "$MUT"
 printf '  %s%s%s\n' "$MUT" "$(tr_ "BRCA1/BRCA2 aus Genom-, Exom- oder Paneldaten · nur für Forschung (RUO)" "BRCA1/BRCA2 from genome, exome or panel data · research use only (RUO)")" "$RST"
 divider
 
@@ -113,6 +133,58 @@ done
 [ -f "$REPO/main.nf" ] || REPO=""
 if [ -z "$REPO" ]; then askpath "Ordner von brca12-wgs (mit main.nf) hineinziehen:" "Drop the brca12-wgs folder (with main.nf):" d; REPO="$REPLY_PATH"; fi
 [ -f "$REPO/main.nf" ] || stop "$(tr_ "In $REPO liegt keine main.nf." "No main.nf in $REPO.")"
+
+# ── update check ─────────────────────────────────────────────────────────────
+# newer A B: true when version A (1.2.3 or v1.2.3) is newer than B
+newer() { awk -v a="${1#v}" -v b="${2#v}" 'BEGIN { n = split(a, x, "."); m = split(b, y, "."); for (i = 1; i <= (n > m ? n : m); i++) { if (x[i] + 0 > y[i] + 0) exit 0; if (x[i] + 0 < y[i] + 0) exit 1 } exit 1 }'; }
+VERSION="$(sed -n "s/^ *version *= *'\([^']*\)'.*/\1/p" "$REPO/nextflow.config" 2>/dev/null | head -1)"
+case "$(uname)" in Darwin) PKG_OS=macos; PKG_START=brca12-wgs-start.command ;; *) PKG_OS=linux; PKG_START=brca12-wgs-start.sh ;; esac
+[ "$WSL" = 1 ] && PKG_OS=windows
+update_check() {
+  [ "${BRCA12_NO_UPDATE:-0}" = 1 ] && return 0
+  [ -n "$VERSION" ] && command -v curl >/dev/null 2>&1 || return 0
+  local api="${BRCA12_UPDATE_URL:-https://api.github.com/repos/pjlabsdev/brca12-wgs/releases/latest}" json latest url ans tmp
+  json="$(curl -fsSL --max-time 5 -H 'Accept: application/vnd.github+json' "$api" 2>/dev/null)" || return 0
+  latest="$(printf '%s' "$json" | tr ',' '\n' | sed -n 's/.*"tag_name" *: *"v\{0,1\}\([0-9][0-9.]*\)".*/\1/p' | head -1)"
+  [ -n "$latest" ] && newer "$latest" "$VERSION" || return 0
+  row 2 "$(tr_ "Neue Version $latest verfügbar" "New release $latest available")" "$(tr_ "installiert" "installed") $VERSION" "$ACC" "$MUT"
+  url="$(printf '%s' "$json" | tr ',' '\n' | sed -n 's/.*"browser_download_url" *: *"\([^"]*\/brca12-wgs-'"$PKG_OS"'\.zip\)".*/\1/p' | head -1)"
+  # only a start package (pipeline/ next to this file) can update itself; a git checkout is updated with git
+  if [ -z "$url" ] || [ ! -f "$HERE/pipeline/main.nf" ] || ! command -v unzip >/dev/null 2>&1; then
+    printf '  %sDownload: https://github.com/pjlabsdev/brca12-wgs/releases/latest%s\n' "$MUT" "$RST"
+    return 0
+  fi
+  ask "Jetzt aktualisieren? [j/N]" "Update now? [y/N]"
+  IFS= read -r ans || return 0
+  case "$ans" in [yYjJ]*) ;; *) return 0 ;; esac
+  tmp="$(mktemp -d)" || return 0
+  if ! curl -fsSL --max-time 300 -o "$tmp/update.zip" "$url" 2>/dev/null || ! unzip -q "$tmp/update.zip" -d "$tmp/x" 2>/dev/null \
+     || [ ! -f "$tmp/x/brca12-wgs/pipeline/main.nf" ] || [ ! -f "$tmp/x/brca12-wgs/$PKG_START" ]; then
+    rm -rf "$tmp"
+    printf '  %s%s%s\n' "$ERR" "$(tr_ "Update fehlgeschlagen, weiter mit $VERSION." "Update failed, continuing with $VERSION.")" "$RST"
+    return 0
+  fi
+  # in place: the pipeline is replaced as a whole, the files next to it one by one (each renamed into
+  # place, so this running file is not overwritten under bash); results and settings stay
+  if ! { rm -rf "$HERE/pipeline.update" && mv "$tmp/x/brca12-wgs/pipeline" "$HERE/pipeline.update" \
+         && rm -rf "$HERE/pipeline.old" && mv "$HERE/pipeline" "$HERE/pipeline.old" && mv "$HERE/pipeline.update" "$HERE/pipeline"; }; then
+    [ -d "$HERE/pipeline" ] || mv "$HERE/pipeline.old" "$HERE/pipeline" 2>/dev/null
+    rm -rf "$tmp" "$HERE/pipeline.update"
+    printf '  %s%s%s\n' "$ERR" "$(tr_ "Update fehlgeschlagen (kein Schreibrecht in $(short "$HERE")), weiter mit $VERSION." "Update failed (cannot write to $(short "$HERE")), continuing with $VERSION.")" "$RST"
+    return 0
+  fi
+  rm -rf "$HERE/pipeline.old"
+  local f
+  for f in "$tmp/x/brca12-wgs"/*; do
+    [ -f "$f" ] || continue
+    cp -p "$f" "$HERE/.$(basename "$f").new" && mv -f "$HERE/.$(basename "$f").new" "$HERE/$(basename "$f")"
+  done
+  rm -rf "$tmp"
+  printf '  %s%s%s\n' "$OK" "$(tr_ "Auf $latest aktualisiert." "Updated to $latest.")" "$RST"
+  BRCA12_NO_UPDATE=1 exec bash "$HERE/$PKG_START"
+}
+update_check
+
 [ -z "$NEXTFLOW" ] && NEXTFLOW="$(command -v nextflow 2>/dev/null)"
 if [ -z "$NEXTFLOW" ] || [ ! -x "$NEXTFLOW" ]; then
   askpath "Nextflow wurde nicht gefunden. Programm nextflow hineinziehen:" "Nextflow was not found. Drop the nextflow program:" f; NEXTFLOW="$REPLY_PATH"
@@ -140,9 +212,19 @@ save
 # sample name and a new output folder
 S="$(basename "$IN")"
 for x in .bam .cram .BAM .CRAM; do S="${S%"$x"}"; done
+# the sample name becomes part of file names: only letters, digits, dot, underscore and hyphen
+S="$(printf '%s' "$S" | LC_ALL=C sed 's/[^A-Za-z0-9._-]/_/g')"
 [ -z "$S" ] && S=sample
-OUT="$HOME/Downloads/brca12-$S"; n=2
-while [ -e "$OUT" ]; do OUT="$HOME/Downloads/brca12-$S-$n"; n=$((n + 1)); done
+# output next to the user's downloads; under WSL the Windows Downloads folder, so that Explorer finds it
+BASE="$HOME/Downloads"
+if [ "$WSL" = 1 ]; then
+  winhome="$(cmd.exe /c 'echo %USERPROFILE%' 2>/dev/null | tr -d '\r')"
+  [ -n "$winhome" ] && [ -d "$(wslpath -u "$winhome" 2>/dev/null)/Downloads" ] && BASE="$(wslpath -u "$winhome")/Downloads"
+fi
+[ -d "$BASE" ] || BASE="$HOME"
+[ -n "${BRCA12_OUT:-}" ] && BASE="$BRCA12_OUT"
+OUT="$BASE/brca12-$S"; n=2
+while [ -e "$OUT" ]; do OUT="$BASE/brca12-$S-$n"; n=$((n + 1)); done
 T="$( (sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4) | head -1)"
 if [ "$DE" = 1 ]; then RL=de; else RL=en; fi
 
@@ -245,5 +327,11 @@ printf '\n'
 find "$OUT/results" -maxdepth 2 -name 'brca12_report*' -print 2>/dev/null | while IFS= read -r f; do printf '  %s%s%s\n' "$MUT" "$(short "$f")" "$RST"; done
 REPORT="$(find "$OUT/results" -maxdepth 2 -name 'brca12_report.html' -print 2>/dev/null | head -1)"
 title "brca12-wgs · $S · $(tr_ "fertig" "done")"
-if command -v open >/dev/null 2>&1; then open "$OUT/results"; [ -n "$REPORT" ] && open "$REPORT"; fi
+if [ "$WSL" = 1 ]; then
+  [ -n "$REPORT" ] && explorer.exe "$(wslpath -w "$REPORT")" >/dev/null 2>&1
+elif [ "$(uname)" = Darwin ]; then
+  open "$OUT/results"; [ -n "$REPORT" ] && open "$REPORT"
+elif command -v xdg-open >/dev/null 2>&1 && [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+  [ -n "$REPORT" ] && xdg-open "$REPORT" >/dev/null 2>&1
+fi
 finish 0

@@ -29,6 +29,16 @@ grep -q -- "view -b -M -L coverage_regions.bed" "$WORK/out/coverage/coverage.com
 if grep -E "mosdepth .*--by [^ ]*exons" "$WORK/out/coverage/coverage.command.sh" | grep -v -q "coverage_regions.bam"; then echo "mosdepth --by still reads the whole alignment"; exit 1; fi
 echo "stub pipeline (coverage reads regions only) OK"
 
+# A sample name with a space must be refused at once with a clear message (it would break file names later).
+if PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
+  --sample "S 1" --reference "$WORK/ref.fa" --reads_r1 "$WORK/R1.fq.gz" --reads_r2 "$WORK/R2.fq.gz" \
+  --vep_cache "$WORK/vep" --clinvar_vcf "$WORK/clinvar.vcf.gz" \
+  --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$WORK/out_name" > name.log 2>&1; then
+  echo "sample name with a space was accepted"; exit 1
+fi
+grep -q "may only contain letters, digits, dot, underscore and hyphen" name.log || { tail -20 name.log; echo "sample name message missing"; exit 1; }
+echo "stub pipeline (sample name with a space is refused) OK"
+
 # An R without DNAcopy must stop the run with a clear message instead of a silent CNVkit result
 # without segments (CNVkit batch -p does not pass on errors of its worker processes).
 if FAKE_NO_DNACOPY=1 PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \

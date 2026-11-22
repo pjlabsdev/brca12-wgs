@@ -743,6 +743,10 @@ workflow {
     requireParam('reference')
     requireParam('vep_cache')
     requireParam('clinvar_vcf')
+    // the sample name becomes part of file names and of the read group
+    if (!(params.sample.toString() ==~ /[A-Za-z0-9._-]+/)) {
+        error "--sample may only contain letters, digits, dot, underscore and hyphen (got '${params.sample}')."
+    }
     if (!params.bam && !params.reads_r1) {
         error 'Provide either --reads_r1 (and --reads_r2 for paired-end reads) or --bam.'
     }
@@ -781,7 +785,23 @@ workflow {
         def found = candidates.find { file(it).exists() }
         if (!found) { error "No index for ${params.bam} (looked for ${candidates.join(', ')})." }
         def bai = file(found)
-        aligned_ch = Channel.value(tuple(file(params.bam, checkIfExists: true), bai))
+        def bam_in = file(params.bam, checkIfExists: true)
+        // A file name with spaces or other shell characters would break the tool commands: such a BAM or
+        // CRAM is linked under a safe name (only letters, digits, dot, underscore, hyphen); data are not copied.
+        if (!(bam_in.name ==~ /[A-Za-z0-9._-]+/)) {
+            def dir = file("${workflow.workDir}/input-links/${workflow.sessionId}")
+            dir.mkdirs()
+            def safe = bam_in.name.replaceAll(/[^A-Za-z0-9._-]/, '_')
+            def link = dir.resolve(safe)
+            def bai_link = dir.resolve(bai.name.startsWith(bam_in.name) ? safe + bai.name.substring(bam_in.name.length())
+                                                                         : bai.name.replaceAll(/[^A-Za-z0-9._-]/, '_'))
+            bam_in.mklink(link, overwrite: true)
+            bai.mklink(bai_link, overwrite: true)
+            log.info "Input ${bam_in.name} is linked as ${safe} (file names with spaces or shell characters)."
+            bam_in = link
+            bai = bai_link
+        }
+        aligned_ch = Channel.value(tuple(bam_in, bai))
     } else {
         r2 = params.reads_r2 ? file(params.reads_r2, checkIfExists: true) : file("${projectDir}/assets/NO_R2")
         reads = Channel.value(tuple(file(params.reads_r1, checkIfExists: true), r2))

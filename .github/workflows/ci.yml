@@ -20,6 +20,7 @@ jobs:
         with: { version: "24.10.4" }
       - run: bash tests/run_stub_pipeline.sh
       - run: bash tests/run_stub_batch.sh
+      - run: bash tests/run_start_package.sh
   docker-build:
     runs-on: ubuntu-latest
     steps:
