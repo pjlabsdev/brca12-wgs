@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Result page: new table "Cancer types and BRCA1/BRCA2" under the overall statement. For breast cancer
+  (women and men), ovarian, prostate, pancreatic and testicular cancer it shows how strongly each is
+  linked to BRCA1 and BRCA2 (NCCN, ClinGen; levels, no percentages) and what this result says about it:
+  no finding, only entries of uncertain significance, or a finding that needs confirmation, with the
+  gene named. It states that other genes for these cancers are not checked.
+
 ## 1.1.0 (2026-11-22)
 
 - Start packages for macOS, Linux and Windows: `brca12-wgs-macos/-linux/-windows.zip` (no version in
