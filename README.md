@@ -39,7 +39,7 @@ validation (last row).
 | Several samples | sample sheet, parallel runs, cohort table with carrier counts | yes, joint table |
 | Contamination | hint when a low-fraction variant is clearly present in another sample of the batch | same idea |
 | Figures | depth per exon and MLPA-like exon dosage plot per gene | amplicon uniformity |
-| Output | HTML, Markdown, PDF, Excel and JSON (schema `genome.brca12.v1`) | Excel, Word |
+| Output | interactive HTML page, Markdown, Excel and JSON (schema `genome.brca12.v1`) | Excel, Word |
 | Report language | English, German | English, Russian |
 | Reproducibility | Nextflow, pinned conda environments, Docker/Singularity image, every command and tool version in the report | Python script, Docker image |
 | Tests | unit tests and three full pipeline runs in CI | none in the repository |
@@ -97,8 +97,7 @@ reads were aligned to, shows input, reference and output folder (`brca12-<sample
 folder, under WSL the Windows one; always a new folder) and starts the pipeline after Enter, with one
 line per finished step. At the end it lists the reports and opens the HTML report. Reference, VEP
 cache, ClinVar VCF, the Nextflow program and the profile are asked once and kept in
-`~/.config/brca12-wgs/start.conf`; further Nextflow options (for example `--report_pdf true` or local
-tool paths) go into `EXTRA_ARGS` there, environment settings such as `JAVA_HOME` or `PATH` into
+`~/.config/brca12-wgs/start.conf`; further Nextflow options (for example local tool paths) go into `EXTRA_ARGS` there, environment settings such as `JAVA_HOME` or `PATH` into
 `~/.config/brca12-wgs/env.sh`.
 
 - **Language:** English; German when the system language is German. `BRCA12_LANG=en` or `=de` sets it.
@@ -215,27 +214,25 @@ the reads, and a BAM or CRAM without duplicate marking (no duplicate-marking ste
 FASTQ input is marked by the pipeline itself. A task killed by a signal (external disk dropping out)
 is run again up to `--signal_retries` times (default 2).
 
-## Report languages and PDF
+## Result page and languages
 
-The HTML report is one file with both languages and two tabs. **Result** shows the report header
-(sample, input, reference, program version, depth over the exons, quality), four counts, a notice
-when the mean exon depth of a gene is below `--min_exon_depth`, and the entries to review: ClinVar
-pathogenic or likely pathogenic, uncertain significance, loss-of-function candidates, mosaic
-candidates, CNV candidates, exon copy number calls, structural variants and insertion signals.
-**Details** holds every table, the figures, tool versions, commands and limitations. Language and tab
-are switched without any script, so the file also works offline and with scripts blocked. Terms in
-the header explain themselves on hover or tap. The font (IBM Plex Mono, SIL OFL 1.1,
-`assets/fonts/OFL.txt`) is embedded.
+The HTML report is one interactive file in English and German (switch at the top), built like the
+hla-wgs result page. The header gives sample, report number (a checksum over all results), input,
+analysis date, program version, databases, depth over the exons and quality (passed or limited, with
+the reason); every term explains itself on hover or tap. **Result** shows four counts, the overall
+statement for BRCA1 and BRCA2 (no sign in the categories checked, entries of uncertain significance,
+or findings that need confirmation), notices for low depth and read-check notes, the entries to
+review, coverage per gene and method and limitations. **Details per gene** opens BRCA1 and BRCA2 with
+figures, small variants, copy number, structural variants, exon coverage and low-depth regions, and a
+run section with read check, tool versions and commands. The chosen language is remembered in the
+browser. The font (IBM Plex Mono, SIL OFL 1.1, `assets/fonts/OFL.txt`) is embedded.
 
 `--report_lang en|de` sets the language of the Markdown report and the language the HTML report
 shows first. The JSON keeps German values (stable schema) and carries the disclaimer and limitations
 in both languages.
 
-`--report_pdf` also writes `brca12_report.pdf`, printed from the HTML report with headless
-Chrome/Chromium (`--chrome /path/to/chrome`, otherwise searched on `PATH` and in the usual macOS
-locations). Without a browser the step is skipped with a note in the log. The PDF has A4 pages in
-the language of `--report_lang`, both tabs one after the other, and a footer with sample name,
-RUO note and page numbers.
+There is no PDF step: the HTML page is the report. It works offline, and printing from the browser
+prints the open tab with all genes expanded, with page numbers.
 
 ## Flagging uncertain results
 
@@ -486,7 +483,7 @@ validierte Bestätigung medizinisch interpretiert werden.
 ## Citation
 
 Jungwirth P. brca12-wgs: BRCA1/BRCA2 germline analysis from whole-genome sequencing (GRCh38),
-version 1.0.1. Zenodo, 2026. https://doi.org/10.5281/zenodo.24173638
+version 1.1.0. Zenodo, 2026. https://doi.org/10.5281/zenodo.24173638
 (see also [CITATION.cff](CITATION.cff)).
 
 ## Licence

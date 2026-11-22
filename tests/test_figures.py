@@ -42,10 +42,9 @@ class FiguresTest(unittest.TestCase):
 
     def test_html_report_contains_figures(self):
         html = render.html_report(RESULT, "en")
-        self.assertIn("<h2>Figures</h2>", html)
-        self.assertIn("<svg", html)
-        self.assertNotIn("<script", html)
-        self.assertIn("<h2>Abbildungen</h2>", render.html_report(RESULT, "de"))
+        details = html[html.index("<section class='tab-d'>"):]
+        self.assertIn("<figure class='report-figure'><svg", details)
+        self.assertEqual(html.count("<figure class='report-figure'>"), 2 * 4)  # two languages, two genes, two figures
 
     def test_no_figures_without_exons(self):
         self.assertEqual(figures.figures_html({"exonCoverage": []}, "de"), "")
