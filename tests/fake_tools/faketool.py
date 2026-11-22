@@ -15,6 +15,9 @@ elif name=="samtools":
     elif a[0]=="sort": open(opt("-o"),"w").write(sys.stdin.read())
     elif a[0]=="markdup": open(a[-1],"w").write("bam"); open(opt("-f"),"w").write("stats")
     elif a[0]=="index": touch(a[-1]+".bai")
+    elif a[0]=="faidx":
+        if a[2:] not in (["chr13","chr17"],["13","17"]): sys.exit(f"samtools faidx: expected the BRCA chromosomes, got {a[2:]}")
+        print(">chr13\nACGT\n>chr17\nACGT")
     elif a[0]=="stats":
         print("SN\traw total sequences:\t1000\nSN\treads mapped:\t990\nSN\treads properly paired:\t980\n"
               "SN\treads duplicated:\t50\nSN\treads MQ0:\t3\nSN\terror rate:\t0.002\nSN\taverage length:\t150\n"

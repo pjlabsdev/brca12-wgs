@@ -8,7 +8,7 @@
 # Reference, VEP cache, ClinVar VCF and Nextflow options are asked once and kept in
 # ~/.config/brca12-wgs/start.conf (plain shell variables, editable); an optional env.sh next to it
 # can set the environment (for example JAVA_HOME and PATH for a local tool installation).
-# BRCA12_DRYRUN=1 stops after the overview without starting the pipeline.
+# BRCA12_DRYRUN=1 stops after the overview without starting the pipeline or saving settings.
 # At every start it asks GitHub for the latest release (one request, 5 s limit, silent on errors; nothing
 # about you or your data is sent) and offers the update (default no). The new package replaces this
 # folder's program files in place and is started; results and settings stay. BRCA12_NO_UPDATE=1 switches
@@ -207,7 +207,8 @@ REFERENCE="$REPLY_PATH"
 [ -f "$REFERENCE.fai" ] || stop "$(tr_ "Zur Referenz fehlt der Index (.fai daneben)." "The reference index (.fai) is missing.")"
 [ -d "$VEP_CACHE" ] || { askpath "VEP-Cache-Ordner (einmalig) hineinziehen:" "Drop the VEP cache folder (once):" d; VEP_CACHE="$REPLY_PATH"; }
 [ -f "$CLINVAR_VCF" ] || { askpath "ClinVar-VCF (clinvar.vcf.gz, einmalig) hineinziehen:" "Drop the ClinVar VCF (clinvar.vcf.gz, once):" f; CLINVAR_VCF="$REPLY_PATH"; }
-save
+# a dry run only shows what would happen and leaves the settings as they are
+[ "${BRCA12_DRYRUN:-0}" = 1 ] || save
 
 # sample name and a new output folder
 S="$(basename "$IN")"
