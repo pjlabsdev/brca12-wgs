@@ -14,6 +14,7 @@ cd "$WORK"
 printf ">chr13\nN\n>chr17\nN\n" > ref.fa
 printf "chr13\t114364328\t0\t60\t61\nchr17\t83257441\t0\t60\t61\n" > ref.fa.fai
 touch ref.fa.amb ref.fa.ann ref.fa.bwt ref.fa.pac ref.fa.sa ref.dict R1.fq.gz R2.fq.gz clinvar.vcf.gz clinvar.vcf.gz.tbi
+printf '##fileformat=VCFv4.1\n##fileDate=20251104\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n' > clinvar.vcf.gz
 mkdir -p vep
 PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
   --sample TEST --reference "$WORK/ref.fa" --reads_r1 "$WORK/R1.fq.gz" --reads_r2 "$WORK/R2.fq.gz" \
@@ -30,7 +31,7 @@ if grep -E "mosdepth .*--by [^ ]*exons" "$WORK/out/coverage/coverage.command.sh"
 echo "stub pipeline (coverage reads regions only) OK"
 # CNVkit access runs on the BRCA chromosomes only; tool versions are queried in parallel but kept in order.
 grep -q -- "faidx .* \$BRCA_CHROMS > access_ref.fa" "$WORK/out/calls/cnv.command.sh" || { echo "CNVkit access does not use the BRCA chromosomes only"; exit 1; }
-python3 -c "import json,sys; v=list(json.load(open(sys.argv[1]))['toolVersions']); assert v[:4]==['nextflow','bwa','samtools','bcftools'] and v[-1]=='python', v; print('stub pipeline (CNVkit access, tool versions) OK')" "$WORK/out/brca12_results.json"
+python3 -c "import json,sys; v=list(json.load(open(sys.argv[1]))['toolVersions']); assert v[:4]==['nextflow','bwa','samtools','bcftools'] and v[-2:]==['python','clinvar'], v; assert json.load(open(sys.argv[1]))['toolVersions']['clinvar']=='20251104'; print('stub pipeline (CNVkit access, tool versions) OK')" "$WORK/out/brca12_results.json"
 
 # A sample name with a space must be refused at once with a clear message (it would break file names later).
 if PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \

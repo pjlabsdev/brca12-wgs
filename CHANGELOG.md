@@ -2,6 +2,25 @@
 
 ## 1.1.1 (2026-11-22)
 
+- Result page: new section "How the statements are made": data sources of the run (caller, VEP
+  version, MANE transcripts, ClinVar release, gnomAD, ENIGMA specification, exon cohort), which
+  entries count as a finding that needs confirmation and which as uncertain, the rule behind the
+  overall statement and the cancer types table, and where every value and command is kept.
+- The ClinVar release (`##fileDate` of the ClinVar VCF) is recorded under `toolVersions.clinvar` and
+  shown in the header of the result page.
+- Cancer types table: where nothing was found but a linked gene is thinly covered (an uncertain exon
+  or mean depth below the threshold), the row says so instead of a plain "no finding".
+- Indels in the poly-T stretch of the BRCA1 3' UTR (chr17:43044804-43044817), where most indel
+  errors of the HPRC validation lay, carry the note "known weak spot" with the reason.
+- Start file: if a task hangs on a disk that dropped out, Nextflow never ends and the automatic
+  resume could not start. A watchdog now stops Nextflow when the input or reference stays unreadable
+  for `BRCA12_STALL` seconds (60); the start file then waits for the disk and resumes.
+- Known common alleles (the extra 126 bp copy upstream of BRCA1 exon 1, the common intronic BRCA2
+  Alu insertion) no longer count as uncertain in the overall statement or set `needsAttention`; the
+  statement lists them as known common alleles. Entries of uncertain significance that are common in
+  the population (BA1) are named as such, and single entries read in the singular.
+- `brca12_report.md` carries English and German like the HTML page (`--report_lang` sets which comes
+  first).
 - Result page: new table "Cancer types and BRCA1/BRCA2" under the overall statement. For breast cancer
   (women and men), ovarian, prostate, pancreatic and testicular cancer it shows how strongly each is
   linked to BRCA1 and BRCA2 (NCCN, ClinGen), the published risk for carriers of a disease-causing variant (Kuchenbaecker 2017, Tai 2007, Nyberg 2020, Li 2022; AlDubayan 2019 for testicular cancer) and what this result says about it:

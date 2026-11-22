@@ -190,8 +190,8 @@ germline variants. They always need confirmation by an orthogonal method; detect
 | Report | `bin/brca12_report.py` | `brca12_report.html/.md`, `brca12_results.json`, `brca12_commands.sh` |
 
 The report has separate sections for BRCA1 SNVs/indels, BRCA2 SNVs/indels, BRCA1/BRCA2 CNVs,
-BRCA1/BRCA2 structural variants, coverage per exon and uncertain regions. Use `--report_lang de`
-for a German report. The JSON (schema `genome.brca12.v1`) is meant for downstream tools; see
+BRCA1/BRCA2 structural variants, coverage per exon and uncertain regions, in English and German
+(`--report_lang de` puts German first). The JSON (schema `genome.brca12.v1`) is meant for downstream tools; see
 [docs/output.md](docs/output.md).
 
 Gene loci (GRCh38, 1-based): BRCA1 chr17:43044295-43170327 (minus strand), BRCA2
@@ -227,8 +227,8 @@ figures, small variants, copy number, structural variants, exon coverage and low
 run section with read check, tool versions and commands. The chosen language is remembered in the
 browser. The font (IBM Plex Mono, SIL OFL 1.1, `assets/fonts/OFL.txt`) is embedded.
 
-`--report_lang en|de` sets the language of the Markdown report and the language the HTML report
-shows first. The JSON keeps German values (stable schema) and carries the disclaimer and limitations
+The HTML page and the Markdown report carry English and German; `--report_lang en|de` sets which
+comes first. The JSON keeps German values (stable schema) and carries the disclaimer and limitations
 in both languages.
 
 There is no PDF step: the HTML page is the report. It works offline, and printing from the browser
@@ -477,7 +477,7 @@ were found inside the gene loci, none in an exon; the 126 bp tandem-repeat inser
 
 BRCA1/BRCA2-Keimbahnauswertung aus WGS, nur GRCh38: BWA-MEM, samtools, GATK HaplotypeCaller,
 Manta, CNVkit, VEP mit ClinVar und mosdepth je Exon, Bericht als HTML/Markdown/JSON
-(`--report_lang de` für Deutsch). Nur für Forschung (RUO). Ergebnisse dürfen nicht ohne klinisch
+(Englisch und Deutsch, `--report_lang de` zeigt Deutsch zuerst). Nur für Forschung (RUO). Ergebnisse dürfen nicht ohne klinisch
 validierte Bestätigung medizinisch interpretiert werden.
 
 ## Citation

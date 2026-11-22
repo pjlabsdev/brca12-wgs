@@ -93,6 +93,10 @@ EXACT = {
         "No duplicate marking found (no markdup in the BAM header, 0% duplicates): "
         "duplicates count towards depth and allele fraction; run samtools markdup "
         "or Picard MarkDuplicates before the analysis",
+    "bekannte Schwachstelle: Poly-T-Strecke in der BRCA1-3'-UTR, dort waren in der Prüfung "
+    "die meisten Indel-Fehler; Länge des Homopolymers unsicher":
+        "known weak spot: poly-T stretch in the BRCA1 3' UTR, where most indel errors occurred in "
+        "validation; homopolymer length uncertain",
     "Ion Torrent: Insertionen/Deletionen in Homopolymeren unzuverlässig":
         "Ion Torrent: insertions/deletions in homopolymers unreliable",
     "niedriger Allelanteil: Bestätigung mit orthogonaler Methode nötig":

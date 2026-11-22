@@ -4,6 +4,10 @@ name = os.path.basename(sys.argv[0]); a = sys.argv[1:]
 def opt(flag):
     return a[a.index(flag)+1] if flag in a else None
 def touch(p): open(p,'a').close()
+# FAKE_HANG_WHILE_MISSING=path: a task that reads a lost disk hangs until the path is back (USB disk dropout)
+if os.environ.get("FAKE_HANG_WHILE_MISSING") and name == "samtools":
+    import time
+    while not os.path.exists(os.environ["FAKE_HANG_WHILE_MISSING"]): time.sleep(0.5)
 CSQF="Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|VARIANT_CLASS|CANONICAL|MANE_SELECT|PICK|MAX_AF|gnomADe_AF|gnomADg_AF|ClinVar|ClinVar_CLNSIG|ClinVar_CLNREVSTAT|ClinVar_CLNDN|ClinVar_CLNSIGCONF"
 VCF="##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS\nchr17\t43093000\t.\tAG\tA\t500\tPASS\tMQ=60\tGT:AD:DP:GQ\t0/1:20,18:38:99\nchr13\t32338000\t.\tA\tG\t900\tPASS\tMQ=60\tGT:AD:DP:GQ\t1/1:0,35:35:99\n"
 if name=="bwa":

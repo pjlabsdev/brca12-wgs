@@ -63,7 +63,7 @@ params.rscript   = null       // Rscript with Bioconductor DNAcopy for CNVkit; d
 params.vep       = 'vep'
 params.mosdepth  = 'mosdepth'
 params.python    = 'python3'
-params.report_lang = 'en'      // language of brca12_report.html/.md: en or de
+params.report_lang = 'en'      // first language of brca12_report.html/.md (both carry English and German): en or de
 
 // Assay. 'wgs' (default) or targeted data: 'exome', 'panel' (hybrid capture) or 'amplicon'.
 params.assay            = 'wgs'
@@ -610,6 +610,9 @@ process EXTRACT_AND_ANNOTATE {
 }
 
 process TOOL_VERSIONS {
+    input:
+    tuple path(clinvar), path(clinvar_tbi)
+
     output:
     path 'tool_versions.tsv', emit: versions
 
@@ -635,6 +638,8 @@ process TOOL_VERSIONS {
     ( echo -e "ensembl-vep\\t\$(${params.vep} --help 2>/dev/null | awk '/ensembl-vep/{print \$NF; exit}')" ) > tv_09 &
     ( echo -e "mosdepth\\t\$(${params.mosdepth} --version 2>/dev/null | awk '{print \$2}')" ) > tv_10 &
     ( echo -e "python\\t\$(${params.python} --version 2>&1 | awk '{print \$2}')" ) > tv_11 &
+    # ClinVar release: the fileDate line of the ClinVar VCF header (for example 20251104)
+    ( echo -e "clinvar\\t\$(${params.bcftools} view -h ${clinvar} 2>/dev/null | awk -F= '/^##fileDate=/{print \$2; exit}')" ) > tv_12 &
     wait
     cat tv_?? > tool_versions.tsv
     rm -f tv_??
@@ -833,7 +838,7 @@ workflow {
     }
     ann = EXTRACT_AND_ANNOTATE(small.vcf, VALIDATE_INPUTS.out.exact_bed, reference, ref_files,
                                file(params.vep_cache, checkIfExists: true), clinvar, mosaic_in)
-    versions = TOOL_VERSIONS()
+    versions = TOOL_VERSIONS(clinvar)
 
     commands = Channel.empty()
         .mix(VALIDATE_INPUTS.out[5])

@@ -108,3 +108,18 @@ for f in brca12_report.html brca12_results.json; do
 done
 grep -q "<body data-lang='en' data-tab='r'>" "$WORK/home/Downloads/brca12-S_1/results/brca12_report.html" || { echo "report does not show English first"; exit 1; }
 echo "start file (whole run from the unpacked package, paths with spaces) OK"
+
+# Disk dropout during the run: a task hangs on the lost input, the watchdog stops Nextflow, the start
+# file waits for the disk and resumes.
+rm -rf "$WORK/home/Downloads/brca12-S_1"
+printf '%s\n\n\n\n' "$DATA/S 1.bam" | run BRCA12_STALL=2 FAKE_HANG_WHILE_MISSING="$DATA/S 1.bam" > "$WORK/drop.out" 2>&1 &
+RUNPID=$!
+LOGF="$WORK/home/Downloads/brca12-S_1/brca12-start.log"
+for _ in $(seq 120); do grep -q "Submitted process >" "$LOGF" 2>/dev/null && break; sleep 0.5; done
+mv "$DATA/S 1.bam" "$DATA/S 1.bam.away"
+for _ in $(seq 120); do grep -q "Nextflow stopped" "$LOGF" 2>/dev/null && break; sleep 0.5; done
+grep -q "Nextflow stopped" "$LOGF" || { kill $RUNPID; mv "$DATA/S 1.bam.away" "$DATA/S 1.bam"; tail -20 "$LOGF"; echo "watchdog did not stop the hanging run"; exit 1; }
+mv "$DATA/S 1.bam.away" "$DATA/S 1.bam"
+wait $RUNPID || { cat "$WORK/drop.out"; echo "run after disk dropout failed"; exit 1; }
+grep -q "Disk not reachable, waiting to resume" "$WORK/drop.out" && grep -q "Done" "$WORK/drop.out" || { cat "$WORK/drop.out"; echo "no resume after disk dropout"; exit 1; }
+echo "start file (disk dropout: watchdog stops the hanging run, resume after the disk is back) OK"

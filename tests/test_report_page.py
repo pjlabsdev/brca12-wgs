@@ -111,6 +111,15 @@ class ReportPageTest(unittest.TestCase):
         self.assertEqual(rows["Testicular cancer"][1:3], ["no established link", "no established link"])
         self.assertEqual(rows["Testicular cancer"][4], "BRCA1/BRCA2 say nothing about this")
         self.assertEqual(rows["Ovarian cancer (with fallopian tube and peritoneum)"][3], "BRCA1 44%, BRCA2 17% by age 80 [1]")
+        # no finding, but BRCA1 thinly covered: the rows linked to BRCA1 say so
+        thin = clean()
+        for exon in thin["exonCoverage"]:
+            if exon["gene"] == "BRCA1":
+                exon.update(meanDepth=8.0, status="unsicher")
+        rows = {row[0]: row for row in page.cancer_rows(thin, "en")}
+        self.assertEqual(rows["Breast cancer (women)"][4],
+                         "no finding in BRCA1/BRCA2 that raises this risk; coverage of BRCA1 limited, see Quality")
+        self.assertEqual(rows["Testicular cancer"][4], "BRCA1/BRCA2 say nothing about this")
         # a finding in one gene only marks the cancers linked to that gene and names it
         result = clean()
         variant = copy(RESULT["genes"]["BRCA1"]["smallVariants"][0])
@@ -130,6 +139,38 @@ class ReportPageTest(unittest.TestCase):
         self.assertIn("Krebsarten und BRCA1/BRCA2", tab(text, "de", "r"))
         self.assertIn("are not checked by brca12-wgs", tab(text, "en", "r"))
         self.assertIn("doi:10.1001/jama.2017.7112", tab(text, "en", "r"))
+
+    def test_how_the_statements_are_made(self):
+        result = copy()
+        result["toolVersions"]["clinvar"] = "20251104"
+        text = render.html_report(result, "en")
+        part = tab(text, "en", "r")
+        self.assertIn("How the statements are made", part)
+        self.assertIn("ClinVar release 2025-11-04", part)
+        self.assertIn("pathogenic or likely pathogenic without conflicting entries", part)
+        self.assertIn("structural variant with FILTER PASS", part)
+        self.assertIn("Wie die Aussagen zustande kommen", tab(text, "de", "r"))
+        self.assertIn("ClinVar-Ausgabe 2025-11-04", tab(text, "de", "r"))
+        self.assertIn("ClinVar 20251104", main_part(text, "en"))
+
+    def test_common_alleles_and_ba1_do_not_alarm(self):
+        result = clean()
+        result["insertionSignals"] = [{"gene": "BRCA1", "chrom": "chr17", "pos": 43128247, "end": 43128372, "type": "Insertion",
+                                       "label": "zusätzliche 126-bp-Kopie vor BRCA1 Exon 1 (häufiges Allel)",
+                                       "signature": ["tandem copy", "known allele"], "clippedReadsLeftJunction": 0,
+                                       "clippedReadsRightJunction": 0, "spanningReads": 30, "flags": []}]
+        self.assertEqual(page.verdict(result), ("none", 0))
+        text = main_part(render.html_report(result, "en"), "en")
+        self.assertIn("Known common alleles, not counted as a finding: extra 126 bp copy upstream of BRCA1 exon 1 (common allele).", text)
+        vus = copy(RESULT["genes"]["BRCA1"]["smallVariants"][0])
+        vus["clinvar"]["significance"] = "Uncertain_significance"
+        vus["acmgHints"] = [{"code": "BA1", "textDE": "über 0,1 %", "textEN": "above 0.1%"}]
+        result["genes"]["BRCA1"]["smallVariants"] = [vus]
+        self.assertEqual(page.verdict(result), ("unclear", 1))
+        text = main_part(render.html_report(result, "en"), "en")
+        self.assertIn("1 entry of uncertain significance.", text)
+        self.assertIn("1 of them common in the population (BA1)", text)
+        self.assertIn("1 Eintrag mit unklarer Bedeutung", main_part(render.html_report(result, "en"), "de"))
 
     def test_low_depth_notice_and_limited_quality(self):
         result = clean()

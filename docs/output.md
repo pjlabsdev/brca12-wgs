@@ -3,7 +3,7 @@
 ```
 brca12_results/
   brca12_report.html        standalone report (open in a browser): German and English, tabs Result/Details
-  brca12_report.md          same content as Markdown
+  brca12_report.md          same content as Markdown, English and German
   brca12_results.json       machine-readable results, schema genome.brca12.v1
   brca12_commands.sh        every executed command, verbatim
   qc/reference_check.json   GRCh38 check, regions and exon counts
