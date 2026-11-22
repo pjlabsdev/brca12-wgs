@@ -259,10 +259,10 @@ launch() {
     --report_lang "$RL" --threads "$T" --outdir "$OUT/results" $EXTRA_ARGS >>"$LOG" 2>&1 & PID=$!
 }
 # a run that ended because a disk dropped out: input or reference unreadable now, or an I/O error or
-# a task killed by a signal (bus error, kill) in the log of this attempt
+# a task killed by a signal (bus error, kill) in the log of this attempt, or the watchdog below stopped it
 disk_dropout() {
   [ -r "$IN" ] && [ -r "$REFERENCE" ] || return 0
-  tail -n +"$1" "$LOG" | grep -qiE 'Input/output error|Device not configured|Bus error|exit status \((13[4-9]|14[0-3])\)'
+  tail -n +"$1" "$LOG" | grep -qiE 'Input/output error|Device not configured|Bus error|exit status \((13[4-9]|14[0-3])\)|unreadable for [0-9]+ s, Nextflow stopped'
 }
 # A disk that drops out while Nextflow runs can leave a task hanging on I/O, so Nextflow never ends and
 # the resume below never starts. If the input or the reference stays unreadable for BRCA12_STALL
