@@ -486,7 +486,7 @@ validierte Bestätigung medizinisch interpretiert werden.
 ## Citation
 
 Jungwirth P. brca12-wgs: BRCA1/BRCA2 germline analysis from whole-genome sequencing (GRCh38),
-version 1.0.1. Zenodo, 2026. https://doi.org/10.5281/zenodo.24173638
+version 1.1.0. Zenodo, 2026. https://doi.org/10.5281/zenodo.24173638
 (see also [CITATION.cff](CITATION.cff)).
 
 ## Licence

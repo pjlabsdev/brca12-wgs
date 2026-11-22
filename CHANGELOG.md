@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (1.1.0)
+## 1.1.0 (2026-11-22)
 
 - Start packages for macOS, Linux and Windows: `brca12-wgs-macos/-linux/-windows.zip` (no version in
   the name, so `releases/latest/download/` always finds the newest) with
