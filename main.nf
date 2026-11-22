@@ -718,27 +718,6 @@ process XLSX_EXPORT {
     """
 }
 
-process REPORT_PDF {
-    // Optional PDF of the HTML report (--report_pdf), printed with headless Chrome/Chromium
-    // (--chrome); skipped with a note when none is available.
-    tag "${params.sample}"
-    publishDir "${params.outdir}", mode: 'copy'
-
-    when:
-    params.report_pdf
-
-    input:
-    path report_html
-
-    output:
-    path 'brca12_report.pdf', optional: true
-
-    script:
-    """
-    bash "${projectDir}/bin/brca12_pdf.sh" ${report_html} brca12_report.pdf '${params.chrome ?: ''}'
-    """
-}
-
 workflow {
     requireParam('reference')
     requireParam('vep_cache')
@@ -867,5 +846,4 @@ workflow {
            versions.versions, commands, evidence_files, READ_QC.out.json,
            ann.mosaic.flatten().unique { it.name }.collect().ifEmpty([file("${projectDir}/assets/NO_MOSAIC")]))
     XLSX_EXPORT(REPORT.out[2])
-    REPORT_PDF(REPORT.out[0])
 }

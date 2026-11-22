@@ -226,7 +226,8 @@ fi
 OUT="$BASE/brca12-$S"; n=2
 while [ -e "$OUT" ]; do OUT="$BASE/brca12-$S-$n"; n=$((n + 1)); done
 T="$( (sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4) | head -1)"
-if [ "$DE" = 1 ]; then RL=de; else RL=en; fi
+# results in English first (the HTML page carries German as well, one click away)
+RL=en
 
 printf '\n'
 divider

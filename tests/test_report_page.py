@@ -1,4 +1,4 @@
-"""HTML report page (bin/brca12lib/page.py): both languages, two tabs, no script."""
+"""HTML result page (bin/brca12lib/page.py), built after the hla-wgs result page."""
 import json
 import os
 import re
@@ -14,98 +14,134 @@ with open(os.path.join(ROOT, "tests", "fixtures", "brca12_results.sample.json"))
     RESULT = json.load(handle)
 
 
+def copy(result=RESULT):
+    return json.loads(json.dumps(result))
+
+
 def main_part(text, lang):
     part = text[text.index(f"<main lang='{lang}'"):]
     return part[:part.index("</main>")]
 
 
+def tab(text, lang, name):
+    part = main_part(text, lang)
+    start = part.index(f"<section class='tab-{name}'>")
+    return part[start:part.index("</section>", start)]
+
+
+def clean():
+    """The sample result without any finding and with good coverage."""
+    result = copy()
+    for gene in result["genes"].values():
+        gene["smallVariants"] = []
+    result.update(cnvs=[], svs=[], readQC=None)
+    for exon in result["exonCoverage"]:
+        exon.update(meanDepth=35.0, status="ok")
+    return result
+
+
 class ReportPageTest(unittest.TestCase):
-    def test_both_languages_in_one_file_without_script(self):
-        for first, other in (("de", "en"), ("en", "de")):
-            text = render.html_report(RESULT, first)
-            self.assertNotIn("<script", text)
-            self.assertLess(text.index(f"<main lang='{first}'"), text.index(f"<main lang='{other}'"))
-            self.assertIn(f"id='lang-{first}' aria-label", text)
-            self.assertRegex(text, rf"id='lang-{first}'[^>]* checked>")
-            self.assertNotRegex(text, rf"id='lang-{other}'[^>]* checked>")
+    def test_both_languages_english_first_by_default(self):
         text = render.html_report(RESULT, "en")
+        self.assertIn("<body data-lang='en' data-tab='r'>", text)
+        self.assertLess(text.index("<main lang='en'"), text.index("<main lang='de'"))
         self.assertIn("Research use only (RUO)", main_part(text, "en"))
         self.assertIn("Nur für Forschung (RUO)", main_part(text, "de"))
+        self.assertIn("<body data-lang='de' data-tab='r'>", render.html_report(RESULT, "de"))
 
-    def test_tabs_result_and_details(self):
-        text = main_part(render.html_report(RESULT, "de"), "de")
-        result_tab = text[text.index("<section class='tab-r'>"):text.index("<section class='tab-d'>")]
-        details_tab = text[text.index("<section class='tab-d'>"):]
-        self.assertIn("Zu prüfen", result_tab)
-        self.assertIn("ClinVar pathogen / wahrscheinlich pathogen", result_tab)
+    def test_interactive_like_hla_wgs(self):
+        text = render.html_report(RESULT, "en")
+        for marker in ("nav class='lang seg'", "nav class='tabs seg'", "data-tab='d'", "class=\"tip\"", "<script>",
+                       "localStorage.setItem('brca12-wgs-lang'", "beforeprint", "class='copy'", "<details>"):
+            self.assertIn(marker, text)
+        self.assertIn("body[data-lang=de] main.l-en", page.CSS)
+        self.assertIn("counter(page) ' / ' counter(pages)", page.CSS)
+
+    def test_result_tab_and_details_per_gene(self):
+        text = render.html_report(RESULT, "de")
+        result_tab = tab(text, "de", "r")
+        details = tab(text, "de", "d")
+        for title in ("Gesamtaussage", "Zu prüfen", "ClinVar pathogen / wahrscheinlich pathogen", "Abdeckung",
+                      "Methode und Grenzen"):
+            self.assertIn(title, result_tab)
         self.assertNotIn("Tool-Versionen", result_tab)
-        for title in ("BRCA1 SNVs/Indels", "Coverage je Exon", "Tool-Versionen", "Grenzen", "Abbildungen"):
-            self.assertIn(title, details_tab)
+        self.assertEqual(details.count("<details>"), 3)  # BRCA1, BRCA2, run
+        brca1 = details[details.index("<summary><b>BRCA1</b>"):details.index("<summary><b>BRCA2</b>")]
+        self.assertIn("BRCA1 SNVs/Indels", brca1)
+        self.assertNotIn("BRCA2 SNVs/Indels", brca1)
+        self.assertIn("43093000", brca1)
+        self.assertNotIn("32338000", brca1)
+        self.assertIn("Tool-Versionen", details)
 
-    def test_print_shows_both_tabs_and_page_numbers(self):
-        css = page.CSS
-        printed = css[css.index("@media print"):]
-        self.assertIn("#tab-r:checked~main section.tab-d,#tab-d:checked~main section.tab-r{display:block}", printed)
-        self.assertIn("counter(page) ' / ' counter(pages)", css)
+    def test_report_number_is_stable_and_changes_with_the_result(self):
+        a = page.report_number(RESULT)
+        self.assertRegex(a, r"^BRCA-[0-9A-F]{8}$")
+        later = dict(copy(), generatedAt="2030-01-01T00:00:00+00:00", nextflowSession="x")
+        self.assertEqual(page.report_number(later), a)
+        changed = copy()
+        changed["genes"]["BRCA1"]["smallVariants"][0]["pos"] += 1
+        self.assertNotEqual(page.report_number(changed), a)
+        self.assertIn(a, render.html_report(RESULT, "en"))
 
-    def test_header_names_program_doi_and_research_page(self):
-        result = dict(RESULT, pipeline={"name": "brca12-wgs", "version": "9.9.9", "doi": page.DOI})
-        text = render.html_report(result, "en")
-        self.assertIn("brca12-wgs 9.9.9", text)
-        self.assertIn(f"https://doi.org/{page.DOI}", text)
-        self.assertIn(page.RESEARCH_URL, text)
-        self.assertIn("font/woff2;base64,", text)
-
-    def test_low_depth_notice_and_quality(self):
-        result = json.loads(json.dumps(RESULT))
-        for exon in result["exonCoverage"]:
-            exon.update(meanDepth=35.0, status="ok")
-        result["readQC"] = None
+    def test_overall_statement(self):
+        self.assertEqual(page.verdict(RESULT), ("attention", 2))  # ClinVar P (also LoF, counted once) and a PASS SV
+        text = main_part(render.html_report(RESULT, "en"), "en")
+        self.assertIn("verdict v-attention", text)
+        result = clean()
+        self.assertEqual(page.verdict(result), ("none", 0))
         self.assertEqual(page.quality(result), (True, []))
-        text = main_part(render.html_report(result, "de"), "de")
-        self.assertIn("bestanden", text)
-        self.assertNotIn("Geringe Tiefe", text)
+        text = render.html_report(result, "en")
+        self.assertIn("no sign of a hereditary predisposition in the categories checked", main_part(text, "en"))
+        self.assertIn("does not rule out a predisposition", main_part(text, "en"))
+        self.assertIn("keinen Hinweis auf eine erbliche Veranlagung", main_part(text, "de"))
+        self.assertNotIn("The result is limited", main_part(text, "en"))
+        vus = copy(RESULT["genes"]["BRCA1"]["smallVariants"][0])
+        vus["clinvar"]["significance"] = "Uncertain_significance"
+        vus["acmgHints"] = []
+        result["genes"]["BRCA1"]["smallVariants"] = [vus]
+        self.assertEqual(page.verdict(result), ("unclear", 1))
+
+    def test_low_depth_notice_and_limited_quality(self):
+        result = clean()
         for exon in result["exonCoverage"]:
             if exon["gene"] == "BRCA2":
                 exon["meanDepth"] = 11.0
         passed, reasons = page.quality(result)
         self.assertFalse(passed)
         self.assertEqual(reasons, [("q_depth", {"gene": "BRCA2", "depth": 11.0})])
-        text = main_part(render.html_report(result, "de"), "de")
-        self.assertIn("Geringe Tiefe: BRCA2 hat im Mittel 11x", text)
-        self.assertIn("eingeschränkt", text)
-        self.assertIn("Low depth: BRCA2", main_part(render.html_report(result, "de"), "en"))
+        text = render.html_report(result, "de")
+        self.assertIn("Geringe Tiefe: BRCA2 hat im Mittel 11x", main_part(text, "de"))
+        self.assertIn("Die Aussagekraft ist eingeschränkt", main_part(text, "de"))
+        self.assertIn("Low depth: BRCA2", main_part(text, "en"))
 
     def test_read_check_notes_are_shown_and_translated(self):
         source = open(os.path.join(ROOT, "bin", "brca12_read_qc.py")).read()
-        flags = [m for m in re.findall(r'flags\.append\(((?:\s*"[^"]*")+)\)', source)]
+        flags = re.findall(r'flags\.append\(((?:\s*"[^"]*")+)\)', source)
         notes = ["".join(re.findall(r'"([^"]*)"', f)) for f in flags]
         platform_notes = [n for n in notes if "MGI" in n or "Duplikatmarkierung" in n]
         self.assertEqual(len(platform_notes), 3)
-        result = json.loads(json.dumps(RESULT))
+        result = clean()
         result["readQC"] = {"flags": platform_notes}
         text = render.html_report(result, "de")
-        english = main_part(text, "en")
         for note in platform_notes:
-            self.assertIn(note, main_part(text, "de"))
-            self.assertNotIn(note, english)
-        self.assertIn("validated on Illumina data", english)
-        self.assertIn("No duplicate marking found", english)
-        self.assertFalse(page.quality(result)[0])
+            self.assertIn(note, tab(text, "de", "r"))
+            self.assertNotIn(note, main_part(text, "en"))
+        self.assertIn("validated on Illumina data", tab(text, "en", "r"))
+        self.assertIn("No duplicate marking found", tab(text, "en", "r"))
 
-    def test_nothing_to_review_keeps_the_caveat(self):
-        result = json.loads(json.dumps(RESULT))
-        for gene in result["genes"].values():
-            gene["smallVariants"] = []
-        result.update(cnvs=[], svs=[])
-        self.assertEqual(page.notable_rows(result, "de"), [])
-        text = main_part(render.html_report(result, "en"), "en")
-        self.assertIn("does not rule out a hereditary predisposition", text)
-
-    def test_sample_name_cannot_break_the_style_block(self):
-        result = dict(RESULT, sample="a'}</style><b>x")
+    def test_header_names_program_doi_and_research_page(self):
+        result = dict(copy(), pipeline={"name": "brca12-wgs", "version": "9.9.9", "doi": page.DOI})
         text = render.html_report(result, "en")
-        self.assertEqual(len(re.findall(r"</style>", text)), 1)
+        self.assertIn("brca12-wgs 9.9.9", text)
+        self.assertIn(f"https://doi.org/{page.DOI}", text)
+        self.assertIn(page.RESEARCH_URL, text)
+        self.assertIn(page.SOURCE_URL, text)
+        self.assertIn("font/woff2;base64,", text)
+
+    def test_sample_name_cannot_break_the_page(self):
+        result = dict(copy(), sample="a'}</style><b>x")
+        text = render.html_report(result, "en")
+        self.assertEqual(text.count("</style>"), 1)
         self.assertNotIn("<b>x", text)
 
 
