@@ -3,3 +3,4 @@ work/
 brca12_results/
 __pycache__/
 *.pyc
+target/
