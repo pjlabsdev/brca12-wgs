@@ -7,7 +7,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"; ROOT="$(cd "$HERE/../.." && pwd)"
 WORK="${1:?}"; SP="$WORK/spike"; REF="$WORK/data/ref.fa"; OUT="$WORK/pseudogene"; THREADS="${THREADS:-4}"
 mkdir -p "$OUT" && cd "$OUT"
 for s in SPIKE_PSI SPIKE_PSIDUP; do
-  [[ -s out/$s/brca12_results.json ]] && continue
+  [[ -s out/$s/$s.json ]] && continue
   python3 "$ROOT/validation/pathogenic/spike.py" simulate --sample "$s" --events "$HERE/events.tsv" \
     --fragments "$SP/fragments.tsv.gz" --reference "$REF" --outdir "sim/$s"
   bwa mem -t "$THREADS" -R '@RG\tID:spike\tSM:spike\tPL:ILLUMINA\tLB:spike' "$REF" \

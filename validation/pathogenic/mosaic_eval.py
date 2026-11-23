@@ -46,7 +46,7 @@ def evaluate(workdir, sample):
     truth_path = os.path.join(workdir, "sim", sample, f"{sample}.truth.vcf")
     truth = read_vcf(truth_path)
     meta = json.load(open(os.path.join(workdir, "sim", sample, f"{sample}.truth.json")))
-    result = json.load(open(os.path.join(workdir, "out", sample, "brca12_results.json")))
+    result = json.load(open(os.path.join(workdir, "out", sample, f"{sample}.json")))
     germline = [v for g in result["genes"].values() for v in g["smallVariants"]]
     mosaic = result.get("mosaicCandidates", [])
     found = {"mosaic": 0, "germline": 0, "either": 0}
@@ -80,7 +80,7 @@ def main(argv=None):
     p.add_argument("--out", required=True, help="output prefix (.json, .tsv)")
     args = p.parse_args(argv)
     samples = sorted(d for d in os.listdir(os.path.join(args.workdir, "out"))
-                     if os.path.exists(os.path.join(args.workdir, "out", d, "brca12_results.json")))
+                     if os.path.exists(os.path.join(args.workdir, "out", d, f"{d}.json")))
     rows = [evaluate(args.workdir, s) for s in samples]
     json.dump(rows, open(args.out + ".json", "w"), indent=1)
     keys = ["sample", "spikedAlleleFraction", "spikedEvents", "reportedAsMosaicCandidate", "calledByGermlineCaller",

@@ -1,6 +1,6 @@
 """HTML result page, built after the hla-wgs result page: one interactive file with English and German
 (switch at the top), two tabs (result, details per gene), explanations on hover or tap, report number,
-overall statement, and every value of brca12_results.json. Printing from the browser prints the open tab
+overall statement, and every value of SAMPLE.json. Printing from the browser prints the open tab
 with all genes expanded. The font (IBM Plex Mono, SIL OFL 1.1, see assets/fonts/OFL.txt) is embedded."""
 import base64
 import html
@@ -109,8 +109,8 @@ TEXT = {
                  "Overall statement: at least one finding gives \u201cneeds confirmation\u201d, otherwise uncertain entries give \u201cuncertain\u201d, otherwise \u201cno sign\u201d. The cancer types table applies the same rule per gene and carries it over to the cancers linked to that gene. Quality is limited if an exon is covered uncertainly, the mean depth is below {min:g}x or the read check reports a note."),
     "how_valid": ("Prüfung der Methode (Forschung, keine klinische Validierung): GIAB HG001 bis HG007 gegen die Wahrheit v4.2.1: alle 128 Varianten in den Exons (±20 bp) gefunden, keine Falsch-Positiven dort. 39 HPRC-Genome gegen Assemblierungen: SNVs in den Exons 590 von 590; Indels in den Exons außerhalb der BRCA1-Poly-T-Strecke 41 von 43. 10 von 10 echten Trägern krankheitsverursachender Varianten erkannt; 185 von 185 eingebauten kleinen Varianten. In echte Reads eingebaute Strukturvarianten: Deletionen 108 von 120, Tandem-Duplikationen 118 von 120, Inversionen 60 von 60. Einzelprobe-CNVkit findet Ereignisse unter etwa 10 kb nicht zuverlässig.",
                   "Validation of the method (research, not a clinical validation): GIAB HG001 to HG007 against truth v4.2.1: all 128 variants in the exons (±20 bp) found, no false positive there. 39 HPRC genomes against assemblies: exon SNVs 590 of 590; exon indels outside the BRCA1 poly-T stretch 41 of 43. 10 of 10 real carriers of disease-causing variants detected; 185 of 185 spiked small variants. Structural variants spiked into real reads: deletions 108 of 120, tandem duplications 118 of 120, inversions 60 of 60. Single-sample CNVkit does not reliably find events below about 10 kb."),
-    "how_trace": ("Nachvollziehbar: jeder Wert steht in brca12_results.json, jeder ausgeführte Befehl in brca12_commands.sh, alle Programmversionen unter „Details je Gen“ → „Lauf“. Methode und Prüfung an GIAB- und 1000-Genomes-Proben: Forschungsbeitrag {url}.",
-                  "Traceable: every value is in brca12_results.json, every executed command in brca12_commands.sh, all program versions under \u201cDetails per gene\u201d \u2192 \u201cRun\u201d. Method and validation on GIAB and 1000 Genomes samples: research article {url}."),
+    "how_trace": ("Nachvollziehbar: jeder Wert steht in {p}.json, die Gesamtaussage je Gen in {p}.tsv, jeder ausgeführte Befehl in brca12_commands.sh, alle Programmversionen unter „Details je Gen“ → „Lauf“. Methode und Prüfung an GIAB- und 1000-Genomes-Proben: Forschungsbeitrag {url}.",
+                  "Traceable: every value is in {p}.json, the statement per gene in {p}.tsv, every executed command in brca12_commands.sh, all program versions under \u201cDetails per gene\u201d \u2192 \u201cRun\u201d. Method and validation on GIAB and 1000 Genomes samples: research article {url}."),
     "card_small": ("SNVs und Indels gegenüber der Referenz", "SNVs and indels relative to the reference"),
     "card_small_tip": ("Alle kleinen Varianten in BRCA1 und BRCA2, auch häufige und harmlose. Einzeln in den Details je Gen.",
                        "All small variants in BRCA1 and BRCA2, including common and benign ones. Listed in the details per gene."),
@@ -126,8 +126,22 @@ TEXT = {
     "low_depth": ("Geringe Tiefe: {gene} hat im Mittel {depth:g}x über den Exons (Schwelle {min:g}x). Kleine Varianten, Kopienzahl und strukturelle Varianten sind dort unsicherer; ein leeres Ergebnis sagt wenig.",
                   "Low depth: {gene} has a mean of {depth:g}x over the exons (threshold {min:g}x). Small variants, copy number and structural variants are less certain there; an empty result says little."),
     "notable": ("Zu prüfen", "To review"),
-    "notable_headers": (["Gen", "Art", "Angabe", "Genotyp", "ClinVar", "Hinweise"],
-                        ["Gene", "Kind", "Finding", "Genotype", "ClinVar", "Notes"]),
+    "notable_headers": (["Gen", "Art", "Angabe", "Genotyp", "ClinVar", "Sicherheit", "Hinweise"],
+                        ["Gene", "Kind", "Finding", "Genotype", "ClinVar", "Certainty", "Notes"]),
+    "cert_ok": ("ok", "ok"),
+    "cert_limited": ("eingeschränkt", "limited"),
+    "cert_hint": ("Hinweis", "hint"),
+    "genes_h": ("Ergebnis je Gen", "Result per gene"),
+    "genes_headers": (["Gen", "Ergebnis", "Abdeckung", "Aussage"], ["Gene", "Result", "Coverage", "Statement"]),
+    "res_attention": ("Befund", "finding"),
+    "res_unclear": ("unklar", "unclear"),
+    "res_none": ("kein Befund", "no finding"),
+    "cov_ok": ("ok", "ok"),
+    "cov_limited": ("eingeschränkt", "limited"),
+    "genes_note": ("Dieselben Zeilen stehen in {p}.tsv, jeder Befund mit Sicherheit in {p}.findings.tsv, jedes Exon in {p}.exons.tsv. "
+                   "Eingeschränkte Abdeckung: ein unsicheres Exon oder mittlere Tiefe unter der Schwelle; dort schließt „kein Befund“ eine Variante nicht aus.",
+                   "The same lines are in {p}.tsv, every finding with its certainty in {p}.findings.tsv, every exon in {p}.exons.tsv. "
+                   "Limited coverage: an uncertain exon or mean depth below the threshold; there \u201cno finding\u201d does not exclude a variant."),
     "notable_none": ("Keine Einträge in den geprüften Kategorien.", "No entries in the checked categories."),
     "notable_note": ("Maschinell zusammengestellt, keine Klassifikation. ACMG/AMP-Angaben sind Hinweise auf einzelne Kriterien. Jede Angabe braucht eine Bestätigung in einem akkreditierten Labor.",
                      "Compiled automatically, not a classification. ACMG/AMP entries are hints on single criteria. Every entry needs confirmation in an accredited laboratory."),
@@ -145,8 +159,8 @@ TEXT = {
     "method": ("Methode und Grenzen", "Method and limitations"),
     "method_text": ("Die Reads über BRCA1 und BRCA2 werden mit {caller} auf kleine Varianten untersucht, mit Ensembl VEP und ClinVar annotiert und nach den ENIGMA-Schwellen (ClinGen ENIGMA BRCA1/BRCA2 VCEP v1.2) mit Hinweisen auf einzelne ACMG/AMP-Kriterien versehen. Kopienzahl kommt aus CNVkit und einem exonweisen Vergleich mit einer Kohorte, strukturelle Varianten aus dem SV-Rufer und aus Einschub-Signalen. Die Abdeckung wird je Exon geprüft. Die Prüfung an GIAB- und 1000-Genomes-Proben steht im Forschungsbeitrag.",
                     "The reads over BRCA1 and BRCA2 are searched for small variants with {caller}, annotated with Ensembl VEP and ClinVar and given hints on single ACMG/AMP criteria after the ENIGMA thresholds (ClinGen ENIGMA BRCA1/BRCA2 VCEP v1.2). Copy number comes from CNVkit and a per-exon comparison with a cohort, structural variants from the SV caller and from insertion signals. Coverage is checked per exon. The validation on GIAB and 1000 Genomes samples is in the research article."),
-    "details_note": ("Ein Klick öffnet ein Gen. Alle Werte aus brca12_results.json. Gedruckt wird der Reiter, der gerade offen ist; dieser hier mit allen Genen aufgeklappt. Orange hinterlegt: unsichere Exons und Varianten in unsicheren Exons.",
-                     "A click opens a gene. All values from brca12_results.json. Printing prints the open tab; this one with all genes expanded. Orange background: uncertain exons and variants in uncertain exons."),
+    "details_note": ("Ein Klick öffnet ein Gen. Alle Werte aus {p}.json. Gedruckt wird der Reiter, der gerade offen ist; dieser hier mit allen Genen aufgeklappt. Orange hinterlegt: unsichere Exons und Varianten in unsicheren Exons.",
+                     "A click opens a gene. All values from {p}.json. Printing prints the open tab; this one with all genes expanded. Orange background: uncertain exons and variants in uncertain exons."),
     "gene_kv": ("{chrom}, {strand}, Transkript {transcript} · mittlere Exon-Tiefe {depth} · unsichere Exons {uncertain} · kleine Varianten {small}",
                 "{chrom}, {strand}, transcript {transcript} · mean exon depth {depth} · uncertain exons {uncertain} · small variants {small}"),
     "gene_sum": ("{small} Varianten · {notable} zu prüfen · {uncertain} unsichere Exons", "{small} variants · {notable} to review · {uncertain} uncertain exons"),
@@ -155,8 +169,8 @@ TEXT = {
     "cite": ("Zitieren", "Cite"),
     "research": ("Forschungsbeitrag mit Methode und Prüfung", "Research article with method and validation"),
     "source": ("Quelltext", "Source code"),
-    "files": ("Alle Einzelwerte stehen in brca12_results.json, brca12_report.md und brca12_report.xlsx neben dieser Seite; jeder ausgeführte Befehl in brca12_commands.sh.",
-              "All single values are in brca12_results.json, brca12_report.md and brca12_report.xlsx next to this page; every executed command in brca12_commands.sh."),
+    "files": ("Neben dieser Seite: {p}.tsv (eine Zeile je Gen), {p}.findings.tsv (je Befund mit Sicherheit), {p}.exons.tsv (je Exon), {p}.json (alle Einzelwerte), {p}.md und {p}.xlsx; jeder ausgeführte Befehl in brca12_commands.sh.",
+              "Next to this page: {p}.tsv (one line per gene), {p}.findings.tsv (per finding with certainty), {p}.exons.tsv (per exon), {p}.json (every single value), {p}.md and {p}.xlsx; every executed command in brca12_commands.sh."),
 }
 
 CSS = """:root{--bg:#FAF9F5;--surface:#FFFFFF;--fg:#141413;--mut:#3F3E38;--soft-fg:#6E6C63;--line:#D8D5C7;--hair:rgba(216,213,199,.78);--acc:#D97757;--acc-t:#B34D30;--ok:#248A3D;--okdot:#34C759;--warn:#B34D30;--soft:#F2F0E8;--f1:#C2410C;--f2:#9A7400;--f3:#4D7C0F;--f4:#0E7490;--shadow:0 1px 2px rgba(20,20,19,.04),0 10px 28px rgba(20,20,19,.055);--r:14px;--ease:cubic-bezier(.22,.61,.36,1)}
@@ -419,9 +433,26 @@ def _row(entry, lang):
     return [gene, _t(kind, lang), f"{tr(item['type'], lang)} {item['chrom']}:{item['pos']}-{item['end']}", None, None, flags(item)]
 
 
+KIND_OF = {"kind_plp": "small", "kind_lof": "small", "kind_vus": "small", "kind_mosaic": "mosaic", "kind_cnv": "cnv",
+           "kind_exon": "exon_copy_number", "kind_sv": "sv", "kind_ins": "insertion_signal"}
+
+
 def notable_rows(result, lang):
+    from . import tsv
     na = ui("na", lang)
-    return [[na if c is None or c == "" else str(c) for c in _row(e, lang)] for e in notable(result)]
+    rows = []
+    for e in notable(result):
+        row = _row(e, lang)
+        row.insert(5, _t("cert_" + tsv.certainty(KIND_OF[e[2]], e[3]), lang))
+        rows.append([na if c is None or c == "" else str(c) for c in row])
+    return rows
+
+
+def gene_rows(result, lang):
+    """Rows of the table "Result per gene": the lines of SAMPLE.tsv in the page language."""
+    from . import tsv
+    return [[r["gene"], _t("res_" + r["result"], lang), _t("cov_" + r["coverage"], lang),
+             tsv.statement(r, tsv.uncertain_labels(result, r["gene"]), lang)] for r in tsv.gene_rows(result)]
 
 
 def verdict(result):
@@ -520,6 +551,7 @@ def _gene_result(result, gene):
 def _main(result, lang, sections_for, disclaimer, limitations):
     esc = html.escape
     t = lambda key, **kw: _t(key, lang, **kw)  # noqa: E731
+    prefix = result.get("sample") or "sample"
     pipeline = result.get("pipeline") or {}
     version = pipeline.get("version") or ui("unknown", lang)
     doi = pipeline.get("doi") or DOI
@@ -587,6 +619,9 @@ def _main(result, lang, sections_for, disclaimer, limitations):
                  + "".join(f"<p>{esc(x)}</p>" for x in extra)
                  + f"<p>{esc(t('v_checked', mosaic=mosaic))}</p>"
                  + ("" if passed else f"<p class='warn'>{esc(t('v_limited', reasons=reason_text))}</p>") + "</div>")
+    parts.append(f"<h2>{esc(t('genes_h'))}</h2><div class='panel'>"
+                 + _table_html(t("genes_headers"), gene_rows(result, lang)) + "</div>"
+                 f"<p class='note'>{esc(t('genes_note', p=prefix))}</p>")
     parts.append(f"<h2>{esc(t('cancer_h'))}</h2><div class='panel'>"
                  + _table_html(t("cancer_headers"), cancer_rows(result, lang), css="cancer") + "</div>"
                  f"<p class='note'>{esc(t('cancer_note'))}</p><p class='note'>{esc(t('cancer_refs'))}</p>")
@@ -615,13 +650,13 @@ def _main(result, lang, sections_for, disclaimer, limitations):
                        clinvar=clinvar_release or ui("unknown", lang),
                        gnomad=", ".join(sources.get("gnomad") or []) or "VEP cache"),
                      t("how_attention"), t("how_unclear"), t("how_rule", min=minimum), t("how_valid"),
-                     t("how_trace", url=RESEARCH_URL)))
+                     t("how_trace", url=RESEARCH_URL, p=prefix)))
                  + "</div>")
     parts.append(f"<h2>{esc(t('method'))}</h2><div class='panel prose'><p>{esc(t('method_text', caller=result['snvCaller']))}</p>"
                  + "".join(f"<p>{esc(item)}</p>" for item in limitations)
                  + f"<p>{esc(disclaimer)}</p></div>")
     parts.append("</section><section class='tab-d'>")
-    parts.append(f"<h2>{esc(t('tab_d'))}</h2><p class='note'>{esc(t('details_note'))}</p>")
+    parts.append(f"<h2>{esc(t('tab_d'))}</h2><p class='note'>{esc(t('details_note', p=prefix))}</p>")
     uncertain = tr("unsicher", lang)
     run_titles = {ui("qc_title", lang, assay=result.get("assay", "wgs"))}
     entries = notable(result)
@@ -666,7 +701,7 @@ def _main(result, lang, sections_for, disclaimer, limitations):
                  f"<a href='https://doi.org/{esc(doi)}'>https://doi.org/{esc(doi)}</a></p>"
                  f"<p>{esc(t('research'))}: <a href='{RESEARCH_URL}'>{RESEARCH_URL}</a> · {esc(t('source'))}: "
                  f"<a href='{SOURCE_URL}'>{SOURCE_URL}</a></p>"
-                 f"<p>{esc(t('files'))}</p><p>{esc(disclaimer)}</p></footer></main>")
+                 f"<p>{esc(t('files', p=prefix))}</p><p>{esc(disclaimer)}</p></footer></main>")
     return "\n".join(parts)
 
 

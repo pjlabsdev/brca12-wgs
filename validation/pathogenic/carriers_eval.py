@@ -41,7 +41,7 @@ def main(argv=None):
                "detected": bool(hit), "genotype": hit[6] if hit else None,
                "depth": int(hit[7]) if hit and hit[7].isdigit() else None,
                "GQ": int(hit[8]) if hit and hit[8].isdigit() else None, "AD": hit[9] if hit else None}
-        report = json.load(open(os.path.join(args.workdir, s, "brca12_results.json")))
+        report = json.load(open(os.path.join(args.workdir, s, f"{s}.json")))
         row["inReport"] = str(pos) in json.dumps(report.get("genes", {}))
         bench = json.load(open(os.path.join(args.workdir, s, "benchmark", "summary.json")))
         row["concordance"] = bench["results"]

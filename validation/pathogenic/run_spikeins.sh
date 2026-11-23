@@ -30,7 +30,7 @@ awk 'BEGIN{OFS="\t"} !/^#/ {print $1,$2,$3}' "$ROOT/assets/brca12_regions.bed" >
 
 for s in "${SAMPLES[@]}"; do
   out="$SP/out/$s"
-  if [[ ! -s $out/brca12_results.json ]]; then
+  if [[ ! -s $out/$s.json ]]; then
     python3 "$HERE/spike.py" simulate --sample "$s" --events "$HERE/small_events.tsv" "$HERE/large_events.tsv" \
       --fragments fragments.tsv.gz --reference "$DATA/ref.fa" --outdir "sim/$s"
     bwa mem -t "$THREADS" -R '@RG\tID:spike\tSM:spike\tPL:ILLUMINA\tLB:spike' "$DATA/ref.fa" \

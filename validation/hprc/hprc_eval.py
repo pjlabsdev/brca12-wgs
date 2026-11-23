@@ -161,10 +161,10 @@ def main(argv=None):
     small, sv_rows, done = {}, [], []
     for s in names:
         run = os.path.join(args.workdir, s)
-        if not os.path.exists(os.path.join(run, "brca12_results.json")):
+        if not os.path.exists(os.path.join(run, f"{s}.json")):
             continue
         done.append(s)
-        report = json.load(open(os.path.join(run, "brca12_results.json")))
+        report = json.load(open(os.path.join(run, f"{s}.json")))
         calls = os.path.join(run, "calls", f"{s}.small.vcf.gz")
         bench = os.path.join(run, "benchmark_hprc")
         os.makedirs(bench, exist_ok=True)

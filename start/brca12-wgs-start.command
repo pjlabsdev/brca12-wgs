@@ -344,8 +344,8 @@ if [ "$rc" != 0 ]; then
 fi
 row 2 "$(tr_ "Fertig" "Done")" "$(since "$START")" "$OK"
 printf '\n'
-find "$OUT/results" -maxdepth 2 -name 'brca12_report*' -print 2>/dev/null | while IFS= read -r f; do printf '  %s%s%s\n' "$MUT" "$(short "$f")" "$RST"; done
-REPORT="$(find "$OUT/results" -maxdepth 2 -name 'brca12_report.html' -print 2>/dev/null | head -1)"
+find "$OUT/results" -maxdepth 1 \( -name "$S.*" -o -name 'brca12_report*' \) -print 2>/dev/null | while IFS= read -r f; do printf '  %s%s%s\n' "$MUT" "$(short "$f")" "$RST"; done
+REPORT="$OUT/results/$S.html"; [ -s "$REPORT" ] || REPORT="$(find "$OUT/results" -maxdepth 2 -name 'brca12_report.html' -print 2>/dev/null | head -1)"
 title "brca12-wgs · $S · $(tr_ "fertig" "done")"
 if [ "$WSL" = 1 ]; then
   [ -n "$REPORT" ] && explorer.exe "$(wslpath -w "$REPORT")" >/dev/null 2>&1

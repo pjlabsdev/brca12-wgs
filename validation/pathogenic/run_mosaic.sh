@@ -25,7 +25,7 @@ mkdir -p vep_cache stand_ins && ln -sf "$ROOT/tests/fake_tools/faketool.py" stan
 for af in 05 10 15 20 30 NEG; do
   s="MOSAIC_$af"
   out="$MO/out/$s"
-  if [[ ! -s $out/brca12_results.json ]]; then
+  if [[ ! -s $out/$s.json ]]; then
     if [[ $af == NEG ]]; then set_args=(--event-set SPIKE_NEG --fraction 0.5); else set_args=(--event-set SPIKE_S1 --fraction "0.$af"); fi
     python3 "$HERE/spike.py" simulate --sample "$s" "${set_args[@]}" --events "$HERE/small_events.tsv" \
       --fragments "$SP/fragments.tsv.gz" --reference "$DATA/ref.fa" --outdir "sim/$s"

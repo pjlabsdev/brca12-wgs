@@ -13,7 +13,7 @@
  *   -> extraction of BRCA1/BRCA2 via brca12_regions.bed
  *   -> Ensembl VEP (+ ClinVar)                  annotation
  *   -> mosdepth                                 coverage per exon
- *   -> brca12_report.html / .md / brca12_results.json
+ *   -> SAMPLE.html / .json / .tsv / .findings.tsv / .exons.tsv / .md / .xlsx
  *
  * Research use only (RUO). Results must not be interpreted medically without clinically
  * validated confirmation (accredited laboratory, e.g. Sanger sequencing or MLPA).
@@ -63,7 +63,7 @@ params.rscript   = null       // Rscript with Bioconductor DNAcopy for CNVkit; d
 params.vep       = 'vep'
 params.mosdepth  = 'mosdepth'
 params.python    = 'python3'
-params.report_lang = 'en'      // first language of brca12_report.html/.md (both carry English and German): en or de
+params.report_lang = 'en'      // first language of SAMPLE.html and SAMPLE.md (both carry English and German): en or de
 
 // Assay. 'wgs' (default) or targeted data: 'exome', 'panel' (hybrid capture) or 'amplicon'.
 params.assay            = 'wgs'
@@ -673,9 +673,12 @@ process REPORT {
     path mosaic_files, stageAs: 'mosaic/*'
 
     output:
-    path 'brca12_report.html'
-    path 'brca12_report.md'
-    path 'brca12_results.json'
+    path "${params.sample}.json", emit: json
+    path "${params.sample}.tsv"
+    path "${params.sample}.findings.tsv"
+    path "${params.sample}.exons.tsv"
+    path "${params.sample}.md"
+    path "${params.sample}.html"
     path 'brca12_commands.sh'
 
     script:
@@ -711,7 +714,9 @@ process REPORT {
       --low-depth ${params.low_depth} --max-mapq0 ${params.max_mapq0} \\
       --nextflow-version ${workflow.nextflow.version} --session-id ${workflow.sessionId} \\
       --lang ${params.report_lang} --tabix ${params.tabix} ${evidence} \\
-      --out-json brca12_results.json --out-md brca12_report.md --out-html brca12_report.html
+      --out-json ${params.sample}.json --out-tsv ${params.sample}.tsv \\
+      --out-findings ${params.sample}.findings.tsv --out-exons ${params.sample}.exons.tsv \\
+      --out-md ${params.sample}.md --out-html ${params.sample}.html
     """
 }
 
@@ -724,11 +729,11 @@ process XLSX_EXPORT {
     path results_json
 
     output:
-    path 'brca12_report.xlsx'
+    path "${params.sample}.xlsx"
 
     script:
     """
-    ${params.python} "${projectDir}/bin/brca12_xlsx.py" ${results_json} brca12_report.xlsx
+    ${params.python} "${projectDir}/bin/brca12_xlsx.py" ${results_json} ${params.sample}.xlsx
     """
 }
 
@@ -859,5 +864,5 @@ workflow {
            cov.q20, cov.thresholds, cov.q0, cov.perbase, cov.chrom_median, cov.insertion, cov.exon_cnv,
            versions.versions, commands, evidence_files, READ_QC.out.json,
            ann.mosaic.flatten().unique { it.name }.collect().ifEmpty([file("${projectDir}/assets/NO_MOSAIC")]))
-    XLSX_EXPORT(REPORT.out[2])
+    XLSX_EXPORT(REPORT.out.json)
 }
