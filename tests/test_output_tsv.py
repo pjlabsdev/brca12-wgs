@@ -47,6 +47,7 @@ class GeneTable(unittest.TestCase):
         self.assertEqual(brca1["structural"], "1")
         self.assertEqual(brca1["coverage"], "limited")
         self.assertEqual(brca1["exons_uncertain"], "1")
+        self.assertEqual(brca1["statement"], "BRCA1: finding that needs confirmation (2); exons 8x; uncertain: Exon 23 (legacy 24)")
 
     def test_clean_gene_and_missing_values(self):
         result = copy()
@@ -59,6 +60,7 @@ class GeneTable(unittest.TestCase):
         _, rows = parse(tsv.genes_tsv(result))
         for row in rows:
             self.assertEqual((row["result"], row["attention"], row["unclear"], row["coverage"]), ("none", "0", "0", "ok"))
+            self.assertEqual(row["statement"], f"{row['gene']}: no finding; exons 35x; all exons covered")
 
 
 class FindingTable(unittest.TestCase):

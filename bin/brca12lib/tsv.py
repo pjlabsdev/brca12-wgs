@@ -3,7 +3,7 @@ PREFIX.exons.tsv (one line per exon with its certainty), in the form of hla-wgs.
 from . import page
 from .i18n import tr
 
-GENE_COLUMNS = ("gene", "result", "attention", "unclear", "small_variants", "copy_number", "structural",
+GENE_COLUMNS = ("gene", "result", "statement", "attention", "unclear", "small_variants", "copy_number", "structural",
                 "insertion_signals", "mosaic", "coverage", "exons", "exons_uncertain", "mean_depth",
                 "min_exon_depth", "low_depth_bp", "transcript")
 
@@ -57,6 +57,24 @@ def _gene_coverage(result):
     return out
 
 
+def statement(row, uncertain_labels):
+    """The line for the gene as one English sentence: result, then how completely the gene was checked."""
+    n = {"attention": row["attention"], "unclear": row["unclear"]}
+    if row["result"] == "attention":
+        what = f"finding that needs confirmation ({n['attention']})"
+    elif row["result"] == "unclear":
+        what = f"no finding, {n['unclear']} {'entry' if n['unclear'] == 1 else 'entries'} of uncertain significance"
+    else:
+        what = "no finding"
+    if row["mean_depth"] is None:
+        cover = "no exon depth"
+    else:
+        cover = f"exons {row['mean_depth']:g}x"
+        cover += "; uncertain: " + ", ".join(tr(x, "en") for x in uncertain_labels) if uncertain_labels \
+            else "; all exons covered"
+    return f"{row['gene']}: {what}; {cover}"
+
+
 def gene_rows(result):
     levels = page.gene_levels(result)
     entries = page.notable(result)
@@ -88,6 +106,9 @@ def gene_rows(result):
             "low_depth_bp": low_bp,
             "transcript": result["genes"][gene].get("transcript"),
         })
+        row = rows[-1]
+        row["statement"] = statement(row, [e["label"] for e in result["exonCoverage"]
+                                           if e["gene"] == gene and e["status"] != "ok"])
     return rows
 
 

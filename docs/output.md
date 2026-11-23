@@ -31,6 +31,7 @@ One line per gene (BRCA1, BRCA2).
 |---|---|
 | `gene` | gene |
 | `result` | `attention`, `unclear` or `none`, as the overall statement of the result page but for this gene |
+| `statement` | the line as one sentence: result, mean exon depth and the uncertain exons, for example `BRCA2: no finding; exons 31.6x; all exons covered` |
 | `attention`, `unclear` | number of entries of each level in `SAMPLE.findings.tsv` |
 | `small_variants` | small variants reported for the gene (all, also benign ones) |
 | `copy_number` | CNVkit CNVs and exon copy number calls |
