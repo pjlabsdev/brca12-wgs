@@ -1,5 +1,53 @@
 # Changelog
 
+## Unreleased
+
+- Result files in the form of hla-wgs, named after the sample (`--sample`): `SAMPLE.tsv` (one line
+  per gene: result, counts per kind of finding, coverage), `SAMPLE.findings.tsv` (one line per
+  finding with level and certainty), `SAMPLE.exons.tsv` (one line per exon with depth, status and
+  reasons) and `SAMPLE.json` (schema `genome.brca12.v1`, unchanged content). The JSON, Markdown and
+  Excel files were called `brca12_results.json`, `brca12_report.md` and `brca12_report.xlsx`; the
+  cohort summary finds both names. Columns in `docs/output.md`.
+- The result page is now `SAMPLE.html` (was `brca12_report.html`) and has a table "Result per gene"
+  with the statement of `SAMPLE.tsv` in the page language; the findings to review show their
+  certainty. `brca12_report.py html SAMPLE.json` writes the page again from the JSON alone.
+
+## 1.1.1 (2026-11-22)
+
+- Result page: new section "How the statements are made": data sources of the run (caller, VEP
+  version, MANE transcripts, ClinVar release, gnomAD, ENIGMA specification, exon cohort), which
+  entries count as a finding that needs confirmation and which as uncertain, the rule behind the
+  overall statement and the cancer types table, and where every value and command is kept.
+- The ClinVar release (`##fileDate` of the ClinVar VCF) is recorded under `toolVersions.clinvar` and
+  shown in the header of the result page.
+- Cancer types table: where nothing was found but a linked gene is thinly covered (an uncertain exon
+  or mean depth below the threshold), the row says so instead of a plain "no finding".
+- Indels in the poly-T stretch of the BRCA1 3' UTR (chr17:43044804-43044817), where most indel
+  errors of the HPRC validation lay, carry the note "known weak spot" with the reason.
+- Start file: if a task hangs on a disk that dropped out, Nextflow never ends and the automatic
+  resume could not start. A watchdog now stops Nextflow when the input or reference stays unreadable
+  for `BRCA12_STALL` seconds (60); the start file then waits for the disk and resumes.
+- Known common alleles (the extra 126 bp copy upstream of BRCA1 exon 1, the common intronic BRCA2
+  Alu insertion) no longer count as uncertain in the overall statement or set `needsAttention`; the
+  statement lists them as known common alleles. Entries of uncertain significance that are common in
+  the population (BA1) are named as such, and single entries read in the singular.
+- Cancer types table: a column with further genes linked to each cancer that brca12-wgs does not check
+  (NCCN; CHEK2 for testicular cancer). "How the statements are made" summarises the validation with
+  its numbers (GIAB, HPRC, carriers, spike-ins, structural variants).
+- `brca12_report.md` carries English and German like the HTML page (`--report_lang` sets which comes
+  first).
+- Result page: new table "Cancer types and BRCA1/BRCA2" under the overall statement. For breast cancer
+  (women and men), ovarian, prostate, pancreatic and testicular cancer it shows how strongly each is
+  linked to BRCA1 and BRCA2 (NCCN, ClinGen), the published risk for carriers of a disease-causing variant (Kuchenbaecker 2017, Tai 2007, Nyberg 2020, Li 2022; AlDubayan 2019 for testicular cancer) and what this result says about it:
+  no finding, only entries of uncertain significance, or a finding that needs confirmation, with the
+  gene named. It states that other genes for these cancers are not checked.
+- CNVkit `access` runs on chr13 and chr17 only (extracted with `samtools faidx`) instead of the whole
+  reference: the same intervals, since access works per contig, about four times faster (38 s to 9 s
+  on a GRCh38 genome). Checked on a 30x genome: CNV segments, dosage hints, SVs and all variants
+  unchanged.
+- Tool versions are queried in parallel (each tool starts its own Java, Perl or R runtime).
+- A dry run of the start file (`BRCA12_DRYRUN=1`) no longer rewrites the saved settings.
+
 ## 1.1.0 (2026-11-22)
 
 - Start packages for macOS, Linux and Windows: `brca12-wgs-macos/-linux/-windows.zip` (no version in

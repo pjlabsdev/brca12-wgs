@@ -4,6 +4,10 @@ name = os.path.basename(sys.argv[0]); a = sys.argv[1:]
 def opt(flag):
     return a[a.index(flag)+1] if flag in a else None
 def touch(p): open(p,'a').close()
+# FAKE_HANG_WHILE_MISSING=path: a task that reads a lost disk hangs until the path is back (USB disk dropout)
+if os.environ.get("FAKE_HANG_WHILE_MISSING") and name == "samtools":
+    import time
+    while not os.path.exists(os.environ["FAKE_HANG_WHILE_MISSING"]): time.sleep(0.5)
 CSQF="Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|VARIANT_CLASS|CANONICAL|MANE_SELECT|PICK|MAX_AF|gnomADe_AF|gnomADg_AF|ClinVar|ClinVar_CLNSIG|ClinVar_CLNREVSTAT|ClinVar_CLNDN|ClinVar_CLNSIGCONF"
 VCF="##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS\nchr17\t43093000\t.\tAG\tA\t500\tPASS\tMQ=60\tGT:AD:DP:GQ\t0/1:20,18:38:99\nchr13\t32338000\t.\tA\tG\t900\tPASS\tMQ=60\tGT:AD:DP:GQ\t1/1:0,35:35:99\n"
 if name=="bwa":
@@ -15,6 +19,10 @@ elif name=="samtools":
     elif a[0]=="sort": open(opt("-o"),"w").write(sys.stdin.read())
     elif a[0]=="markdup": open(a[-1],"w").write("bam"); open(opt("-f"),"w").write("stats")
     elif a[0]=="index": touch(a[-1]+".bai")
+    elif a[0]=="faidx" and a[2:] and not any(":" in x for x in a[2:]):
+        # whole contigs: only CALL_CNV_CNVKIT asks for them, and only for the BRCA chromosomes
+        if a[2:] not in (["chr13","chr17"],["13","17"]): sys.exit(f"samtools faidx: expected the BRCA chromosomes, got {a[2:]}")
+        print(">chr13\nACGT\n>chr17\nACGT")
     elif a[0]=="stats":
         print("SN\traw total sequences:\t1000\nSN\treads mapped:\t990\nSN\treads properly paired:\t980\n"
               "SN\treads duplicated:\t50\nSN\treads MQ0:\t3\nSN\terror rate:\t0.002\nSN\taverage length:\t150\n"

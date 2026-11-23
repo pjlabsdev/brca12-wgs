@@ -14,20 +14,24 @@ cd "$WORK"
 printf ">chr13\nN\n>chr17\nN\n" > ref.fa
 printf "chr13\t114364328\t0\t60\t61\nchr17\t83257441\t0\t60\t61\n" > ref.fa.fai
 touch ref.fa.amb ref.fa.ann ref.fa.bwt ref.fa.pac ref.fa.sa ref.dict R1.fq.gz R2.fq.gz clinvar.vcf.gz clinvar.vcf.gz.tbi
+printf '##fileformat=VCFv4.1\n##fileDate=20251104\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n' > clinvar.vcf.gz
 mkdir -p vep
 PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
   --sample TEST --reference "$WORK/ref.fa" --reads_r1 "$WORK/R1.fq.gz" --reads_r2 "$WORK/R2.fq.gz" \
   --vep_cache "$WORK/vep" --clinvar_vcf "$WORK/clinvar.vcf.gz" \
   --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$WORK/out"
-for f in brca12_report.html brca12_report.md brca12_results.json brca12_commands.sh brca12_report.xlsx; do
+for f in TEST.html TEST.md TEST.json TEST.tsv TEST.findings.tsv TEST.exons.tsv brca12_commands.sh TEST.xlsx; do
   test -s "$WORK/out/$f" || { echo "missing $f"; exit 1; }
 done
-python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['schema']=='genome.brca12.v1'; assert r['genes']['BRCA1']['smallVariants']; assert r['readQC']['regionStats']['readsInRegions']==1000; assert 'exonCopyNumber' in r and 'exonCopyNumberCallCount' in r['summary']; assert any(s['caller']=='Delly' for s in r['svs']), r['svs']; assert r['toolVersions'].get('delly')=='v1.3.3', r['toolVersions']; assert r['toolVersions'].get('dnacopy')=='1.76.0', r['toolVersions']; print('stub pipeline (WGS) OK')" "$WORK/out/brca12_results.json"
+python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['schema']=='genome.brca12.v1'; assert r['genes']['BRCA1']['smallVariants']; assert r['readQC']['regionStats']['readsInRegions']==1000; assert 'exonCopyNumber' in r and 'exonCopyNumberCallCount' in r['summary']; assert any(s['caller']=='Delly' for s in r['svs']), r['svs']; assert r['toolVersions'].get('delly')=='v1.3.3', r['toolVersions']; assert r['toolVersions'].get('dnacopy')=='1.76.0', r['toolVersions']; print('stub pipeline (WGS) OK')" "$WORK/out/TEST.json"
 
 # The coverage step must read only the analysed regions through the index, not the whole alignment.
 grep -q -- "view -b -M -L coverage_regions.bed" "$WORK/out/coverage/coverage.command.sh" || { echo "coverage step does not fetch regions through the index"; exit 1; }
 if grep -E "mosdepth .*--by [^ ]*exons" "$WORK/out/coverage/coverage.command.sh" | grep -v -q "coverage_regions.bam"; then echo "mosdepth --by still reads the whole alignment"; exit 1; fi
 echo "stub pipeline (coverage reads regions only) OK"
+# CNVkit access runs on the BRCA chromosomes only; tool versions are queried in parallel but kept in order.
+grep -q -- "faidx .* \$BRCA_CHROMS > access_ref.fa" "$WORK/out/calls/cnv.command.sh" || { echo "CNVkit access does not use the BRCA chromosomes only"; exit 1; }
+python3 -c "import json,sys; v=list(json.load(open(sys.argv[1]))['toolVersions']); assert v[:4]==['nextflow','bwa','samtools','bcftools'] and v[-2:]==['python','clinvar'], v; assert json.load(open(sys.argv[1]))['toolVersions']['clinvar']=='20251104'; print('stub pipeline (CNVkit access, tool versions) OK')" "$WORK/out/TEST.json"
 
 # A sample name with a space must be refused at once with a clear message (it would break file names later).
 if PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
@@ -58,7 +62,7 @@ PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
   --vep_cache "$WORK/vep" --clinvar_vcf "$WORK/clinvar.vcf.gz" \
   --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$WORK/out_amp" \
   --assay amplicon --targets_bed "$WORK/targets.bed" --primers_bed "$WORK/primers.bed" --mosaic
-python3 - "$WORK/out_amp/brca12_results.json" <<'PY'
+python3 - "$WORK/out_amp/AMP.json" <<'PY'
 import json, sys
 r = json.load(open(sys.argv[1]))
 assert r["assay"] == "amplicon"
@@ -78,7 +82,7 @@ PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
   --sample CRAMIN --reference "$WORK/ref.fa" --bam "$WORK/IN.cram" \
   --vep_cache "$WORK/vep" --clinvar_vcf "$WORK/clinvar.vcf.gz" \
   --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$WORK/out_cram" --mosaic
-python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['input']['mode']=='bam' and r['input']['files']==['IN.cram'], r['input']; assert r['genes']['BRCA1']['smallVariants'] and r['mosaicCalling']['enabled']; print('stub pipeline (CRAM input) OK')" "$WORK/out_cram/brca12_results.json"
+python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['input']['mode']=='bam' and r['input']['files']==['IN.cram'], r['input']; assert r['genes']['BRCA1']['smallVariants'] and r['mosaicCalling']['enabled']; print('stub pipeline (CRAM input) OK')" "$WORK/out_cram/CRAMIN.json"
 
 # Spaces in paths: the pipeline folder, the input folder and the output folder each contain a space
 # (for example a folder called "brca12-wgs Start 2" in Downloads).
@@ -89,7 +93,7 @@ PATH="$FAKE:$PATH" nextflow run "$SP/pipeline copy/main.nf" -profile standard \
   --sample SPACE --reference "$SP/in put/ref.fa" --reads_r1 "$SP/in put/R1.fq.gz" --reads_r2 "$SP/in put/R2.fq.gz" \
   --vep_cache "$WORK/vep" --clinvar_vcf "$SP/in put/clinvar.vcf.gz" \
   --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$SP/out put"
-for f in brca12_report.html brca12_report.md brca12_results.json brca12_commands.sh brca12_report.xlsx; do
+for f in SPACE.html SPACE.md SPACE.json SPACE.tsv SPACE.findings.tsv SPACE.exons.tsv brca12_commands.sh SPACE.xlsx; do
   test -s "$SP/out put/$f" || { echo "missing $f (paths with spaces)"; exit 1; }
 done
 echo "stub pipeline (paths with spaces) OK"

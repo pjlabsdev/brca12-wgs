@@ -13,7 +13,7 @@
  *   -> extraction of BRCA1/BRCA2 via brca12_regions.bed
  *   -> Ensembl VEP (+ ClinVar)                  annotation
  *   -> mosdepth                                 coverage per exon
- *   -> brca12_report.html / .md / brca12_results.json
+ *   -> SAMPLE.html / .json / .tsv / .findings.tsv / .exons.tsv / .md / .xlsx
  *
  * Research use only (RUO). Results must not be interpreted medically without clinically
  * validated confirmation (accredited laboratory, e.g. Sanger sequencing or MLPA).
@@ -63,7 +63,7 @@ params.rscript   = null       // Rscript with Bioconductor DNAcopy for CNVkit; d
 params.vep       = 'vep'
 params.mosdepth  = 'mosdepth'
 params.python    = 'python3'
-params.report_lang = 'en'      // language of brca12_report.html/.md: en or de
+params.report_lang = 'en'      // first language of SAMPLE.html and SAMPLE.md (both carry English and German): en or de
 
 // Assay. 'wgs' (default) or targeted data: 'exome', 'panel' (hybrid capture) or 'amplicon'.
 params.assay            = 'wgs'
@@ -449,7 +449,12 @@ process CALL_CNV_CNVKIT {
       echo "ERROR: CNVkit needs R with the Bioconductor package DNAcopy; '\$RSCRIPT' cannot load it. Install DNAcopy in that R or pass --rscript /path/to/Rscript." >&2
       exit 1
     fi
-    ${params.cnvkit} access ${reference} -o access.bed
+    # Accessible regions only on the BRCA chromosomes (chr13/chr17): the same intervals as on the
+    # whole genome, since access works per contig, but about four times faster.
+    BRCA_CHROMS=\$(${params.python} -c 'import json,sys; print(" ".join(json.load(open(sys.argv[1]))["chromLengths"]))' ${reference_check})
+    ${params.samtools} faidx ${reference} \$BRCA_CHROMS > access_ref.fa
+    ${params.cnvkit} access access_ref.fa -o access.bed
+    rm -f access_ref.fa access_ref.fa.fai
     ${params.python} "${projectDir}/bin/brca12_prepare.py" --cnv-targets ${reference_check} \\
       --cnv-access access.bed --out-cnv-targets wgs_regions.bed
     if [ "${useReference}" = "true" ]; then
@@ -605,30 +610,39 @@ process EXTRACT_AND_ANNOTATE {
 }
 
 process TOOL_VERSIONS {
+    input:
+    tuple path(clinvar), path(clinvar_tbi)
+
     output:
     path 'tool_versions.tsv', emit: versions
 
     script:
     """
-    {
-      echo -e "nextflow\\t${workflow.nextflow.version}"
-      echo -e "bwa\\t\$( (${params.bwa} 2>&1 || true) | awk '/^Version/{print \$2}')"
-      echo -e "samtools\\t\$(${params.samtools} --version 2>/dev/null | head -1 | awk '{print \$2}')"
-      echo -e "bcftools\\t\$(${params.bcftools} --version 2>/dev/null | head -1 | awk '{print \$2}')"
-      if [ "${params.snv_caller}" = "deepvariant" ]; then
-        echo -e "deepvariant\\t\$(${params.deepvariant} --version 2>&1 | tail -1 | awk '{print \$NF}')"
-      else
-        echo -e "gatk\\t\$(${params.gatk} --version 2>/dev/null | awk '/The Genome Analysis Toolkit/{print \$NF}')"
-      fi
-      echo -e "manta\\t\$(${params.manta_config} --version 2>/dev/null | tail -1)"
-      echo -e "delly\\t\$(${params.delly} --version 2>&1 | awk '/Delly version/{print \$NF; exit}')"
-      echo -e "cnvkit\\t\$(${params.cnvkit} version 2>/dev/null | tail -1)"
+    # Each tool starts its own runtime (Java for GATK, Perl for VEP, R): queried in parallel, written in order.
+    echo -e "nextflow\\t${workflow.nextflow.version}" > tv_00
+    ( echo -e "bwa\\t\$( (${params.bwa} 2>&1 || true) | awk '/^Version/{print \$2}')" ) > tv_01 &
+    ( echo -e "samtools\\t\$(${params.samtools} --version 2>/dev/null | head -1 | awk '{print \$2}')" ) > tv_02 &
+    ( echo -e "bcftools\\t\$(${params.bcftools} --version 2>/dev/null | head -1 | awk '{print \$2}')" ) > tv_03 &
+    if [ "${params.snv_caller}" = "deepvariant" ]; then
+      ( echo -e "deepvariant\\t\$(${params.deepvariant} --version 2>&1 | tail -1 | awk '{print \$NF}')" ) > tv_04 &
+    else
+      ( echo -e "gatk\\t\$(${params.gatk} --version 2>/dev/null | awk '/The Genome Analysis Toolkit/{print \$NF}')" ) > tv_04 &
+    fi
+    ( echo -e "manta\\t\$(${params.manta_config} --version 2>/dev/null | tail -1)" ) > tv_05 &
+    ( echo -e "delly\\t\$(${params.delly} --version 2>&1 | awk '/Delly version/{print \$NF; exit}')" ) > tv_06 &
+    ( echo -e "cnvkit\\t\$(${params.cnvkit} version 2>/dev/null | tail -1)" ) > tv_07 &
+    (
       R_FOR_CNVKIT="${params.rscript ?: ''}"; [ -n "\$R_FOR_CNVKIT" ] || { d=\$(dirname "\$(command -v ${params.cnvkit} || true)"); [ -x "\$d/Rscript" ] && R_FOR_CNVKIT="\$d/Rscript" || R_FOR_CNVKIT=Rscript; }
       echo -e "dnacopy\\t\$("\$R_FOR_CNVKIT" --no-restore --no-environ -e 'cat(as.character(packageVersion("DNAcopy")))' 2>/dev/null || true)"
-      echo -e "ensembl-vep\\t\$(${params.vep} --help 2>/dev/null | awk '/ensembl-vep/{print \$NF; exit}')"
-      echo -e "mosdepth\\t\$(${params.mosdepth} --version 2>/dev/null | awk '{print \$2}')"
-      echo -e "python\\t\$(${params.python} --version 2>&1 | awk '{print \$2}')"
-    } > tool_versions.tsv
+    ) > tv_08 &
+    ( echo -e "ensembl-vep\\t\$(${params.vep} --help 2>/dev/null | awk '/ensembl-vep/{print \$NF; exit}')" ) > tv_09 &
+    ( echo -e "mosdepth\\t\$(${params.mosdepth} --version 2>/dev/null | awk '{print \$2}')" ) > tv_10 &
+    ( echo -e "python\\t\$(${params.python} --version 2>&1 | awk '{print \$2}')" ) > tv_11 &
+    # ClinVar release: the fileDate line of the ClinVar VCF header (for example 20251104)
+    ( echo -e "clinvar\\t\$(${params.bcftools} view -h ${clinvar} 2>/dev/null | awk -F= '/^##fileDate=/{print \$2; exit}')" ) > tv_12 &
+    wait
+    cat tv_?? > tool_versions.tsv
+    rm -f tv_??
     """
 }
 
@@ -659,9 +673,12 @@ process REPORT {
     path mosaic_files, stageAs: 'mosaic/*'
 
     output:
-    path 'brca12_report.html'
-    path 'brca12_report.md'
-    path 'brca12_results.json'
+    path "${params.sample}.json", emit: json
+    path "${params.sample}.tsv"
+    path "${params.sample}.findings.tsv"
+    path "${params.sample}.exons.tsv"
+    path "${params.sample}.md"
+    path "${params.sample}.html"
     path 'brca12_commands.sh'
 
     script:
@@ -697,7 +714,9 @@ process REPORT {
       --low-depth ${params.low_depth} --max-mapq0 ${params.max_mapq0} \\
       --nextflow-version ${workflow.nextflow.version} --session-id ${workflow.sessionId} \\
       --lang ${params.report_lang} --tabix ${params.tabix} ${evidence} \\
-      --out-json brca12_results.json --out-md brca12_report.md --out-html brca12_report.html
+      --out-json ${params.sample}.json --out-tsv ${params.sample}.tsv \\
+      --out-findings ${params.sample}.findings.tsv --out-exons ${params.sample}.exons.tsv \\
+      --out-md ${params.sample}.md --out-html ${params.sample}.html
     """
 }
 
@@ -710,11 +729,11 @@ process XLSX_EXPORT {
     path results_json
 
     output:
-    path 'brca12_report.xlsx'
+    path "${params.sample}.xlsx"
 
     script:
     """
-    ${params.python} "${projectDir}/bin/brca12_xlsx.py" ${results_json} brca12_report.xlsx
+    ${params.python} "${projectDir}/bin/brca12_xlsx.py" ${results_json} ${params.sample}.xlsx
     """
 }
 
@@ -824,7 +843,7 @@ workflow {
     }
     ann = EXTRACT_AND_ANNOTATE(small.vcf, VALIDATE_INPUTS.out.exact_bed, reference, ref_files,
                                file(params.vep_cache, checkIfExists: true), clinvar, mosaic_in)
-    versions = TOOL_VERSIONS()
+    versions = TOOL_VERSIONS(clinvar)
 
     commands = Channel.empty()
         .mix(VALIDATE_INPUTS.out[5])
@@ -845,5 +864,5 @@ workflow {
            cov.q20, cov.thresholds, cov.q0, cov.perbase, cov.chrom_median, cov.insertion, cov.exon_cnv,
            versions.versions, commands, evidence_files, READ_QC.out.json,
            ann.mosaic.flatten().unique { it.name }.collect().ifEmpty([file("${projectDir}/assets/NO_MOSAIC")]))
-    XLSX_EXPORT(REPORT.out[2])
+    XLSX_EXPORT(REPORT.out.json)
 }

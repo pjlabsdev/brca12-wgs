@@ -8,13 +8,15 @@
 # Reference, VEP cache, ClinVar VCF and Nextflow options are asked once and kept in
 # ~/.config/brca12-wgs/start.conf (plain shell variables, editable); an optional env.sh next to it
 # can set the environment (for example JAVA_HOME and PATH for a local tool installation).
-# BRCA12_DRYRUN=1 stops after the overview without starting the pipeline.
+# BRCA12_DRYRUN=1 stops after the overview without starting the pipeline or saving settings.
 # At every start it asks GitHub for the latest release (one request, 5 s limit, silent on errors; nothing
 # about you or your data is sent) and offers the update (default no). The new package replaces this
 # folder's program files in place and is started; results and settings stay. BRCA12_NO_UPDATE=1 switches
 # the check off.
 # If the input or reference disk drops out (external USB disk), the start file waits until both are
 # readable again and continues with -resume (finished steps are kept), at most BRCA12_RESUME times (3).
+# If a task hangs on the lost disk, Nextflow is stopped after BRCA12_STALL seconds (60) without the
+# input or reference, so that the resume can start.
 set -u
 case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in *UTF-8*) ;; *) export LC_CTYPE=en_US.UTF-8 ;; esac
 
@@ -207,7 +209,8 @@ REFERENCE="$REPLY_PATH"
 [ -f "$REFERENCE.fai" ] || stop "$(tr_ "Zur Referenz fehlt der Index (.fai daneben)." "The reference index (.fai) is missing.")"
 [ -d "$VEP_CACHE" ] || { askpath "VEP-Cache-Ordner (einmalig) hineinziehen:" "Drop the VEP cache folder (once):" d; VEP_CACHE="$REPLY_PATH"; }
 [ -f "$CLINVAR_VCF" ] || { askpath "ClinVar-VCF (clinvar.vcf.gz, einmalig) hineinziehen:" "Drop the ClinVar VCF (clinvar.vcf.gz, once):" f; CLINVAR_VCF="$REPLY_PATH"; }
-save
+# a dry run only shows what would happen and leaves the settings as they are
+[ "${BRCA12_DRYRUN:-0}" = 1 ] || save
 
 # sample name and a new output folder
 S="$(basename "$IN")"
@@ -256,10 +259,24 @@ launch() {
     --report_lang "$RL" --threads "$T" --outdir "$OUT/results" $EXTRA_ARGS >>"$LOG" 2>&1 & PID=$!
 }
 # a run that ended because a disk dropped out: input or reference unreadable now, or an I/O error or
-# a task killed by a signal (bus error, kill) in the log of this attempt
+# a task killed by a signal (bus error, kill) in the log of this attempt, or the watchdog below stopped it
 disk_dropout() {
   [ -r "$IN" ] && [ -r "$REFERENCE" ] || return 0
-  tail -n +"$1" "$LOG" | grep -qiE 'Input/output error|Device not configured|Bus error|exit status \((13[4-9]|14[0-3])\)'
+  tail -n +"$1" "$LOG" | grep -qiE 'Input/output error|Device not configured|Bus error|exit status \((13[4-9]|14[0-3])\)|unreadable for [0-9]+ s, Nextflow stopped'
+}
+# A disk that drops out while Nextflow runs can leave a task hanging on I/O, so Nextflow never ends and
+# the resume below never starts. If the input or the reference stays unreadable for BRCA12_STALL
+# seconds (60), Nextflow is stopped; the resume loop then waits for the disk and continues.
+GONE=""
+watch_disk() {
+  if [ -r "$IN" ] && [ -r "$REFERENCE" ]; then GONE=""; return; fi
+  [ -n "$GONE" ] || GONE=$(date +%s)
+  [ "$GONE" = stopped ] && return
+  if [ $(($(date +%s) - GONE)) -ge "${BRCA12_STALL:-60}" ]; then
+    GONE=stopped
+    kill "$PID" 2>/dev/null; sleep 5; kill -9 "$PID" 2>/dev/null
+    echo "brca12-wgs start: input or reference unreadable for ${BRCA12_STALL:-60} s, Nextflow stopped" >> "$LOG"
+  fi
 }
 launch
 
@@ -292,6 +309,7 @@ while kill -0 "$PID" 2>/dev/null; do
   sub=$(grep -c 'Submitted process >' "$LOG" 2>/dev/null)
   run_now="$(running)"
   spin "$i" "$(bar "$shown" "${sub:-0}" 20)  $MUT$shown / ${sub:-0}  ${run_now:-$(tr_ "startet" "starting")}  $(since "$START")$RST"
+  watch_disk
   i=$((i + 1)); sleep 0.25
 done
 wait "$PID"; rc=$?; PID=""
@@ -302,12 +320,13 @@ while [ "$rc" != 0 ] && [ "$attempt" -le "${BRCA12_RESUME:-3}" ] && disk_dropout
   row 4 "$(tr_ "Datenträger nicht erreichbar, warte und setze fort ($attempt)" "Disk not reachable, waiting to resume ($attempt)")" "$(since "$START")" "$ERR"
   until [ -r "$IN" ] && [ -r "$REFERENCE" ] && [ -w "$OUT" ]; do sleep 15; done
   sleep 30
-  attempt=$((attempt + 1)); LOGLINE=$(($(wc -l < "$LOG") + 1)); shown=0
+  attempt=$((attempt + 1)); LOGLINE=$(($(wc -l < "$LOG") + 1)); shown=0; GONE=""
   launch
   while kill -0 "$PID" 2>/dev/null; do
     show_done
     sub=$(grep -c 'Submitted process >' "$LOG" 2>/dev/null)
     spin "$i" "$(bar "$shown" "${sub:-0}" 20)  $MUT$(tr_ "fortgesetzt" "resumed")  $(since "$START")$RST"
+    watch_disk
     i=$((i + 1)); sleep 0.25
   done
   wait "$PID"; rc=$?; PID=""
@@ -325,8 +344,8 @@ if [ "$rc" != 0 ]; then
 fi
 row 2 "$(tr_ "Fertig" "Done")" "$(since "$START")" "$OK"
 printf '\n'
-find "$OUT/results" -maxdepth 2 -name 'brca12_report*' -print 2>/dev/null | while IFS= read -r f; do printf '  %s%s%s\n' "$MUT" "$(short "$f")" "$RST"; done
-REPORT="$(find "$OUT/results" -maxdepth 2 -name 'brca12_report.html' -print 2>/dev/null | head -1)"
+find "$OUT/results" -maxdepth 1 \( -name "$S.*" -o -name 'brca12_report*' \) -print 2>/dev/null | while IFS= read -r f; do printf '  %s%s%s\n' "$MUT" "$(short "$f")" "$RST"; done
+REPORT="$OUT/results/$S.html"; [ -s "$REPORT" ] || REPORT="$(find "$OUT/results" -maxdepth 2 -name 'brca12_report.html' -print 2>/dev/null | head -1)"
 title "brca12-wgs · $S · $(tr_ "fertig" "done")"
 if [ "$WSL" = 1 ]; then
   [ -n "$REPORT" ] && explorer.exe "$(wslpath -w "$REPORT")" >/dev/null 2>&1

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Fasst alle BRCA1/BRCA2-Ergebnisse zu brca12_results.json, brca12_report.md und .html zusammen.
+"""Fasst alle BRCA1/BRCA2-Ergebnisse zu PREFIX.json, PREFIX.tsv, PREFIX.findings.tsv, PREFIX.exons.tsv,
+PREFIX.md und PREFIX.html zusammen. `brca12_report.py html PREFIX.json` schreibt die Seite neu aus der JSON.
 
 The JSON file (schema genome.brca12.v1) is the machine-readable interface for downstream reports.
 """
@@ -12,7 +13,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from brca12lib import coverage, enigma_tables, evidence, page, render, structural, variants  # noqa: E402
+from brca12lib import coverage, enigma_tables, evidence, page, render, structural, tsv, variants  # noqa: E402
 from brca12lib import exon_cnv as exon_cnv_lib  # noqa: E402
 from brca12lib.vcf import VCF  # noqa: E402
 
@@ -200,6 +201,9 @@ def build(args):
     ion = args.platform == "iontorrent"
     mosaic = mosaic_candidates(mosaic_paths, germline, uncertain, sources, args.mosaic_min_af, args.mosaic_max_af,
                                args.mosaic_min_alt_reads, args.mosaic_min_depth, snv_only=ion) if mosaic_paths else []
+    for v in germline:
+        if in_weak_spot(v):
+            v["qualityFlags"].append(WEAK_SPOT_FLAG)
     if ion:
         for v in germline:
             if len(v["ref"]) != len(v["alt"]):
@@ -309,12 +313,56 @@ def summarize(result):
         "uncertainExonCount": sum(1 for e in result["exonCoverage"] if e["status"] != "ok"),
         "lowCoverageIntervalCount": len(result["lowCoverageIntervals"]),
         "needsAttention": bool(clinvar_plp or lof or result["cnvs"] or result["exonCopyNumber"]["calls"]
-                               or result["svs"] or result["insertionSignals"]
+                               or result["svs"]
+                               # known common alleles (label "häufiges Allel") are reported but do not alarm
+                               or [i for i in result["insertionSignals"] if "häufiges Allel" not in (i.get("label") or "")]
                                or result.get("mosaicCandidates")),
     }
 
 
+# Known weak spot of the method: the poly-T stretch in the BRCA1 3' UTR (GRCh38). In the HPRC
+# validation (validation/hprc) 16 of 18 missed and 9 of 10 false exon indels lay here, because
+# assemblies and short reads disagree on the length of the homopolymer.
+WEAK_SPOTS = (("17", 43044804, 43044817),)
+WEAK_SPOT_FLAG = ("bekannte Schwachstelle: Poly-T-Strecke in der BRCA1-3'-UTR, dort waren in der Prüfung "
+                  "die meisten Indel-Fehler; Länge des Homopolymers unsicher")
+
+
+def in_weak_spot(v):
+    """True for an indel touching a known weak spot (anchor base and normalisation shift included)."""
+    if len(v["ref"]) == len(v["alt"]):
+        return False
+    chrom = str(v["chrom"])
+    chrom = chrom[3:] if chrom.startswith("chr") else chrom
+    end = v["pos"] + len(v["ref"])
+    return any(chrom == c and v["pos"] <= stop + 1 and end >= start - 1 for c, start, stop in WEAK_SPOTS)
+
+
+def html_from_json(argv):
+    """`brca12_report.py html SAMPLE.json [--lang de] [--out SAMPLE.html]`: the result page again from the
+    JSON alone (like `hla-wgs html PREFIX.json`), for example after an update of the page."""
+    p = argparse.ArgumentParser(prog="brca12_report.py html", description=html_from_json.__doc__)
+    p.add_argument("json")
+    p.add_argument("--lang", choices=("en", "de"), default=None,
+                   help="first language (default: de when LANG starts with de, else en)")
+    p.add_argument("--out", default=None, help="default: the JSON path with .html")
+    args = p.parse_args(argv)
+    with open(args.json) as handle:
+        result = json.load(handle)
+    if result.get("schema") != "genome.brca12.v1":
+        raise SystemExit(f"[brca12] {args.json} is not a brca12-wgs result (schema genome.brca12.v1)")
+    lang = args.lang or ("de" if os.environ.get("LANG", "").lower().startswith("de") else "en")
+    out = args.out or (args.json[:-5] if args.json.endswith(".json") else args.json) + ".html"
+    with open(out, "w") as handle:
+        handle.write(render.html_report(result, lang))
+    print(out)
+    return 0
+
+
 def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == "html":
+        return html_from_json(argv[1:])
     p = argparse.ArgumentParser(description=__doc__)
     for name in ("sample", "input-mode", "inputs", "reference", "reference-check", "exons", "regions",
                  "sv", "cnv", "cnr", "cov-q20", "cov-thresholds", "cov-q0", "cov-perbase",
@@ -344,12 +392,22 @@ def main(argv=None):
     p.add_argument("--bayesdel", default=None, help="TSV chrom,pos,ref,alt,BayesDel_noAF (bgzip + tabix)")
     p.add_argument("--tabix", default="tabix")
     p.add_argument("--lang", choices=("en", "de"), default="en", help="language of the HTML/Markdown report")
+    p.add_argument("--out-tsv", default=None, help="PREFIX.tsv: one line per gene")
+    p.add_argument("--out-findings", default=None, help="PREFIX.findings.tsv: one line per finding with its certainty")
+    p.add_argument("--out-exons", default=None, help="PREFIX.exons.tsv: one line per exon with its certainty")
     args = p.parse_args(argv)
     result = build(args)
     with open(args.out_json, "w") as handle:
         json.dump(result, handle, indent=2, ensure_ascii=False)
+    if args.out_tsv:
+        with open(args.out_tsv, "w") as handle:
+            handle.write(tsv.genes_tsv(result))
+    for path, write in ((args.out_findings, tsv.findings_tsv), (args.out_exons, tsv.exons_tsv)):
+        if path:
+            with open(path, "w") as handle:
+                handle.write(write(result))
     with open(args.out_md, "w") as handle:
-        handle.write(render.markdown(result, args.lang))
+        handle.write(render.markdown_both(result, args.lang))
     with open(args.out_html, "w") as handle:
         handle.write(render.html_report(result, args.lang))
     return 0

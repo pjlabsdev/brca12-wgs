@@ -85,10 +85,10 @@ def main(argv=None):
             f = line.rstrip("\n").split("\t")
             small_events.setdefault(f[0], []).append({"gene": f[1], "kind": f[2], "chrom": f[3], "pos": int(f[4]), "ref": f[5],
                                                       "alt": f[6], "size": int(f[7]), "context": f[8], "note": f[9]})
-    samples = sorted(d for d in os.listdir(args.outdir) if os.path.exists(os.path.join(args.outdir, d, "brca12_results.json")))
+    samples = sorted(d for d in os.listdir(args.outdir) if os.path.exists(os.path.join(args.outdir, d, f"{d}.json")))
     summary = {"samples": [], "smallByClass": {}, "smallMissed": [], "largeEvents": [], "unexpected": []}
     for s in samples:
-        report = json.load(open(os.path.join(args.outdir, s, "brca12_results.json")))
+        report = json.load(open(os.path.join(args.outdir, s, f"{s}.json")))
         truth = json.load(open(os.path.join(args.simdir, s, f"{s}.truth.json")))
         bench = json.load(open(os.path.join(args.outdir, s, "benchmark", "summary.json")))
         run = os.path.join(args.outdir, s, "benchmark", "vcfeval_gene_loci")

@@ -120,6 +120,12 @@ def _limitations(result, lang):
     return result.get("limitationsEN", result["limitations"])
 
 
+def markdown_both(result, lang="en"):
+    """The Markdown report in both languages, the chosen one first (like the HTML page)."""
+    other = "de" if lang == "en" else "en"
+    return markdown(result, lang).rstrip("\n") + "\n\n---\n\n" + markdown(result, other)
+
+
 def markdown(result, lang="en"):
     lines = [f"# {ui('title', lang)} · {result['sample']}", "",
              f"> **{ui('important', lang)}:** {disclaimer(lang)}", "",
