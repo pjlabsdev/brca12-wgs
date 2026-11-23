@@ -9,15 +9,19 @@
 # Stand-ins:  VEP (passthrough) and CNVkit (neutral segments, with a stand-in R), as in arm A.
 #
 # Usage: CODE=/path/to/brca12-wgs-checkout validation/giab_novaseq/run.sh WORKDIR [REFDIR]
+#   results go to WORKDIR/<code revision>/<sample>
 #   CODE    pipeline checkout to test (default: this repository); arm B froze main a705662
 #   REFDIR  folder with ref.fa (chr13 + chr17 of the GIAB GRCh38 no-alt set) + bwa/GATK/rtg indexes,
 #           as built by validation/giab_more/run.sh (default: WORKDIR/data)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-CODE="${CODE:-$ROOT}"
+CODE="$(cd "${CODE:-$ROOT}" && pwd)"
 WORK="${1:?usage: run.sh WORKDIR [REFDIR]}"
-REFDIR="${2:-$WORK/data}"
-mkdir -p "$WORK/data" && cd "$WORK/data"
+mkdir -p "$WORK/data"
+WORK="$(cd "$WORK" && pwd)"            # absolute before any cd, so relative arguments work
+REFDIR="$(cd "${2:-$WORK/data}" && pwd)"
+REV="$(git -C "$CODE" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+cd "$WORK/data"
 G=https://storage.googleapis.com/brain-genomics-public/research/sequencing/grch38/bam/novaseq/wgs_pcr_free/30x
 S=https://s3.amazonaws.com/giab/release
 REG="chr17:43034295-43180327 chr13:32305077-32410268"
@@ -51,9 +55,10 @@ for s in ${SAMPLES:-HG003 HG004 HG005 HG006 HG007}; do
   [[ -s $s.truth.vcf.gz.tbi ]] || curl -sfo $s.truth.vcf.gz.tbi "${TRUTH[$s]}.vcf.gz.tbi"
   [[ -s $s.bench.bed ]] || curl -sfo $s.bench.bed "${TRUTH[$s]}${BEDSUFFIX[$s]}"
 
-  out="$WORK/$s"
+  # results are kept per code revision, so one WORKDIR can hold runs of several versions
+  out="$WORK/$REV/$s"
   [[ -s $out/benchmark/summary.json ]] && continue
-  (cd "$WORK" && nextflow run "$CODE/main.nf" -profile standard -work-dir "$WORK/work_$s" \
+  (cd "$WORK" && nextflow run "$CODE/main.nf" -profile standard -work-dir "$WORK/work_${REV}_$s" \
      --sample "$s" --reads_r1 "$WORK/data/${s}_R1.fastq.gz" --reads_r2 "$WORK/data/${s}_R2.fastq.gz" \
      --reference "$REFDIR/ref.fa" --vep_cache "$WORK/data/vep_cache" --clinvar_vcf "$WORK/data/clinvar.vcf.gz" \
      --vep "$CODE/validation/vep_passthrough.sh" --cnvkit "$WORK/data/stand_ins/cnvkit.py" --rscript "$WORK/data/stand_ins/Rscript" \
@@ -62,5 +67,5 @@ for s in ${SAMPLES:-HG003 HG004 HG005 HG006 HG007}; do
     --truth "$WORK/data/$s.truth.vcf.gz" --truth-bed "$WORK/data/$s.bench.bed" \
     --regions "$CODE/assets/brca12_regions.bed" --exons "$CODE/assets/brca12_exons.bed" \
     --sdf "$REFDIR/ref.sdf" --outdir "$out/benchmark" --threads "$THREADS"
-  rm -rf "$WORK/work_$s"
+  rm -rf "$WORK/work_${REV}_$s"
 done
