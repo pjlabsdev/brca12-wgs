@@ -1,12 +1,12 @@
 # Output (brca12-wgs 2.0, in development)
 
-`brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX [--reference REF.fa]` writes three files, in the form of
+`brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX --reference REF.fa` writes four files, in the form of
 the hla-wgs output. The HTML result page is made from `OUTPREFIX.json` at the end. Research use only.
 
 A column that this version does not determine yet is `-` in the TSV files and `null` in the JSON;
-`analysed` and `not_yet_analysed` in the JSON list the categories. Development state: coverage and
-read QC are done (equal to 1.1); small variants, annotation, copy number and structural variants
-follow.
+`analysed` and `not_yet_analysed` in the JSON list the categories. Development state: coverage,
+read QC, small variants and their annotation are done; exon copy number, CNV and structural
+variants follow.
 
 ## OUTPREFIX.tsv
 
@@ -16,10 +16,10 @@ One line per gene.
 |---|---|
 | `gene` | BRCA1 or BRCA2 |
 | `transcript` | MANE Select transcript (BRCA1 NM_007294.4, BRCA2 NM_000059.4) |
-| `result` | `pathogenic` (ClinVar pathogenic or likely pathogenic), `candidate` (finding that needs confirmation) or `none` |
-| `small_variants` | SNVs and indels found in the gene region |
+| `result` | `pathogenic` (a PASS variant that ClinVar lists as pathogenic or likely pathogenic, not conflicting), `candidate` (a loss-of-function variant that is not benign in ClinVar and rarer than 0.1 % in gnomAD, or a ClinVar pathogenic variant that did not pass the filters: needs confirmation) or `none` |
+| `small_variants` | SNVs and indels with FILTER PASS in the gene region |
 | `clinvar_plp` | of these, ClinVar pathogenic or likely pathogenic (not conflicting) |
-| `loss_of_function` | loss-of-function candidates (ENIGMA PVS1 hint) |
+| `loss_of_function` | of these, frameshift, stop gained, start lost, splice donor or acceptor (+/-1, 2), not benign |
 | `exon_copy_number` | exon deletions or duplications called against the reference cohort |
 | `cnv_candidates` | CNV segments supported by the gene's own bins |
 | `structural_variants` | structural variants with a breakpoint in the gene |
@@ -28,6 +28,35 @@ One line per gene.
 | `uncertain_exons` | exons marked uncertain (see `OUTPREFIX.exons.tsv`), comma-separated |
 | `low_coverage_bp` | bases of the gene region (introns included) with depth < 10 |
 | `statement` | the overall statement for the gene in one sentence: result (pathogenic variant found / finding that needs confirmation / no pathogenic variant found), exon coverage, and which exons are uncertain or that all exons were checked; in the JSON as `statement` with `en` and `de` |
+
+## OUTPREFIX.variants.tsv
+
+One line per called allele in the gene regions +/- 200 bp (a site with two different alleles gives
+two lines). All calls are listed, also those that did not pass the filters (column `filter`).
+
+| column | meaning |
+|---|---|
+| `gene` | BRCA1 or BRCA2 |
+| `chrom`, `pos`, `ref`, `alt` | the allele as in a VCF (GRCh38, 1-based, left-aligned, full REF and ALT sequences) |
+| `genotype`, `zygosity` | `0/1` heterozygous, `1/1` homozygous, `1/2` two different alleles |
+| `filter` | `PASS`, or `QD` (QUAL / alt reads < 2), `FS` (strand bias, Fisher > 60 SNV / > 200 indel) |
+| `qual`, `gq` | variant quality (phred probability that there is no variant) and genotype quality |
+| `depth`, `ref_reads`, `alt_reads`, `allele_fraction` | reads over the site and the reads assigned to REF and ALT |
+| `hgvs_c` | HGVS c. on the MANE Select transcript (NM_007294.4, NM_000059.4), 3'-shifted |
+| `hgvs_p` | HGVS p. (three-letter amino acids, `Ter`) on NP_009225.1 / NP_000050.3 |
+| `consequence` | Sequence Ontology terms, most severe first (as Ensembl VEP) |
+| `exon`, `intron` | number / total on the MANE transcript |
+| `clinvar_id`, `clinvar_significance`, `clinvar_review`, `clinvar_stars` | ClinVar (version in the JSON) |
+| `gnomad_present`, `gnomad_faf95`, `gnomad_population`, `gnomad_dataset` | gnomAD v2.1.1 exomes and v3.1.2 genomes: highest filtering allele frequency (FAF95) over the populations, founder populations skipped, non-cancer subset preferred (as 1.1) |
+| `class` | the tool's hint (no ACMG classification): `pathogenic` (ClinVar P/LP), `benign` (ClinVar B/LB or FAF95 >= 0.1 %, ENIGMA BA1), `candidate` (loss of function, not benign), `other` |
+| `in_gene_region` | `yes` inside the gene region, `no` in the 200 bp padding |
+
+The HGVS names and consequences come from the program itself. Checked against Ensembl VEP 116
+(`--hgvs --shift_hgvs 1`) on all 37,125 ClinVar alleles in BRCA1/BRCA2: c. equal for 99.97 %, p.
+for 99.96 %, most severe consequence for 99.70 %. The differences: a few very large insertions and
+deletions across the transcript ends; VEP's `p.LeuLeu1521=` form; and deletions that reach the
+coding exon only after the 3' shift (for example c.518del), where VEP gives no p. but this program
+does, because the protein change is the same.
 
 ## OUTPREFIX.exons.tsv
 

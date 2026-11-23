@@ -1,15 +1,26 @@
 //! Small-variant caller for the BRCA1/BRCA2 regions (SNVs and indels), built like the core of GATK
 //! HaplotypeCaller without de-novo assembly. Research use only.
 //!
-//! 1. Reads: MAPQ >= 20; secondary, duplicate and QC-fail records skipped.
+//! 1. Reads: MAPQ >= 20; secondary, duplicate and QC-fail records skipped. Clipped as GATK and 1.1:
+//!    bases past the fragment end (adapter), low-quality ends (< Q10), poly-G read-through tails.
+//!    Where two mates of a fragment overlap and disagree, both bases get quality 0.
 //! 2. Candidates from the alignments: mismatches with base quality >= 10, insertions and deletions
-//!    (left-normalised), kept with >= 2 supporting fragments.
-//! 3. Each candidate: every read overlapping it is aligned with a pair-HMM (gap open from GATK's PCR indel model, gap
-//!    continuation Q10, base qualities below Q18 as Q6 and capped at MAPQ as GATK, base qualities as error rates; global in the read, local in the haplotype)
-//!    against the reference window and the window with the candidate applied.
-//! 4. Genotype likelihoods for 0/0, 0/1, 1/1 from the read likelihoods; priors as GATK
-//!    (heterozygosity 0.001 for SNVs, 1.25e-4 for indels); QUAL = phred P(0/0 | reads); called when
-//!    QUAL >= 30 and the best genotype is not 0/0.
+//!    (left-normalised), kept with >= 2 supporting fragments; candidates closer than 40 bp form a
+//!    cluster (at most the 5 best supported), and every combination of non-overlapping candidates
+//!    of a cluster is a haplotype.
+//! 3. Every read over a cluster is aligned to every haplotype with a pair-HMM (global in the read,
+//!    local in the haplotype): base qualities as error rates (below Q18 counted as Q6, capped at
+//!    MAPQ, as GATK), gap open from GATK's CONSERVATIVE PCR indel model (Q40, lower in repeats of the
+//!    read), gap continuation Q10; soft clips of 20 or more bases are uninformative.
+//! 4. An allele supported only by reads of one strand while reads of the other strand cover it
+//!    against it (Fisher > Q20) is an artifact (homopolymer phasing errors); its haplotypes go.
+//! 5. Overlapping alleles form a site; per site the read likelihoods are marginalised over the
+//!    haplotypes (best haplotype with the allele, without it), as GATK, and the diploid genotypes are
+//!    scored with GATK's priors (heterozygosity 0.001 SNV, 1.25e-4 indel). QUAL = phred
+//!    P(0/0 | reads); called when QUAL >= 30 and the best genotype is not 0/0; two different alleles
+//!    at one site give one record with genotype 1/2.
+//! 6. Filters as GATK hard filters: QD < 2, FS > 60 (SNV) / > 200 (indel); SOR only reported.
+use crate::assemble;
 use crate::reads::{self, Op, Read};
 use std::collections::HashMap;
 use std::io;
@@ -46,7 +57,9 @@ pub struct Params {
     pub het_indel: f64,
     pub flank: usize,
     pub low_base_q: u8,
-    pub long_clip: u32,          // soft clips of at least this length are uninformative          // base qualities below this count as Q6 in the pair-HMM (GATK: 18)
+    pub long_clip: u32,
+    pub assemble: bool,          // local de-novo assembly of every cluster window
+    pub max_haplotypes: usize,   // haplotypes per cluster at most (combinations first)          // soft clips of at least this length are uninformative          // base qualities below this count as Q6 in the pair-HMM (GATK: 18)
     pub strand_support_min: u32, // one-strand allele: at least this many supporting reads,
     pub strand_other_min: u32,   // at least this many reads of the other strand against it,
     pub strand_fs: f64,          // and Fisher strand test above this (phred)
@@ -54,7 +67,7 @@ pub struct Params {
 
 pub const DEFAULT: Params =
     Params { min_mapq: 20, min_base_q: 10, min_support: 2, call_qual: 30.0, het_snv: 1e-3, het_indel: 1.25e-4, flank: 150,
-             low_base_q: 18, long_clip: 20, strand_support_min: 4, strand_other_min: 8, strand_fs: 20.0 };
+             low_base_q: 18, long_clip: 20, assemble: true, max_haplotypes: 64, strand_support_min: 4, strand_other_min: 8, strand_fs: 20.0 };
 
 fn usable(r: &Read, p: &Params) -> bool {
     r.flags & 0x704 == 0 && r.mapq >= p.min_mapq && !r.seq.is_empty() && !r.cigar.is_empty()
@@ -505,23 +518,116 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
         }
     }
     let mut calls = vec![];
-    for mut cl in clusters {
-        // keep the best supported candidates of large clusters
+    for cl0 in clusters {
+        // alignment candidates: the best supported 5 of a cluster form all combinations
+        let mut cl = cl0.clone();
         if cl.len() > 5 {
             cl.sort_by_key(|a| std::cmp::Reverse(cands[a].0));
             cl.truncate(5);
             cl.sort();
         }
+        let n_sub = cl.len();
+        // local assembly over the cluster window: complex alleles the aligner placed differently
+        let mut asm_haps: Vec<Vec<Allele>> = vec![];
+        if p.assemble {
+            let cs0 = cl0.iter().map(|a| a.pos).min().unwrap();
+            let ce0 = cl0.iter().map(|a| a.pos + a.r#ref.len() as u64).max().unwrap();
+            let ws0 = cs0.saturating_sub(p.flank as u64).max(off);
+            let we0 = (ce0 + p.flank as u64).min(off + rf.len() as u64);
+            let refw = &rf[(ws0 - off) as usize..(we0 - off) as usize];
+            let reads: Vec<(&[u8], &[u8])> = rs
+                .iter()
+                .filter(|r| r.start < we0 && r.end > ws0)
+                .map(|r| {
+                    // long soft clips are not used
+                    let a = match r.cigar.first() { Some(&(Op::SoftClip, k)) if k >= p.long_clip => k as usize, _ => 0 };
+                    let b = match r.cigar.last() { Some(&(Op::SoftClip, k)) if k >= p.long_clip => r.seq.len() - k as usize, _ => r.seq.len() };
+                    let b = b.max(a);
+                    (&r.seq[a..b], &r.qual[a..b])
+                })
+                .collect();
+            let dbg = std::env::var("BRCA12_DEBUG_POS").ok().and_then(|v| v.parse::<u64>().ok()).is_some_and(|d| d >= ws0 && d < we0);
+            let assembled = assemble::assemble(refw, &reads, &assemble::DEFAULT);
+            if dbg {
+                eprintln!("assembly window {}-{}: {} haplotypes", ws0 + 1, we0, assembled.len());
+                for h in &assembled {
+                    eprintln!("  {}", String::from_utf8_lossy(h));
+                }
+            }
+            for h in assembled.iter().skip(1) {
+                let mut ev: Vec<Allele> = assemble::events(refw, h).into_iter().map(|(o, r, a)| Allele { pos: ws0 + o as u64, r#ref: r, alt: a }).collect();
+                // left-align each event only where the haplotype stays the same (an indel must not
+                // slide over a neighbouring event of the same haplotype)
+                for i in 0..ev.len() {
+                    let n = normalise(ev[i].clone(), &rf, off);
+                    if n != ev[i] {
+                        let mut trial = ev.clone();
+                        trial[i] = n;
+                        let ok = trial.iter().enumerate().all(|(x, a)| trial[x + 1..].iter().all(|b| !overlaps(a, b)))
+                            && haplotype(&rf, off, ws0, we0, &trial.iter().collect::<Vec<_>>()) == *h;
+                        if ok {
+                            ev = trial;
+                        }
+                    }
+                }
+                if dbg {
+                    eprintln!("events {:?}", ev.iter().map(|a| (a.pos + 1, String::from_utf8_lossy(&a.r#ref).into_owned(), String::from_utf8_lossy(&a.alt).into_owned())).collect::<Vec<_>>());
+                }
+                let ev: Vec<Allele> = ev.into_iter().filter(|a| a.pos + 20 >= cs0 && a.pos < ce0 + 20 && a.pos >= start && a.pos < end).collect();
+                if !ev.is_empty() && !asm_haps.contains(&ev) {
+                    asm_haps.push(ev);
+                }
+            }
+        }
+        for h in &asm_haps {
+            for a in h {
+                if !cl.contains(a) {
+                    cl.push(a.clone());
+                }
+            }
+        }
         let cs = cl.iter().map(|a| a.pos).min().unwrap();
         let ce = cl.iter().map(|a| a.pos + a.r#ref.len() as u64).max().unwrap();
         let ws = cs.saturating_sub(p.flank as u64).max(off);
         let we = (ce + p.flank as u64).min(off + rf.len() as u64);
-        // haplotypes: every subset of the cluster's candidates without overlapping alleles
+        // haplotypes: every combination of the alignment candidates without overlapping alleles,
+        // every assembled haplotype, and each assembled haplotype with one more alignment candidate.
+        // An alignment candidate that overlaps an assembled event without being it is another
+        // representation of that allele and is left out (representations must not be mixed).
+        let no_overlap = |set: &[usize]| set.iter().enumerate().all(|(x, &i)| set[x + 1..].iter().all(|&j| !overlaps(&cl[i], &cl[j])));
+        let conflict: Vec<bool> = (0..n_sub)
+            .map(|i| asm_haps.iter().flatten().any(|e| e != &cl[i] && overlaps(e, &cl[i])))
+            .collect();
+        let free: Vec<usize> = (0..n_sub).filter(|&i| !conflict[i]).collect();
         let mut haps: Vec<Vec<usize>> = vec![];
-        for mask in 0u32..(1u32 << cl.len()) {
-            let set: Vec<usize> = (0..cl.len()).filter(|i| mask & (1 << i) != 0).collect();
-            if set.iter().enumerate().all(|(x, &i)| set[x + 1..].iter().all(|&j| !overlaps(&cl[i], &cl[j]))) {
+        for mask in 0u32..(1u32 << free.len()) {
+            let set: Vec<usize> = (0..free.len()).filter(|i| mask & (1 << i) != 0).map(|i| free[i]).collect();
+            if no_overlap(&set) {
                 haps.push(set);
+            }
+        }
+        for h in &asm_haps {
+            let mut set: Vec<usize> = h.iter().map(|a| cl.iter().position(|x| x == a).unwrap()).collect();
+            set.sort();
+            set.dedup();
+            if !no_overlap(&set) {
+                continue;
+            }
+            let mut add = vec![set.clone()];
+            for &i in &free {
+                if !set.contains(&i) {
+                    let mut t = set.clone();
+                    t.push(i);
+                    t.sort();
+                    if no_overlap(&t) {
+                        add.push(t);
+                    }
+                }
+            }
+            for t in add {
+                if haps.len() < p.max_haplotypes && !haps.contains(&t) {
+                    haps.push(t);
+                }
             }
         }
         let seqs: Vec<Vec<u8>> = haps.iter().map(|h| haplotype(&rf, off, ws, we, &h.iter().map(|&i| &cl[i]).collect::<Vec<_>>())).collect();
@@ -587,14 +693,34 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
         }
         sites.sort();
         for site in sites {
-            let k = site.len();
+            // the site's alleles are the distinct combinations of its events on the haplotypes (an
+            // assembled complex allele can hold several events of one site)
+            let sig_of = |x: usize| -> Vec<usize> { site.iter().cloned().filter(|a| haps[x].contains(a)).collect() };
+            let mut sigs: Vec<Vec<usize>> = vec![];
+            for &x in &usable_h {
+                let sg = sig_of(x);
+                if !sg.is_empty() && !sigs.contains(&sg) {
+                    sigs.push(sg);
+                }
+            }
+            sigs.sort();
+            let k = sigs.len();
+            if k == 0 {
+                continue;
+            }
             // per read: log10 likelihood of each allele of the site (0 = none of them)
+            let hap_idx: Vec<(usize, usize)> = usable_h
+                .iter()
+                .map(|&x| {
+                    let sg = sig_of(x);
+                    (x, if sg.is_empty() { 0 } else { sigs.iter().position(|y| y == &sg).unwrap() + 1 })
+                })
+                .collect();
             let la: Vec<Vec<f64>> = lik
                 .iter()
                 .map(|l| {
                     let mut v = vec![-1e9f64; k + 1];
-                    for &x in &usable_h {
-                        let idx = site.iter().position(|a| haps[x].contains(a)).map(|q| q + 1).unwrap_or(0);
+                    for &(x, idx) in &hap_idx {
                         v[idx] = v[idx].max(l[x]);
                     }
                     v
@@ -604,12 +730,12 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
                 eprintln!("site {:?}", site.iter().map(|&a| (cl[a].pos + 1, String::from_utf8_lossy(&cl[a].r#ref).into_owned(), String::from_utf8_lossy(&cl[a].alt).into_owned())).collect::<Vec<_>>());
                 eprintln!("cluster {:?} haps {:?}", cl.iter().map(|a| a.pos + 1).collect::<Vec<_>>(), haps);
                 for (r, v) in rds.iter().zip(&la) {
-                    if v[1..].iter().any(|&x| x > v[0] + 0.2) {
+                    if std::env::var("BRCA12_DEBUG_ALL").is_ok() || v[1..].iter().any(|&x| x > v[0] + 0.2) {
                         eprintln!("{} flags={} start={} {:?}", String::from_utf8_lossy(&r.name), r.flags, r.start + 1, v.iter().map(|x| (x * 100.0).round() / 100.0).collect::<Vec<_>>());
                     }
                 }
             }
-            let het = |a: usize| if cl[site[a - 1]].r#ref.len() != cl[site[a - 1]].alt.len() { p.het_indel } else { p.het_snv };
+            let het = |a: usize| if sigs[a - 1].iter().any(|&e| cl[e].r#ref.len() != cl[e].alt.len()) { p.het_indel } else { p.het_snv };
             let mut gts: Vec<(usize, usize, f64)> = vec![];
             for x in 0..=k {
                 for y in x..=k {
@@ -630,6 +756,9 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
             let tot = mx + gts.iter().map(|g| 10f64.powf(g.2 - mx)).sum::<f64>().log10();
             let best = gts.iter().cloned().max_by(|a, b| a.2.partial_cmp(&b.2).unwrap()).unwrap();
             let (bx, by) = (best.0, best.1);
+            if std::env::var("BRCA12_DEBUG_POS").ok().and_then(|v| v.parse::<u64>().ok()).is_some_and(|d| site.iter().any(|&a| cl[a].pos + 1 == d)) {
+                eprintln!("sigs {sigs:?} gts {gts:?} artifact {artifact:?}");
+            }
             if by == 0 {
                 continue;
             }
@@ -640,21 +769,32 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
             let mut sorted: Vec<f64> = gts.iter().map(|g| g.2).collect();
             sorted.sort_by(|a, b| b.partial_cmp(a).unwrap());
             let gq = ((sorted[0] - sorted.get(1).copied().unwrap_or(f64::NEG_INFINITY)) * 10.0).round().clamp(0.0, 99.0) as u32;
-            let (allele, alts, gt) = if bx != 0 && bx != by {
-                // two different alleles at one site: one record with a common REF and two ALTs
-                let (a1, a2) = (&cl[site[bx - 1]], &cl[site[by - 1]]);
-                let ps = a1.pos.min(a2.pos);
-                let pe = (a1.pos + a1.r#ref.len() as u64).max(a2.pos + a2.r#ref.len() as u64);
-                let refs = rf[(ps - off) as usize..(pe - off) as usize].to_vec();
-                let alt_of = |a: &Allele| {
-                    let mut v = rf[(ps - off) as usize..(a.pos - off) as usize].to_vec();
-                    v.extend(&a.alt);
-                    v.extend(&rf[(a.pos + a.r#ref.len() as u64 - off) as usize..(pe - off) as usize]);
+            // records: one per event of the called allele; two different alleles at the site give one
+            // record over their span with a common REF and two ALTs
+            let span = |sg: &Vec<usize>| {
+                (sg.iter().map(|&e| cl[e].pos).min().unwrap(), sg.iter().map(|&e| cl[e].pos + cl[e].r#ref.len() as u64).max().unwrap())
+            };
+            let records: Vec<(Allele, Option<Vec<u8>>, (u8, u8))> = if bx != 0 && bx != by {
+                let (s1, s2) = (&sigs[bx - 1], &sigs[by - 1]);
+                let ((p1, e1), (p2, e2)) = (span(s1), span(s2));
+                let (ps, pe) = (p1.min(p2), e1.max(e2));
+                let alt_of = |sg: &Vec<usize>| {
+                    let mut evs: Vec<&Allele> = sg.iter().map(|&e| &cl[e]).collect();
+                    evs.sort_by_key(|a| a.pos);
+                    let mut v = vec![];
+                    let mut pos = ps;
+                    for a in evs {
+                        v.extend(&rf[(pos - off) as usize..(a.pos - off) as usize]);
+                        v.extend(&a.alt);
+                        pos = a.pos + a.r#ref.len() as u64;
+                    }
+                    v.extend(&rf[(pos - off) as usize..(pe - off) as usize]);
                     v
                 };
-                (Allele { pos: ps, r#ref: refs, alt: alt_of(a1) }, Some(alt_of(a2)), (1u8, 2u8))
+                let refs = rf[(ps - off) as usize..(pe - off) as usize].to_vec();
+                vec![(Allele { pos: ps, r#ref: refs, alt: alt_of(s1) }, Some(alt_of(s2)), (1u8, 2u8))]
             } else {
-                (cl[site[by - 1]].clone(), None, if bx == 0 { (0, 1) } else { (1, 1) })
+                sigs[by - 1].iter().map(|&e| (cl[e].clone(), None, if bx == 0 { (0, 1) } else { (1, 1) })).collect()
             };
             // AD and strand: each read goes to the best of REF and the called alleles (margin 0.2 log10)
             let mut opts = vec![0usize, bx, by];
@@ -676,7 +816,7 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
                     if rev { ar_ += 1 } else { af_ += 1 }
                 }
             }
-            let indel = allele.r#ref.len() != allele.alt.len() || alts.is_some();
+            let indel = records.iter().any(|(a, a2, _)| a.r#ref.len() != a.alt.len() || a2.is_some());
             let fs = -10.0 * fisher(rf_, rr_, af_, ar_).max(1e-300).log10();
             let so = sor(rf_, rr_, af_, ar_);
             let qd = if ada > 0 { qual / ada as f64 } else { 0.0 };
@@ -688,20 +828,22 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
                 filters.push("FS");
             }
             // SOR is reported but not used as a filter on its own: it removed real SNVs in HG001
-            calls.push(Call {
-                chrom: chrom.to_string(),
-                allele,
-                alt2: alts,
-                qual,
-                gt,
-                gq,
-                ad: (adr, ada),
-                dp: rds.len() as u32,
-                pl: [0, 0, 0],
-                filter: if filters.is_empty() { "PASS".into() } else { filters.join(";") },
-                fs,
-                sor: so,
-            });
+            for (allele, alts, gt) in records {
+                calls.push(Call {
+                    chrom: chrom.to_string(),
+                    allele,
+                    alt2: alts,
+                    qual,
+                    gt,
+                    gq,
+                    ad: (adr, ada),
+                    dp: rds.len() as u32,
+                    pl: [0, 0, 0],
+                    filter: if filters.is_empty() { "PASS".into() } else { filters.join(";") },
+                    fs,
+                    sor: so,
+                });
+            }
         }
     }
     calls.sort_by(|a, b| a.allele.pos.cmp(&b.allele.pos));

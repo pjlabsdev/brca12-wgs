@@ -1,5 +1,7 @@
 //! brca12-wgs 2.0 (in development): BRCA1/BRCA2 germline analysis from whole-genome sequencing in
 //! one program, without external tools. Research use only (RUO).
+mod annot;
+mod assemble;
 mod caller;
 mod coverage;
 mod exons;
@@ -14,8 +16,9 @@ const USAGE: &str = "brca12-wgs 2.0.0-dev (research use only)
 
 usage:
   brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX [--reference REF.fa] [--exons BED] [--regions BED]
-      the analysis: writes OUTPREFIX.tsv (one line per gene), OUTPREFIX.exons.tsv (one line per
-      exon with its certainty) and OUTPREFIX.json (schema genome.brca12.v2); see docs/output-2.md
+      the analysis: writes OUTPREFIX.tsv (one line per gene), OUTPREFIX.variants.tsv (one line per
+      small variant with HGVS, ClinVar and gnomAD), OUTPREFIX.exons.tsv (one line per exon with its
+      certainty) and OUTPREFIX.json (schema genome.brca12.v2); see docs/output-2.md
   brca12-wgs coverage <BAM|CRAM> [--reference REF.fa] [--exons EXONS.bed] [--min-mapq 20]
       exon depth like mosdepth (MAPQ filter, flags 0x704 skipped, mate overlap once):
       name, mean depth and bases >= 10/20/30x per exon, tab-separated on stdout
@@ -26,6 +29,8 @@ usage:
       read statistics over the calling regions (gene regions +/- padding) like samtools stats
   brca12-wgs call <BAM|CRAM> OUT.vcf --reference REF.fa [--regions BED] [--padding 200] [--sample NAME]
       SNVs and indels in the gene regions (+/- padding) with the own caller, as VCF
+  brca12-wgs annotate <VCF> --reference REF.fa
+      HGVS c./p. and consequence on the MANE Select transcripts for every allele of a VCF
   brca12-wgs depth <BAM|CRAM> <chrom:start-end> [--reference REF.fa] [--min-mapq 20] [--no-mate-overlap]
       per-base depth (1-based positions), like mosdepth per-base or (--no-mate-overlap) samtools depth -a
 ";
@@ -143,7 +148,7 @@ fn cmd_run(args: &[String]) -> io::Result<()> {
     let t0 = std::time::Instant::now();
     output::run(&output::Run { input, reference: reference.as_deref(), prefix, exons: &exons_bed, regions: &regions,
                                calling_padding: 200, settings: &exons::DEFAULT })?;
-    eprintln!("brca12-wgs: {prefix}.tsv, {prefix}.exons.tsv, {prefix}.json ({:.1} s)", t0.elapsed().as_secs_f64());
+    eprintln!("brca12-wgs: {prefix}.tsv, {prefix}.variants.tsv, {prefix}.exons.tsv, {prefix}.json ({:.1} s)", t0.elapsed().as_secs_f64());
     Ok(())
 }
 
