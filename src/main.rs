@@ -3,6 +3,7 @@
 mod caller;
 mod coverage;
 mod exons;
+mod hgvs;
 mod output;
 mod reads;
 mod readstats;
@@ -168,6 +169,28 @@ fn cmd_call(args: &[String]) -> io::Result<()> {
     Ok(())
 }
 
+/// HGVS c./p. and consequence for every allele of a VCF (validation against Ensembl VEP)
+fn cmd_annotate(args: &[String]) -> io::Result<()> {
+    let input = args.first().cloned().ok_or_else(|| io::Error::other("input VCF missing"))?;
+    let reference = arg(args, "--reference").ok_or_else(|| io::Error::other("--reference REF.fa is needed"))?;
+    let txs = hgvs::Tx::load(&reference)?;
+    println!("id\tchrom\tpos\tref\talt\tgene\texon\tintron\tconsequence\thgvs_c\thgvs_p");
+    for line in io::BufReader::new(std::fs::File::open(&input)?).lines() {
+        let line = line?;
+        if line.starts_with('#') { continue; }
+        let f: Vec<&str> = line.split('\t').collect();
+        if f.len() < 5 { continue; }
+        let pos: u64 = f[1].parse().map_err(io::Error::other)?;
+        for alt in f[4].split(',') {
+            let a = hgvs::annotate(&txs, f[0], pos, f[3].as_bytes(), alt.as_bytes()).unwrap_or_default();
+            let d = |o: &Option<String>| o.clone().unwrap_or("-".into());
+            println!("{}\t{}\t{}\t{}\t{alt}\t{}\t{}\t{}\t{}\t{}\t{}", f[2], f[0], f[1], f[3], if a.gene.is_empty() { "-" } else { &a.gene },
+                     d(&a.exon), d(&a.intron), if a.consequence.is_empty() { "-" } else { &a.consequence }, d(&a.hgvs_c), d(&a.hgvs_p));
+        }
+    }
+    Ok(())
+}
+
 /// debug: bases of every read at one position (flags, strand, MAPQ, base, base quality)
 fn cmd_pileup(args: &[String]) -> io::Result<()> {
     let input = args.first().cloned().ok_or_else(|| io::Error::other("input BAM/CRAM missing"))?;
@@ -206,6 +229,7 @@ fn main() {
         Some("readqc") => cmd_readqc(&args[1..]),
         Some("call") => cmd_call(&args[1..]),
         Some("pileup") => cmd_pileup(&args[1..]),
+        Some("annotate") => cmd_annotate(&args[1..]),
         Some("--version") | Some("-V") => {
             println!("brca12-wgs {}", env!("CARGO_PKG_VERSION"));
             Ok(())
