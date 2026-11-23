@@ -86,8 +86,26 @@ in the gene windows, BWA-MEM), events found by the read-pair/split-read module:
 spike-ins: the gene windows are simulated reads in HiSeq/novoalign data, which the panel of 1000
 Genomes NovaSeq genomes does not fit (false duplication calls also in the negative control).
 
+## Paired FASTQ input
+
+`brca12-wgs R1.fastq.gz R2.fastq.gz OUTPREFIX --reference REF.fa`: read pairs with genome-unique
+31-mers of the genes are aligned inside the program (minimap2, compiled in) to the genes, the control
+windows and 135 paralogous decoy loci found in the reference (601 kb). HG001 against GIAB v4.2.1:
+
+| input | region | SNV TP/truth | SNV FP | indel TP/truth | indel FP |
+|---|---|---:|---:|---:|---:|
+| reads of the 1000 Genomes BAM as FASTQ | gene loci | 269/269 | 1 | 49/49 | 0 |
+| GIAB NovaSeq PCR-free 30x whole-genome FASTQ (361 million pairs, 6 min) | gene loci | 267/269 | 7 | 48/49 | 0 |
+| the same | exons +/- 20 bp | 20/20 | 0 | 2/2 | 0 |
+
+Without the decoys the whole-genome FASTQ gave 51 intronic SNV false positives (reads of paralogous
+copies elsewhere). The remaining ones lie in the extra 126 bp copy upstream of BRCA1 exon 1 (which
+HG001 carries), in two intronic spots and at the GIAB gap chr17:43164525; the two missed SNVs lie
+in the BRCA1P1 pseudogene part of the region. Gene result of both genes `none`, no exon copy-number
+call, the known 126 bp copy found.
+
 ## Not covered yet
 
-Gene-level CNV segmentation as CNVkit did (CNVkit found 3 of the 12 spike-ins in 1.1; whole-gene
+Single-end FASTQ and FASTQ of other assays than whole genomes; gene-level CNV segmentation as CNVkit did (CNVkit found 3 of the 12 spike-ins in 1.1; whole-gene
 events are seen by the exon copy number); an assay check for the exon copy-number panel; large insertions that the read
 aligner soft-clips (for example a 32 bp intronic insertion that GATK assembles) are not found yet.

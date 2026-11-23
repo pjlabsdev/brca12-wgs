@@ -3,10 +3,13 @@
 //!
 //! 1. Targets: the gene regions +/- 2 kb (BRCA1 with the pseudogene BRCA1P1) and the control windows
 //!    of the exon copy-number panel.
-//! 2. Genome-unique 31-mers: every 31-mer of the targets that occurs exactly once in the whole
+//! 2. One pass over the reference gives the genome-unique 31-mers and the decoys. Genome-unique 31-mers: every 31-mer of the targets that occurs exactly once in the whole
 //!    reference (both strands). Reads of repeats from elsewhere (Alu, L1) do not share such a k-mer
 //!    and are not pulled in, which replaces the mapping quality a whole-genome alignment would give.
-//!    The set is cached next to the reference (REF.brca12-kmers) after the first run.
+//!    Decoys: loci elsewhere that share many low-copy (2-20 copies) 31-mers with the targets
+//!    (pseudogenes, segmental duplications); they join the minimap2 panel, and reads that fit a decoy
+//!    best are dropped, as a whole-genome aligner would place them there. Both are cached next to
+//!    the reference (REF.brca12-kmers) after the first run.
 //! 3. A pair is kept when one of its reads has at least two of these k-mers; kept pairs are aligned
 //!    with minimap2 (short-read preset, paired; compiled into the program) to the targets, placed
 //!    on GRCh38, duplicates marked as samtools markdup does for pairs, sorted and indexed. A read
@@ -89,76 +92,177 @@ pub fn targets(reference: &str, regions: &[(String, u64, u64, String)], lengths:
         .collect()
 }
 
-/// 31-mers of the targets that occur once in the whole reference (cached next to the reference)
-pub fn unique_kmers(reference: &str, targets: &[Target]) -> io::Result<AHashSet<u64>> {
+/// canonical 31-mers with their start offset
+fn kmers_at(s: &[u8], mut f: impl FnMut(usize, u64)) {
+    let mask = (1u64 << (2 * K)) - 1;
+    let shift = 2 * (K - 1);
+    let (mut fw, mut rv, mut valid) = (0u64, 0u64, 0usize);
+    for (i, &c) in s.iter().enumerate() {
+        match enc(c) {
+            Some(x) => {
+                fw = ((fw << 2) | x) & mask;
+                rv = (rv >> 2) | ((3 - x) << shift);
+                valid += 1;
+                if valid >= K {
+                    f(i + 1 - K, fw.min(rv));
+                }
+            }
+            None => valid = 0,
+        }
+    }
+}
+
+/// k-mers seen in at most this many places count as paralog (not repeat) k-mers for the decoys
+const DECOY_MAX_COPIES: u32 = 20;
+/// a 1 kb window outside the targets with at least this many paralog k-mers becomes a decoy
+const DECOY_MIN_KMERS: u32 = 30;
+
+pub struct Scan {
+    pub unique: AHashSet<u64>,
+    /// loci elsewhere in the genome that share many low-copy 31-mers with the targets
+    /// (pseudogenes, segmental duplications): chrom, start, end (0-based)
+    pub decoys: Vec<(String, u64, u64)>,
+}
+
+/// One pass over the whole reference: the target 31-mers that occur once (the read filter), and
+/// the paralogous loci of the targets (decoys). Cached next to the reference (REF.brca12-kmers).
+pub fn scan_reference(reference: &str, targets: &[Target]) -> io::Result<Scan> {
     let mut target: AHashMap<u64, u32> = AHashMap::new();
     for t in targets {
         kmers(&t.seq, |k| {
             target.entry(k).or_insert(0);
         });
     }
-    // cache: the target k-mer count and a checksum identify the target set
-    let sig: u64 = target.keys().fold(0u64, |a, k| a.wrapping_add(k.wrapping_mul(0x9E37_79B9_7F4A_7C15)));
+    // cache: a checksum of the target k-mers identifies the target set
+    let sig: u64 = target.keys().fold(0u64, |a, k| a.wrapping_add(k.wrapping_mul(0x9E37_79B9_7F4A_7C15))) ^ 0x2;
     let cache = format!("{reference}.brca12-kmers");
     if let Ok(bytes) = std::fs::read(&cache) {
-        if bytes.len() >= 16 && u64::from_le_bytes(bytes[0..8].try_into().unwrap()) == sig {
-            let n = u64::from_le_bytes(bytes[8..16].try_into().unwrap()) as usize;
-            if bytes.len() == 16 + 8 * n {
-                eprintln!("brca12-wgs: unique k-mers from {cache}");
-                return Ok(bytes[16..].chunks(8).map(|c| u64::from_le_bytes(c.try_into().unwrap())).collect());
+        let u = |i: usize| u64::from_le_bytes(bytes[i..i + 8].try_into().unwrap());
+        if bytes.len() >= 24 && u(0) == sig {
+            let n = u(8) as usize;
+            let mut unique = AHashSet::with_capacity(n);
+            for i in 0..n {
+                unique.insert(u(16 + 8 * i));
             }
+            let mut at = 16 + 8 * n;
+            let nd = u(at) as usize;
+            at += 8;
+            let mut decoys = vec![];
+            for _ in 0..nd {
+                let len = u(at) as usize;
+                let name = String::from_utf8_lossy(&bytes[at + 8..at + 8 + len]).into_owned();
+                at += 8 + len;
+                decoys.push((name, u(at), u(at + 8)));
+                at += 16;
+            }
+            eprintln!("brca12-wgs: unique k-mers and decoys from {cache}");
+            return Ok(Scan { unique, decoys });
         }
     }
-    eprintln!("brca12-wgs: counting the target 31-mers in the whole reference (once; cached in {cache})");
-    // stream the whole reference, contig by contig, counting the target k-mers in parallel
+    eprintln!("brca12-wgs: scanning the whole reference for the target 31-mers (once; cached in {cache})");
+    let mut inside: AHashMap<String, Vec<(u64, u64)>> = AHashMap::new();
+    for t in targets {
+        inside.entry(t.chrom.clone()).or_default().push((t.start, t.start + t.seq.len() as u64));
+    }
+    // per k-mer: occurrences, and up to DECOY_MAX_COPIES + 1 positions outside the targets
+    let mut pos: AHashMap<u64, Vec<(u32, u64)>> = AHashMap::new();
+    let mut names: Vec<String> = vec![];
     let file = BufReader::with_capacity(1 << 22, std::fs::File::open(reference)?);
     let mut contig: Vec<u8> = vec![];
-    let flush = |contig: &mut Vec<u8>, target: &mut AHashMap<u64, u32>| {
+    let mut flush = |name: &str, contig: &mut Vec<u8>, names: &mut Vec<String>, target: &mut AHashMap<u64, u32>, pos: &mut AHashMap<u64, Vec<(u32, u64)>>| {
         if contig.is_empty() {
             return;
         }
+        let cid = names.len() as u32;
+        names.push(name.to_string());
+        let ins = inside.get(name).cloned().unwrap_or_default();
         let chunk = 4_000_000usize;
-        let parts: Vec<AHashMap<u64, u32>> = (0..contig.len().div_ceil(chunk))
+        let parts: Vec<(AHashMap<u64, u32>, AHashMap<u64, Vec<(u32, u64)>>)> = (0..contig.len().div_ceil(chunk))
             .into_par_iter()
             .map(|i| {
                 let s = i * chunk;
                 let e = ((i + 1) * chunk + K - 1).min(contig.len());
-                let mut local: AHashMap<u64, u32> = AHashMap::new();
-                kmers(&contig[s..e], |k| {
+                let (mut cnt, mut ps): (AHashMap<u64, u32>, AHashMap<u64, Vec<(u32, u64)>>) = (AHashMap::new(), AHashMap::new());
+                kmers_at(&contig[s..e], |o, k| {
                     if target.contains_key(&k) {
-                        *local.entry(k).or_insert(0) += 1;
+                        *cnt.entry(k).or_insert(0) += 1;
+                        let p = (s + o) as u64;
+                        if !ins.iter().any(|&(a, b)| p >= a && p < b) {
+                            let v = ps.entry(k).or_default();
+                            if v.len() <= DECOY_MAX_COPIES as usize {
+                                v.push((cid, p));
+                            }
+                        }
                     }
                 });
-                local
+                (cnt, ps)
             })
             .collect();
-        for p in parts {
-            for (k, n) in p {
+        for (cnt, ps) in parts {
+            for (k, n) in cnt {
                 *target.get_mut(&k).unwrap() += n;
+            }
+            for (k, v) in ps {
+                let e = pos.entry(k).or_default();
+                for x in v {
+                    if e.len() <= DECOY_MAX_COPIES as usize {
+                        e.push(x);
+                    }
+                }
             }
         }
         contig.clear();
     };
+    let mut name = String::new();
     for line in file.lines() {
         let line = line?;
-        if line.starts_with('>') {
-            flush(&mut contig, &mut target);
+        if let Some(h) = line.strip_prefix('>') {
+            flush(&name, &mut contig, &mut names, &mut target, &mut pos);
+            name = h.split_whitespace().next().unwrap_or("").to_string();
         } else {
             contig.extend(line.trim_end().as_bytes());
         }
     }
-    flush(&mut contig, &mut target);
-    let set: AHashSet<u64> = target.into_iter().filter(|&(_, n)| n == 1).map(|(k, _)| k).collect();
-    let mut out = Vec::with_capacity(16 + 8 * set.len());
+    flush(&name, &mut contig, &mut names, &mut target, &mut pos);
+    // decoys: 1 kb windows with many low-copy (2..=20) target k-mers, merged and padded by 1 kb
+    let mut win: AHashMap<(u32, u64), u32> = AHashMap::new();
+    for (k, v) in &pos {
+        let n = target[k];
+        if (2..=DECOY_MAX_COPIES).contains(&n) {
+            for &(c, p) in v {
+                *win.entry((c, p / 1000)).or_insert(0) += 1;
+            }
+        }
+    }
+    let mut hot: Vec<(u32, u64)> = win.into_iter().filter(|&(_, n)| n >= DECOY_MIN_KMERS).map(|(w, _)| w).collect();
+    hot.sort();
+    let mut decoys: Vec<(String, u64, u64)> = vec![];
+    for (c, w) in hot {
+        let (s, e) = ((w * 1000).saturating_sub(1000), (w + 1) * 1000 + 1000);
+        let name = &names[c as usize];
+        match decoys.last_mut() {
+            Some(d) if &d.0 == name && s <= d.2 => d.2 = d.2.max(e),
+            _ => decoys.push((name.clone(), s, e)),
+        }
+    }
+    let unique: AHashSet<u64> = target.into_iter().filter(|&(_, n)| n == 1).map(|(k, _)| k).collect();
+    let mut out = Vec::with_capacity(32 + 8 * unique.len());
     out.extend(sig.to_le_bytes());
-    out.extend((set.len() as u64).to_le_bytes());
-    for k in &set {
+    out.extend((unique.len() as u64).to_le_bytes());
+    for k in &unique {
         out.extend(k.to_le_bytes());
+    }
+    out.extend((decoys.len() as u64).to_le_bytes());
+    for (n, s, e) in &decoys {
+        out.extend((n.len() as u64).to_le_bytes());
+        out.extend(n.as_bytes());
+        out.extend(s.to_le_bytes());
+        out.extend(e.to_le_bytes());
     }
     if std::fs::write(&cache, out).is_err() {
         eprintln!("brca12-wgs: could not write the k-mer cache {cache} (continuing)");
     }
-    Ok(set)
+    Ok(Scan { unique, decoys })
 }
 
 struct Fq {
@@ -264,6 +368,10 @@ struct Hit {
 }
 
 fn hits(ms: &[minimap2::Mapping], targets: &[Target], by_name: &AHashMap<String, usize>, tids: &AHashMap<String, usize>) -> Vec<Hit> {
+    // a read whose primary alignment is on a decoy belongs elsewhere in the genome
+    if ms.iter().any(|m| m.is_primary && m.target_name.as_ref().is_some_and(|n| n.starts_with("decoy|"))) {
+        return vec![];
+    }
     ms.iter()
         .filter(|m| m.is_primary || m.is_supplementary)
         .filter_map(|m| {
@@ -491,15 +599,28 @@ pub fn to_bam(r1: &str, r2: &str, reference: &str, regions: &[(String, u64, u64,
     let tids: AHashMap<String, usize> = contigs.iter().enumerate().map(|(i, c)| (c.0.clone(), i)).collect();
     let names: Vec<String> = contigs.iter().map(|c| c.0.clone()).collect();
     let tg = targets(reference, regions, &contigs)?;
-    let uniq = unique_kmers(reference, &tg)?;
-    eprintln!("brca12-wgs: {} targets, {} unique 31-mers ({:.0} s)", tg.len(), uniq.len(), t0.elapsed().as_secs_f64());
+    let scan = scan_reference(reference, &tg)?;
+    let uniq = scan.unique;
+    // decoys (paralogs elsewhere) join the minimap2 panel, so that their reads find their own locus
+    let decoy_seqs: Vec<(String, Vec<u8>)> = {
+        let mut fa = noodles::fasta::io::indexed_reader::Builder::default().build_from_path(reference)?;
+        scan.decoys
+            .iter()
+            .map(|(c, s, e)| {
+                let len = contigs.iter().find(|x| &x.0 == c).map(|x| x.1).unwrap_or(*e);
+                Ok((format!("decoy|{c}:{}-{}", s + 1, (*e).min(len)), read_fasta_region(&mut fa, c, *s, (*e).min(len))?))
+            })
+            .collect::<io::Result<_>>()?
+    };
+    let decoy_bp: usize = decoy_seqs.iter().map(|d| d.1.len()).sum();
+    eprintln!("brca12-wgs: {} targets, {} unique 31-mers, {} decoy loci ({} kb) ({:.0} s)", tg.len(), uniq.len(), decoy_seqs.len(), decoy_bp / 1000, t0.elapsed().as_secs_f64());
     // minimap2 index from a FASTA of the targets (its in-memory index works for one sequence only)
     let panel = format!("{prefix}.targets.fa");
     {
         let mut f = std::io::BufWriter::new(std::fs::File::create(&panel)?);
-        for t in &tg {
-            writeln!(f, ">{}", t.name)?;
-            for c in t.seq.chunks(80) {
+        for (n, seq) in tg.iter().map(|t| (&t.name, &t.seq)).chain(decoy_seqs.iter().map(|d| (&d.0, &d.1))) {
+            writeln!(f, ">{n}")?;
+            for c in seq.chunks(80) {
                 f.write_all(c)?;
                 f.write_all(b"\n")?;
             }
