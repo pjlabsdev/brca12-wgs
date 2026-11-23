@@ -41,6 +41,29 @@ fn gene_summary(exons: &[Value], gene: &str) -> (usize, Option<f64>, Option<f64>
     (rows.len(), Some(exons::round(mean, 1)), Some(exons::round(pct20, 1)), uncertain)
 }
 
+/// One sentence per gene: what was found and how completely the gene was checked (English, German).
+/// `result` is pathogenic / candidate / none once the variant analysis exists; until then None.
+pub fn statement(gene: &str, result: Option<&str>, depth: Option<f64>, pct20: Option<f64>, uncertain: &[String]) -> Value {
+    let cov_en = match (depth, pct20) {
+        (Some(d), Some(p)) => format!("exons {d:.1}x, {p:.1} % of exon bases >= 20x"),
+        _ => "exon coverage not determined".into(),
+    };
+    let cov_de = match (depth, pct20) {
+        (Some(d), Some(p)) => format!("Exons {d:.1}x, {p:.1} % der Exonbasen >= 20x"),
+        _ => "Exonabdeckung nicht bestimmt".into(),
+    };
+    let unc_en = if uncertain.is_empty() { "all exons checked".to_string() } else { format!("uncertain: {}", uncertain.join(", ")) };
+    let unc_de = if uncertain.is_empty() { "alle Exons geprüft".to_string() } else { format!("unsicher: {}", uncertain.join(", ")) };
+    let (en, de) = match result {
+        Some("pathogenic") => (format!("{gene}: pathogenic variant found (confirmation in an accredited laboratory needed)"),
+                               format!("{gene}: pathogene Variante gefunden (Bestätigung in einem akkreditierten Labor nötig)")),
+        Some("candidate") => (format!("{gene}: finding that needs confirmation"), format!("{gene}: Befund, der bestätigt werden muss")),
+        Some(_) => (format!("{gene}: no pathogenic variant found"), format!("{gene}: keine pathogene Variante gefunden")),
+        None => (format!("{gene}: variants not analysed yet (coverage only)"), format!("{gene}: Varianten noch nicht ausgewertet (nur Abdeckung)")),
+    };
+    json!({"en": format!("{en}; {cov_en}; {unc_en}"), "de": format!("{de}; {cov_de}; {unc_de}")})
+}
+
 pub struct Run<'a> {
     pub input: &'a str,
     pub reference: Option<&'a str>,
@@ -87,21 +110,23 @@ pub fn run(r: &Run) -> io::Result<Value> {
 
     // PREFIX.tsv: one line per gene
     let mut fg = File::create(format!("{}.tsv", r.prefix))?;
-    writeln!(fg, "gene\ttranscript\tresult\tsmall_variants\tclinvar_plp\tloss_of_function\texon_copy_number\tcnv_candidates\tstructural_variants\tcoding_depth\tpct20x\tuncertain_exons\tlow_coverage_bp")?;
+    writeln!(fg, "gene\ttranscript\tresult\tsmall_variants\tclinvar_plp\tloss_of_function\texon_copy_number\tcnv_candidates\tstructural_variants\tcoding_depth\tpct20x\tuncertain_exons\tlow_coverage_bp\tstatement")?;
     let mut genes_json = vec![];
     for (gene, nm, enst) in GENES {
         let (n, depth, pct20, uncertain) = gene_summary(&exon_rows, gene);
         let low_g: Vec<&Value> = low.iter().filter(|i| i["gene"] == gene).collect();
         let low_bp: u64 = low_g.iter().map(|i| i["length"].as_u64().unwrap_or(0)).sum();
+        let st = statement(gene, None, depth, pct20, &uncertain);
         writeln!(
             fg,
-            "{gene}\t{nm}\t-\t-\t-\t-\t-\t-\t-\t{}\t{}\t{}\t{low_bp}",
+            "{gene}\t{nm}\t-\t-\t-\t-\t-\t-\t-\t{}\t{}\t{}\t{low_bp}\t{}",
             depth.map(|d| format!("{d:.1}")).unwrap_or("-".into()),
             pct20.map(|d| format!("{d:.1}")).unwrap_or("-".into()),
             if uncertain.is_empty() { "-".into() } else { uncertain.join(",") },
+            st["en"].as_str().unwrap_or("-"),
         )?;
         genes_json.push(json!({
-            "gene": gene, "transcript": {"refseq": nm, "ensembl": enst}, "result": null,
+            "gene": gene, "transcript": {"refseq": nm, "ensembl": enst}, "result": null, "statement": st,
             "small_variants": null, "clinvar_plp": null, "loss_of_function": null,
             "exon_copy_number": null, "cnv_candidates": null, "structural_variants": null,
             "coverage": {"exon_count": n, "coding_mean_depth": depth, "pct20x": pct20, "uncertain_exons": uncertain,

@@ -27,6 +27,7 @@ One line per gene.
 | `pct20x` | share of exon bases with depth >= 20, weighted by exon length |
 | `uncertain_exons` | exons marked uncertain (see `OUTPREFIX.exons.tsv`), comma-separated |
 | `low_coverage_bp` | bases of the gene region (introns included) with depth < 10 |
+| `statement` | the overall statement for the gene in one sentence: result (pathogenic variant found / finding that needs confirmation / no pathogenic variant found), exon coverage, and which exons are uncertain or that all exons were checked; in the JSON as `statement` with `en` and `de` |
 
 ## OUTPREFIX.exons.tsv
 
@@ -61,6 +62,7 @@ Schema `genome.brca12.v2`.
               "average_read_length": 150.0, "average_base_quality": 35.7},
   "chromosome_median": {"chr13": 33.335, "chr17": 35.05},
   "genes": [{"gene": "BRCA1", "transcript": {"refseq": "NM_007294.4", "ensembl": "ENST00000357654"}, "result": null,
+             "statement": {"en": "BRCA1: variants not analysed yet (coverage only); exons 34.1x, 97.0 % of exon bases >= 20x; uncertain: Exon 6 (Legacy 7), Exon 23 (Legacy 24)", "de": "..."},
              "small_variants": null, "clinvar_plp": null, "loss_of_function": null, "exon_copy_number": null,
              "cnv_candidates": null, "structural_variants": null,
              "coverage": {"exon_count": 23, "coding_mean_depth": 34.1, "pct20x": 97.0,
