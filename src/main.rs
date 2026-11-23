@@ -1,5 +1,6 @@
 //! brca12-wgs 2.0 (in development): BRCA1/BRCA2 germline analysis from whole-genome sequencing in
 //! one program, without external tools. Research use only (RUO).
+mod caller;
 mod coverage;
 mod exons;
 mod output;
@@ -22,6 +23,8 @@ usage:
       median, status), chromosome medians and low-coverage intervals as JSON (1.1 schema)
   brca12-wgs readqc <BAM|CRAM> [--reference REF.fa] [--regions REGIONS.bed] [--padding 200]
       read statistics over the calling regions (gene regions +/- padding) like samtools stats
+  brca12-wgs call <BAM|CRAM> OUT.vcf --reference REF.fa [--regions BED] [--padding 200] [--sample NAME]
+      SNVs and indels in the gene regions (+/- padding) with the own caller, as VCF
   brca12-wgs depth <BAM|CRAM> <chrom:start-end> [--reference REF.fa] [--min-mapq 20] [--no-mate-overlap]
       per-base depth (1-based positions), like mosdepth per-base or (--no-mate-overlap) samtools depth -a
 ";
@@ -143,6 +146,57 @@ fn cmd_run(args: &[String]) -> io::Result<()> {
     Ok(())
 }
 
+fn cmd_call(args: &[String]) -> io::Result<()> {
+    let input = args.first().cloned().ok_or_else(|| io::Error::other("input BAM/CRAM missing"))?;
+    let out = args.get(1).cloned().ok_or_else(|| io::Error::other("output VCF missing"))?;
+    let reference = arg(args, "--reference").ok_or_else(|| io::Error::other("--reference REF.fa is needed"))?;
+    let pad: u64 = arg(args, "--padding").and_then(|v| v.parse().ok()).unwrap_or(200);
+    let regions = read_bed(&arg(args, "--regions").unwrap_or_else(|| "assets/brca12_regions.bed".into()))?;
+    let sample = arg(args, "--sample").unwrap_or_else(|| {
+        std::path::Path::new(&input).file_stem().and_then(|s| s.to_str()).unwrap_or("sample").to_string()
+    });
+    let mut regs: Vec<_> = regions.iter().map(|(c, s, e, _)| (c.clone(), s.saturating_sub(pad), e + pad)).collect();
+    regs.sort();
+    let t0 = std::time::Instant::now();
+    let mut calls = vec![];
+    for (c, s, e) in &regs {
+        calls.extend(caller::call_region(&input, &reference, c, *s, *e, &caller::DEFAULT)?);
+    }
+    let contigs = reads::contigs(&input, Some(&reference))?;
+    caller::write_vcf(&out, &sample, &contigs, &calls)?;
+    eprintln!("brca12-wgs call: {} variants -> {out} ({:.1} s)", calls.len(), t0.elapsed().as_secs_f64());
+    Ok(())
+}
+
+/// debug: bases of every read at one position (flags, strand, MAPQ, base, base quality)
+fn cmd_pileup(args: &[String]) -> io::Result<()> {
+    let input = args.first().cloned().ok_or_else(|| io::Error::other("input BAM/CRAM missing"))?;
+    let pos = args.get(1).cloned().ok_or_else(|| io::Error::other("chrom:pos missing"))?;
+    let (chrom, p) = pos.rsplit_once(':').ok_or_else(|| io::Error::other("chrom:pos"))?;
+    let p: u64 = p.parse::<u64>().map_err(io::Error::other)? - 1;
+    let mut counts: std::collections::BTreeMap<String, u32> = Default::default();
+    reads::fetch(&input, arg(args, "--reference").as_deref(), &format!("{chrom}:{}-{}", p + 1, p + 1), &mut |r: &reads::Read| {
+        let (mut rp, mut qp) = (r.start, 0usize);
+        let mut base = None;
+        for &(op, n) in &r.cigar {
+            let n = n as u64;
+            match op {
+                reads::Op::Match => { if p >= rp && p < rp + n { let i = qp + (p - rp) as usize; base = Some(((r.seq[i] as char).to_string(), r.qual[i])); break; } rp += n; qp += n as usize; }
+                reads::Op::Ins | reads::Op::SoftClip => qp += n as usize,
+                reads::Op::Del | reads::Op::Skip => { if p >= rp && p < rp + n { base = Some(("-".into(), 0)); break; } rp += n; }
+                _ => {}
+            }
+        }
+        if let Some((b, q)) = base {
+            let strand = if r.flags & 0x10 != 0 { "rev" } else { "fwd" };
+            println!("{}	{}	{strand}	mapq={}	{b}	bq={q}	start={}", String::from_utf8_lossy(&r.name), r.flags, r.mapq, r.start + 1);
+            if r.flags & 0x704 == 0 && r.mapq >= 20 { *counts.entry(format!("{b} {strand}")).or_default() += 1; }
+        }
+    })?;
+    eprintln!("{counts:?}");
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let res = match args.first().map(|s| s.as_str()) {
@@ -150,6 +204,8 @@ fn main() {
         Some("depth") => cmd_depth(&args[1..]),
         Some("exons") => cmd_exons(&args[1..]),
         Some("readqc") => cmd_readqc(&args[1..]),
+        Some("call") => cmd_call(&args[1..]),
+        Some("pileup") => cmd_pileup(&args[1..]),
         Some("--version") | Some("-V") => {
             println!("brca12-wgs {}", env!("CARGO_PKG_VERSION"));
             Ok(())
