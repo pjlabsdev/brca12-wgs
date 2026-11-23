@@ -63,11 +63,12 @@ pub struct Params {
     pub strand_support_min: u32, // one-strand allele: at least this many supporting reads,
     pub strand_other_min: u32,   // at least this many reads of the other strand against it,
     pub strand_fs: f64,          // and Fisher strand test above this (phred)
+    pub strand_fs_two_alleles: f64, // the same test for one allele of a 1/2 genotype (p < 0.05)
 }
 
 pub const DEFAULT: Params =
     Params { min_mapq: 20, min_base_q: 10, min_support: 2, call_qual: 30.0, het_snv: 1e-3, het_indel: 1.25e-4, flank: 150,
-             low_base_q: 18, long_clip: 20, assemble: true, max_haplotypes: 64, strand_support_min: 4, strand_other_min: 8, strand_fs: 20.0 };
+             low_base_q: 18, long_clip: 20, assemble: true, max_haplotypes: 64, strand_support_min: 4, strand_other_min: 8, strand_fs: 20.0, strand_fs_two_alleles: 13.0 };
 
 fn usable(r: &Read, p: &Params) -> bool {
     r.flags & 0x704 == 0 && r.mapq >= p.min_mapq && !r.seq.is_empty() && !r.cigar.is_empty()
@@ -750,6 +751,33 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
                         (a, b) => het(a).log10() + het(b).log10(),
                     };
                     gts.push((x, y, ll + prior));
+                }
+            }
+            // two different alleles: one that only reads of one strand prefer over the other allele and
+            // REF, while reads of the other strand cover the site against it, is a sequencing artifact
+            // (homopolymer phasing); the genotypes with it are dropped
+            let first = gts.iter().cloned().max_by(|a, b| a.2.partial_cmp(&b.2).unwrap()).unwrap();
+            if first.0 != 0 && first.0 != first.1 {
+                for (a, b) in [(first.0, first.1), (first.1, first.0)] {
+                    let (mut sf, mut sr, mut nf, mut nr) = (0u32, 0u32, 0u32, 0u32);
+                    for (r, v) in rds.iter().zip(&la) {
+                        let rev = r.flags & 0x10 != 0;
+                        let other = v[b].max(v[0]);
+                        if v[a] - other > 0.2 {
+                            if rev { sr += 1 } else { sf += 1 }
+                        } else if other - v[a] > 0.2 {
+                            if rev { nr += 1 } else { nf += 1 }
+                        }
+                    }
+                    let one_sided = (sf == 0 && nf >= p.strand_other_min && sr >= p.strand_support_min)
+                        || (sr == 0 && nr >= p.strand_other_min && sf >= p.strand_support_min);
+                    if std::env::var("BRCA12_DEBUG_POS").ok().and_then(|v| v.parse::<u64>().ok()).is_some_and(|d| site.iter().any(|&x| cl[x].pos + 1 == d)) {
+                        eprintln!("strand allele {a}: support f{sf} r{sr} against f{nf} r{nr}");
+                    }
+                    if one_sided && -10.0 * fisher(nf, nr, sf, sr).max(1e-300).log10() > p.strand_fs_two_alleles {
+                        gts.retain(|g| g.0 != a && g.1 != a);
+                        break;
+                    }
                 }
             }
             let mx = gts.iter().map(|g| g.2).fold(f64::NEG_INFINITY, f64::max);

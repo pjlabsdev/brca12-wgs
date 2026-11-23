@@ -6,6 +6,7 @@ mod caller;
 mod coverage;
 mod exon_cnv;
 mod exons;
+mod fastq;
 mod hgvs;
 mod output;
 mod reads;
@@ -17,7 +18,10 @@ use std::io::{self, BufRead};
 const USAGE: &str = "brca12-wgs 2.0.0-dev (research use only)
 
 usage:
-  brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX [--reference REF.fa] [--exons BED] [--regions BED]
+  brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX --reference REF.fa [--exons BED] [--regions BED]
+  brca12-wgs R1.fastq.gz R2.fastq.gz OUTPREFIX --reference REF.fa [--threads N]
+      paired whole-genome FASTQ: the reads of BRCA1/BRCA2 are found by genome-unique 31-mers,
+      aligned inside the program (minimap2) to OUTPREFIX.bam, then analysed as below
       the analysis: writes OUTPREFIX.tsv (one line per gene), OUTPREFIX.variants.tsv (one line per
       small variant with HGVS, ClinVar and gnomAD), OUTPREFIX.exons.tsv (one line per exon with its
       certainty) and OUTPREFIX.json (schema genome.brca12.v2); see docs/output-2.md
@@ -146,11 +150,28 @@ fn cmd_run(args: &[String]) -> io::Result<()> {
         }
         v
     };
-    let (input, prefix) = match pos.as_slice() {
-        [i, p, ..] => (i.as_str(), p.as_str()),
-        _ => return Err(io::Error::other("usage: brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX [--reference REF.fa]")),
+    let is_fq = |p: &str| {
+        let l = p.to_ascii_lowercase();
+        [".fq", ".fastq", ".fq.gz", ".fastq.gz"].iter().any(|x| l.ends_with(x))
     };
     let reference = arg(args, "--reference");
+    // paired FASTQ: R1 R2 OUTPREFIX -> the reads of BRCA1/BRCA2 are aligned to OUTPREFIX.bam first
+    let fq_bam;
+    let (input, prefix) = match pos.as_slice() {
+        [a, b, p, ..] if is_fq(a) && is_fq(b) => {
+            let reference = reference.as_deref().ok_or_else(|| io::Error::other("--reference REF.fa is needed"))?;
+            let regions = read_bed(&arg(args, "--regions").unwrap_or_else(|| "assets/brca12_regions.bed".into()))?;
+            if let Some(dir) = std::path::Path::new(p.as_str()).parent() {
+                if !dir.as_os_str().is_empty() { std::fs::create_dir_all(dir)?; }
+            }
+            let threads = arg(args, "--threads").and_then(|v| v.parse().ok()).unwrap_or_else(|| std::thread::available_parallelism().map(|n| n.get()).unwrap_or(4));
+            rayon::ThreadPoolBuilder::new().num_threads(threads).build_global().ok();
+            fq_bam = fastq::to_bam(a, b, reference, &regions, p, threads)?;
+            (fq_bam.as_str(), p.as_str())
+        }
+        [i, p, ..] => (i.as_str(), p.as_str()),
+        _ => return Err(io::Error::other("usage: brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX --reference REF.fa  or  brca12-wgs R1.fastq.gz R2.fastq.gz OUTPREFIX --reference REF.fa")),
+    };
     let exons_bed = read_bed(&arg(args, "--exons").unwrap_or_else(|| "assets/brca12_exons.bed".into()))?;
     let regions = read_bed(&arg(args, "--regions").unwrap_or_else(|| "assets/brca12_regions.bed".into()))?;
     if let Some(dir) = std::path::Path::new(prefix).parent() {
