@@ -48,7 +48,16 @@ Against Ensembl VEP 116 (`--hgvs --shift_hgvs 1`) on all 37,125 ClinVar alleles 
 c. equal 99.97 %, p. equal 99.96 %, most severe consequence equal 99.70 %
 (details in docs/output-2.md).
 
+## Exon copy number
+
+Same results as 1.1 on the same input: on a 30x whole genome all 58 interval depths equal
+`samtools depth -a -Q 20` and all 50 exon rows (log2 deviation, copy number, posterior) equal the
+Python implementation, with and without allele balance; with half of the read pairs removed over
+BRCA1 exons 11-13 and BRCA2 exons 14-16, both implementations call the same segments with the same
+quality, and none in the unmodified genome. The detection rates of the method are those of the 1.1
+validation (validation/exon_cnv). Depth for the panel takes under 1 s instead of about 4 min.
+
 ## Not covered yet
 
-Exon copy number, CNV and structural variants (as in 1.1, phase 3); large insertions that the read
+Gene-level CNV and structural variants (as in 1.1, phase 3); large insertions that the read
 aligner soft-clips (for example a 32 bp intronic insertion that GATK assembles) are not found yet.

@@ -4,6 +4,7 @@
 //! TSV files and `null` in the JSON (listed in `analysed`). Research use only.
 use crate::annot::Tables;
 use crate::caller;
+use crate::exon_cnv;
 use crate::exons::{self, Settings};
 use crate::hgvs;
 use crate::readstats;
@@ -251,26 +252,47 @@ pub fn run(r: &Run) -> io::Result<Value> {
     let tables = Tables::load();
     let vrows = variants(r.input, reference, r.regions, r.calling_padding, &tables)?;
     write_variants(&format!("{}.variants.tsv", r.prefix), &vrows)?;
+    // exon copy number (needs the panel's control windows, i.e. a whole-genome BAM/CRAM); allele
+    // balance from the own heterozygous SNV calls, as 1.1 did with HaplotypeCaller
+    let cnv_panel = exon_cnv::panel();
+    let cnv_depths = exon_cnv::depths(r.input, r.reference, &cnv_panel)?;
+    let snvs: Vec<(String, u64, u32, u32)> = vrows
+        .iter()
+        .filter(|v| v.filter == "PASS" && v.genotype == "0/1" && v.r#ref.len() == 1 && v.alt.len() == 1)
+        .map(|v| (v.chrom.clone(), v.pos, v.ref_reads, v.alt_reads))
+        .collect();
+    let cnv = exon_cnv::call(&cnv_panel, &cnv_depths, Some(&exon_cnv::allele_counts(&cnv_panel, &snvs)));
+    let cnv_on = cnv["enabled"] == true;
+    let cnv_exon = |gene: &Value, exon: &Value| -> Option<&Value> {
+        let name = format!("{}_ex{:02}", gene.as_str().unwrap_or(""), exon.as_u64().unwrap_or(0));
+        cnv["exons"].as_array().and_then(|a| a.iter().find(|e| e["exon"] == name.as_str()))
+    };
 
     // PREFIX.exons.tsv
     let mut fe = File::create(format!("{}.exons.tsv", r.prefix))?;
-    writeln!(fe, "gene\texon\tlabel\tchrom\tstart\tend\tlength\tmean_depth\tpct10x\tpct20x\tpct30x\tlow_mapq_fraction\tdosage_ratio\tstatus\treasons")?;
+    writeln!(fe, "gene\texon\tlabel\tchrom\tstart\tend\tlength\tmean_depth\tpct10x\tpct20x\tpct30x\tlow_mapq_fraction\tdosage_ratio\tcnv_log2_deviation\tcnv_copy_number\tcnv_p_two_copies\tstatus\treasons")?;
     let mut exons_json = vec![];
     for e in &exon_rows {
         let status = if e["status"] == "ok" { "ok" } else { "uncertain" };
+        let ce = cnv_exon(&e["gene"], &e["exon"]).cloned().unwrap_or(Value::Null);
         let reasons: Vec<String> = e["reasonsEN"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default();
         writeln!(
             fe,
-            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
+            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
             dash(&e["gene"]), dash(&e["exon"]), dash(&e["label"]), dash(&e["chrom"]), dash(&e["start"]), dash(&e["end"]),
             dash(&e["length"]), dash(&e["meanDepth"]), dash(&e["pct10x"]), dash(&e["pct20x"]), dash(&e["pct30x"]),
-            dash(&e["lowMapqFraction"]), dash(&e["dosageRatio"]), status, if reasons.is_empty() { "-".into() } else { reasons.join("; ") }
+            dash(&e["lowMapqFraction"]), dash(&e["dosageRatio"]),
+            dash(&ce["log2_deviation"]), dash(&ce["copy_number"]), dash(&ce["p_two_copies"]),
+            status, if reasons.is_empty() { "-".into() } else { reasons.join("; ") }
         )?;
         exons_json.push(json!({
             "gene": e["gene"], "exon": e["exon"], "label": e["label"], "chrom": e["chrom"], "start": e["start"], "end": e["end"],
             "length": e["length"], "mean_depth": e["meanDepth"], "pct10x": e["pct10x"], "pct20x": e["pct20x"], "pct30x": e["pct30x"],
             "low_mapq_fraction": e["lowMapqFraction"], "dosage_ratio": e["dosageRatio"], "status": status,
             "reasons": {"en": e["reasonsEN"], "de": e["reasons"]},
+            "copy_number": if ce.is_null() { Value::Null } else {
+                json!({"log2_deviation": ce["log2_deviation"], "z": ce["z"], "copy_number": ce["copy_number"],
+                       "p_two_copies": ce["p_two_copies"], "het_sites": ce["het_sites"]}) },
         }));
     }
 
@@ -290,9 +312,21 @@ pub fn run(r: &Run) -> io::Result<Value> {
         let cand: Vec<&&VariantRow> = mine.iter().filter(|v| v.class == "candidate" || (v.class == "pathogenic" && v.filter != "PASS")).collect();
         // without a finding, "none" needs enough coverage of the exons; otherwise not assessable
         let enough = depth.is_some_and(|d| d >= MIN_ASSESSABLE_DEPTH) && pct20.is_some_and(|p| p >= MIN_ASSESSABLE_PCT20);
+        let gene_cnv: Vec<&Value> = cnv["calls"].as_array().map(|a| a.iter().filter(|c| c["gene"] == gene).collect()).unwrap_or_default();
+        let cnv_text = |c: &Value, de: bool| -> String {
+            let exons: Vec<&str> = c["affected_exons"].as_array().map(|a| a.iter().filter_map(|x| x.as_str()).collect()).unwrap_or_default();
+            let del = c["type"] == "deletion";
+            if de {
+                format!("Exon-{}: {} (Kopienzahl {}, Qualität {}; Bestätigung z. B. mit MLPA nötig)",
+                        if del { "Deletion" } else { "Duplikation" }, exons.join(", "), c["copy_number"], c["quality"])
+            } else {
+                format!("exon {}: {} (copy number {}, quality {}; confirmation e.g. by MLPA needed)",
+                        if del { "deletion" } else { "duplication" }, exons.join(", "), c["copy_number"], c["quality"])
+            }
+        };
         let result = if !plp.is_empty() {
             "pathogenic"
-        } else if !cand.is_empty() {
+        } else if !cand.is_empty() || !gene_cnv.is_empty() {
             "candidate"
         } else if enough {
             "none"
@@ -307,10 +341,21 @@ pub fn run(r: &Run) -> io::Result<Value> {
             let fl = if v.filter == "PASS" { String::new() } else { format!(", filter {}", v.filter) };
             (format!("{name}, {zen}{fl}"), format!("{name}, {zde}{fl}"))
         }).collect();
+        let mut findings = findings;
+        for c in &gene_cnv {
+            findings.push((cnv_text(c, false), cnv_text(c, true)));
+        }
+        let ecn = if !cnv_on {
+            "-".to_string()
+        } else if gene_cnv.is_empty() {
+            "none".to_string()
+        } else {
+            gene_cnv.iter().map(|c| cnv_text(c, false)).collect::<Vec<_>>().join("; ")
+        };
         let st = statement(gene, Some(result), depth, pct20, &uncertain, &findings);
         writeln!(
             fg,
-            "{gene}\t{nm}\t{result}\t{}\t{}\t{}\t-\t-\t-\t{}\t{}\t{}\t{low_bp}\t{}",
+            "{gene}\t{nm}\t{result}\t{}\t{}\t{}\t{ecn}\t-\t-\t{}\t{}\t{}\t{low_bp}\t{}",
             pass.len(), plp.len(), lof.len(),
             depth.map(|d| format!("{d:.1}")).unwrap_or("-".into()),
             pct20.map(|d| format!("{d:.1}")).unwrap_or("-".into()),
@@ -320,7 +365,7 @@ pub fn run(r: &Run) -> io::Result<Value> {
         genes_json.push(json!({
             "gene": gene, "transcript": {"refseq": nm, "ensembl": enst}, "result": result, "statement": st,
             "small_variants": pass.len(), "clinvar_plp": plp.len(), "loss_of_function": lof.len(),
-            "exon_copy_number": null, "cnv_candidates": null, "structural_variants": null,
+            "exon_copy_number": if cnv_on { json!(gene_cnv) } else { Value::Null }, "cnv_candidates": null, "structural_variants": null,
             "coverage": {"exon_count": n, "coding_mean_depth": depth, "pct20x": pct20, "uncertain_exons": uncertain,
                          "low_coverage_bp": low_bp,
                          "low_coverage_intervals": low_g.iter().map(|i| json!({"chrom": i["chrom"], "start": i["start"], "end": i["end"], "length": i["length"], "min_depth": i["minDepth"]})).collect::<Vec<_>>()},
@@ -334,8 +379,11 @@ pub fn run(r: &Run) -> io::Result<Value> {
         "input": {"files": [r.input], "reference": r.reference},
         "analysis_time": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0),
         "research_use_only": true,
-        "analysed": ["coverage", "read_qc", "small_variants", "annotation"],
-        "not_yet_analysed": ["exon_copy_number", "cnv", "structural_variants", "insertion_signals"],
+        "analysed": if cnv_on { json!(["coverage", "read_qc", "small_variants", "annotation", "exon_copy_number"]) }
+                    else { json!(["coverage", "read_qc", "small_variants", "annotation"]) },
+        "not_yet_analysed": if cnv_on { json!(["cnv", "structural_variants", "insertion_signals"]) }
+                            else { json!(["exon_copy_number", "cnv", "structural_variants", "insertion_signals"]) },
+        "exon_copy_number": cnv,
         "annotation_sources": {"transcripts": "MANE Select v1 (BRCA1 NM_007294.4 / ENST00000357654, BRCA2 NM_000059.4 / ENST00000380152)",
                                "clinvar": tables.clinvar_version, "gnomad": tables.gnomad_version},
         "thresholds": {"min_mapq": 20, "min_exon_depth": st.min_exon_depth, "min_exon_pct20x": st.min_exon_pct20,

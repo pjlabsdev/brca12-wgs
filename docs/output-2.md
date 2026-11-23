@@ -3,6 +3,12 @@
 `brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX --reference REF.fa` writes four files, in the form of
 the hla-wgs output. The HTML result page is made from `OUTPREFIX.json` at the end. Research use only.
 
+Exon copy number is the method of 1.1 (bin/brca12lib/exon_cnv.py), ported one to one: mean depth
+over exon +/- 200 bp (as samtools depth -a -Q 20) against eight single-copy control windows, the
+panel of 80 genomes, a hidden Markov model over the exons of a gene with allele balance at the own
+heterozygous SNV calls. A segment with quality >= 10 is a call (gene result `candidate`, confirmation
+e.g. by MLPA), 5-9 a hint in the JSON (`exon_copy_number.hints`).
+
 Without reads in the gene regions (truncated file, other reference or chromosome names) the program
 stops with an error instead of writing a result.
 
@@ -23,7 +29,7 @@ One line per gene.
 | `small_variants` | SNVs and indels with FILTER PASS in the gene region |
 | `clinvar_plp` | of these, ClinVar pathogenic or likely pathogenic (not conflicting) |
 | `loss_of_function` | of these, frameshift, stop gained, start lost, splice donor or acceptor (+/-1, 2), not benign |
-| `exon_copy_number` | exon deletions or duplications called against the reference cohort |
+| `exon_copy_number` | exon deletions or duplications against the reference cohort (quality >= 10), `none`, or `-` when not determined (a region BAM/CRAM without the panel's control windows elsewhere on chr13/chr17) |
 | `cnv_candidates` | CNV segments supported by the gene's own bins |
 | `structural_variants` | structural variants with a breakpoint in the gene |
 | `coding_depth` | mean depth over the exons (MAPQ >= 20), weighted by exon length |
@@ -73,6 +79,7 @@ One line per exon of the MANE Select transcripts (BRCA1 23, BRCA2 27).
 | `pct10x`, `pct20x`, `pct30x` | share of exon bases with at least that depth |
 | `low_mapq_fraction` | share of depth lost by the MAPQ >= 20 filter (pseudogene or repeat) |
 | `dosage_ratio` | mean depth relative to the median depth of the chromosome (100 kb windows) |
+| `cnv_log2_deviation`, `cnv_copy_number`, `cnv_p_two_copies` | exon copy number against the panel of 80 1000 Genomes 30x genomes: log2 deviation from the panel centre, copy number of the hidden Markov model, posterior probability of two copies |
 | `status` | `ok` or `uncertain` |
 | `reasons` | why uncertain: mean depth < 20x, less than 95 % of bases >= 20x, more than 10 % of reads with MAPQ < 20 |
 

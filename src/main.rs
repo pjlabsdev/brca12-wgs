@@ -4,6 +4,7 @@ mod annot;
 mod assemble;
 mod caller;
 mod coverage;
+mod exon_cnv;
 mod exons;
 mod hgvs;
 mod output;
@@ -205,6 +206,23 @@ fn cmd_annotate(args: &[String]) -> io::Result<()> {
     Ok(())
 }
 
+/// exon copy number alone (depths and the HMM result as JSON); --depths-only prints the depths
+fn cmd_exon_cnv(args: &[String]) -> io::Result<()> {
+    let input = args.first().filter(|a| !a.starts_with("--")).cloned().ok_or_else(|| io::Error::other("input BAM/CRAM missing"))?;
+    let p = exon_cnv::panel();
+    let d = exon_cnv::depths(&input, arg(args, "--reference").as_deref(), &p)?;
+    if args.iter().any(|a| a == "--depths-only") {
+        let mut keys: Vec<&String> = d.keys().collect();
+        keys.sort();
+        for k in keys {
+            println!("{k}\t{}", d[k].map(|x| format!("{x:.6}")).unwrap_or("-".into()));
+        }
+        return Ok(());
+    }
+    println!("{}", serde_json::to_string_pretty(&exon_cnv::call(&p, &d, None)).map_err(io::Error::other)?);
+    Ok(())
+}
+
 /// debug: bases of every read at one position (flags, strand, MAPQ, base, base quality)
 fn cmd_pileup(args: &[String]) -> io::Result<()> {
     let input = args.first().cloned().ok_or_else(|| io::Error::other("input BAM/CRAM missing"))?;
@@ -244,6 +262,7 @@ fn main() {
         Some("call") => cmd_call(&args[1..]),
         Some("pileup") => cmd_pileup(&args[1..]),
         Some("annotate") => cmd_annotate(&args[1..]),
+        Some("exon-cnv") => cmd_exon_cnv(&args[1..]),
         Some("--version") | Some("-V") => {
             println!("brca12-wgs {}", env!("CARGO_PKG_VERSION"));
             Ok(())
