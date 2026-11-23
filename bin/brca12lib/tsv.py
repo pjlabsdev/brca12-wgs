@@ -91,10 +91,30 @@ def gene_rows(result):
     return rows
 
 
+def change(pos, ref, alt):
+    """(start, end, change) as in hla-wgs: the shared anchor bases of the VCF record removed, then
+    `C>T` for one base, `delT` for a deletion (start and end on the deleted bases), `insT` for an
+    insertion (start and end on the base before it), `CT>GA` for anything else."""
+    p = 0
+    while p < min(len(ref), len(alt)) - 1 and ref[p] == alt[p]:
+        p += 1
+    s = 0
+    while s < min(len(ref), len(alt)) - p - 1 and ref[-1 - s] == alt[-1 - s]:
+        s += 1
+    r, a = ref[p:len(ref) - s], alt[p:len(alt) - s]
+    start = pos + p
+    if len(r) == 1 and len(a) > 1 and a[0] == r:          # insertion after the anchor base
+        return start, start, "ins" + a[1:]
+    if len(a) == 1 and len(r) > 1 and r[0] == a:          # deletion after the anchor base
+        return start + 1, start + len(r) - 1, "del" + r[1:]
+    return start, start + len(r) - 1, f"{r}>{a}"
+
+
 def _small(gene, kind, v, level, reason, certainty):
+    start, end, what = change(v["pos"], v["ref"], v["alt"])
     stars = (v.get("clinvar") or {}).get("stars")
     return {"gene": gene, "kind": kind, "level": level, "reason": reason, "chrom": v["chrom"],
-            "start": v["pos"], "end": v["pos"] + len(v["ref"]) - 1, "change": f"{v['ref']}>{v['alt']}",
+            "start": start, "end": end, "change": what,
             "hgvsc": v.get("hgvsc"), "hgvsp": v.get("hgvsp"), "exon": v.get("exon") or v.get("intron"),
             "genotype": tr(v.get("genotype"), "en"),
             "reads": f"{v['altDepth']}/{v['depth']}" if v.get("altDepth") is not None and v.get("depth") is not None

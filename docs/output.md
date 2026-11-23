@@ -54,8 +54,8 @@ One line per finding, in the order of the report: small variants, mosaic candida
 | `kind` | `small`, `mosaic`, `cnv`, `exon_copy_number`, `sv`, `insertion_signal`, `exon_dosage` |
 | `level` | `attention` (may point to a predisposition: ClinVar pathogenic or likely pathogenic, loss of function, CNV, exon copy number call, SV with FILTER PASS), `unclear` (ClinVar VUS, mosaic candidate, SV without PASS, insertion signal), `common` (a known common allele, reported but not counted), `hint` (a lead that is not counted: exon copy number hint, dosage ratio) or `none` (listed without a finding, for example benign); `attention` and `unclear` are the entries the result page counts |
 | `reason` | `clinvar_pathogenic`, `loss_of_function`, `clinvar_vus`, `mosaic`, `cnv`, `exon_copy_number`, `sv`, `insertion_signal`, `common_allele`, `exon_copy_number_hint`, `dosage_ratio`, `ba1` (a small variant with a BA1 code) or `listed` |
-| `chrom`, `start`, `end` | GRCh38, 1-based; for small variants `end` is the last reference base |
-| `change` | `REF>ALT`, or the type with copy number, caller or label |
+| `chrom`, `start`, `end` | GRCh38, 1-based; small variants without the VCF anchor base: a deletion spans the deleted bases, an insertion sits on the base before it |
+| `change` | as in hla-wgs: `C>T` for one base, `delT` and `insAC` for deletions and insertions, `TG>C` for anything else; for larger events the type with copy number, caller or label |
 | `hgvsc`, `hgvsp` | on the MANE transcript (small variants) |
 | `exon` | exon or intron of a small variant (`10/23`), affected exons of a larger event |
 | `genotype` | `heterozygous`, `homozygous`; VCF genotype for SVs; zygosity for known alleles |

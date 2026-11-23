@@ -26,6 +26,14 @@ def parse(text):
     return header, rows
 
 
+class Change(unittest.TestCase):
+    def test_change_as_in_hla_wgs(self):
+        self.assertEqual(tsv.change(100, "A", "G"), (100, 100, "A>G"))
+        self.assertEqual(tsv.change(100, "CACAACA", "C"), (101, 106, "delACAACA"))
+        self.assertEqual(tsv.change(100, "C", "CAC"), (100, 100, "insAC"))
+        self.assertEqual(tsv.change(100, "ATG", "AC"), (101, 102, "TG>C"))
+
+
 class GeneTable(unittest.TestCase):
     def test_one_line_per_gene_with_the_result_of_the_page(self):
         header, rows = parse(tsv.genes_tsv(RESULT))
@@ -66,6 +74,7 @@ class FindingTable(unittest.TestCase):
         plp = next(r for r in small if r["clinvar"] == "Pathogenic")
         self.assertEqual((plp["level"], plp["reason"], plp["certainty"]), ("attention", "clinvar_pathogenic", "ok"))
         self.assertEqual(plp["reads"], "18/38")
+        self.assertEqual((plp["start"], plp["end"], plp["change"]), ("43093001", "43093001", "delG"))
         self.assertEqual(plp["genotype"], "heterozygous")
         sv = next(r for r in rows if r["kind"] == "sv")
         self.assertEqual((sv["level"], sv["certainty"]), ("attention", "ok"))
