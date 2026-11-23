@@ -2,6 +2,7 @@
 //! one program, without external tools. Research use only (RUO).
 mod coverage;
 mod exons;
+mod output;
 mod reads;
 mod readstats;
 
@@ -10,6 +11,9 @@ use std::io::{self, BufRead};
 const USAGE: &str = "brca12-wgs 2.0.0-dev (research use only)
 
 usage:
+  brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX [--reference REF.fa] [--exons BED] [--regions BED]
+      the analysis: writes OUTPREFIX.tsv (one line per gene), OUTPREFIX.exons.tsv (one line per
+      exon with its certainty) and OUTPREFIX.json (schema genome.brca12.v2); see docs/output-2.md
   brca12-wgs coverage <BAM|CRAM> [--reference REF.fa] [--exons EXONS.bed] [--min-mapq 20]
       exon depth like mosdepth (MAPQ filter, flags 0x704 skipped, mate overlap once):
       name, mean depth and bases >= 10/20/30x per exon, tab-separated on stdout
@@ -111,6 +115,34 @@ fn cmd_readqc(args: &[String]) -> io::Result<()> {
     Ok(())
 }
 
+fn cmd_run(args: &[String]) -> io::Result<()> {
+    let pos: Vec<&String> = {
+        let mut v = vec![];
+        let mut i = 0;
+        while i < args.len() {
+            if args[i].starts_with("--") { i += 2; continue; }
+            v.push(&args[i]);
+            i += 1;
+        }
+        v
+    };
+    let (input, prefix) = match pos.as_slice() {
+        [i, p, ..] => (i.as_str(), p.as_str()),
+        _ => return Err(io::Error::other("usage: brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX [--reference REF.fa]")),
+    };
+    let reference = arg(args, "--reference");
+    let exons_bed = read_bed(&arg(args, "--exons").unwrap_or_else(|| "assets/brca12_exons.bed".into()))?;
+    let regions = read_bed(&arg(args, "--regions").unwrap_or_else(|| "assets/brca12_regions.bed".into()))?;
+    if let Some(dir) = std::path::Path::new(prefix).parent() {
+        if !dir.as_os_str().is_empty() { std::fs::create_dir_all(dir)?; }
+    }
+    let t0 = std::time::Instant::now();
+    output::run(&output::Run { input, reference: reference.as_deref(), prefix, exons: &exons_bed, regions: &regions,
+                               calling_padding: 200, settings: &exons::DEFAULT })?;
+    eprintln!("brca12-wgs: {prefix}.tsv, {prefix}.exons.tsv, {prefix}.json ({:.1} s)", t0.elapsed().as_secs_f64());
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let res = match args.first().map(|s| s.as_str()) {
@@ -122,6 +154,7 @@ fn main() {
             println!("brca12-wgs {}", env!("CARGO_PKG_VERSION"));
             Ok(())
         }
+        Some(a) if !a.starts_with('-') && args.len() >= 2 => cmd_run(&args),
         _ => {
             eprint!("{USAGE}");
             std::process::exit(2);

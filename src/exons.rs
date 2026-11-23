@@ -99,14 +99,18 @@ pub fn table(path: &str, reference: Option<&str>, exons: &Bed, regions: &Bed, co
             let low_mapq = if all_mean > 0.0 { Some(1.0 - mean / all_mean) } else { None };
             let dosage = median.filter(|&m| m > 0.0).map(|m| mean / m);
             let mut reasons: Vec<String> = vec![];
+            let mut reasons_en: Vec<String> = vec![];
             if mean < st.min_exon_depth {
                 reasons.push(format!("mittlere Tiefe {mean:.1}x < {}x", st.min_exon_depth));
+                reasons_en.push(format!("mean depth {mean:.1}x < {}x", st.min_exon_depth));
             }
             if pct[1] < st.min_exon_pct20 {
                 reasons.push(format!("nur {:.1} % der Basen >= 20x", pct[1]));
+                reasons_en.push(format!("only {:.1} % of bases >= 20x", pct[1]));
             }
             if let Some(f) = low_mapq.filter(|&f| f > st.max_low_mapq) {
                 reasons.push(format!("{:.0} % der Reads mit MAPQ < 20 (Pseudogen/Repeat)", 100.0 * f));
+                reasons_en.push(format!("{:.0} % of reads with MAPQ < 20 (pseudogene/repeat)", 100.0 * f));
             }
             let (gene, number, label) = exon_label(&b.3);
             rows.push(json!({
@@ -118,6 +122,7 @@ pub fn table(path: &str, reference: Option<&str>, exons: &Bed, regions: &Bed, co
                 "dosageRatio": dosage.map(|x| round(x, 2)),
                 "status": if reasons.is_empty() { "ok" } else { "unsicher" },
                 "reasons": reasons,
+                "reasonsEN": reasons_en,
             }));
         }
     }
