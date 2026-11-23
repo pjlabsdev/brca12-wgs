@@ -8,6 +8,7 @@ repository = "https://github.com/pjlabsdev/brca12-wgs"
 
 [dependencies]
 flate2 = "1.1.11"
+indexmap = "2.14"
 noodles = { version = "0.119", features = ["bam", "cram", "sam", "bgzf", "core", "fasta", "csi"] }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = { version = "1.0.154", features = ["preserve_order"] }

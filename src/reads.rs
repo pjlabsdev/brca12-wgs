@@ -30,6 +30,7 @@ pub struct Read {
     pub seq: Vec<u8>,
     pub qual: Vec<u8>,
     pub nm: Option<i64>, // NM tag (edit distance)
+    pub sa: Option<String>, // SA tag (supplementary alignments), as in SAM
 }
 
 pub const UNMAPPED: u16 = 0x4;
@@ -83,6 +84,10 @@ fn convert(r: &RecordBuf, tid_of: &dyn Fn(Option<usize>) -> i32) -> Option<Read>
         seq: r.sequence().as_ref().to_vec(),
         qual: r.quality_scores().as_ref().to_vec(),
         nm: r.data().get(&noodles::sam::alignment::record::data::field::Tag::EDIT_DISTANCE).and_then(|v| v.as_int()),
+        sa: r.data().get(&noodles::sam::alignment::record::data::field::Tag::OTHER_ALIGNMENTS).and_then(|v| match v {
+            noodles::sam::alignment::record_buf::data::field::Value::String(s) => Some(String::from_utf8_lossy(s.as_ref()).into_owned()),
+            _ => None,
+        }),
     })
 }
 

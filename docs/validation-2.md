@@ -57,7 +57,37 @@ BRCA1 exons 11-13 and BRCA2 exons 14-16, both implementations call the same segm
 quality, and none in the unmodified genome. The detection rates of the method are those of the 1.1
 validation (validation/exon_cnv). Depth for the panel takes under 1 s instead of about 4 min.
 
+## Structural variants and insertion signatures
+
+The Rust module gives the same JSON as 1.1's `brca12_insertion_signals.py --gene-fasta
+--read-pair-svs` on all 53 samples tested (39 HPRC, NA12878, six 1000 Genomes carriers, seven
+spike-ins): 46 + 7 files identical, among them 7 known Alu insertions and 23 known 126 bp copies.
+
+Spike-ins as in validation/pathogenic (HG002 chr13/chr17 background, simulated heterozygous events
+in the gene windows, BWA-MEM), events found by the read-pair/split-read module:
+
+| sample | event | found |
+|---|---|---|
+| L1 | BRCA1 deletion 510 bp, exon 21 | yes, exact breakpoints |
+| L1 | BRCA2 c.156_157insAlu | yes, as the known founder allele (gene result pathogenic) |
+| L2 | BRCA1 deletion 3,835 bp, exon 12 | yes |
+| L2 | BRCA2 deletion 8.5 kb, exons 14-16 | yes, exact |
+| L3 | BRCA1 tandem duplication 6 kb, exon 12 | yes |
+| L3 | BRCA2 deletion 1.5 kb, exon 21 | yes, exact |
+| L4 | BRCA1 deletion 11 kb, exons 1-2 | yes |
+| L4 | BRCA2 deletion 120 bp in exon 11 | yes |
+| L5 | BRCA1 whole-gene deletion (135 kb) | no breakpoint in the gene region; the exon copy number shows all exons at one copy |
+| L5 | BRCA2 tandem duplication 5 kb, exons 19-20 | yes |
+| L6 | BRCA1 deletion 300 bp in exon 10 | yes |
+| L6 | BRCA2 whole-gene deletion (95 kb) | no breakpoint in the gene region; exon copy number one copy for exons 1-7 and 13-18 |
+| negative control | none | no signature |
+
+1.1 for comparison: Manta 12/12, CNVkit 3/12. The exon copy number cannot be judged on these
+spike-ins: the gene windows are simulated reads in HiSeq/novoalign data, which the panel of 1000
+Genomes NovaSeq genomes does not fit (false duplication calls also in the negative control).
+
 ## Not covered yet
 
-Gene-level CNV and structural variants (as in 1.1, phase 3); large insertions that the read
+Gene-level CNV segmentation as CNVkit did (CNVkit found 3 of the 12 spike-ins in 1.1; whole-gene
+events are seen by the exon copy number); an assay check for the exon copy-number panel; large insertions that the read
 aligner soft-clips (for example a 32 bp intronic insertion that GATK assembles) are not found yet.

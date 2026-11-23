@@ -10,6 +10,7 @@ mod hgvs;
 mod output;
 mod reads;
 mod readstats;
+mod sv;
 
 use std::io::{self, BufRead};
 
@@ -223,6 +224,16 @@ fn cmd_exon_cnv(args: &[String]) -> io::Result<()> {
     Ok(())
 }
 
+/// structural-variant and insertion signatures of the gene regions as JSON (1.1 field names)
+fn cmd_sv(args: &[String]) -> io::Result<()> {
+    let input = args.first().filter(|a| !a.starts_with("--")).cloned().ok_or_else(|| io::Error::other("input BAM/CRAM missing"))?;
+    let reference = arg(args, "--reference").ok_or_else(|| io::Error::other("--reference REF.fa is needed"))?;
+    let regions = read_bed(&arg(args, "--regions").unwrap_or_else(|| "assets/brca12_regions.bed".into()))?;
+    let v = sv::signals(&input, &reference, &regions)?;
+    println!("{}", serde_json::to_string_pretty(&v).map_err(io::Error::other)?);
+    Ok(())
+}
+
 /// debug: bases of every read at one position (flags, strand, MAPQ, base, base quality)
 fn cmd_pileup(args: &[String]) -> io::Result<()> {
     let input = args.first().cloned().ok_or_else(|| io::Error::other("input BAM/CRAM missing"))?;
@@ -263,6 +274,7 @@ fn main() {
         Some("pileup") => cmd_pileup(&args[1..]),
         Some("annotate") => cmd_annotate(&args[1..]),
         Some("exon-cnv") => cmd_exon_cnv(&args[1..]),
+        Some("sv") => cmd_sv(&args[1..]),
         Some("--version") | Some("-V") => {
             println!("brca12-wgs {}", env!("CARGO_PKG_VERSION"));
             Ok(())

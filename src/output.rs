@@ -8,6 +8,7 @@ use crate::exon_cnv;
 use crate::exons::{self, Settings};
 use crate::hgvs;
 use crate::readstats;
+use crate::sv;
 use crate::reads;
 use serde_json::{Value, json};
 use std::fs::File;
@@ -221,6 +222,117 @@ fn variant_json(v: &VariantRow) -> Value {
     })
 }
 
+/// English and German name of a known allele (1.1 labels are German)
+fn known_label(de: &str) -> (String, String) {
+    let en = match de {
+        l if l.starts_with("zusätzliche 126-bp-Kopie") => "extra 126 bp copy upstream of BRCA1 exon 1 (common allele)",
+        l if l.starts_with("bekannte intronische Alu-Insertion") => "known intronic Alu insertion in BRCA2 (common allele)",
+        l if l.starts_with("bekannte intronische 980-bp-Deletion") => "known intronic 980 bp deletion in BRCA1 (rare allele)",
+        l if l.starts_with("BRCA2 c.156_157insAlu") => "BRCA2 c.156_157insAlu (founder allele, exon 3)",
+        l if l.starts_with("BRCA1 Duplikation Exon 13") => "BRCA1 duplication of exon 13 (legacy numbering; founder allele)",
+        l if l.starts_with("BRCA1 Deletion Exon 13") => "BRCA1 deletion of exon 13 (legacy numbering; 3,835 bp, founder allele)",
+        l => l,
+    };
+    (en.to_string(), de.to_string())
+}
+
+/// one structural-variant or insertion signature, in the v2 form
+pub struct SvRow {
+    pub gene: String,
+    pub kind_en: String,
+    pub kind_de: String,
+    pub chrom: String,
+    pub start: i64,
+    pub end: i64,
+    pub length: Option<i64>,
+    pub exons: Vec<String>,
+    pub evidence: String,
+    pub zygosity: String,
+    pub class: &'static str, // pathogenic / candidate / known_common / signal
+    pub raw: Value,
+}
+
+fn sv_rows(raw: &[Value], exons_bed: &Bed) -> Vec<SvRow> {
+    let has = |v: &Value, s: &str| v["signature"].as_array().is_some_and(|a| a.iter().any(|x| x == s));
+    raw.iter()
+        .map(|v| {
+            let gene = v["gene"].as_str().unwrap_or("").to_string();
+            let chrom = v["chrom"].as_str().unwrap_or("").to_string();
+            let (start, end) = (v["pos"].as_i64().unwrap_or(0), v["end"].as_i64().unwrap_or(0));
+            let exons: Vec<String> = exons_bed
+                .iter()
+                .filter(|(c, s, e, n)| c == &chrom && (*s as i64) < end && (*e as i64) >= start && n.starts_with(&gene))
+                .map(|(_, _, _, n)| exons::exon_label(n).2)
+                .collect();
+            let known = has(v, "known allele");
+            let (kind_en, kind_de) = if known {
+                let (en, de) = known_label(v["label"].as_str().unwrap_or(""));
+                (format!("known allele: {en}"), format!("bekanntes Allel: {de}"))
+            } else if has(v, "read-pair deletion") {
+                ("deletion (read pairs, split reads)".into(), "Deletion (Lesepaare, geteilte Lesungen)".into())
+            } else if has(v, "inversion") {
+                ("inversion (read pairs, split reads)".into(), "Inversion (Lesepaare, geteilte Lesungen)".into())
+            } else if has(v, "tandem duplication") {
+                ("tandem duplication (outward read pairs)".into(), "Tandemduplikation (nach außen gerichtete Lesepaare)".into())
+            } else if has(v, "tandem copy") {
+                ("extra tandem repeat copy (clipped reads)".into(), "zusätzliche Tandemkopie (abgeschnittene Leseenden)".into())
+            } else if has(v, "Alu") {
+                ("Alu insertion signature (clipped reads)".into(), "Alu-Insertionssignatur (abgeschnittene Leseenden)".into())
+            } else {
+                ("insertion signature (clipped reads)".into(), "Insertionssignatur (abgeschnittene Leseenden)".into())
+            };
+            let length = ["deletedLength", "duplicatedLength", "invertedLength", "insertedLength"]
+                .iter()
+                .filter_map(|k| v[*k].as_i64())
+                .find(|&x| x > 0);
+            let mut evidence: Vec<String> = v["evidence"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default();
+            for (k, what) in [("discordantPairs", "discordant pairs"), ("outwardPairs", "outward pairs"), ("splitReads", "split reads"),
+                              ("clippedReadsLeftJunction", "clipped reads left"), ("clippedReadsRightJunction", "clipped reads right")] {
+                if let Some(n) = v[k].as_i64().filter(|&n| n > 0) {
+                    evidence.push(format!("{n} {what}"));
+                }
+            }
+            if let Some(rr) = v["realignedReads"].as_str() {
+                evidence.push(format!("realigned reads: {rr}"));
+            }
+            let common = known && v["clinicalSignificance"] != "pathogenic";
+            let class = if v["clinicalSignificance"] == "pathogenic" {
+                "pathogenic"
+            } else if common {
+                "known_common"
+            } else if !exons.is_empty() {
+                "candidate"
+            } else {
+                "signal"
+            };
+            SvRow {
+                gene, kind_en, kind_de, chrom, start, end, length, exons,
+                evidence: evidence.join("; "),
+                zygosity: v["zygosity"].as_str().unwrap_or("unknown").to_string(),
+                class, raw: v.clone(),
+            }
+        })
+        .collect()
+}
+
+fn write_sv(path: &str, rows: &[SvRow]) -> io::Result<()> {
+    let mut f = File::create(path)?;
+    writeln!(f, "gene\ttype\tchrom\tstart\tend\tlength\taffected_exons\tzygosity\tevidence\tclass\ttype_de")?;
+    for r in rows {
+        writeln!(f, "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}", r.gene, r.kind_en, r.chrom, r.start, r.end,
+                 r.length.map(|x| x.to_string()).unwrap_or("-".into()),
+                 if r.exons.is_empty() { "-".into() } else { r.exons.join(", ") }, r.zygosity,
+                 if r.evidence.is_empty() { "-".into() } else { r.evidence.clone() }, r.class, r.kind_de)?;
+    }
+    Ok(())
+}
+
+fn sv_json(r: &SvRow) -> Value {
+    json!({"gene": r.gene, "type": {"en": r.kind_en, "de": r.kind_de}, "chrom": r.chrom, "start": r.start, "end": r.end,
+           "length": r.length, "affected_exons": r.exons, "zygosity": r.zygosity, "evidence": r.evidence, "class": r.class,
+           "details": r.raw})
+}
+
 pub struct Run<'a> {
     pub input: &'a str,
     pub reference: Option<&'a str>,
@@ -263,6 +375,9 @@ pub fn run(r: &Run) -> io::Result<Value> {
         .collect();
     let cnv = exon_cnv::call(&cnv_panel, &cnv_depths, Some(&exon_cnv::allele_counts(&cnv_panel, &snvs)));
     let cnv_on = cnv["enabled"] == true;
+    // structural variants and insertion signatures (1.1 insertion_signals with read-pair SVs)
+    let svs = sv_rows(&sv::signals(r.input, reference, r.regions)?, r.exons);
+    write_sv(&format!("{}.sv.tsv", r.prefix), &svs)?;
     let cnv_exon = |gene: &Value, exon: &Value| -> Option<&Value> {
         let name = format!("{}_ex{:02}", gene.as_str().unwrap_or(""), exon.as_u64().unwrap_or(0));
         cnv["exons"].as_array().and_then(|a| a.iter().find(|e| e["exon"] == name.as_str()))
@@ -324,9 +439,12 @@ pub fn run(r: &Run) -> io::Result<Value> {
                         if del { "deletion" } else { "duplication" }, exons.join(", "), c["copy_number"], c["quality"])
             }
         };
-        let result = if !plp.is_empty() {
+        let gene_sv: Vec<&SvRow> = svs.iter().filter(|x| x.gene == gene).collect();
+        let sv_plp: Vec<&&SvRow> = gene_sv.iter().filter(|x| x.class == "pathogenic").collect();
+        let sv_cand: Vec<&&SvRow> = gene_sv.iter().filter(|x| x.class == "candidate").collect();
+        let result = if !plp.is_empty() || !sv_plp.is_empty() {
             "pathogenic"
-        } else if !cand.is_empty() || !gene_cnv.is_empty() {
+        } else if !cand.is_empty() || !gene_cnv.is_empty() || !sv_cand.is_empty() {
             "candidate"
         } else if enough {
             "none"
@@ -342,6 +460,11 @@ pub fn run(r: &Run) -> io::Result<Value> {
             (format!("{name}, {zen}{fl}"), format!("{name}, {zde}{fl}"))
         }).collect();
         let mut findings = findings;
+        for x in sv_plp.iter().chain(sv_cand.iter()) {
+            let ex = if x.exons.is_empty() { String::new() } else { format!(", {}", x.exons.join(", ")) };
+            findings.push((format!("{} at {}:{}-{}{ex} (confirmation by an orthogonal method needed)", x.kind_en, x.chrom, x.start, x.end),
+                           format!("{} bei {}:{}-{}{ex} (Bestätigung mit orthogonaler Methode nötig)", x.kind_de, x.chrom, x.start, x.end)));
+        }
         for c in &gene_cnv {
             findings.push((cnv_text(c, false), cnv_text(c, true)));
         }
@@ -355,8 +478,12 @@ pub fn run(r: &Run) -> io::Result<Value> {
         let st = statement(gene, Some(result), depth, pct20, &uncertain, &findings);
         writeln!(
             fg,
-            "{gene}\t{nm}\t{result}\t{}\t{}\t{}\t{ecn}\t-\t-\t{}\t{}\t{}\t{low_bp}\t{}",
+            "{gene}\t{nm}\t{result}\t{}\t{}\t{}\t{ecn}\t-\t{}\t{}\t{}\t{}\t{low_bp}\t{}",
             pass.len(), plp.len(), lof.len(),
+            {
+                let shown: Vec<String> = gene_sv.iter().filter(|x| x.class != "signal").map(|x| x.kind_en.clone()).collect();
+                if shown.is_empty() { "none".to_string() } else { shown.join("; ") }
+            },
             depth.map(|d| format!("{d:.1}")).unwrap_or("-".into()),
             pct20.map(|d| format!("{d:.1}")).unwrap_or("-".into()),
             if uncertain.is_empty() { "-".into() } else { uncertain.join(",") },
@@ -365,7 +492,7 @@ pub fn run(r: &Run) -> io::Result<Value> {
         genes_json.push(json!({
             "gene": gene, "transcript": {"refseq": nm, "ensembl": enst}, "result": result, "statement": st,
             "small_variants": pass.len(), "clinvar_plp": plp.len(), "loss_of_function": lof.len(),
-            "exon_copy_number": if cnv_on { json!(gene_cnv) } else { Value::Null }, "cnv_candidates": null, "structural_variants": null,
+            "exon_copy_number": if cnv_on { json!(gene_cnv) } else { Value::Null }, "cnv_candidates": null, "structural_variants": gene_sv.iter().map(|x| sv_json(x)).collect::<Vec<_>>(),
             "coverage": {"exon_count": n, "coding_mean_depth": depth, "pct20x": pct20, "uncertain_exons": uncertain,
                          "low_coverage_bp": low_bp,
                          "low_coverage_intervals": low_g.iter().map(|i| json!({"chrom": i["chrom"], "start": i["start"], "end": i["end"], "length": i["length"], "min_depth": i["minDepth"]})).collect::<Vec<_>>()},
@@ -379,10 +506,9 @@ pub fn run(r: &Run) -> io::Result<Value> {
         "input": {"files": [r.input], "reference": r.reference},
         "analysis_time": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0),
         "research_use_only": true,
-        "analysed": if cnv_on { json!(["coverage", "read_qc", "small_variants", "annotation", "exon_copy_number"]) }
-                    else { json!(["coverage", "read_qc", "small_variants", "annotation"]) },
-        "not_yet_analysed": if cnv_on { json!(["cnv", "structural_variants", "insertion_signals"]) }
-                            else { json!(["exon_copy_number", "cnv", "structural_variants", "insertion_signals"]) },
+        "analysed": if cnv_on { json!(["coverage", "read_qc", "small_variants", "annotation", "exon_copy_number", "structural_variants", "insertion_signals"]) }
+                    else { json!(["coverage", "read_qc", "small_variants", "annotation", "structural_variants", "insertion_signals"]) },
+        "not_yet_analysed": if cnv_on { json!(["cnv"]) } else { json!(["exon_copy_number", "cnv"]) },
         "exon_copy_number": cnv,
         "annotation_sources": {"transcripts": "MANE Select v1 (BRCA1 NM_007294.4 / ENST00000357654, BRCA2 NM_000059.4 / ENST00000380152)",
                                "clinvar": tables.clinvar_version, "gnomad": tables.gnomad_version},

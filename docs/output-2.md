@@ -7,7 +7,10 @@ Exon copy number is the method of 1.1 (bin/brca12lib/exon_cnv.py), ported one to
 over exon +/- 200 bp (as samtools depth -a -Q 20) against eight single-copy control windows, the
 panel of 80 genomes, a hidden Markov model over the exons of a gene with allele balance at the own
 heterozygous SNV calls. A segment with quality >= 10 is a call (gene result `candidate`, confirmation
-e.g. by MLPA), 5-9 a hint in the JSON (`exon_copy_number.hints`).
+e.g. by MLPA), 5-9 a hint in the JSON (`exon_copy_number.hints`). The panel is valid only for 30x
+PCR-free Illumina whole genomes aligned with BWA-MEM like the 1000 Genomes data; with data of another
+platform or alignment the exons can deviate as a whole and give false duplication calls (seen on
+HiSeq data aligned with novoalign).
 
 Without reads in the gene regions (truncated file, other reference or chromosome names) the program
 stops with an error instead of writing a result.
@@ -31,7 +34,7 @@ One line per gene.
 | `loss_of_function` | of these, frameshift, stop gained, start lost, splice donor or acceptor (+/-1, 2), not benign |
 | `exon_copy_number` | exon deletions or duplications against the reference cohort (quality >= 10), `none`, or `-` when not determined (a region BAM/CRAM without the panel's control windows elsewhere on chr13/chr17) |
 | `cnv_candidates` | CNV segments supported by the gene's own bins |
-| `structural_variants` | structural variants with a breakpoint in the gene |
+| `structural_variants` | structural variants and insertion signatures of the gene (see `OUTPREFIX.sv.tsv`) other than background signals: known alleles, deletions, duplications, inversions, Alu insertions; `none` |
 | `coding_depth` | mean depth over the exons (MAPQ >= 20), weighted by exon length |
 | `pct20x` | share of exon bases with depth >= 20, weighted by exon length |
 | `uncertain_exons` | exons marked uncertain (see `OUTPREFIX.exons.tsv`), comma-separated |
@@ -66,6 +69,25 @@ for 99.96 %, most severe consequence for 99.70 %. The differences: a few very la
 deletions across the transcript ends; VEP's `p.LeuLeu1521=` form; and deletions that reach the
 coding exon only after the 3' shift (for example c.518del), where VEP gives no p. but this program
 does, because the protein change is the same.
+
+## OUTPREFIX.sv.tsv
+
+One line per structural-variant or insertion signature in the gene regions, from the program's
+port of 1.1's `brca12_insertion_signals.py` (with read-pair SVs switched on, replacing Delly/Manta):
+known alleles from long-read assemblies by allele-aware realignment (the common 126 bp copy
+upstream of BRCA1 exon 1, the common intronic BRCA2 Alu, the 980 bp BRCA1 intron deletion, and the
+pathogenic founder alleles BRCA2 c.156_157insAlu, BRCA1 exon 13 duplication and 3,835 bp deletion),
+Alu insertions from clipped read ends, extra tandem repeat copies, tandem duplications from
+outward-facing read pairs, deletions and inversions from discordant read pairs and split reads.
+
+| column | meaning |
+|---|---|
+| `gene`, `type` (`type_de` in German) | gene and kind of signature |
+| `chrom`, `start`, `end`, `length` | position (1-based) and length of the event |
+| `affected_exons` | exons of the MANE transcript inside the event |
+| `zygosity` | from reads that support the reference across the site, where possible; else `unknown` |
+| `evidence` | read pairs, split reads, clipped reads, realigned reads |
+| `class` | `pathogenic` (known pathogenic founder allele: gene result `pathogenic`), `candidate` (an event that touches an exon: gene result `candidate`), `known_common` (a common benign allele), `signal` (intronic, no effect on the result) |
 
 ## OUTPREFIX.exons.tsv
 
