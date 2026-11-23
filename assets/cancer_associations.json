@@ -1,0 +1,376 @@
+{
+  "description": "Cancer types and their association with germline pathogenic variants in BRCA1 and BRCA2, with risk figures from cohort studies. Used to show, per cancer type, what the result of this analysis means. Figures are cumulative risks for carriers of a pathogenic variant; they are not individual predictions. Research use only.",
+  "version": "2026-11-22",
+  "sources": {
+    "kuchenbaecker2017": {
+      "citation": "Kuchenbaecker KB, et al. Risks of breast, ovarian, and contralateral breast cancer for BRCA1 and BRCA2 mutation carriers. JAMA. 2017;317:2402-2416.",
+      "pmid": "28632866",
+      "doi": "10.1001/jama.2017.7112"
+    },
+    "tai2007": {
+      "citation": "Tai YC, et al. Breast cancer risk among male BRCA1 and BRCA2 mutation carriers. J Natl Cancer Inst. 2007;99:1811-1814.",
+      "pmid": "18042939",
+      "doi": "10.1093/jnci/djm203"
+    },
+    "nyberg2020": {
+      "citation": "Nyberg T, et al. Prostate cancer risks for male BRCA1 and BRCA2 mutation carriers: a prospective cohort study. Eur Urol. 2020;77:24-35.",
+      "pmid": "31495749",
+      "doi": "10.1016/j.eururo.2019.08.025"
+    },
+    "li2022": {
+      "citation": "Li S, et al. Cancer risks associated with BRCA1 and BRCA2 pathogenic variants. J Clin Oncol. 2022;40:1529-1541.",
+      "pmid": "35077220",
+      "doi": "10.1200/JCO.21.02112"
+    },
+    "aldubayan2019": {
+      "citation": "AlDubayan SH, et al. Association of inherited pathogenic variants in checkpoint kinase 2 (CHEK2) with susceptibility to testicular germ cell tumors. JAMA Oncol. 2019;5:514-522.",
+      "pmid": "30676620",
+      "doi": "10.1001/jamaoncol.2018.6477"
+    },
+    "nccn": {
+      "citation": "NCCN Clinical Practice Guidelines in Oncology: Genetic/Familial High-Risk Assessment: Breast, Ovarian, Pancreatic, and Prostate.",
+      "url": "https://www.nccn.org/guidelines/category_2"
+    }
+  },
+  "cancers": [
+    {
+      "id": "breast_female",
+      "name": {
+        "en": "Breast cancer (women)",
+        "de": "Brustkrebs (Frauen)"
+      },
+      "genes": {
+        "BRCA1": {
+          "association": "established",
+          "risk": {
+            "en": "72 % by age 80 (95 % CI 65-79 %)",
+            "de": "72 % bis 80 Jahre (95 %-KI 65-79 %)"
+          },
+          "sources": [
+            "kuchenbaecker2017"
+          ]
+        },
+        "BRCA2": {
+          "association": "established",
+          "risk": {
+            "en": "69 % by age 80 (95 % CI 61-77 %)",
+            "de": "69 % bis 80 Jahre (95 %-KI 61-77 %)"
+          },
+          "sources": [
+            "kuchenbaecker2017"
+          ]
+        }
+      },
+      "otherGenes": [
+        "PALB2",
+        "CHEK2",
+        "ATM",
+        "TP53",
+        "PTEN",
+        "CDH1"
+      ]
+    },
+    {
+      "id": "ovarian",
+      "name": {
+        "en": "Ovarian cancer",
+        "de": "Eierstockkrebs"
+      },
+      "genes": {
+        "BRCA1": {
+          "association": "established",
+          "risk": {
+            "en": "44 % by age 80 (95 % CI 36-53 %)",
+            "de": "44 % bis 80 Jahre (95 %-KI 36-53 %)"
+          },
+          "sources": [
+            "kuchenbaecker2017"
+          ]
+        },
+        "BRCA2": {
+          "association": "established",
+          "risk": {
+            "en": "17 % by age 80 (95 % CI 11-25 %)",
+            "de": "17 % bis 80 Jahre (95 %-KI 11-25 %)"
+          },
+          "sources": [
+            "kuchenbaecker2017"
+          ]
+        }
+      },
+      "otherGenes": [
+        "RAD51C",
+        "RAD51D",
+        "BRIP1",
+        "PALB2",
+        "MLH1",
+        "MSH2",
+        "MSH6",
+        "PMS2"
+      ]
+    },
+    {
+      "id": "breast_male",
+      "name": {
+        "en": "Breast cancer (men)",
+        "de": "Brustkrebs (Männer)"
+      },
+      "genes": {
+        "BRCA1": {
+          "association": "increased",
+          "risk": {
+            "en": "1.2 % by age 70 (95 % CI 0.2-2.8 %); relative risk 4.3",
+            "de": "1,2 % bis 70 Jahre (95 %-KI 0,2-2,8 %); relatives Risiko 4,3"
+          },
+          "sources": [
+            "tai2007",
+            "li2022"
+          ]
+        },
+        "BRCA2": {
+          "association": "established",
+          "risk": {
+            "en": "6.8 % by age 70 (95 % CI 3.2-12 %); relative risk 44",
+            "de": "6,8 % bis 70 Jahre (95 %-KI 3,2-12 %); relatives Risiko 44"
+          },
+          "sources": [
+            "tai2007",
+            "li2022"
+          ]
+        }
+      },
+      "otherGenes": [
+        "PALB2",
+        "CHEK2"
+      ]
+    },
+    {
+      "id": "prostate",
+      "name": {
+        "en": "Prostate cancer",
+        "de": "Prostatakrebs"
+      },
+      "genes": {
+        "BRCA1": {
+          "association": "possible",
+          "risk": {
+            "en": "standardised incidence ratio 2.35, not robust in sensitivity analyses (0.74-2.83)",
+            "de": "standardisiertes Inzidenzverhältnis 2,35, in Sensitivitätsanalysen nicht stabil (0,74-2,83)"
+          },
+          "sources": [
+            "nyberg2020"
+          ]
+        },
+        "BRCA2": {
+          "association": "established",
+          "risk": {
+            "en": "27 % by age 75 (95 % CI 17-41 %), 60 % by age 85; more often aggressive (Gleason >= 7)",
+            "de": "27 % bis 75 Jahre (95 %-KI 17-41 %), 60 % bis 85 Jahre; häufiger aggressiv (Gleason >= 7)"
+          },
+          "sources": [
+            "nyberg2020",
+            "li2022"
+          ]
+        }
+      },
+      "otherGenes": [
+        "HOXB13",
+        "ATM",
+        "CHEK2",
+        "PALB2",
+        "MLH1",
+        "MSH2",
+        "MSH6",
+        "PMS2"
+      ]
+    },
+    {
+      "id": "testicular",
+      "name": {
+        "en": "Testicular cancer",
+        "de": "Hodenkrebs"
+      },
+      "genes": {
+        "BRCA1": {
+          "association": "not_established",
+          "risk": {
+            "en": "no established association; not among the cancers linked to BRCA1/BRCA2 in a study of 22 cancer types",
+            "de": "kein gesicherter Zusammenhang; nicht unter den Krebsarten, die in einer Studie zu 22 Krebsarten mit BRCA1/BRCA2 verbunden waren"
+          },
+          "sources": [
+            "li2022"
+          ]
+        },
+        "BRCA2": {
+          "association": "not_established",
+          "risk": {
+            "en": "no established association; not among the cancers linked to BRCA1/BRCA2 in a study of 22 cancer types",
+            "de": "kein gesicherter Zusammenhang; nicht unter den Krebsarten, die in einer Studie zu 22 Krebsarten mit BRCA1/BRCA2 verbunden waren"
+          },
+          "sources": [
+            "li2022"
+          ]
+        }
+      },
+      "note": {
+        "en": "The best-supported inherited risk gene for testicular germ cell tumours is CHEK2 (moderate risk, odds ratio about 4); it is not analysed here.",
+        "de": "Das am besten belegte erbliche Risikogen für Keimzelltumoren des Hodens ist CHEK2 (mäßiges Risiko, Odds Ratio etwa 4); es wird hier nicht untersucht."
+      },
+      "noteSources": [
+        "aldubayan2019"
+      ],
+      "otherGenes": [
+        "CHEK2"
+      ]
+    },
+    {
+      "id": "pancreatic",
+      "name": {
+        "en": "Pancreatic cancer",
+        "de": "Bauchspeicheldrüsenkrebs"
+      },
+      "genes": {
+        "BRCA1": {
+          "association": "increased",
+          "risk": {
+            "en": "about 2.5 % by age 80; relative risk 2.36",
+            "de": "etwa 2,5 % bis 80 Jahre; relatives Risiko 2,36"
+          },
+          "sources": [
+            "li2022"
+          ]
+        },
+        "BRCA2": {
+          "association": "increased",
+          "risk": {
+            "en": "about 2.5 % by age 80; relative risk 3.34",
+            "de": "etwa 2,5 % bis 80 Jahre; relatives Risiko 3,34"
+          },
+          "sources": [
+            "li2022"
+          ]
+        }
+      },
+      "otherGenes": [
+        "PALB2",
+        "ATM",
+        "CDKN2A",
+        "MLH1",
+        "MSH2",
+        "MSH6",
+        "PMS2"
+      ]
+    },
+    {
+      "id": "stomach",
+      "name": {
+        "en": "Stomach cancer",
+        "de": "Magenkrebs"
+      },
+      "genes": {
+        "BRCA1": {
+          "association": "increased",
+          "risk": {
+            "en": "relative risk 2.17",
+            "de": "relatives Risiko 2,17"
+          },
+          "sources": [
+            "li2022"
+          ]
+        },
+        "BRCA2": {
+          "association": "increased",
+          "risk": {
+            "en": "relative risk 3.69",
+            "de": "relatives Risiko 3,69"
+          },
+          "sources": [
+            "li2022"
+          ]
+        }
+      },
+      "otherGenes": [
+        "CDH1",
+        "MLH1",
+        "MSH2",
+        "MSH6",
+        "PMS2"
+      ]
+    }
+  ],
+  "associationLabels": {
+    "established": {
+      "en": "established",
+      "de": "gesichert"
+    },
+    "increased": {
+      "en": "increased risk",
+      "de": "erhöhtes Risiko"
+    },
+    "possible": {
+      "en": "possible, not certain",
+      "de": "möglich, nicht gesichert"
+    },
+    "not_established": {
+      "en": "no established association",
+      "de": "kein gesicherter Zusammenhang"
+    }
+  },
+  "otherGenesNote": {
+    "en": "Examples of further known risk genes for this cancer type (NCCN guideline; testicular cancer: AlDubayan 2019). brca12-wgs analyses BRCA1 and BRCA2 only; these genes are not analysed.",
+    "de": "Beispiele weiterer bekannter Risikogene für diese Krebsart (NCCN-Leitlinie; Hodenkrebs: AlDubayan 2019). brca12-wgs untersucht nur BRCA1 und BRCA2; diese Gene werden nicht untersucht."
+  },
+  "otherGenesSources": [
+    "nccn",
+    "aldubayan2019"
+  ],
+  "validation": {
+    "software": {
+      "name": "brca12-wgs",
+      "doi": "10.5281/zenodo.24173638",
+      "url": "https://github.com/pjlabsdev/brca12-wgs"
+    },
+    "items": [
+      {
+        "en": "Small variants against GIAB v4.2.1 truth (HG001, HG002): all exonic variants (exons ±20 bp) found, 22 of 22 and 12 of 12, no false positive in the exons.",
+        "de": "Kleine Varianten gegen die GIAB-Wahrheit v4.2.1 (HG001, HG002): alle exonischen Varianten (Exons ±20 bp) gefunden, 22 von 22 und 12 von 12, kein falsch positiver Fund in den Exons.",
+        "file": "validation/README.md"
+      },
+      {
+        "en": "Five further GIAB genomes (HG003 to HG007), plan frozen before the first run: all 94 exonic variants found, no false positive in the exons.",
+        "de": "Fünf weitere GIAB-Genome (HG003 bis HG007), Plan vor dem ersten Lauf festgelegt: alle 94 exonischen Varianten gefunden, kein falsch positiver Fund in den Exons.",
+        "file": "validation/giab_more/README.md"
+      },
+      {
+        "en": "39 genomes with assembly-based truth (HPRC): exonic SNVs 590 of 590 found, no false positive; exonic indels 68 of 86, most misses and false positives in one poly-T stretch of the BRCA1 3' UTR (chr17:43,044,804-43,044,817).",
+        "de": "39 Genome mit Wahrheit aus Assemblies (HPRC): exonische SNVs 590 von 590 gefunden, kein falsch positiver Fund; exonische Indels 68 von 86, die meisten Fehlstellen und Fehlfunde in einem Poly-T-Abschnitt der BRCA1-3'-UTR (chr17:43.044.804-43.044.817).",
+        "file": "validation/hprc/"
+      },
+      {
+        "en": "10 real carriers of pathogenic SNVs or indels (1000 Genomes): 10 of 10 called.",
+        "de": "10 echte Trägerinnen und Träger pathogener SNVs oder Indels (1000 Genomes): 10 von 10 erkannt.",
+        "file": "validation/pathogenic/README.md"
+      },
+      {
+        "en": "Exon deletions and duplications simulated on real haplotypes, rules frozen before the test: deletions 567 of 580, duplications 244 of 348, no false call; single-exon duplications are the weak spot.",
+        "de": "Exon-Deletionen und -Duplikationen auf echten Haplotypen simuliert, Regeln vor dem Test festgelegt: Deletionen 567 von 580, Duplikationen 244 von 348, kein Fehlaufruf; Duplikationen einzelner Exons sind die Schwachstelle.",
+        "file": "validation/exon_cnv/README.md"
+      },
+      {
+        "en": "Structural variants (Delly), simulated in real reads, preregistered: deletions 108 of 120, inversions 60 of 60, tandem duplications 118 of 120, no false call.",
+        "de": "Strukturvarianten (Delly), in echten Reads simuliert, vorregistriert: Deletionen 108 von 120, Inversionen 60 von 60, Tandemduplikationen 118 von 120, kein Fehlaufruf.",
+        "file": "validation/sv_delly/README.md"
+      }
+    ],
+    "weakSpots": [
+      {
+        "chrom": "chr17",
+        "start": 43044804,
+        "end": 43044817,
+        "gene": "BRCA1",
+        "en": "This variant lies in the poly-T stretch of the BRCA1 3' UTR (chr17:43,044,804-43,044,817) where most indel errors of the method were seen in the HPRC validation; treat it with caution.",
+        "de": "Diese Variante liegt im Poly-T-Abschnitt der BRCA1-3'-UTR (chr17:43.044.804-43.044.817), in dem die HPRC-Validierung die meisten Indel-Fehler der Methode zeigte; mit Vorsicht bewerten."
+      }
+    ]
+  }
+}

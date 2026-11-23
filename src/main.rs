@@ -3,11 +3,13 @@
 mod annot;
 mod assemble;
 mod caller;
+mod cancer;
 mod coverage;
 mod exon_cnv;
 mod exons;
 mod fastq;
 mod hgvs;
+mod html;
 mod output;
 mod reads;
 mod readstats;
@@ -180,7 +182,7 @@ fn cmd_run(args: &[String]) -> io::Result<()> {
     let t0 = std::time::Instant::now();
     output::run(&output::Run { input, reference: reference.as_deref(), prefix, exons: &exons_bed, regions: &regions,
                                calling_padding: 200, settings: &exons::DEFAULT })?;
-    eprintln!("brca12-wgs: {prefix}.tsv, {prefix}.variants.tsv, {prefix}.exons.tsv, {prefix}.json ({:.1} s)", t0.elapsed().as_secs_f64());
+    eprintln!("brca12-wgs: {prefix}.html, {prefix}.tsv, {prefix}.variants.tsv, {prefix}.exons.tsv, {prefix}.sv.tsv, {prefix}.json ({:.1} s)", t0.elapsed().as_secs_f64());
     Ok(())
 }
 

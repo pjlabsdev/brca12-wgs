@@ -1,7 +1,21 @@
 # Output (brca12-wgs 2.0, in development)
 
-`brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX --reference REF.fa` writes four files, in the form of
-the hla-wgs output. The HTML result page is made from `OUTPREFIX.json` at the end. Research use only.
+`brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX --reference REF.fa` (or `R1.fastq.gz R2.fastq.gz
+OUTPREFIX --reference REF.fa`) writes, in the form of the hla-wgs output: `OUTPREFIX.html` (the
+result page), `OUTPREFIX.tsv`, `OUTPREFIX.variants.tsv`, `OUTPREFIX.exons.tsv`, `OUTPREFIX.sv.tsv` and
+`OUTPREFIX.json`; from FASTQ also `OUTPREFIX.bam`. Research use only.
+
+## OUTPREFIX.html
+
+One self-contained page (IBM Plex Mono embedded, no network), German and English in one file with
+a switch (default from `BRCA12_WGS_LANG`, `LC_ALL` or `LANG`), light and dark, printable. Tab
+"Result": report head (sample, report number, input, software, annotation sources, exon depth,
+quality), notices, the result of both genes, the overall statement per gene, the findings with
+their evidence, the cancer types (breast women and men, ovarian, prostate, testicular, pancreatic,
+stomach) with the association, the risk for carriers and its sources and what this result means,
+the exons, and how the statements come about. Tab "Details": all variants per gene, structural
+signatures, read quality, gaps below 10x, sources. The cancer-type table comes from
+`assets/cancer_associations.json` (cohort studies with PubMed IDs).
 
 Exon copy number is the method of 1.1 (bin/brca12lib/exon_cnv.py), ported one to one: mean depth
 over exon +/- 200 bp (as samtools depth -a -Q 20) against eight single-copy control windows, the

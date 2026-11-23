@@ -500,7 +500,7 @@ pub fn run(r: &Run) -> io::Result<Value> {
     }
 
     let st = r.settings;
-    let rep = json!({
+    let mut rep = json!({
         "tool": "brca12-wgs", "version": env!("CARGO_PKG_VERSION"), "schema": SCHEMA,
         "sample": sample,
         "input": {"files": [r.input], "reference": r.reference},
@@ -526,7 +526,15 @@ pub fn run(r: &Run) -> io::Result<Value> {
         "variants": vrows.iter().map(variant_json).collect::<Vec<_>>(),
         "exons": exons_json,
     });
+    // per cancer type: what the gene results mean (sources in assets/cancer_associations.json)
+    let status: Vec<(&str, &str)> = rep["genes"]
+        .as_array()
+        .map(|a| a.iter().map(|g| (if g["gene"] == "BRCA1" { "BRCA1" } else { "BRCA2" }, g["result"].as_str().map(|x| match x {
+            "pathogenic" => "pathogenic", "candidate" => "candidate", "not_assessable" => "not_assessable", _ => "none" }).unwrap_or("none"))).collect())
+        .unwrap_or_default();
+    rep["cancer_risks"] = crate::cancer::risks(&status);
     let mut fj = File::create(format!("{}.json", r.prefix))?;
     writeln!(fj, "{}", serde_json::to_string_pretty(&rep).map_err(io::Error::other)?)?;
+    std::fs::write(format!("{}.html", r.prefix), crate::html::render(&rep))?;
     Ok(rep)
 }
