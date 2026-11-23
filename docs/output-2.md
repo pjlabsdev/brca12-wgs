@@ -3,6 +3,9 @@
 `brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX --reference REF.fa` writes four files, in the form of
 the hla-wgs output. The HTML result page is made from `OUTPREFIX.json` at the end. Research use only.
 
+Without reads in the gene regions (truncated file, other reference or chromosome names) the program
+stops with an error instead of writing a result.
+
 A column that this version does not determine yet is `-` in the TSV files and `null` in the JSON;
 `analysed` and `not_yet_analysed` in the JSON list the categories. Development state: coverage,
 read QC, small variants and their annotation are done; exon copy number, CNV and structural
@@ -16,7 +19,7 @@ One line per gene.
 |---|---|
 | `gene` | BRCA1 or BRCA2 |
 | `transcript` | MANE Select transcript (BRCA1 NM_007294.4, BRCA2 NM_000059.4) |
-| `result` | `pathogenic` (a PASS variant that ClinVar lists as pathogenic or likely pathogenic, not conflicting), `candidate` (a loss-of-function variant that is not benign in ClinVar and rarer than 0.1 % in gnomAD, or a ClinVar pathogenic variant that did not pass the filters: needs confirmation) or `none` |
+| `result` | `pathogenic` (a PASS variant that ClinVar lists as pathogenic or likely pathogenic, not conflicting), `candidate` (a loss-of-function variant that is not benign in ClinVar and rarer than 0.1 % in gnomAD, or a ClinVar pathogenic variant that did not pass the filters: needs confirmation), `none`, or `not_assessable` (no finding, but the exons are covered too little to say none: coding depth below 15x or less than 80 % of exon bases >= 20x) |
 | `small_variants` | SNVs and indels with FILTER PASS in the gene region |
 | `clinvar_plp` | of these, ClinVar pathogenic or likely pathogenic (not conflicting) |
 | `loss_of_function` | of these, frameshift, stop gained, start lost, splice donor or acceptor (+/-1, 2), not benign |

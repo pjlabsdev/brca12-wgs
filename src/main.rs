@@ -39,10 +39,19 @@ fn arg(args: &[String], key: &str) -> Option<String> {
     args.iter().position(|a| a == key).and_then(|i| args.get(i + 1)).cloned()
 }
 
+/// exon and gene-region BEDs carried in the binary (used when --exons / --regions are not given)
+const EXONS_BED: &str = include_str!("../assets/brca12_exons.bed");
+const REGIONS_BED: &str = include_str!("../assets/brca12_regions.bed");
+
 fn read_bed(path: &str) -> io::Result<Vec<(String, u64, u64, String)>> {
+    let text = match path {
+        "assets/brca12_exons.bed" => EXONS_BED.to_string(),
+        "assets/brca12_regions.bed" => REGIONS_BED.to_string(),
+        p => std::fs::read_to_string(p).map_err(|e| io::Error::other(format!("{p}: {e}")))?,
+    };
     let mut out = vec![];
-    for line in io::BufReader::new(std::fs::File::open(path)?).lines() {
-        let line = line?;
+    for line in text.lines() {
+        let line = line.to_string();
         if line.is_empty() || line.starts_with('#') || line.starts_with("track") {
             continue;
         }

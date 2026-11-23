@@ -583,8 +583,20 @@ impl Tx {
 /// the annotation on the transcript whose gene region holds the variant (None outside both)
 pub fn annotate(txs: &[Tx], chrom: &str, pos: u64, r: &[u8], a: &[u8]) -> Option<Annotation> {
     let c = chrom.trim_start_matches("chr");
-    txs.iter()
-        .filter(|t| t.chrom.trim_start_matches("chr") == c)
-        .filter_map(|t| t.annotate(pos, r, a))
-        .next()
+    let on: Vec<&Tx> = txs.iter().filter(|t| t.chrom.trim_start_matches("chr") == c).collect();
+    if let Some(x) = on.iter().filter_map(|t| t.annotate(pos, r, a)).next() {
+        return Some(x);
+    }
+    // farther than the kept reference from the transcript: up- or downstream of the nearest one
+    let t = on.iter().min_by_key(|t| {
+        let (s, e) = t.span();
+        if pos < s { s - pos } else { pos.saturating_sub(e) }
+    })?;
+    let (s, e) = t.span();
+    let up = if t.plus { pos < s } else { pos > e };
+    Some(Annotation {
+        gene: t.gene.clone(),
+        consequence: if up { "upstream_gene_variant" } else { "downstream_gene_variant" }.into(),
+        ..Default::default()
+    })
 }

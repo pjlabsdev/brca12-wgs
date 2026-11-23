@@ -63,11 +63,17 @@ pub fn statement(gene: &str, result: Option<&str>, depth: Option<f64>, pct20: Op
         Some("pathogenic") => (format!("{gene}: pathogenic variant found: {list_en} (confirmation in an accredited laboratory needed)"),
                                format!("{gene}: pathogene Variante gefunden: {list_de} (Bestätigung in einem akkreditierten Labor nötig)")),
         Some("candidate") => (format!("{gene}: finding that needs confirmation: {list_en}"), format!("{gene}: Befund, der bestätigt werden muss: {list_de}")),
+        Some("not_assessable") => (format!("{gene}: not assessable, the coverage of the exons is too low"),
+                                   format!("{gene}: nicht beurteilbar, die Abdeckung der Exons ist zu gering")),
         Some(_) => (format!("{gene}: no pathogenic variant found"), format!("{gene}: keine pathogene Variante gefunden")),
         None => (format!("{gene}: variants not analysed yet (coverage only)"), format!("{gene}: Varianten noch nicht ausgewertet (nur Abdeckung)")),
     };
     json!({"en": format!("{en}; {cov_en}; {unc_en}"), "de": format!("{de}; {cov_de}; {unc_de}")})
 }
+
+/// below these (coding depth, share of exon bases >= 20x) a gene without finding is not assessable
+pub const MIN_ASSESSABLE_DEPTH: f64 = 15.0;
+pub const MIN_ASSESSABLE_PCT20: f64 = 80.0;
 
 /// loss-of-function consequences (ENIGMA PVS1 territory)
 const LOF: [&str; 5] = ["frameshift_variant", "stop_gained", "splice_donor_variant", "splice_acceptor_variant", "start_lost"];
@@ -232,6 +238,11 @@ pub fn run(r: &Run) -> io::Result<Value> {
         r.regions.iter().map(|(c, s, e, _)| (c.clone(), s.saturating_sub(r.calling_padding), e + r.calling_padding)).collect();
     calling.sort();
     let qc = readstats::region_stats(r.input, r.reference, &calling)?;
+    if qc["readsInRegions"].as_u64().unwrap_or(0) == 0 {
+        return Err(io::Error::other(
+            "no reads in the BRCA1/BRCA2 regions: truncated or empty file, a reference other than GRCh38, or other chromosome names",
+        ));
+    }
     let exon_rows: Vec<Value> = table["exonCoverage"].as_array().cloned().unwrap_or_default();
     let low: Vec<Value> = table["lowCoverageIntervals"].as_array().cloned().unwrap_or_default();
     let sample = std::path::Path::new(r.prefix).file_name().and_then(|n| n.to_str()).unwrap_or("sample").to_string();
@@ -277,7 +288,17 @@ pub fn run(r: &Run) -> io::Result<Value> {
         let plp: Vec<&&VariantRow> = pass.iter().filter(|v| v.class == "pathogenic").copied().collect();
         let lof: Vec<&&VariantRow> = pass.iter().filter(|v| v.lof() && v.class != "benign").copied().collect();
         let cand: Vec<&&VariantRow> = mine.iter().filter(|v| v.class == "candidate" || (v.class == "pathogenic" && v.filter != "PASS")).collect();
-        let result = if !plp.is_empty() { "pathogenic" } else if !cand.is_empty() { "candidate" } else { "none" };
+        // without a finding, "none" needs enough coverage of the exons; otherwise not assessable
+        let enough = depth.is_some_and(|d| d >= MIN_ASSESSABLE_DEPTH) && pct20.is_some_and(|p| p >= MIN_ASSESSABLE_PCT20);
+        let result = if !plp.is_empty() {
+            "pathogenic"
+        } else if !cand.is_empty() {
+            "candidate"
+        } else if enough {
+            "none"
+        } else {
+            "not_assessable"
+        };
         let shown: Vec<&&VariantRow> = if result == "pathogenic" { plp.clone() } else { cand.clone() };
         let findings: Vec<(String, String)> = shown.iter().map(|v| {
             let name = format!("{}{}", v.ann.hgvs_c.clone().unwrap_or(format!("{}:{}{}>{}", v.chrom, v.pos, v.r#ref, v.alt)),
