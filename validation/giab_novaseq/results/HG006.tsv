@@ -1,0 +1,3 @@
+gene	result	statement	attention	unclear	small_variants	copy_number	structural	insertion_signals	mosaic	coverage	exons	exons_uncertain	mean_depth	min_exon_depth	low_depth_bp	transcript
+BRCA1	none	BRCA1: no finding; exons 33.1x; uncertain: Exon 4 (legacy 5), Exon 5 (legacy 6), Exon 8 (legacy 9), Exon 13 (legacy 14)	0	0	274	0	0	1	0	limited	23	4	33.1	15.6	597	ENST00000357654 / NM_007294.4 (MANE Select)
+BRCA2	none	BRCA2: no finding; exons 23.6x; uncertain: Exon 3, Exon 4, Exon 5, Exon 6, Exon 7, Exon 8, Exon 10, Exon 11, Exon 12, Exon 13, Exon 14, Exon 18, Exon 19, Exon 20, Exon 22, Exon 23, Exon 24, Exon 27	0	0	122	0	0	0	0	limited	27	18	23.6	9.6	2038	ENST00000380152 / NM_000059.4 (MANE Select)
