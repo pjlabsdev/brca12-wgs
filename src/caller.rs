@@ -64,11 +64,13 @@ pub struct Params {
     pub strand_other_min: u32,   // at least this many reads of the other strand against it,
     pub strand_fs: f64,          // and Fisher strand test above this (phred)
     pub strand_fs_two_alleles: f64, // the same test for one allele of a 1/2 genotype (p < 0.05)
+    pub stutter_tract: usize,    // indel sites in repeat tracts of at least this length (bp)
+    pub stutter_cap: f64,        // get per-read evidence capped at this (log10)
 }
 
 pub const DEFAULT: Params =
     Params { min_mapq: 20, min_base_q: 10, min_support: 2, call_qual: 30.0, het_snv: 1e-3, het_indel: 1.25e-4, flank: 150,
-             low_base_q: 18, long_clip: 20, assemble: true, max_haplotypes: 64, strand_support_min: 4, strand_other_min: 8, strand_fs: 20.0, strand_fs_two_alleles: 13.0 };
+             low_base_q: 18, long_clip: 20, assemble: true, max_haplotypes: 64, strand_support_min: 4, strand_other_min: 8, strand_fs: 20.0, strand_fs_two_alleles: 13.0, stutter_tract: 10, stutter_cap: 2.0 };
 
 fn usable(r: &Read, p: &Params) -> bool {
     r.flags & 0x704 == 0 && r.mapq >= p.min_mapq && !r.seq.is_empty() && !r.cigar.is_empty()
@@ -483,6 +485,35 @@ fn haplotype(rf: &[u8], off: u64, ws: u64, we: u64, alleles: &[&Allele]) -> Vec<
     h
 }
 
+/// Length of the longest tandem repeat tract (unit 1 to 4 bases, at least 2 copies) in the reference
+/// that touches [i, i + len] (0-based offsets into `rf`).
+fn tract_len(rf: &[u8], i: usize, len: usize) -> usize {
+    let up = |b: u8| b.to_ascii_uppercase();
+    let hi = (i + len + 1).min(rf.len());
+    let mut best = 0;
+    for u in 1..=4usize {
+        for s in i..hi {
+            if s + u > rf.len() {
+                break;
+            }
+            // the tract with the unit rf[s..s+u], extended right and left in phase
+            let at = |x: usize| up(rf[s + (x + u * 1024 - s) % u]);
+            let mut b = s + u;
+            while b < rf.len() && up(rf[b]) == at(b) {
+                b += 1;
+            }
+            let mut l = s;
+            while l > 0 && up(rf[l - 1]) == at(l - 1) {
+                l -= 1;
+            }
+            if b - l >= 2 * u {
+                best = best.max(b - l);
+            }
+        }
+    }
+    best
+}
+
 fn overlaps(a: &Allele, b: &Allele) -> bool {
     a.pos < b.pos + b.r#ref.len() as u64 && b.pos < a.pos + a.r#ref.len() as u64
 }
@@ -736,6 +767,21 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
                     }
                 }
             }
+            // stutter: in a long repeat tract a read can show a neighbouring tract length by
+            // polymerase slippage, so one read argues at most `stutter_cap` (log10) against an
+            // indel allele there; otherwise a few slipped reads turn a homozygous indel into 0/1
+            let all_indel = sigs.iter().all(|sg| sg.iter().all(|&e| cl[e].r#ref.len() != cl[e].alt.len()));
+            let tract = site.iter().map(|&a| tract_len(&rf, (cl[a].pos - off) as usize, cl[a].r#ref.len())).max().unwrap_or(0);
+            let cap = std::env::var("BRCA12_STUTTER_CAP").ok().and_then(|v| v.parse::<f64>().ok()).unwrap_or(p.stutter_cap);
+            // used only to choose among the non-reference genotypes (0/1 or 1/1), never for calling
+            let la_c: Option<Vec<Vec<f64>>> = (all_indel && tract >= p.stutter_tract && cap > 0.0).then(|| {
+                la.iter()
+                    .map(|v| {
+                        let mx = v.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+                        v.iter().map(|&x| if x > -1e8 { x.max(mx - cap) } else { x }).collect()
+                    })
+                    .collect()
+            });
             let het = |a: usize| if sigs[a - 1].iter().any(|&e| cl[e].r#ref.len() != cl[e].alt.len()) { p.het_indel } else { p.het_snv };
             let mut gts: Vec<(usize, usize, f64)> = vec![];
             for x in 0..=k {
@@ -783,7 +829,22 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
             let mx = gts.iter().map(|g| g.2).fold(f64::NEG_INFINITY, f64::max);
             let tot = mx + gts.iter().map(|g| 10f64.powf(g.2 - mx)).sum::<f64>().log10();
             let best = gts.iter().cloned().max_by(|a, b| a.2.partial_cmp(&b.2).unwrap()).unwrap();
-            let (bx, by) = (best.0, best.1);
+            let (mut bx, mut by) = (best.0, best.1);
+            if let (Some(lc), true) = (&la_c, by != 0) {
+                let mut top = f64::NEG_INFINITY;
+                for &(x, y, _) in gts.iter().filter(|g| g.1 != 0) {
+                    let prior = match (x, y) {
+                        (0, b) => het(b).log10(),
+                        (a, b) if a == b => (het(a) / 2.0).log10(),
+                        (a, b) => het(a).log10() + het(b).log10(),
+                    };
+                    let ll: f64 = lc.iter().map(|v| log10_sum2(v[x], v[y]) - 2f64.log10()).sum::<f64>() + prior;
+                    if ll > top {
+                        top = ll;
+                        (bx, by) = (x, y);
+                    }
+                }
+            }
             if std::env::var("BRCA12_DEBUG_POS").ok().and_then(|v| v.parse::<u64>().ok()).is_some_and(|d| site.iter().any(|&a| cl[a].pos + 1 == d)) {
                 eprintln!("sigs {sigs:?} gts {gts:?} artifact {artifact:?}");
             }
@@ -908,4 +969,21 @@ pub fn write_vcf(path: &str, sample: &str, contigs: &[(String, u64)], calls: &[C
         )?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod stutter_tests {
+    use super::tract_len;
+
+    #[test]
+    fn tract_length_of_homopolymers_and_short_repeats() {
+        // 0-based offsets: "GC" + 19 T + "GAG"
+        let rf = b"GCTTTTTTTTTTTTTTTTTTTGAG";
+        assert_eq!(tract_len(rf, 1, 3), 19);
+        // dinucleotide repeat CA x 6
+        let rf = b"GTCACACACACACAGT";
+        assert_eq!(tract_len(rf, 1, 3), 12);
+        // no repeat: the longest stretch is a 2-base run
+        assert_eq!(tract_len(b"ACGTACGGTA", 5, 1), 2);
+    }
 }
