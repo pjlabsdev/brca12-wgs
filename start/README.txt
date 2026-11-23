@@ -22,8 +22,9 @@ starts again; your results and settings stay. BRCA12_NO_UPDATE=1 switches the ch
 
 The start file asks for a BAM or CRAM (drag the file into the window or type its path), shows
 input, reference and output folder and starts after Enter. At the end it opens the report
-(brca12_report.html, English and German in one file). The output goes into a new folder
-"brca12-<sample>" in your Downloads folder. Nothing is uploaded; everything runs on your computer.
+(<sample>.html, English and German in one file). The output goes into a new folder
+"brca12-<sample>" in your Downloads folder, next to the page <sample>.tsv (one line per gene),
+<sample>.findings.tsv, <sample>.exons.tsv and <sample>.json. Nothing is uploaded; everything runs on your computer.
 
 Needed once
 -----------
@@ -71,8 +72,9 @@ die Prüfung ab.
 
 Die Startdatei fragt nach einer BAM oder CRAM (Datei ins Fenster ziehen oder Pfad eingeben), zeigt
 Eingabe, Referenz und Ausgabeordner und startet nach Enter. Am Ende öffnet sie den Bericht
-(brca12_report.html, Englisch und Deutsch in einer Datei). Die Ausgabe liegt in einem neuen Ordner
-"brca12-<Probe>" im Downloads-Ordner. Es wird nichts hochgeladen; alles läuft auf deinem Rechner.
+(<Probe>.html, Englisch und Deutsch in einer Datei). Die Ausgabe liegt in einem neuen Ordner
+"brca12-<Probe>" im Downloads-Ordner, neben der Seite <Probe>.tsv (eine Zeile je Gen),
+<Probe>.findings.tsv, <Probe>.exons.tsv und <Probe>.json. Es wird nichts hochgeladen; alles läuft auf deinem Rechner.
 
 Einmalig nötig
 --------------

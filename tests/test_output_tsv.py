@@ -126,5 +126,35 @@ class ExonTable(unittest.TestCase):
         self.assertIn("x <", uncertain[0]["reasons"])
 
 
+class PageShowsTheTables(unittest.TestCase):
+    def test_result_per_gene_and_certainty_on_the_page(self):
+        from brca12lib import render
+        text = render.html_report(RESULT, "en")
+        en = text[text.index("<main lang='en'"):]
+        de = text[text.index("<main lang='de'"):]
+        self.assertIn("Result per gene", en)
+        self.assertIn("BRCA1: finding that needs confirmation (2); exons 8x; uncertain: Exon 23 (legacy 24)", en)
+        self.assertIn("BRCA1: Befund, der Bestätigung braucht (2); Exons 8x; unsicher: Exon 23 (Legacy 24)", de)
+        self.assertIn("<th>Certainty</th>", en)
+        self.assertIn(f"{RESULT['sample']}.findings.tsv", en)
+        self.assertNotIn("brca12_results.json", text)
+
+    def test_html_command_writes_the_page_from_the_json(self):
+        import tempfile
+        import brca12_report
+        from brca12lib import render
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "S1.json")
+            with open(path, "w") as handle:
+                json.dump(RESULT, handle)
+            self.assertEqual(brca12_report.main(["html", path, "--lang", "de"]), 0)
+            with open(os.path.join(tmp, "S1.html")) as handle:
+                self.assertEqual(handle.read(), render.html_report(RESULT, "de"))
+            with open(path, "w") as handle:
+                json.dump({"schema": "other"}, handle)
+            with self.assertRaises(SystemExit):
+                brca12_report.main(["html", path])
+
+
 if __name__ == "__main__":
     unittest.main()

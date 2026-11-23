@@ -57,22 +57,53 @@ def _gene_coverage(result):
     return out
 
 
-def statement(row, uncertain_labels):
-    """The line for the gene as one English sentence: result, then how completely the gene was checked."""
-    n = {"attention": row["attention"], "unclear": row["unclear"]}
+STATEMENT = {
+    "attention": ("Befund, der Bestätigung braucht ({n})", "finding that needs confirmation ({n})"),
+    "unclear1": ("kein Befund, 1 Eintrag mit unklarer Bedeutung", "no finding, 1 entry of uncertain significance"),
+    "unclear": ("kein Befund, {n} Einträge mit unklarer Bedeutung", "no finding, {n} entries of uncertain significance"),
+    "none": ("kein Befund", "no finding"),
+    "depth": ("Exons {depth}x", "exons {depth}x"),
+    "no_depth": ("keine Exon-Tiefe", "no exon depth"),
+    "uncertain": ("unsicher: {exons}", "uncertain: {exons}"),
+    "all": ("alle Exons abgedeckt", "all exons covered"),
+}
+
+
+def statement(row, uncertain_labels, lang="en"):
+    """The line for the gene as one sentence: result, then how completely the gene was checked."""
+    def t(key, **kw):
+        return STATEMENT[key][0 if lang == "de" else 1].format(**kw)
     if row["result"] == "attention":
-        what = f"finding that needs confirmation ({n['attention']})"
+        what = t("attention", n=row["attention"])
     elif row["result"] == "unclear":
-        what = f"no finding, {n['unclear']} {'entry' if n['unclear'] == 1 else 'entries'} of uncertain significance"
+        what = t("unclear1") if row["unclear"] == 1 else t("unclear", n=row["unclear"])
     else:
-        what = "no finding"
+        what = t("none")
     if row["mean_depth"] is None:
-        cover = "no exon depth"
+        cover = t("no_depth")
     else:
-        cover = f"exons {row['mean_depth']:g}x"
-        cover += "; uncertain: " + ", ".join(tr(x, "en") for x in uncertain_labels) if uncertain_labels \
-            else "; all exons covered"
+        rest = t("uncertain", exons=", ".join(str(tr(x, lang)) for x in uncertain_labels)) if uncertain_labels \
+            else t("all")
+        cover = t("depth", depth=f"{row['mean_depth']:g}") + "; " + rest
     return f"{row['gene']}: {what}; {cover}"
+
+
+def uncertain_labels(result, gene):
+    return [e["label"] for e in result["exonCoverage"] if e["gene"] == gene and e["status"] != "ok"]
+
+
+def certainty(kind, item):
+    """ok: the call carries no quality flag; limited: it does, or it is a mosaic candidate or an SV without
+    FILTER PASS; hint: a read signal or a depth ratio, not a call."""
+    if kind in ("insertion_signal", "exon_dosage", "exon_copy_number_hint"):
+        return "hint"
+    if kind == "mosaic":
+        return "limited"
+    if kind == "sv":
+        return "ok" if item.get("filter") == "PASS" else "limited"
+    if kind == "small":
+        return "limited" if item.get("qualityFlags") or item.get("filter") not in (None, "PASS") else "ok"
+    return "limited" if item.get("flags") else "ok"
 
 
 def gene_rows(result):
@@ -107,8 +138,7 @@ def gene_rows(result):
             "transcript": result["genes"][gene].get("transcript"),
         })
         row = rows[-1]
-        row["statement"] = statement(row, [e["label"] for e in result["exonCoverage"]
-                                           if e["gene"] == gene and e["status"] != "ok"])
+        row["statement"] = statement(row, uncertain_labels(result, gene))
     return rows
 
 
@@ -166,26 +196,25 @@ def finding_rows(result):
     for gene in page.GENES:
         for v in result["genes"][gene]["smallVariants"]:
             level, reason = tier.get(id(v), ("none", "ba1" if page._is_ba1(v) else "listed"))
-            certainty = "limited" if v.get("qualityFlags") or v.get("filter") not in (None, "PASS") else "ok"
-            rows.append(_small(gene, "small", v, level, reason, certainty))
+            rows.append(_small(gene, "small", v, level, reason, certainty("small", v)))
     for v in result.get("mosaicCandidates", []):
         level, reason = tier.get(id(v), ("unclear", "mosaic"))
-        rows.append(_small(v["gene"], "mosaic", v, level, reason, "limited"))
+        rows.append(_small(v["gene"], "mosaic", v, level, reason, certainty("mosaic", v)))
     for c in result["cnvs"]:
         level, reason = tier[id(c)]
-        rows.append(_region(c["gene"], "cnv", c, level, reason, "limited" if c.get("flags") else "ok",
+        rows.append(_region(c["gene"], "cnv", c, level, reason, certainty("cnv", c),
                             f"{tr(c['type'], 'en')} CN {c['copyNumber']}", f"log2 {c.get('log2')}"))
     ecn = result.get("exonCopyNumber") or {}
     for c in ecn.get("calls", []):
         level, reason = tier[id(c)]
-        rows.append(_region(c["gene"], "exon_copy_number", c, level, reason, "limited" if c.get("flags") else "ok",
+        rows.append(_region(c["gene"], "exon_copy_number", c, level, reason, certainty("exon_copy_number", c),
                             f"{tr(c['type'], 'en')} CN {c['copyNumber']}", f"quality {c.get('quality')}"))
     for c in ecn.get("hints", []):
         rows.append(_region(c["gene"], "exon_copy_number", c, "hint", "exon_copy_number_hint", "hint",
                             f"{tr(c['type'], 'en')} CN {c['copyNumber']}", f"quality {c.get('quality')}"))
     for s in result["svs"]:
         level, reason = tier[id(s)]
-        rows.append(_region(s["gene"], "sv", s, level, reason, "ok" if s.get("filter") == "PASS" else "limited",
+        rows.append(_region(s["gene"], "sv", s, level, reason, certainty("sv", s),
                             f"{s['type']} {s.get('caller', '')}".strip(),
                             f"PR {s.get('pairedReads')} SR {s.get('splitReads')}", s.get("genotype")))
     for i in result.get("insertionSignals", []):

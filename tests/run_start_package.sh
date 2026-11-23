@@ -103,10 +103,10 @@ echo "start file (update check: offer, decline, install, silent cases) OK"
 if ! command -v nextflow >/dev/null 2>&1; then echo "start file (whole run) skipped: no nextflow"; exit 0; fi
 out="$(printf '%s\n\n\n\n' "$DATA/S 1.bam" | run)" || { echo "$out"; tail -30 "$WORK/home/Downloads/brca12-S_1/brca12-start.log" 2>/dev/null; echo "run from the start package failed"; exit 1; }
 grep -q "Done" <<<"$out" || { echo "$out"; exit 1; }
-for f in brca12_report.html S_1.json S_1.tsv S_1.findings.tsv S_1.exons.tsv; do
+for f in S_1.html S_1.json S_1.tsv S_1.findings.tsv S_1.exons.tsv; do
   test -s "$WORK/home/Downloads/brca12-S_1/results/$f" || { echo "missing $f"; exit 1; }
 done
-grep -q "<body data-lang='en' data-tab='r'>" "$WORK/home/Downloads/brca12-S_1/results/brca12_report.html" || { echo "report does not show English first"; exit 1; }
+grep -q "<body data-lang='en' data-tab='r'>" "$WORK/home/Downloads/brca12-S_1/results/S_1.html" || { echo "report does not show English first"; exit 1; }
 echo "start file (whole run from the unpacked package, paths with spaces) OK"
 
 # Disk dropout during the run: a task hangs on the lost input, the watchdog stops Nextflow, the start

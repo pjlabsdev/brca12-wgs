@@ -2,13 +2,13 @@
 
 ```
 brca12_results/
+  SAMPLE.html               standalone result page (open in a browser): German and English, tabs Result/Details
   SAMPLE.tsv                one line per gene
   SAMPLE.findings.tsv       one line per finding with its certainty
   SAMPLE.exons.tsv          one line per exon with its certainty
   SAMPLE.json               machine-readable results, schema genome.brca12.v1
   SAMPLE.md                 the report as Markdown, English and German
   SAMPLE.xlsx               the tables as an Excel workbook
-  brca12_report.html        standalone report (open in a browser): German and English, tabs Result/Details
   brca12_commands.sh        every executed command, verbatim
   qc/reference_check.json   GRCh38 check, regions and exon counts
   alignment/                BAM + index + duplicate stats (FASTQ input only)
@@ -20,8 +20,9 @@ brca12_results/
 
 `SAMPLE` is the value of `--sample` (the start file takes the input file name). The three tables
 follow the form of hla-wgs (`PREFIX.tsv`, `PREFIX.conf.tsv`): tab-separated, one header line, English
-values, `-` for an empty cell. Every value comes from `SAMPLE.json`. Up to 1.1 the JSON was called
-`brca12_results.json`, the Markdown `brca12_report.md` and the workbook `brca12_report.xlsx`.
+values, `-` for an empty cell. Every value comes from `SAMPLE.json`. Up to 1.1 the page was called
+`brca12_report.html`, the JSON `brca12_results.json`, the Markdown `brca12_report.md` and the workbook
+`brca12_report.xlsx`.
 
 ## SAMPLE.tsv
 
@@ -114,6 +115,24 @@ downstream parsers do not depend on the report language. Main fields:
 | `toolVersions` | versions that actually ran |
 | `summary` | counts and `needsAttention` |
 | `limitations`, `limitationsEN` | known limits of the method |
+
+## SAMPLE.html
+
+One self-contained page built only from the values of `SAMPLE.json`, so it holds everything that the
+three tables hold: the overall statement, the table "Result per gene" (the lines of `SAMPLE.tsv` with
+the statement in the page language), the cancer types, the findings to review with their certainty
+(as in `SAMPLE.findings.tsv`), coverage, and under "Details per gene" every variant and every exon (as
+in `SAMPLE.exons.tsv`). German and English; the buttons at the top switch between them. It loads
+nothing from the network.
+
+The page can be written again from the JSON alone, like `hla-wgs html PREFIX.json`:
+
+```
+python3 bin/brca12_report.py html SAMPLE.json            # writes SAMPLE.html
+python3 bin/brca12_report.py html SAMPLE.json --lang de --out page.html
+```
+
+The first language is German when `--lang de` is given or `LANG` starts with `de`, else English.
 
 ## Excel and cohort files
 

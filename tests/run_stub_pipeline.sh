@@ -20,7 +20,7 @@ PATH="$FAKE:$PATH" nextflow run "$ROOT/main.nf" -profile standard \
   --sample TEST --reference "$WORK/ref.fa" --reads_r1 "$WORK/R1.fq.gz" --reads_r2 "$WORK/R2.fq.gz" \
   --vep_cache "$WORK/vep" --clinvar_vcf "$WORK/clinvar.vcf.gz" \
   --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$WORK/out"
-for f in brca12_report.html TEST.md TEST.json TEST.tsv TEST.findings.tsv TEST.exons.tsv brca12_commands.sh TEST.xlsx; do
+for f in TEST.html TEST.md TEST.json TEST.tsv TEST.findings.tsv TEST.exons.tsv brca12_commands.sh TEST.xlsx; do
   test -s "$WORK/out/$f" || { echo "missing $f"; exit 1; }
 done
 python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['schema']=='genome.brca12.v1'; assert r['genes']['BRCA1']['smallVariants']; assert r['readQC']['regionStats']['readsInRegions']==1000; assert 'exonCopyNumber' in r and 'exonCopyNumberCallCount' in r['summary']; assert any(s['caller']=='Delly' for s in r['svs']), r['svs']; assert r['toolVersions'].get('delly')=='v1.3.3', r['toolVersions']; assert r['toolVersions'].get('dnacopy')=='1.76.0', r['toolVersions']; print('stub pipeline (WGS) OK')" "$WORK/out/TEST.json"
@@ -93,7 +93,7 @@ PATH="$FAKE:$PATH" nextflow run "$SP/pipeline copy/main.nf" -profile standard \
   --sample SPACE --reference "$SP/in put/ref.fa" --reads_r1 "$SP/in put/R1.fq.gz" --reads_r2 "$SP/in put/R2.fq.gz" \
   --vep_cache "$WORK/vep" --clinvar_vcf "$SP/in put/clinvar.vcf.gz" \
   --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 2 --outdir "$SP/out put"
-for f in brca12_report.html SPACE.md SPACE.json SPACE.tsv SPACE.findings.tsv SPACE.exons.tsv brca12_commands.sh SPACE.xlsx; do
+for f in SPACE.html SPACE.md SPACE.json SPACE.tsv SPACE.findings.tsv SPACE.exons.tsv brca12_commands.sh SPACE.xlsx; do
   test -s "$SP/out put/$f" || { echo "missing $f (paths with spaces)"; exit 1; }
 done
 echo "stub pipeline (paths with spaces) OK"

@@ -8,6 +8,9 @@
   reasons) and `SAMPLE.json` (schema `genome.brca12.v1`, unchanged content). The JSON, Markdown and
   Excel files were called `brca12_results.json`, `brca12_report.md` and `brca12_report.xlsx`; the
   cohort summary finds both names. Columns in `docs/output.md`.
+- The result page is now `SAMPLE.html` (was `brca12_report.html`) and has a table "Result per gene"
+  with the statement of `SAMPLE.tsv` in the page language; the findings to review show their
+  certainty. `brca12_report.py html SAMPLE.json` writes the page again from the JSON alone.
 
 ## 1.1.1 (2026-11-22)
 

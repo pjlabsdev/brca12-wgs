@@ -13,7 +13,7 @@
  *   -> extraction of BRCA1/BRCA2 via brca12_regions.bed
  *   -> Ensembl VEP (+ ClinVar)                  annotation
  *   -> mosdepth                                 coverage per exon
- *   -> SAMPLE.json / .tsv / .findings.tsv / .exons.tsv / .md / .xlsx, brca12_report.html
+ *   -> SAMPLE.html / .json / .tsv / .findings.tsv / .exons.tsv / .md / .xlsx
  *
  * Research use only (RUO). Results must not be interpreted medically without clinically
  * validated confirmation (accredited laboratory, e.g. Sanger sequencing or MLPA).
@@ -63,7 +63,7 @@ params.rscript   = null       // Rscript with Bioconductor DNAcopy for CNVkit; d
 params.vep       = 'vep'
 params.mosdepth  = 'mosdepth'
 params.python    = 'python3'
-params.report_lang = 'en'      // first language of brca12_report.html and SAMPLE.md (both carry English and German): en or de
+params.report_lang = 'en'      // first language of SAMPLE.html and SAMPLE.md (both carry English and German): en or de
 
 // Assay. 'wgs' (default) or targeted data: 'exome', 'panel' (hybrid capture) or 'amplicon'.
 params.assay            = 'wgs'
@@ -678,7 +678,7 @@ process REPORT {
     path "${params.sample}.findings.tsv"
     path "${params.sample}.exons.tsv"
     path "${params.sample}.md"
-    path 'brca12_report.html'
+    path "${params.sample}.html"
     path 'brca12_commands.sh'
 
     script:
@@ -716,7 +716,7 @@ process REPORT {
       --lang ${params.report_lang} --tabix ${params.tabix} ${evidence} \\
       --out-json ${params.sample}.json --out-tsv ${params.sample}.tsv \\
       --out-findings ${params.sample}.findings.tsv --out-exons ${params.sample}.exons.tsv \\
-      --out-md ${params.sample}.md --out-html brca12_report.html
+      --out-md ${params.sample}.md --out-html ${params.sample}.html
     """
 }
 

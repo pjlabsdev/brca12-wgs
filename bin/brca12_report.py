@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fasst alle BRCA1/BRCA2-Ergebnisse zu PREFIX.json, PREFIX.tsv, PREFIX.findings.tsv, PREFIX.exons.tsv,
-PREFIX.md und PREFIX.html zusammen.
+PREFIX.md und PREFIX.html zusammen. `brca12_report.py html PREFIX.json` schreibt die Seite neu aus der JSON.
 
 The JSON file (schema genome.brca12.v1) is the machine-readable interface for downstream reports.
 """
@@ -338,7 +338,31 @@ def in_weak_spot(v):
     return any(chrom == c and v["pos"] <= stop + 1 and end >= start - 1 for c, start, stop in WEAK_SPOTS)
 
 
+def html_from_json(argv):
+    """`brca12_report.py html SAMPLE.json [--lang de] [--out SAMPLE.html]`: the result page again from the
+    JSON alone (like `hla-wgs html PREFIX.json`), for example after an update of the page."""
+    p = argparse.ArgumentParser(prog="brca12_report.py html", description=html_from_json.__doc__)
+    p.add_argument("json")
+    p.add_argument("--lang", choices=("en", "de"), default=None,
+                   help="first language (default: de when LANG starts with de, else en)")
+    p.add_argument("--out", default=None, help="default: the JSON path with .html")
+    args = p.parse_args(argv)
+    with open(args.json) as handle:
+        result = json.load(handle)
+    if result.get("schema") != "genome.brca12.v1":
+        raise SystemExit(f"[brca12] {args.json} is not a brca12-wgs result (schema genome.brca12.v1)")
+    lang = args.lang or ("de" if os.environ.get("LANG", "").lower().startswith("de") else "en")
+    out = args.out or (args.json[:-5] if args.json.endswith(".json") else args.json) + ".html"
+    with open(out, "w") as handle:
+        handle.write(render.html_report(result, lang))
+    print(out)
+    return 0
+
+
 def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == "html":
+        return html_from_json(argv[1:])
     p = argparse.ArgumentParser(description=__doc__)
     for name in ("sample", "input-mode", "inputs", "reference", "reference-check", "exons", "regions",
                  "sv", "cnv", "cnr", "cov-q20", "cov-thresholds", "cov-q0", "cov-perbase",

@@ -187,7 +187,7 @@ germline variants. They always need confirmation by an orthogonal method; detect
 | Per-gene extraction | bcftools norm/view with `brca12_regions.bed` | `variants/BRCA1.*`, `variants/BRCA2.*` |
 | Annotation | Ensembl VEP (MANE, gnomAD, HGVS) + ClinVar (`--custom`) | `variants/*.vep.vcf.gz` |
 | Exon coverage | mosdepth (MAPQ ≥ 20 and ≥ 0), samtools depth | `coverage/` |
-| Report | `bin/brca12_report.py` | `SAMPLE.tsv`, `SAMPLE.findings.tsv`, `SAMPLE.exons.tsv`, `SAMPLE.json`, `SAMPLE.md`, `brca12_report.html`, `brca12_commands.sh` |
+| Report | `bin/brca12_report.py` | `SAMPLE.tsv`, `SAMPLE.findings.tsv`, `SAMPLE.exons.tsv`, `SAMPLE.json`, `SAMPLE.md`, `SAMPLE.html`, `brca12_commands.sh` |
 
 The report has separate sections for BRCA1 SNVs/indels, BRCA2 SNVs/indels, BRCA1/BRCA2 CNVs,
 BRCA1/BRCA2 structural variants, coverage per exon and uncertain regions, in English and German
