@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Validation, arm B in the cloud (`validation/giab_novaseq`): new NovaSeq 30x reads of HG003 to HG007
+  over BRCA1/BRCA2 against GIAB v4.2.1: SNVs 974/974 with 1 false positive (intron), indels 167/167,
+  every exonic variant found without a false positive; all five samples pass the preregistered
+  test. Not whole genomes; VEP and CNVkit were stand-ins.
 - Result files in the form of hla-wgs, named after the sample (`--sample`): `SAMPLE.tsv` (one line
   per gene: result, counts per kind of finding, coverage), `SAMPLE.findings.tsv` (one line per
   finding with level and certainty), `SAMPLE.exons.tsv` (one line per exon with depth, status and
