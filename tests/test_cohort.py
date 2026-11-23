@@ -38,7 +38,7 @@ def sample(name, fraction, genotype="heterozygot"):
 
 def write(directory, result):
     os.makedirs(directory, exist_ok=True)
-    path = os.path.join(directory, "brca12_results.json")
+    path = os.path.join(directory, os.path.basename(directory) + ".json")
     with open(path, "w") as handle:
         json.dump(result, handle)
     return path

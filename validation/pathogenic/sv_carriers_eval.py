@@ -108,7 +108,7 @@ def main(argv=None):
                     for name in sorted(alu) if name not in known and os.path.isdir(os.path.join(more, name))]
     for c, workdir in samples:
         s = c["sample"]
-        path = os.path.join(workdir, s, "brca12_results.json")
+        path = os.path.join(workdir, s, f"{s}.json")
         if not os.path.exists(path):
             continue
         report = json.load(open(path))

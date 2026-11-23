@@ -39,7 +39,7 @@ grep -v '^#' "$HERE/carriers_1000g.tsv" | while IFS=$'\t' read -r s run prefix _
     done
     samtools collate -@2 -u -O "$s.region.bam" | samtools fastq -@2 -1 "${s}_R1.fastq.gz" -2 "${s}_R2.fastq.gz" -0 /dev/null -s /dev/null -n -
   fi
-  if [[ ! -s $out/brca12_results.json ]]; then
+  if [[ ! -s $out/$s.json ]]; then
     (cd "$WORK" && nextflow run "$ROOT/main.nf" -profile standard -work-dir "$WORK/work_$s" \
        --sample "$s" --reads_r1 "$KG/${s}_R1.fastq.gz" --reads_r2 "$KG/${s}_R2.fastq.gz" \
        --reference "$DATA/ref.fa" --vep_cache "$DATA/vep_cache" --clinvar_vcf "$DATA/clinvar.vcf.gz" \

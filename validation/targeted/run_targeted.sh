@@ -78,7 +78,7 @@ mkdir -p vep_cache
 run() {  # $1 name, $2 truth sample, $3 assay, $4.. extra pipeline arguments
   local name=$1 truth=$2 assay=$3; shift 3
   local out="$WORK/$name"
-  if [[ ! -s $out/brca12_results.json ]]; then
+  if [[ ! -s $out/$name.json ]]; then
     (cd "$WORK" && nextflow run "$ROOT/main.nf" -profile standard -work-dir "$WORK/work_$name" \
        --sample "$name" --assay "$assay" --targets_bed "$WORK/input/$name.targets.bed" --mosaic "$@" \
        --reference "$DATA/ref.fa" --vep_cache "$WORK/input/vep_cache" --clinvar_vcf "$WORK/input/clinvar.vcf.gz" \
@@ -104,7 +104,7 @@ work = sys.argv[1]
 rows = []
 for name in ("HG002_exome_agilent", "HG001_exome_truseq", "HG002_ampliseq_ion"):
     bench = json.load(open(os.path.join(work, name, "benchmark", "summary.json")))
-    qc = json.load(open(os.path.join(work, name, "brca12_results.json"))).get("readQC") or {}
+    qc = json.load(open(os.path.join(work, name, name + ".json"))).get("readQC") or {}
     rows.append({"dataset": name, "benchmark": bench["results"], "targetSummary": qc.get("targetSummary"),
                  "regionStats": qc.get("regionStats"), "flags": qc.get("flags")})
 json.dump(rows, open(os.path.join(work, "targeted_summary.json"), "w"), indent=1)

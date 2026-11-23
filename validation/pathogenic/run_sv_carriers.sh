@@ -29,7 +29,7 @@ mkdir -p "$KG" && cd "$KG"
 LISTS=("$TABLE"); [[ -n ${TABLE_ONLY:-} ]] || LISTS+=("$HERE/carriers_1000g.tsv")
 grep -hv '^#' "${LISTS[@]}" | while IFS=$'\t' read -r s run prefix _; do
   out="$WORK/$OUTDIR/$s"
-  [[ -s $out/brca12_results.json ]] && continue
+  [[ -s $out/$s.json ]] && continue
   if [[ ! -s ${s}_R1.fastq.gz ]]; then
     for attempt in 1 2 3 4; do   # the remote read occasionally stalls
       timeout 300 samtools view -@2 -b -T "$DATA/ref.fa" -o "$s.region.bam" "$S3/$prefix/$run/$s.final.cram" $REG && break

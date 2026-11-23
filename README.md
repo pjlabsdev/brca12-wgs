@@ -111,7 +111,7 @@ cache, ClinVar VCF, the Nextflow program and the profile are asked once and kept
 
 ## Several samples (batch) and Excel
 
-Every run also writes `brca12_report.xlsx` (overview with the research-use note, small variants with
+Every run also writes `SAMPLE.xlsx` (overview with the research-use note, small variants with
 GRCh38/GRCh37 positions, HGVS, BIC names, ClinVar, ACMG/AMP hints and quality flags, CNV, SV, exon
 coverage, low-depth intervals, tool versions; no extra Python packages).
 
@@ -187,7 +187,7 @@ germline variants. They always need confirmation by an orthogonal method; detect
 | Per-gene extraction | bcftools norm/view with `brca12_regions.bed` | `variants/BRCA1.*`, `variants/BRCA2.*` |
 | Annotation | Ensembl VEP (MANE, gnomAD, HGVS) + ClinVar (`--custom`) | `variants/*.vep.vcf.gz` |
 | Exon coverage | mosdepth (MAPQ ≥ 20 and ≥ 0), samtools depth | `coverage/` |
-| Report | `bin/brca12_report.py` | `brca12_report.html/.md`, `brca12_results.json`, `brca12_commands.sh` |
+| Report | `bin/brca12_report.py` | `SAMPLE.tsv`, `SAMPLE.findings.tsv`, `SAMPLE.exons.tsv`, `SAMPLE.json`, `SAMPLE.md`, `brca12_report.html`, `brca12_commands.sh` |
 
 The report has separate sections for BRCA1 SNVs/indels, BRCA2 SNVs/indels, BRCA1/BRCA2 CNVs,
 BRCA1/BRCA2 structural variants, coverage per exon and uncertain regions, in English and German

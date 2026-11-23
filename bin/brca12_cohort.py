@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Cohort summary over several brca12-wgs results (one run or batch of samples).
 
-    python3 bin/brca12_cohort.py --results 'runs/*/brca12_results.json' --run-name RUN01 --outdir cohort/
+    python3 bin/brca12_cohort.py --results 'runs/*/' --run-name RUN01 --outdir cohort/
 
 Writes cohort_samples.tsv, cohort_variants.tsv, cohort_contamination.tsv and cohort.xlsx.
 
@@ -26,13 +26,27 @@ RUO = ("Nur Forschung (RUO). Keine medizinische Interpretation ohne klinisch val
        "Research use only. No medical interpretation without clinically validated confirmation.")
 
 
+def result_in(directory):
+    """The result JSON of a run directory: SAMPLE.json (since 1.2), else brca12_results.json (up to 1.1)."""
+    for name in sorted(os.listdir(directory)):
+        path = os.path.join(directory, name)
+        if name.endswith(".json") and os.path.isfile(path):
+            try:
+                with open(path) as handle:
+                    if json.load(handle).get("schema") == "genome.brca12.v1":
+                        return path
+            except (ValueError, AttributeError, OSError):
+                continue
+    return os.path.join(directory, "brca12_results.json")
+
+
 def load(patterns):
     paths = []
     for pattern in patterns:
         found = sorted(glob.glob(pattern)) or ([pattern] if os.path.exists(pattern) else [])
         for path in found:
             if os.path.isdir(path):
-                path = os.path.join(path, "brca12_results.json")
+                path = result_in(path)
             if os.path.exists(path) and path not in paths:
                 paths.append(path)
     results = []
@@ -119,13 +133,13 @@ def write_tsv(path, rows):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--results", nargs="+", required=True, help="brca12_results.json files, directories or glob patterns")
+    parser.add_argument("--results", nargs="+", required=True, help="SAMPLE.json files, run directories or glob patterns")
     parser.add_argument("--run-name", default="BRCA12")
     parser.add_argument("--outdir", default="cohort")
     args = parser.parse_args(argv)
     results = load(args.results)
     if not results:
-        raise SystemExit("[brca12] no brca12_results.json found")
+        raise SystemExit("[brca12] no result JSON found")
     os.makedirs(args.outdir, exist_ok=True)
     samples, variants, contam = build(results, args.run_name)
     write_tsv(os.path.join(args.outdir, "cohort_samples.tsv"), samples)

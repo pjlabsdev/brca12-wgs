@@ -18,7 +18,7 @@ printf "sample,reads_r1,reads_r2,bam\nS01,%s,%s,\nS02,%s,%s,\n" "$WORK/R1.fq.gz"
 PATH="$FAKE:$PATH" python3 "$ROOT/bin/brca12_batch.py" --samplesheet samples.csv --outdir "$WORK/batch" --run-name STUB --jobs 2 -- \
   -profile standard --reference "$WORK/ref.fa" --vep_cache "$WORK/vep" --clinvar_vcf "$WORK/clinvar.vcf.gz" \
   --exons_bed "$ROOT/tests/data/exons.test.bed" --threads 1
-for f in S01/brca12_results.json S02/brca12_report.xlsx cohort/cohort_samples.tsv cohort/cohort_variants.tsv cohort/cohort_contamination.tsv cohort/cohort.xlsx; do
+for f in S01/S01.json S01/S01.tsv S01/S01.findings.tsv S01/S01.exons.tsv S02/S02.xlsx cohort/cohort_samples.tsv cohort/cohort_variants.tsv cohort/cohort_contamination.tsv cohort/cohort.xlsx; do
   test -s "$WORK/batch/$f" || { echo "missing $f"; exit 1; }
 done
 test "$(tail -n +2 "$WORK/batch/cohort/cohort_samples.tsv" | wc -l | tr -d ' ')" = 2

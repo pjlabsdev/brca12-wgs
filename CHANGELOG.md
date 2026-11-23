@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Result files in the form of hla-wgs, named after the sample (`--sample`): `SAMPLE.tsv` (one line
+  per gene: result, counts per kind of finding, coverage), `SAMPLE.findings.tsv` (one line per
+  finding with level and certainty), `SAMPLE.exons.tsv` (one line per exon with depth, status and
+  reasons) and `SAMPLE.json` (schema `genome.brca12.v1`, unchanged content). The JSON, Markdown and
+  Excel files were called `brca12_results.json`, `brca12_report.md` and `brca12_report.xlsx`; the
+  cohort summary finds both names. Columns in `docs/output.md`.
+
 ## 1.1.1 (2026-11-22)
 
 - Result page: new section "How the statements are made": data sources of the run (caller, VEP

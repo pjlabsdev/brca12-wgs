@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Fasst alle BRCA1/BRCA2-Ergebnisse zu brca12_results.json, brca12_report.md und .html zusammen.
+"""Fasst alle BRCA1/BRCA2-Ergebnisse zu PREFIX.json, PREFIX.tsv, PREFIX.findings.tsv, PREFIX.exons.tsv,
+PREFIX.md und PREFIX.html zusammen.
 
 The JSON file (schema genome.brca12.v1) is the machine-readable interface for downstream reports.
 """
@@ -12,7 +13,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from brca12lib import coverage, enigma_tables, evidence, page, render, structural, variants  # noqa: E402
+from brca12lib import coverage, enigma_tables, evidence, page, render, structural, tsv, variants  # noqa: E402
 from brca12lib import exon_cnv as exon_cnv_lib  # noqa: E402
 from brca12lib.vcf import VCF  # noqa: E402
 
@@ -367,10 +368,20 @@ def main(argv=None):
     p.add_argument("--bayesdel", default=None, help="TSV chrom,pos,ref,alt,BayesDel_noAF (bgzip + tabix)")
     p.add_argument("--tabix", default="tabix")
     p.add_argument("--lang", choices=("en", "de"), default="en", help="language of the HTML/Markdown report")
+    p.add_argument("--out-tsv", default=None, help="PREFIX.tsv: one line per gene")
+    p.add_argument("--out-findings", default=None, help="PREFIX.findings.tsv: one line per finding with its certainty")
+    p.add_argument("--out-exons", default=None, help="PREFIX.exons.tsv: one line per exon with its certainty")
     args = p.parse_args(argv)
     result = build(args)
     with open(args.out_json, "w") as handle:
         json.dump(result, handle, indent=2, ensure_ascii=False)
+    if args.out_tsv:
+        with open(args.out_tsv, "w") as handle:
+            handle.write(tsv.genes_tsv(result))
+    for path, write in ((args.out_findings, tsv.findings_tsv), (args.out_exons, tsv.exons_tsv)):
+        if path:
+            with open(path, "w") as handle:
+                handle.write(write(result))
     with open(args.out_md, "w") as handle:
         handle.write(render.markdown_both(result, args.lang))
     with open(args.out_html, "w") as handle:
