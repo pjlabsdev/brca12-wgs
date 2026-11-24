@@ -389,18 +389,35 @@ fn to_hit(h: &aln::Hit, qlen: usize, targets: &[Target], tids: &AHashMap<String,
     Hit { tid: tids[&t.chrom], pos: t.start + h.r_st as u64, end: t.start + h.r_en as u64, rev: !h.fwd, mapq, cigar, supp, nm: h.nm as i32 }
 }
 
-/// mapping quality as minimap2 computes it: from the best score and the best competing score on
-/// the same part of the read
-fn mapq_of(s1: i32, s2: i32, mlen: usize) -> u8 {
+/// mapping quality in the manner of minimap2 (sr): the best score against the best competing score on
+/// the same part of the read, scaled down by the alignment's identity and, as minimap2 does through its
+/// anchor count, for reads with few exact 21-mers (copies of a diverged repeat or paralog that is not
+/// in the panel; minimap2 samples one minimizer per ~6 k-mers, hence the 1/6)
+fn mapq_of(s1: i32, s2: i32, h: &aln::Hit) -> u8 {
     if s1 <= 0 {
         return 0;
     }
-    if s2 <= 0 {
-        return 60;
+    if *OLD_MAPQ {
+        if s2 <= 0 {
+            return 60;
+        }
+        let x = 40.0 * (1.0 - s2 as f64 / s1 as f64) * (h.mlen as f64 / 10.0).min(1.0) * (s1 as f64).ln();
+        return x.clamp(0.0, 60.0).round() as u8;
     }
-    let x = 40.0 * (1.0 - s2 as f64 / s1 as f64) * (mlen as f64 / 10.0).min(1.0) * (s1 as f64).ln();
-    x.clamp(0.0, 60.0).round() as u8
+    let cols: u32 = h.ops.iter().map(|&(_, l)| l).sum();
+    let ident = h.mlen as f64 / cols.max(1) as f64;
+    let kmers: u32 = h.ops.iter().filter(|&&(o, _)| o == b'=').map(|&(_, l)| l.saturating_sub(20)).sum();
+    let cnt = kmers as f64 / 6.0;
+    let pen = (0.1 * cnt).min(1.0).min(s1 as f64 / 100.0);
+    let s2 = s2.max(40).min(s1);
+    let x = ident * pen * 40.0 * (1.0 - s2 as f64 / s1 as f64) * (s1 as f64).ln();
+    let q = x.clamp(0.0, 60.0) as u8;
+    if q == 0 && s1 > s2 { 1 } else { q }
 }
+
+static OLD_MAPQ: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_MAPQ").is_ok_and(|v| v == "old"));
+static OLD_RESCUE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_RESCUE").is_ok_and(|v| v == "old"));
+static NO_RESCUE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_RESCUE").is_ok_and(|v| v == "0"));
 
 /// alignments of a read pair with the own aligner (from hla-wgs): the best proper pair on one target
 /// earns a bonus as in paired mapping (hla-wgs panel: 33); a mate without a hit next to its partner is
@@ -413,6 +430,9 @@ fn pair_hits(idx: &aln::Index, n_targets: usize, x: &Fq, y: &Fq, targets: &[Targ
     let qs = [&x.seq, &y.seq];
     // mate rescue next to the partner's best hit
     for mate in 0..2 {
+        if *NO_RESCUE {
+            break;
+        }
         let other = 1 - mate;
         let Some(p) = m[other].first().cloned() else { continue };
         let near = |h: &aln::Hit| h.seq == p.seq && h.fwd != p.fwd && (h.r_st as i64 - p.r_st as i64).abs() <= 1500;
@@ -423,7 +443,11 @@ fn pair_hits(idx: &aln::Index, n_targets: usize, x: &Fq, y: &Fq, targets: &[Targ
         let (w0, w1) = (p.r_st.saturating_sub(1000), (p.r_en + 1000).min(seq.len()));
         let qo: Vec<u8> = if p.fwd { aln::revcomp(qs[mate]) } else { qs[mate].to_ascii_uppercase() };
         let sub = aln::Index::new(vec![String::new()], vec![seq[w0..w1].to_vec()], aln::Opts::sr_single());
-        if let Some(mut h) = sub.map(&qo).into_iter().find(|h| h.fwd && h.score >= RESCUE_MIN) {
+        // a rescued mate must align as a whole and well: a partial piece of a mate that belongs to
+        // another copy elsewhere would make the pair look aligned and keep the partner's MAPQ up
+        let ql = qo.len();
+        let good = |h: &aln::Hit| if *OLD_RESCUE { h.score >= RESCUE_MIN } else { (h.q_en - h.q_st) * 10 >= ql * 9 && h.score as usize >= ql };
+        if let Some(mut h) = sub.map(&qo).into_iter().find(|h| h.fwd && good(h)) {
             // back to the read's own orientation
             h.seq = p.seq;
             h.r_st += w0;
@@ -461,6 +485,36 @@ fn pair_hits(idx: &aln::Index, n_targets: usize, x: &Fq, y: &Fq, targets: &[Targ
         Some((_, i, j)) => [Some(i), Some(j)],
         None => [(!m[0].is_empty()).then_some(0), (!m[1].is_empty()).then_some(0)],
     };
+    // the pair's MAPQ as minimap2 (pe.c): the better mate's MAPQ, limited by how much the best pair
+    // beats the next ones; a mate below it is raised to 0.2 own + 0.8 pair
+    let single = |k: usize, pi: usize| {
+        let p = &m[k][pi];
+        let ov = |a: &aln::Hit, b: &aln::Hit| (a.q_en.min(b.q_en) as i64 - a.q_st.max(b.q_st) as i64).max(0) as usize;
+        let s2 = m[k].iter().enumerate().filter(|(i, h)| *i != pi && ov(h, p) * 2 >= (p.q_en - p.q_st)).map(|(_, h)| h.score).max().unwrap_or(0);
+        mapq_of(p.score, s2, p)
+    };
+    let mut qpe: [Option<u8>; 2] = [None, None];
+    if let Some((ps, i, j)) = paired {
+        if *OLD_MAPQ {
+            let p2 = pairs.iter().skip(1).map(|x| x.0).next().unwrap_or(0);
+            let v = |h: &aln::Hit| mapq_of(ps, p2, h);
+            qpe = [Some(v(&m[0][i])), Some(v(&m[1][j]))];
+        } else {
+            let (q0, q1) = (single(0, i), single(1, j));
+            let mut pe = q0.max(q1) as f64;
+            if pairs.len() > 1 {
+                let n_sub = pairs.iter().filter(|x| x.0 + 2 * 2 >= ps).count().max(1) as f64;
+                let alt = 6.02 * (ps - pairs[1].0) as f64 / 2.0 - 4.343 * n_sub.ln();
+                pe = pe.min(alt);
+            }
+            let lift = |q: u8| {
+                let q = if (q as f64) < pe { (0.2 * q as f64 + 0.8 * pe + 0.499) as u8 } else { q };
+                let floor = if pairs.len() == 1 { 2 } else if ps > pairs[1].0 { 1 } else { 0 };
+                q.max(floor).min(60)
+            };
+            qpe = [Some(lift(q0)), Some(lift(q1))];
+        }
+    }
     let mut out: [Vec<Hit>; 2] = [vec![], vec![]];
     for k in 0..2 {
         let Some(pi) = pick[k] else { continue };
@@ -471,11 +525,9 @@ fn pair_hits(idx: &aln::Index, n_targets: usize, x: &Fq, y: &Fq, targets: &[Targ
         let qlen = qs[k].len();
         let ov = |a: &aln::Hit, b: &aln::Hit| (a.q_en.min(b.q_en) as i64 - a.q_st.max(b.q_st) as i64).max(0) as usize;
         let s2 = m[k].iter().enumerate().filter(|(i, h)| *i != pi && ov(h, p) * 2 >= (p.q_en - p.q_st)).map(|(_, h)| h.score).max().unwrap_or(0);
-        let mut q = mapq_of(p.score, s2, p.mlen);
-        if let Some((ps, _, _)) = paired {
-            // the pair decides between equal copies: second best pair against the best
-            let p2 = pairs.iter().skip(1).map(|x| x.0).next().unwrap_or(0);
-            q = q.max(mapq_of(ps, p2, p.mlen));
+        let mut q = mapq_of(p.score, s2, p);
+        if paired.is_some() {
+            q = qpe[k].unwrap_or(q).max(q);
         }
         out[k].push(to_hit(p, qlen, targets, tids, q, false));
         // supplementary: hits on a part of the read the primary does not cover (split reads)
@@ -491,7 +543,7 @@ fn pair_hits(idx: &aln::Index, n_targets: usize, x: &Fq, y: &Fq, targets: &[Targ
             }
             // a piece that fits as well elsewhere (repeat copy, Alu) is no evidence of a split read
             let s2 = m[k].iter().enumerate().filter(|(j, g)| *j != i && ov(g, h) * 2 >= len).map(|(_, g)| g.score).max().unwrap_or(0);
-            let sq = mapq_of(h.score, s2, h.mlen);
+            let sq = mapq_of(h.score, s2, h);
             if sq < 20 {
                 continue;
             }
