@@ -376,6 +376,7 @@ fn mapq_of(s1: i32, s2: i32, h: &aln::Hit) -> u8 {
 static OLD_MAPQ: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_MAPQ").is_ok_and(|v| v == "old"));
 static OLD_RESCUE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_RESCUE").is_ok_and(|v| v == "old"));
 static NO_SUBC: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_SUBC").is_ok_and(|v| v == "0"));
+static PARTIAL: std::sync::LazyLock<f64> = std::sync::LazyLock::new(|| std::env::var("BRCA12_PARTIAL").ok().and_then(|v| v.parse().ok()).unwrap_or(0.5));
 static NO_RESCUE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_RESCUE").is_ok_and(|v| v == "0"));
 
 /// alignments of a read pair with the own aligner (from hla-wgs): the best proper pair on one target
@@ -792,7 +793,22 @@ pub fn to_bam(r1: &str, r2: &str, reference: &str, regions: &[(String, u64, u64,
                 // whole genome
                 // likewise a read whose mate does not align to the targets at all: the pair comes from
                 // another locus (the targets have 2 kb flanks, so mates of gene reads lie inside them)
-                let (u1, u2) = (h1.iter().all(|z| z.supp), h2.iter().all(|z| z.supp));
+                // a mate aligned with less than half of its bases and no second piece elsewhere (the rest
+                // fits nowhere in the panel) counts as unaligned as well: minimap2 leaves such mates
+                // unmapped, and its partner most likely comes from another locus too
+                let partial = |h: &[Hit], q: usize| {
+                    h.len() == 1 && {
+                        let al: u32 = h[0].cigar.iter().filter(|c| c.1 == 'M' || c.1 == 'I').map(|c| c.0).sum();
+                        (al as f64) < *PARTIAL * q as f64
+                    }
+                };
+                let (p1, p2) = (partial(&h1, x.seq.len()), partial(&h2, y.seq.len()));
+                let (u1, u2) = (h1.iter().all(|z| z.supp) || p1, h2.iter().all(|z| z.supp) || p2);
+                for (h, p) in [(&mut h1, p1), (&mut h2, p2)] {
+                    if p {
+                        h.iter_mut().for_each(|z| z.mapq = 0);
+                    }
+                }
                 for (h, r, mate_unaligned) in [(&mut h1, x, u2), (&mut h2, y, u1)] {
                     if !has(&r.seq) || mate_unaligned {
                         h.iter_mut().for_each(|z| z.mapq = 0);

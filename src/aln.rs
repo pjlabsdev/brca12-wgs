@@ -961,8 +961,36 @@ fn push(ops: &mut Vec<(u8, u32)>, op: u8, l: u32) {
     ops.push((op, l));
 }
 
-/// alignment of q (in target orientation) along a chain of anchors (q end, r end) of length k
+/// alignment of q (in target orientation) along a chain of anchors (q end, r end) of length k. In a
+/// tandem repeat a chain can pick up anchors on a neighbouring diagonal (shifted by the repeat unit),
+/// which forces a gap pair where a single mismatch fits better: when the anchors lie on a few
+/// diagonals, each diagonal alone is aligned as well (the extensions are full DP) and the best score wins.
 fn align_chain(q: &[u8], r: &[u8], c: &[(u32, u32)], k: usize, sc: &Score) -> Option<Hit> {
+    let best = align_chain1(q, r, c, k, sc);
+    if *SINGLE_DIAG_OFF {
+        return best;
+    }
+    let mut diags: Vec<i64> = c.iter().map(|&(a, b)| b as i64 - a as i64).collect();
+    diags.sort_unstable();
+    diags.dedup();
+    if diags.len() < 2 || diags.len() > 4 || q.len() > 400 {
+        return best;
+    }
+    let mut best = best;
+    for d in diags {
+        let sub: Vec<(u32, u32)> = c.iter().copied().filter(|&(a, b)| b as i64 - a as i64 == d).collect();
+        if let Some(h) = align_chain1(q, r, &sub, k, sc) {
+            if best.as_ref().map_or(true, |b| h.score > b.score) {
+                best = Some(h);
+            }
+        }
+    }
+    best
+}
+
+static SINGLE_DIAG_OFF: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_DIAG").is_ok_and(|v| v == "0"));
+
+fn align_chain1(q: &[u8], r: &[u8], c: &[(u32, u32)], k: usize, sc: &Score) -> Option<Hit> {
     // exact blocks [qs, qe) / [rs, re) from the anchors
     let mut blocks: Vec<(usize, usize, usize)> = vec![]; // q start, r start, length
     for &(qe, re) in c {
