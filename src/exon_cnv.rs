@@ -15,6 +15,19 @@ use std::io;
 const PANEL: &str = include_str!("../assets/exon_cnv_panel_1kg30x.json");
 const STATES: [usize; 5] = [0, 1, 2, 3, 4];
 const HINT_QUALITY: i64 = 5;
+/// Gate: the exon deviations of a sample must not depend on the GC content of the exons. Slope of the
+/// log2 deviation against the GC fraction of exon +/- pad (least squares over all exons of both genes),
+/// in log2 per 10 % GC. GIAB NovaSeq 30x HG001-HG005 and NA12878 30x (with and without simulated
+/// exon deletions): |slope| <= 0.11; HG006 0.60 and HG007 0.40 (false exon deletions in both genes,
+/// up to copy number 0 with quality 99); the spike-in BAMs (simulated reads in the gene windows,
+/// false duplications already in the negative control) -0.29 to -0.36, L5 -0.55 (a 17-exon deletion
+/// pulls the fit; robust fits put it at -0.22 to -0.28, the level of the negative control, so no
+/// limit separates its true deletion from the control's false duplications). Real data: >= 0.30
+/// against <= 0.12 with every fit tried (least squares, Theil-Sen, without called exons). 0.2 lies
+/// between the groups; L5 BRCA1 becomes not assessable, never "none".
+/// Above it the exon copy number is not assessable and its calls are withheld. BRCA12_CNV_GATE=0 turns
+/// the gate off (output byte-identical to before).
+pub const GC_SLOPE_LIMIT: f64 = 0.2;
 
 fn shift(c: usize) -> f64 {
     [-3.0, -1.0, 0.0, 1.5f64.log2(), 1.0][c]
@@ -301,6 +314,55 @@ pub fn call(p: &Panel, depths: &HashMap<String, Option<f64>>, alleles: Option<&H
     Value::Object(res)
 }
 
+/// GC fraction of every exon +/- pad (the intervals of the depths) from the reference FASTA (.fai)
+pub fn gc(reference: &str, p: &Panel) -> io::Result<HashMap<String, f64>> {
+    let mut fa = noodles::fasta::io::indexed_reader::Builder::default().build_from_path(reference)?;
+    let mut out = HashMap::new();
+    for e in &p.exons {
+        let region: noodles::core::Region = format!("{}:{}-{}", e.chrom, e.start.saturating_sub(p.pad) + 1, e.end + p.pad).parse().map_err(io::Error::other)?;
+        let rec = fa.query(&region)?;
+        let seq = rec.sequence().as_ref();
+        let gc = seq.iter().filter(|b| matches!(b.to_ascii_uppercase(), b'G' | b'C')).count();
+        if !seq.is_empty() {
+            out.insert(e.name.clone(), gc as f64 / seq.len() as f64);
+        }
+    }
+    Ok(out)
+}
+
+/// GC gate (see GC_SLOPE_LIMIT) on the result of `call`; off with BRCA12_CNV_GATE=0
+pub fn gate(mut cnv: Value, gc: &HashMap<String, f64>) -> Value {
+    if std::env::var("BRCA12_CNV_GATE").is_ok_and(|v| v == "0") || cnv["enabled"] != true {
+        return cnv;
+    }
+    let pts: Vec<(f64, f64)> = cnv["exons"]
+        .as_array()
+        .map(|a| a.iter().filter_map(|e| Some((*gc.get(e["exon"].as_str()?)?, e["log2_deviation"].as_f64()?))).collect())
+        .unwrap_or_default();
+    if pts.len() < 10 {
+        return cnv;
+    }
+    let n = pts.len() as f64;
+    let (mx, my) = (pts.iter().map(|p| p.0).sum::<f64>() / n, pts.iter().map(|p| p.1).sum::<f64>() / n);
+    let sxx: f64 = pts.iter().map(|p| (p.0 - mx).powi(2)).sum();
+    let slope = if sxx > 0.0 { pts.iter().map(|p| (p.0 - mx) * (p.1 - my)).sum::<f64>() / sxx * 0.1 } else { 0.0 };
+    let o = cnv.as_object_mut().unwrap();
+    o.insert("gc_slope_per_10pct".into(), json!(round(slope, 3)));
+    o.insert("gc_slope_limit".into(), json!(GC_SLOPE_LIMIT));
+    if slope.abs() > GC_SLOPE_LIMIT {
+        let calls = o.insert("calls".into(), json!([])).unwrap_or(json!([]));
+        let hints = o.insert("hints".into(), json!([])).unwrap_or(json!([]));
+        o.insert("withheld_calls".into(), calls);
+        o.insert("withheld_hints".into(), hints);
+        o.insert("enabled".into(), json!(false));
+        o.insert("reason".into(), json!(format!(
+            "coverage profile does not fit the reference panel: exon depth depends on GC content ({:.2} log2 per 10 % GC, limit {GC_SLOPE_LIMIT})", slope)));
+        o.insert("reason_de".into(), json!(format!(
+            "Abdeckungsprofil passt nicht zum Referenzpanel: die Exon-Tiefe hängt vom GC-Gehalt ab ({:.2} log2 je 10 % GC, Grenze {GC_SLOPE_LIMIT})", slope).replace('.', ",")));
+    }
+    cnv
+}
+
 /// (ref, alt) reads at heterozygous biallelic SNVs inside exon +/- pad; same site filter as 1.1
 /// (>= 2 reads per allele, minor allele >= 0.15)
 pub fn allele_counts(p: &Panel, snvs: &[(String, u64, u32, u32)]) -> HashMap<String, Vec<(u32, u32)>> {
@@ -317,4 +379,36 @@ pub fn allele_counts(p: &Panel, snvs: &[(String, u64, u32, u32)]) -> HashMap<Str
         }
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn cnv(slope: f64) -> (Value, HashMap<String, f64>) {
+        let mut gc = HashMap::new();
+        let exons: Vec<Value> = (0..20)
+            .map(|i| {
+                let g = 0.3 + 0.015 * i as f64;
+                gc.insert(format!("E{i}"), g);
+                json!({"exon": format!("E{i}"), "log2_deviation": slope * (g - 0.45) * 10.0})
+            })
+            .collect();
+        (json!({"enabled": true, "exons": exons, "calls": [{"gene": "BRCA2"}], "hints": []}), gc)
+    }
+
+    #[test]
+    fn gc_gate_withholds_calls_of_a_gc_dependent_profile() {
+        let (c, gc) = cnv(0.6);
+        let g = gate(c, &gc);
+        assert_eq!(g["enabled"], false);
+        assert_eq!(g["calls"], json!([]));
+        assert_eq!(g["withheld_calls"].as_array().unwrap().len(), 1);
+        assert_eq!(g["gc_slope_per_10pct"], 0.6);
+        let (c, gc) = cnv(0.1);
+        let g = gate(c, &gc);
+        assert_eq!(g["enabled"], true);
+        assert_eq!(g["calls"].as_array().unwrap().len(), 1);
+        assert!(g.get("withheld_calls").is_none());
+    }
 }

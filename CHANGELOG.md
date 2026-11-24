@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Exon copy number: GC gate. A sample whose exon depths depend on the GC content of the exons (slope
+  of the log2 deviation against GC above 0.2 log2 per 10 % GC) gets "exon copy number not assessable"
+  instead of exon deletion calls, and no `candidate` from them. GIAB NovaSeq 30x: HG006 (slope 0.60)
+  and HG007 (0.40) had false exon deletions in BRCA1 and BRCA2 (BRCA2 exons 12-13 copy number 0,
+  quality 99) and were `candidate` for both genes; now BRCA1 `none`, BRCA2 `not_assessable` (exon
+  coverage 75 % / 79 % >= 20x). HG001-HG005 and NA12878 (slope <= 0.11) unchanged, both simulated
+  NA12878 exon deletions still called. Spike-in BAMs (simulated reads in the gene windows, -0.29 to
+  -0.36 by construction): the false duplications of the negative control are withheld; L1-L4 and L6
+  keep their gene results (structural variants or copy number), L5 BRCA1 (17-exon deletion) goes from
+  `candidate` to `not_assessable`. `BRCA12_CNV_GATE=0`: output byte-identical to before (16 BAMs).
 - Validation, arm B in the cloud (`validation/giab_novaseq`): new NovaSeq 30x reads of HG003 to HG007
   over BRCA1/BRCA2 against GIAB v4.2.1: SNVs 974/974 with 1 false positive (intron), indels 167/167,
   every exonic variant found without a false positive; all five samples pass the preregistered

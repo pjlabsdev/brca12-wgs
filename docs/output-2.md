@@ -39,6 +39,15 @@ PCR-free Illumina whole genomes aligned with BWA-MEM like the 1000 Genomes data;
 platform or alignment the exons can deviate as a whole and give false duplication calls (seen on
 HiSeq data aligned with novoalign).
 
+GC gate (brca12-wgs 2.0, not in 1.1): when the exon depths of a sample depend on the GC content of
+the exons, the panel does not fit and the copy number is not assessable. Measured is the least-squares
+slope of the exon log2 deviation against the GC fraction of exon +/- 200 bp over all 50 exons, in log2
+per 10 % GC (`exon_copy_number.gc_slope_per_10pct`); above 0.2 the copy number is not determined
+(`enabled: false`, `reason`, `reason_de`), its segments move to `withheld_calls` / `withheld_hints`
+and never make a gene `candidate`. GIAB NovaSeq 30x HG001-HG005 and NA12878 30x give |slope| <= 0.11,
+HG006 0.60 and HG007 0.40 (each with false exon deletions in both genes before the gate).
+`BRCA12_CNV_GATE=0` turns the gate off.
+
 Without reads in the gene regions (truncated file, other reference or chromosome names) the program
 stops with an error instead of writing a result.
 

@@ -374,6 +374,8 @@ pub fn run(r: &Run) -> io::Result<Value> {
         .map(|v| (v.chrom.clone(), v.pos, v.ref_reads, v.alt_reads))
         .collect();
     let cnv = exon_cnv::call(&cnv_panel, &cnv_depths, Some(&exon_cnv::allele_counts(&cnv_panel, &snvs)));
+    // GC gate: a coverage profile that does not fit the panel makes the exon copy number not assessable
+    let cnv = exon_cnv::gate(cnv, &exon_cnv::gc(reference, &cnv_panel)?);
     let cnv_on = cnv["enabled"] == true;
     // structural variants and insertion signatures (1.1 insertion_signals with read-pair SVs)
     let svs = sv_rows(&sv::signals(r.input, reference, r.regions)?, r.exons);
