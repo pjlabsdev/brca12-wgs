@@ -410,13 +410,17 @@ fn mapq_of(s1: i32, s2: i32, h: &aln::Hit) -> u8 {
     let cnt = kmers as f64 / 6.0;
     let pen = (0.1 * cnt).min(1.0).min(s1 as f64 / 100.0);
     let s2 = s2.max(40).min(s1);
-    let x = ident * pen * 40.0 * (1.0 - s2 as f64 / s1 as f64) * (s1 as f64).ln();
+    // competing copies seen by chaining only (not aligned, or below the alignment threshold) count as
+    // in minimap2: best other chain on the same part of the read against this alignment's chain
+    let xc = if h.chain > 0.0 && !*NO_SUBC { (h.sub.max(25.0) / h.chain).min(1.0) as f64 } else { 0.0 };
+    let x = ident * pen * 40.0 * (1.0 - (s2 as f64 / s1 as f64).max(xc)) * (s1 as f64).ln();
     let q = x.clamp(0.0, 60.0) as u8;
     if q == 0 && s1 > s2 { 1 } else { q }
 }
 
 static OLD_MAPQ: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_MAPQ").is_ok_and(|v| v == "old"));
 static OLD_RESCUE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_RESCUE").is_ok_and(|v| v == "old"));
+static NO_SUBC: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_SUBC").is_ok_and(|v| v == "0"));
 static NO_RESCUE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_RESCUE").is_ok_and(|v| v == "0"));
 
 /// alignments of a read pair with the own aligner (from hla-wgs): the best proper pair on one target

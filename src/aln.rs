@@ -87,6 +87,10 @@ pub struct Hit {
     /// (op, length) with op one of = X I D, query in target orientation
     pub ops: Vec<(u8, u32)>,
     pub primary: bool,
+    /// chaining score of this alignment's chain, and the best other chain on the same part of the
+    /// query (minimap2's score0 and subsc; for mapping quality)
+    pub chain: f32,
+    pub sub: f32,
 }
 
 impl Hit {
@@ -480,6 +484,29 @@ impl Index {
         }
         let best = ch.first().map(|c| c.0).unwrap_or(0.0);
         let rc = revcomp(&q);
+        // query span of a chain on the forward query
+        let qn = q.len() as u32;
+        let k = self.opts.k as u32;
+        let span = |fwd: bool, c: &[(u32, u32)]| {
+            let (a, b) = (c[0].0 + 1 - k, c[c.len() - 1].0 + 1);
+            if fwd { (a, b) } else { (qn - b, qn - a) }
+        };
+        let spans: Vec<(u32, u32)> = ch.iter().map(|c| span(c.2, &c.3)).collect();
+        let sub_of = |fwd: bool, c: &[(u32, u32)]| -> f32 {
+            let (a, b) = span(fwd, c);
+            let mut best = 0f32;
+            for (i, o) in ch.iter().enumerate() {
+                if std::ptr::eq(o.3.as_slice(), c) {
+                    continue;
+                }
+                let (x, y) = spans[i];
+                let ov = b.min(y) as i64 - a.max(x) as i64;
+                if ov * 2 >= (b - a) as i64 && o.0 > best {
+                    best = o.0;
+                }
+            }
+            best
+        };
         let mut per: AHashMap<u32, usize> = AHashMap::new();
         let mut cache: AHashMap<Vec<u8>, (usize, Option<Hit>)> = AHashMap::new();
         let mut hits: Vec<Hit> = ch
@@ -494,7 +521,7 @@ impl Index {
                 *n <= 4 * self.opts.per_group
             })
             .take(self.opts.max_align)
-            .filter_map(|(_, s, fwd, c)| {
+            .filter_map(|(csc, s, fwd, c)| {
                 let qs = if *fwd { q.as_slice() } else { rc.as_slice() };
                 let r = &self.seqs[*s];
                 // the alignment only depends on the stretch of r it can reach and on the anchors in it:
@@ -529,6 +556,8 @@ impl Index {
                 }
                 h.seq = *s;
                 h.fwd = *fwd;
+                h.chain = *csc;
+                h.sub = sub_of(*fwd, c);
                 if !*fwd {
                     let (a, b) = (q.len() - h.q_en, q.len() - h.q_st);
                     h.q_st = a;
@@ -997,7 +1026,7 @@ fn align_chain(q: &[u8], r: &[u8], c: &[(u32, u32)], k: usize, sc: &Score) -> Op
             _ => nm += l as usize,
         }
     }
-    Some(Hit { seq: 0, fwd: true, q_st, q_en: qe + qn, r_st, r_en: re + rn, score, mlen, nm, ops, primary: false })
+    Some(Hit { seq: 0, fwd: true, q_st, q_en: qe + qn, r_st, r_en: re + rn, score, mlen, nm, ops, primary: false, chain: 0.0, sub: 0.0 })
 }
 
 /// Global alignment of a stretch between two anchors. A large stretch is split at exact 13-mers that
