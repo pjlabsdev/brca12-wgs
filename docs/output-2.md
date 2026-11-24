@@ -5,6 +5,19 @@ OUTPREFIX --reference REF.fa`) writes, in the form of the hla-wgs output: `OUTPR
 result page), `OUTPREFIX.tsv`, `OUTPREFIX.variants.tsv`, `OUTPREFIX.exons.tsv`, `OUTPREFIX.sv.tsv` and
 `OUTPREFIX.json`; from FASTQ also `OUTPREFIX.bam`. Research use only.
 
+## Start without the command line
+
+`start/brca12-wgs-start.command` (built on the hla-wgs start file): double-click it on macOS (or
+`bash start/brca12-wgs-start.command`), drag the BAM, CRAM or the two FASTQ files into the window
+and, once, the GRCh38 reference FASTA (remembered in `~/.brca12-wgs/reference`). The program then
+runs with a progress display, writes everything to `~/Downloads/brca12-wgs-SAMPLE`, shows the result
+of both genes and opens the result page. `brca12-wgs html PREFIX.json` writes the page again.
+
+Before the first read the program checks the input, its index, the reference and its `.fai`, and
+that the output folder can be written. FASTQ input survives I/O errors (for example an external
+disk that disconnects briefly): it pauses, reopens the files and continues where it stopped
+(`BRCA12_IO_RETRIES`, default 6).
+
 ## OUTPREFIX.html
 
 One self-contained page (IBM Plex Mono embedded, no network), German and English in one file with
