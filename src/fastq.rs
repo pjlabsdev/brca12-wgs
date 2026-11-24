@@ -486,10 +486,17 @@ fn pair_hits(idx: &aln::Index, n_targets: usize, x: &Fq, y: &Fq, targets: &[Targ
             }
             let len = (h.q_en - h.q_st).max(1);
             let o = covered.iter().map(|&(a, b)| (h.q_en.min(b) as i64 - h.q_st.max(a) as i64).max(0) as usize).max().unwrap_or(0);
-            if o * 2 < len && len >= 30 {
-                covered.push((h.q_st, h.q_en));
-                out[k].push(to_hit(h, qlen, targets, tids, q.min(mapq_of(h.score, 0, h.mlen)), true));
+            if o * 2 >= len || len < 30 {
+                continue;
             }
+            // a piece that fits as well elsewhere (repeat copy, Alu) is no evidence of a split read
+            let s2 = m[k].iter().enumerate().filter(|(j, g)| *j != i && ov(g, h) * 2 >= len).map(|(_, g)| g.score).max().unwrap_or(0);
+            let sq = mapq_of(h.score, s2, h.mlen);
+            if sq < 20 {
+                continue;
+            }
+            covered.push((h.q_st, h.q_en));
+            out[k].push(to_hit(h, qlen, targets, tids, q.min(sq), true));
         }
     }
     let [a, b] = out;

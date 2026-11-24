@@ -1232,7 +1232,7 @@ fn dp_raw(q: &[u8], r: &[u8], sc: &Score, ext: bool) -> DpOut {
                 sc_i += if q[i] == r[i] { sc.a } else { -sc.b };
                 raw = raw.max(sc_i);
                 let v = if i + 1 == n { sc_i + sc.end_bonus } else { sc_i };
-                if v > best || (i + 1 == n && v == best) {
+                if v > best {
                     best = v;
                     bn = i + 1;
                 }
@@ -1490,7 +1490,8 @@ fn dp_ext_ad_impl(q: &[u8], r: &[u8], sc: &Score, n: usize, m: usize, full: bool
         while next_row <= nrow && next_row + row_hi(next_row) <= t {
             let i = next_row;
             let hb = if i == n { rmax[i] + sc.end_bonus } else { rmax[i] };
-            if hb > best || (hb == best && i == n && bi != n) {
+            // brca12: reaching the end must beat clipping (as minimap2 ksw2: mqe + end_bonus > max); a tie clips
+            if hb > best {
                 best = hb;
                 bi = i;
                 bj = rarg[i];
@@ -1701,7 +1702,8 @@ fn dp_in(q: &[u8], r: &[u8], sc: &Score, ext: bool, n: usize, m: usize, full: bo
             // as a scan of the row cell by cell: a better cell replaces the best; on the last row of q
             // (with its bonus) the first cell that reaches the best takes it
             let hb = if i == n { rmax + sc.end_bonus } else { rmax };
-            if hb > best || (hb == best && i == n && bi != n) {
+            // brca12: reaching the end must beat clipping (as minimap2 ksw2: mqe + end_bonus > max); a tie clips
+            if hb > best {
                 best = hb;
                 bi = i;
                 bj = rarg;
