@@ -980,7 +980,10 @@ fn align_chain(q: &[u8], r: &[u8], c: &[(u32, u32)], k: usize, sc: &Score) -> Op
     for d in diags {
         let sub: Vec<(u32, u32)> = c.iter().copied().filter(|&(a, b)| b as i64 - a as i64 == d).collect();
         if let Some(h) = align_chain1(q, r, &sub, k, sc) {
-            if best.as_ref().map_or(true, |b| h.score > b.score) {
+            // only an alignment that covers at least the same part of the read: clipping the end
+            // after an insertion can score a little higher but hides the insertion (HG007 NovaSeq
+            // chr13:32347011 T>TTTTATAAAA: 115M9I27M became 134M17S)
+            if best.as_ref().map_or(true, |b| h.score > b.score && h.q_st <= b.q_st && h.q_en >= b.q_en) {
                 best = Some(h);
             }
         }
