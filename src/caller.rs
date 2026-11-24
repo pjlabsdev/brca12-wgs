@@ -521,6 +521,8 @@ fn overlaps(a: &Allele, b: &Allele) -> bool {
 /// Call variants in [start, end) (0-based) of `chrom`: candidates are grouped into clusters (gaps
 /// <= 10 bp); every read is aligned (pair-HMM) against the reference and the candidate haplotypes of
 /// its cluster; the best diploid pair of haplotypes gives the genotypes.
+static MISMAP: std::sync::LazyLock<f64> = std::sync::LazyLock::new(|| std::env::var("BRCA12_MISMAP").ok().and_then(|v| v.parse().ok()).unwrap_or(4.5));
+
 pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u64, p: &Params) -> io::Result<Vec<Call>> {
     let pad = 1000u64;
     let off = start.saturating_sub(pad);
@@ -754,6 +756,17 @@ pub fn call_region(path: &str, reference: &str, chrom: &str, start: u64, end: u6
                     let mut v = vec![-1e9f64; k + 1];
                     for &(x, idx) in &hap_idx {
                         v[idx] = v[idx].max(l[x]);
+                    }
+                    // a read is at most this much (log10) more likely on one allele than on another
+                    // (GATK HaplotypeCaller: global read mismapping rate Q45): one misplaced read whose
+                    // mismatches fit a large indel perfectly must not outweigh dozens of reference reads
+                    if *MISMAP > 0.0 {
+                        let mx = v.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+                        for x in v.iter_mut() {
+                            if *x > -1e8 {
+                                *x = x.max(mx - *MISMAP);
+                            }
+                        }
                     }
                     v
                 })
