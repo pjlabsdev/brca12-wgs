@@ -7,8 +7,8 @@ result page), `OUTPREFIX.tsv`, `OUTPREFIX.variants.tsv`, `OUTPREFIX.exons.tsv`, 
 
 ## Start without the command line
 
-`start/brca12-wgs-start.command` (built on the hla-wgs start file): double-click it on macOS (or
-`bash start/brca12-wgs-start.command`), drag the BAM, CRAM or the two FASTQ files into the window
+`start/brca12-wgs-2-start.command` (built on the hla-wgs start file): double-click it on macOS (or
+`bash start/brca12-wgs-2-start.command`), drag the BAM, CRAM or the two FASTQ files into the window
 and, once, the GRCh38 reference FASTA (remembered in `~/.brca12-wgs/reference`). The program then
 runs with a progress display, writes everything to `~/Downloads/brca12-wgs-SAMPLE`, shows the result
 of both genes and opens the result page. `brca12-wgs html PREFIX.json` writes the page again.

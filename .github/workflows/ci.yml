@@ -19,7 +19,7 @@ jobs:
           ./target/release/brca12-wgs --version
           ./target/release/brca12-wgs 2>&1 | grep -q "R1.fastq.gz R2.fastq.gz OUTPREFIX"
       - name: Start file syntax
-        run: bash -n start/brca12-wgs-start.command
+        run: bash -n start/brca12-wgs-2-start.command && bash tests/run_start_2.sh
   unit:
     runs-on: ubuntu-latest
     steps:
