@@ -18,10 +18,10 @@
 //! The result is OUTPREFIX.bam (+ .bai), which the analysis then reads like any BAM.
 use crate::exon_cnv;
 use ahash::{AHashMap, AHashSet};
-use flate2::read::MultiGzDecoder;
 use minimap2::Aligner;
 use noodles::sam;
 use rayon::prelude::*;
+use crate::util::{Fq, PairedFq};
 use std::io::{self, BufRead, BufReader, Write};
 
 const K: usize = 31;
@@ -263,51 +263,6 @@ pub fn scan_reference(reference: &str, targets: &[Target]) -> io::Result<Scan> {
         eprintln!("brca12-wgs: could not write the k-mer cache {cache} (continuing)");
     }
     Ok(Scan { unique, decoys })
-}
-
-struct Fq {
-    name: Vec<u8>,
-    seq: Vec<u8>,
-    qual: Vec<u8>,
-}
-
-fn fq_reader(path: &str) -> io::Result<Box<dyn BufRead + Send>> {
-    let f = std::fs::File::open(path).map_err(|e| io::Error::other(format!("{path}: {e}")))?;
-    let mut head = [0u8; 2];
-    let mut probe = BufReader::new(f);
-    let buf = probe.fill_buf()?;
-    head.copy_from_slice(&buf[..2.min(buf.len())]);
-    Ok(if head == [0x1f, 0x8b] {
-        Box::new(BufReader::with_capacity(1 << 22, MultiGzDecoder::new(probe)))
-    } else {
-        Box::new(probe)
-    })
-}
-
-fn read_batch(r: &mut dyn BufRead, n: usize) -> io::Result<Vec<Fq>> {
-    let mut out = Vec::with_capacity(n);
-    let mut l = [vec![], vec![], vec![], vec![]];
-    while out.len() < n {
-        for x in l.iter_mut() {
-            x.clear();
-        }
-        if r.read_until(b'\n', &mut l[0])? == 0 {
-            break;
-        }
-        for x in l.iter_mut().skip(1) {
-            r.read_until(b'\n', x)?;
-        }
-        let trim = |v: &[u8]| -> Vec<u8> { v.strip_suffix(b"\n").map(|v| v.strip_suffix(b"\r").unwrap_or(v)).unwrap_or(v).to_vec() };
-        let mut name = trim(&l[0][1..]);
-        if let Some(p) = name.iter().position(|&c| c == b' ' || c == b'\t') {
-            name.truncate(p);
-        }
-        if name.ends_with(b"/1") || name.ends_with(b"/2") {
-            name.truncate(name.len() - 2);
-        }
-        out.push(Fq { name, seq: trim(&l[1]).to_ascii_uppercase(), qual: trim(&l[3]).iter().map(|q| q.saturating_sub(33)).collect() });
-    }
-    Ok(out)
 }
 
 /// one alignment record before it is written
@@ -635,24 +590,17 @@ pub fn to_bam(r1: &str, r2: &str, reference: &str, regions: &[(String, u64, u64,
     let _ = std::fs::remove_file(&panel);
     // target order in the index = order in the FASTA
     let by_name: AHashMap<String, usize> = tg.iter().enumerate().map(|(i, t)| (t.name.clone(), i)).collect();
-    // two reader threads (R1, R2) feed batches; k-mer screening and alignment run in parallel
+    // the paired reader of hla-wgs feeds batches (it survives I/O errors: pause, reopen, continue);
+    // k-mer screening and alignment run in parallel
     let (tx, rx) = std::sync::mpsc::sync_channel::<(Vec<Fq>, Vec<Fq>)>(4);
     let (p1, p2) = (r1.to_string(), r2.to_string());
     let reader = std::thread::spawn(move || -> io::Result<u64> {
-        let (mut a, mut b) = (fq_reader(&p1)?, fq_reader(&p2)?);
+        let mut src = PairedFq::new(&p1, &p2);
         let mut n = 0u64;
         loop {
-            let (b1, b2) = std::thread::scope(|s| {
-                let h = s.spawn(|| read_batch(&mut *b, 200_000));
-                let x = read_batch(&mut *a, 200_000);
-                (x, h.join().unwrap())
-            });
-            let (b1, b2) = (b1?, b2?);
+            let (b1, b2) = src.batch(200_000);
             if b1.is_empty() {
                 break;
-            }
-            if b1.len() != b2.len() {
-                return Err(io::Error::other("R1 and R2 have a different number of reads"));
             }
             n += b1.len() as u64;
             if tx.send((b1, b2)).is_err() {
@@ -681,7 +629,7 @@ pub fn to_bam(r1: &str, r2: &str, reference: &str, regions: &[(String, u64, u64,
                 if x.name != y.name {
                     return vec![];
                 }
-                let Ok((m1, m2)) = al.map_pair(&x.seq, &y.seq, false, false, None, None, Some(&x.name)) else { return vec![] };
+                let Ok((m1, m2)) = al.map_pair(&x.seq, &y.seq, false, false, None, None, Some(x.name.as_bytes())) else { return vec![] };
                 let (mut h1, mut h2) = (hits(&m1, &tg, &by_name, &tids), hits(&m2, &tg, &by_name, &tids));
                 // a read without genome-unique 31-mers of its own could come from a copy outside the
                 // targets (segmental duplication, repeat): mapping quality 0, as BWA gives it on the
@@ -694,7 +642,7 @@ pub fn to_bam(r1: &str, r2: &str, reference: &str, regions: &[(String, u64, u64,
                         h.iter_mut().for_each(|z| z.mapq = 0);
                     }
                 }
-                pair_records(&x.name, x, y, &h1, &h2, &names)
+                pair_records(x.name.as_bytes(), x, y, &h1, &h2, &names)
             })
             .collect();
         for g in got {

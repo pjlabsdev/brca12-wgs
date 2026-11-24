@@ -14,6 +14,7 @@ mod output;
 mod reads;
 mod readstats;
 mod sv;
+mod util;
 
 use std::io::{self, BufRead};
 
@@ -27,6 +28,8 @@ usage:
       the analysis: writes OUTPREFIX.tsv (one line per gene), OUTPREFIX.variants.tsv (one line per
       small variant with HGVS, ClinVar and gnomAD), OUTPREFIX.exons.tsv (one line per exon with its
       certainty) and OUTPREFIX.json (schema genome.brca12.v2); see docs/output-2.md
+  brca12-wgs html PREFIX.json
+      the result page PREFIX.html again from PREFIX.json
   brca12-wgs coverage <BAM|CRAM> [--reference REF.fa] [--exons EXONS.bed] [--min-mapq 20]
       exon depth like mosdepth (MAPQ filter, flags 0x704 skipped, mate overlap once):
       name, mean depth and bases >= 10/20/30x per exon, tab-separated on stdout
@@ -141,6 +144,53 @@ fn cmd_readqc(args: &[String]) -> io::Result<()> {
     Ok(())
 }
 
+/// everything that can be known before the first read is checked here (as in hla-wgs), so that a
+/// wrong path, a missing index or a read-only folder is reported at once and not after minutes
+fn preflight(inputs: &[&str], reference: Option<&str>, out: &str) {
+    let need = |p: &str, what: &str| match std::fs::metadata(p) {
+        Err(e) => util::die(&format!("{what} not found: {p} ({e})")),
+        Ok(m) if m.is_file() && m.len() == 0 => util::die(&format!("{what} is empty: {p}")),
+        Ok(m) if m.is_dir() => util::die(&format!("{what} is a folder, not a file: {p}")),
+        Ok(_) => {}
+    };
+    for p in inputs {
+        let l = p.to_ascii_lowercase();
+        need(p, if l.contains(".fq") || l.contains(".fastq") { "FASTQ" } else { "input file" });
+        let cands: Vec<String> = if l.ends_with(".cram") {
+            vec![format!("{p}.crai")]
+        } else if l.ends_with(".bam") {
+            vec![format!("{p}.bai"), format!("{p}.csi"), format!("{}.bai", &p[..p.len() - 4])]
+        } else {
+            vec![]
+        };
+        if !cands.is_empty() && !cands.iter().any(|c| std::path::Path::new(c).is_file()) {
+            util::die(&format!("index not found for {p}: expected {}", cands.join(" or ")));
+        }
+    }
+    match reference {
+        Some(r) => {
+            need(r, "reference FASTA");
+            need(&format!("{r}.fai"), "reference FASTA index (.fai)");
+        }
+        None => util::die("--reference REF.fa is needed (GRCh38 FASTA with .fai)"),
+    }
+    if let Some(dir) = std::path::Path::new(out).parent().filter(|d| !d.as_os_str().is_empty()) {
+        if let Err(e) = std::fs::create_dir_all(dir) {
+            util::die(&format!("cannot create the output folder {}: {e}", dir.display()));
+        }
+    }
+    let probe = format!("{out}.tsv");
+    let existed = std::path::Path::new(&probe).exists();
+    match std::fs::OpenOptions::new().append(true).create(true).open(&probe) {
+        Ok(_) => {
+            if !existed {
+                let _ = std::fs::remove_file(&probe);
+            }
+        }
+        Err(e) => util::die(&format!("cannot write results to {probe}: {e}")),
+    }
+}
+
 fn cmd_run(args: &[String]) -> io::Result<()> {
     let pos: Vec<&String> = {
         let mut v = vec![];
@@ -158,6 +208,11 @@ fn cmd_run(args: &[String]) -> io::Result<()> {
     };
     let reference = arg(args, "--reference");
     // paired FASTQ: R1 R2 OUTPREFIX -> the reads of BRCA1/BRCA2 are aligned to OUTPREFIX.bam first
+    match pos.as_slice() {
+        [a, b, p, ..] if is_fq(a) && is_fq(b) => preflight(&[a.as_str(), b.as_str()], reference.as_deref(), p),
+        [i, p, ..] => preflight(&[i.as_str()], reference.as_deref(), p),
+        _ => {}
+    }
     let fq_bam;
     let (input, prefix) = match pos.as_slice() {
         [a, b, p, ..] if is_fq(a) && is_fq(b) => {
@@ -257,6 +312,20 @@ fn cmd_sv(args: &[String]) -> io::Result<()> {
     Ok(())
 }
 
+/// the result page again from PREFIX.json (as hla-wgs html), e.g. after an update of the page
+fn cmd_html(args: &[String]) -> io::Result<()> {
+    let j = args.first().ok_or_else(|| io::Error::other("usage: brca12-wgs html PREFIX.json"))?;
+    let rep: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(j).map_err(|e| io::Error::other(format!("cannot read {j}: {e}")))?)
+        .map_err(|e| io::Error::other(format!("{j} is not a result file: {e}")))?;
+    if rep["schema"] != output::SCHEMA {
+        return Err(io::Error::other(format!("{j} is not a brca12-wgs 2 result file (schema {})", rep["schema"])));
+    }
+    let prefix = j.trim_end_matches(".json");
+    std::fs::write(format!("{prefix}.html"), html::render(&rep))?;
+    eprintln!("brca12-wgs: {prefix}.html");
+    Ok(())
+}
+
 /// debug: bases of every read at one position (flags, strand, MAPQ, base, base quality)
 fn cmd_pileup(args: &[String]) -> io::Result<()> {
     let input = args.first().cloned().ok_or_else(|| io::Error::other("input BAM/CRAM missing"))?;
@@ -298,6 +367,7 @@ fn main() {
         Some("annotate") => cmd_annotate(&args[1..]),
         Some("exon-cnv") => cmd_exon_cnv(&args[1..]),
         Some("sv") => cmd_sv(&args[1..]),
+        Some("html") => cmd_html(&args[1..]),
         Some("--version") | Some("-V") => {
             println!("brca12-wgs {}", env!("CARGO_PKG_VERSION"));
             Ok(())
