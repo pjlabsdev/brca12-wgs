@@ -7,21 +7,21 @@
 //!    reference (both strands). Reads of repeats from elsewhere (Alu, L1) do not share such a k-mer
 //!    and are not pulled in, which replaces the mapping quality a whole-genome alignment would give.
 //!    Decoys: loci elsewhere that share many low-copy (2-20 copies) 31-mers with the targets
-//!    (pseudogenes, segmental duplications); they join the minimap2 panel, and reads that fit a decoy
+//!    (pseudogenes, segmental duplications); they join the alignment panel, and reads that fit a decoy
 //!    best are dropped, as a whole-genome aligner would place them there. Both are cached next to
 //!    the reference (REF.brca12-kmers) after the first run.
 //! 3. A pair is kept when one of its reads has at least two of these k-mers; kept pairs are aligned
-//!    with minimap2 (short-read preset, paired; compiled into the program) to the targets, placed
+//!    with the own aligner (src/aln.rs from hla-wgs: k-mer anchors, chaining, affine alignment; paired with mate rescue) to the targets, placed
 //!    on GRCh38, duplicates marked as samtools markdup does for pairs, sorted and indexed. A read
 //!    without two genome-unique 31-mers of its own, or whose mate does not align to the targets, gets
 //!    mapping quality 0 (it may come from a copy elsewhere in the genome).
 //! The result is OUTPREFIX.bam (+ .bai), which the analysis then reads like any BAM.
 use crate::exon_cnv;
 use ahash::{AHashMap, AHashSet};
-use flate2::read::MultiGzDecoder;
-use minimap2::Aligner;
+use crate::aln;
 use noodles::sam;
 use rayon::prelude::*;
+use crate::util::{Fq, PairedFq};
 use std::io::{self, BufRead, BufReader, Write};
 
 const K: usize = 31;
@@ -265,51 +265,6 @@ pub fn scan_reference(reference: &str, targets: &[Target]) -> io::Result<Scan> {
     Ok(Scan { unique, decoys })
 }
 
-struct Fq {
-    name: Vec<u8>,
-    seq: Vec<u8>,
-    qual: Vec<u8>,
-}
-
-fn fq_reader(path: &str) -> io::Result<Box<dyn BufRead + Send>> {
-    let f = std::fs::File::open(path).map_err(|e| io::Error::other(format!("{path}: {e}")))?;
-    let mut head = [0u8; 2];
-    let mut probe = BufReader::new(f);
-    let buf = probe.fill_buf()?;
-    head.copy_from_slice(&buf[..2.min(buf.len())]);
-    Ok(if head == [0x1f, 0x8b] {
-        Box::new(BufReader::with_capacity(1 << 22, MultiGzDecoder::new(probe)))
-    } else {
-        Box::new(probe)
-    })
-}
-
-fn read_batch(r: &mut dyn BufRead, n: usize) -> io::Result<Vec<Fq>> {
-    let mut out = Vec::with_capacity(n);
-    let mut l = [vec![], vec![], vec![], vec![]];
-    while out.len() < n {
-        for x in l.iter_mut() {
-            x.clear();
-        }
-        if r.read_until(b'\n', &mut l[0])? == 0 {
-            break;
-        }
-        for x in l.iter_mut().skip(1) {
-            r.read_until(b'\n', x)?;
-        }
-        let trim = |v: &[u8]| -> Vec<u8> { v.strip_suffix(b"\n").map(|v| v.strip_suffix(b"\r").unwrap_or(v)).unwrap_or(v).to_vec() };
-        let mut name = trim(&l[0][1..]);
-        if let Some(p) = name.iter().position(|&c| c == b' ' || c == b'\t') {
-            name.truncate(p);
-        }
-        if name.ends_with(b"/1") || name.ends_with(b"/2") {
-            name.truncate(name.len() - 2);
-        }
-        out.push(Fq { name, seq: trim(&l[1]).to_ascii_uppercase(), qual: trim(&l[3]).iter().map(|q| q.saturating_sub(33)).collect() });
-    }
-    Ok(out)
-}
-
 /// one alignment record before it is written
 #[derive(Clone)]
 struct Rec {
@@ -367,30 +322,201 @@ struct Hit {
     nm: i32,
 }
 
-fn hits(ms: &[minimap2::Mapping], targets: &[Target], by_name: &AHashMap<String, usize>, tids: &AHashMap<String, usize>) -> Vec<Hit> {
-    // a read whose primary alignment is on a decoy belongs elsewhere in the genome
-    if ms.iter().any(|m| m.is_primary && m.target_name.as_ref().is_some_and(|n| n.starts_with("decoy|"))) {
-        return vec![];
+/// One mate's alignment as a record: soft clips, M/I/D CIGAR, position on the chromosome
+fn to_hit(h: &aln::Hit, qlen: usize, targets: &[Target], tids: &AHashMap<String, usize>, mapq: u8, supp: bool) -> Hit {
+    let t = &targets[h.seq];
+    let lead = if h.fwd { h.q_st } else { qlen - h.q_en };
+    let mut cigar: Vec<(u32, char)> = vec![];
+    let mut push = |n: u32, c: char| {
+        if n == 0 {
+            return;
+        }
+        match cigar.last_mut() {
+            Some(x) if x.1 == c => x.0 += n,
+            _ => cigar.push((n, c)),
+        }
+    };
+    push(lead as u32, 'S');
+    for &(op, l) in &h.ops {
+        push(l, match op { b'=' | b'X' => 'M', b'I' => 'I', _ => 'D' });
     }
-    ms.iter()
-        .filter(|m| m.is_primary || m.is_supplementary)
-        .filter_map(|m| {
-            let t = &targets[*by_name.get(m.target_name.as_ref()?.as_str())?];
-            let a = m.alignment.as_ref()?;
-            let cigar = parse_cigar(a.cigar_str.as_deref()?);
-            let pos = t.start + m.target_start as u64;
-            Some(Hit {
-                tid: tids[&t.chrom],
-                pos,
-                end: t.start + m.target_end as u64,
-                rev: m.strand == minimap2::Strand::Reverse,
-                mapq: m.mapq.min(60) as u8,
-                cigar,
-                supp: m.is_supplementary,
-                nm: a.nm,
-            })
-        })
-        .collect()
+    push((qlen - lead - (h.q_en - h.q_st)) as u32, 'S');
+    Hit { tid: tids[&t.chrom], pos: t.start + h.r_st as u64, end: t.start + h.r_en as u64, rev: !h.fwd, mapq, cigar, supp, nm: h.nm as i32 }
+}
+
+/// mapping quality in the manner of minimap2 (sr): the best score against the best competing score on
+/// the same part of the read, scaled down by the alignment's identity and, as minimap2 does through its
+/// anchor count, for reads with few exact 21-mers (copies of a diverged repeat or paralog that is not
+/// in the panel; minimap2 samples one minimizer per ~6 k-mers, hence the 1/6)
+fn mapq_of(s1: i32, s2: i32, h: &aln::Hit) -> u8 {
+    if s1 <= 0 {
+        return 0;
+    }
+    if *OLD_MAPQ {
+        if s2 <= 0 {
+            return 60;
+        }
+        let x = 40.0 * (1.0 - s2 as f64 / s1 as f64) * (h.mlen as f64 / 10.0).min(1.0) * (s1 as f64).ln();
+        return x.clamp(0.0, 60.0).round() as u8;
+    }
+    let cols: u32 = h.ops.iter().map(|&(_, l)| l).sum();
+    let ident = h.mlen as f64 / cols.max(1) as f64;
+    let kmers: u32 = h.ops.iter().filter(|&&(o, _)| o == b'=').map(|&(_, l)| l.saturating_sub(20)).sum();
+    let cnt = kmers as f64 / 6.0;
+    let pen = (0.1 * cnt).min(1.0).min(s1 as f64 / 100.0);
+    let s2 = s2.max(40).min(s1);
+    // competing copies seen by chaining only (not aligned, or below the alignment threshold) count as
+    // in minimap2: best other chain on the same part of the read against this alignment's chain
+    let xc = if h.chain > 0.0 && !*NO_SUBC { (h.sub.max(25.0) / h.chain).min(1.0) as f64 } else { 0.0 };
+    let x = ident * pen * 40.0 * (1.0 - (s2 as f64 / s1 as f64).max(xc)) * (s1 as f64).ln();
+    let q = x.clamp(0.0, 60.0) as u8;
+    if q == 0 && s1 > s2 { 1 } else { q }
+}
+
+static OLD_MAPQ: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_MAPQ").is_ok_and(|v| v == "old"));
+static OLD_RESCUE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_RESCUE").is_ok_and(|v| v == "old"));
+static NO_SUBC: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_SUBC").is_ok_and(|v| v == "0"));
+static PARTIAL: std::sync::LazyLock<f64> = std::sync::LazyLock::new(|| std::env::var("BRCA12_PARTIAL").ok().and_then(|v| v.parse().ok()).unwrap_or(0.5));
+// a partly aligned mate loses only its own MAPQ, not its partner's: HG001 chr17:43064827 AT>A (true
+// 0/1) lost its deletion read when its 75M76S mate (49.7 % aligned, clipped at a shared breakpoint)
+// counted as unaligned. BRCA12_PARTIAL_MATE=1 makes the partner MAPQ 0 as well (ffc5492).
+static PARTIAL_MATE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_PARTIAL_MATE").is_ok_and(|v| v == "1"));
+static NO_RESCUE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_RESCUE").is_ok_and(|v| v == "0"));
+
+/// alignments of a read pair with the own aligner (from hla-wgs): the best proper pair on one target
+/// earns a bonus as in paired mapping (hla-wgs panel: 33); a mate without a hit next to its partner is
+/// aligned in a window beside it (mate rescue, as in hla-wgs). The primary hit on a decoy means the
+/// read belongs elsewhere in the genome: no record for that mate.
+fn pair_hits(idx: &aln::Index, n_targets: usize, x: &Fq, y: &Fq, targets: &[Target], tids: &AHashMap<String, usize>) -> (Vec<Hit>, Vec<Hit>) {
+    const BONUS: i32 = 33;
+    const RESCUE_MIN: i32 = 40;
+    let mut m = [idx.map(&x.seq), idx.map(&y.seq)];
+    let qs = [&x.seq, &y.seq];
+    // mate rescue next to the partner's best hit
+    for mate in 0..2 {
+        if *NO_RESCUE {
+            break;
+        }
+        let other = 1 - mate;
+        let Some(p) = m[other].first().cloned() else { continue };
+        let near = |h: &aln::Hit| h.seq == p.seq && h.fwd != p.fwd && (h.r_st as i64 - p.r_st as i64).abs() <= 1500;
+        if m[mate].iter().any(near) {
+            continue;
+        }
+        let seq = &idx.seqs[p.seq];
+        let (w0, w1) = (p.r_st.saturating_sub(1000), (p.r_en + 1000).min(seq.len()));
+        let qo: Vec<u8> = if p.fwd { aln::revcomp(qs[mate]) } else { qs[mate].to_ascii_uppercase() };
+        let sub = aln::Index::new(vec![String::new()], vec![seq[w0..w1].to_vec()], aln::Opts::sr_single());
+        // a rescued mate must align as a whole and well: a partial piece of a mate that belongs to
+        // another copy elsewhere would make the pair look aligned and keep the partner's MAPQ up
+        let ql = qo.len();
+        let good = |h: &aln::Hit| if *OLD_RESCUE { h.score >= RESCUE_MIN } else { (h.q_en - h.q_st) * 10 >= ql * 9 && h.score as usize >= ql };
+        if let Some(mut h) = sub.map(&qo).into_iter().find(|h| h.fwd && good(h)) {
+            // back to the read's own orientation
+            h.seq = p.seq;
+            h.r_st += w0;
+            h.r_en += w0;
+            h.fwd = !p.fwd;
+            if p.fwd {
+                let l = qo.len();
+                let (a, b) = (l - h.q_en, l - h.q_st);
+                h.q_st = a;
+                h.q_en = b;
+            }
+            m[mate].push(h);
+            m[mate].sort_by(|a, b| b.score.cmp(&a.score));
+        }
+    }
+    // primary per mate: best single hits, or the best proper pair if it scores higher with the bonus
+    let proper = |a: &aln::Hit, b: &aln::Hit| {
+        a.seq == b.seq && a.fwd != b.fwd && {
+            let (l, r) = if a.r_st <= b.r_st { (a, b) } else { (b, a) };
+            l.fwd && !r.fwd && r.r_en.max(l.r_en) - l.r_st <= 2000
+        }
+    };
+    let top = |k: usize| m[k].first().map_or(0, |h| h.score);
+    let mut pairs: Vec<(i32, usize, usize)> = vec![];
+    for (i, a) in m[0].iter().enumerate().take(20) {
+        for (j, b) in m[1].iter().enumerate().take(20) {
+            if proper(a, b) {
+                pairs.push((a.score + b.score + BONUS, i, j));
+            }
+        }
+    }
+    pairs.sort_by(|a, b| b.0.cmp(&a.0));
+    let paired = pairs.first().filter(|p| p.0 >= top(0) + top(1)).copied();
+    let pick = match paired {
+        Some((_, i, j)) => [Some(i), Some(j)],
+        None => [(!m[0].is_empty()).then_some(0), (!m[1].is_empty()).then_some(0)],
+    };
+    // the pair's MAPQ as minimap2 (pe.c): the better mate's MAPQ, limited by how much the best pair
+    // beats the next ones; a mate below it is raised to 0.2 own + 0.8 pair
+    let single = |k: usize, pi: usize| {
+        let p = &m[k][pi];
+        let ov = |a: &aln::Hit, b: &aln::Hit| (a.q_en.min(b.q_en) as i64 - a.q_st.max(b.q_st) as i64).max(0) as usize;
+        let s2 = m[k].iter().enumerate().filter(|(i, h)| *i != pi && ov(h, p) * 2 >= (p.q_en - p.q_st)).map(|(_, h)| h.score).max().unwrap_or(0);
+        mapq_of(p.score, s2, p)
+    };
+    let mut qpe: [Option<u8>; 2] = [None, None];
+    if let Some((ps, i, j)) = paired {
+        if *OLD_MAPQ {
+            let p2 = pairs.iter().skip(1).map(|x| x.0).next().unwrap_or(0);
+            let v = |h: &aln::Hit| mapq_of(ps, p2, h);
+            qpe = [Some(v(&m[0][i])), Some(v(&m[1][j]))];
+        } else {
+            let (q0, q1) = (single(0, i), single(1, j));
+            let mut pe = q0.max(q1) as f64;
+            if pairs.len() > 1 {
+                let n_sub = pairs.iter().filter(|x| x.0 + 2 * 2 >= ps).count().max(1) as f64;
+                let alt = 6.02 * (ps - pairs[1].0) as f64 / 2.0 - 4.343 * n_sub.ln();
+                pe = pe.min(alt);
+            }
+            let lift = |q: u8| {
+                let q = if (q as f64) < pe { (0.2 * q as f64 + 0.8 * pe + 0.499) as u8 } else { q };
+                let floor = if pairs.len() == 1 { 2 } else if ps > pairs[1].0 { 1 } else { 0 };
+                q.max(floor).min(60)
+            };
+            qpe = [Some(lift(q0)), Some(lift(q1))];
+        }
+    }
+    let mut out: [Vec<Hit>; 2] = [vec![], vec![]];
+    for k in 0..2 {
+        let Some(pi) = pick[k] else { continue };
+        let p = &m[k][pi];
+        if p.seq >= n_targets {
+            continue;
+        }
+        let qlen = qs[k].len();
+        let ov = |a: &aln::Hit, b: &aln::Hit| (a.q_en.min(b.q_en) as i64 - a.q_st.max(b.q_st) as i64).max(0) as usize;
+        let s2 = m[k].iter().enumerate().filter(|(i, h)| *i != pi && ov(h, p) * 2 >= (p.q_en - p.q_st)).map(|(_, h)| h.score).max().unwrap_or(0);
+        let mut q = mapq_of(p.score, s2, p);
+        if paired.is_some() {
+            q = qpe[k].unwrap_or(q).max(q);
+        }
+        out[k].push(to_hit(p, qlen, targets, tids, q, false));
+        // supplementary: hits on a part of the read the primary does not cover (split reads)
+        let mut covered = vec![(p.q_st, p.q_en)];
+        for (i, h) in m[k].iter().enumerate() {
+            if i == pi || h.seq >= n_targets {
+                continue;
+            }
+            let len = (h.q_en - h.q_st).max(1);
+            let o = covered.iter().map(|&(a, b)| (h.q_en.min(b) as i64 - h.q_st.max(a) as i64).max(0) as usize).max().unwrap_or(0);
+            if o * 2 >= len || len < 30 {
+                continue;
+            }
+            // a piece that fits as well elsewhere (repeat copy, Alu) is no evidence of a split read
+            let s2 = m[k].iter().enumerate().filter(|(j, g)| *j != i && ov(g, h) * 2 >= len).map(|(_, g)| g.score).max().unwrap_or(0);
+            let sq = mapq_of(h.score, s2, h);
+            if sq < 20 {
+                continue;
+            }
+            covered.push((h.q_st, h.q_en));
+            out[k].push(to_hit(h, qlen, targets, tids, q.min(sq), true));
+        }
+    }
+    let [a, b] = out;
+    (a, b)
 }
 
 /// SAM records of one pair (primary, supplementary, unmapped mate placed at its partner)
@@ -601,7 +727,7 @@ pub fn to_bam(r1: &str, r2: &str, reference: &str, regions: &[(String, u64, u64,
     let tg = targets(reference, regions, &contigs)?;
     let scan = scan_reference(reference, &tg)?;
     let uniq = scan.unique;
-    // decoys (paralogs elsewhere) join the minimap2 panel, so that their reads find their own locus
+    // decoys (paralogs elsewhere) join the alignment panel, so that their reads find their own locus
     let decoy_seqs: Vec<(String, Vec<u8>)> = {
         let mut fa = noodles::fasta::io::indexed_reader::Builder::default().build_from_path(reference)?;
         scan.decoys
@@ -614,45 +740,29 @@ pub fn to_bam(r1: &str, r2: &str, reference: &str, regions: &[(String, u64, u64,
     };
     let decoy_bp: usize = decoy_seqs.iter().map(|d| d.1.len()).sum();
     eprintln!("brca12-wgs: {} targets, {} unique 31-mers, {} decoy loci ({} kb) ({:.0} s)", tg.len(), uniq.len(), decoy_seqs.len(), decoy_bp / 1000, t0.elapsed().as_secs_f64());
-    // minimap2 index from a FASTA of the targets (its in-memory index works for one sequence only)
-    let panel = format!("{prefix}.targets.fa");
-    {
-        let mut f = std::io::BufWriter::new(std::fs::File::create(&panel)?);
-        for (n, seq) in tg.iter().map(|t| (&t.name, &t.seq)).chain(decoy_seqs.iter().map(|d| (&d.0, &d.1))) {
-            writeln!(f, ">{n}")?;
-            for c in seq.chunks(80) {
-                f.write_all(c)?;
-                f.write_all(b"\n")?;
-            }
-        }
-    }
-    let al = Aligner::builder()
-        .sr()
-        .with_cigar()
-        .with_index_threads(threads)
-        .with_index(&panel, None)
-        .map_err(io::Error::other)?;
-    let _ = std::fs::remove_file(&panel);
-    // target order in the index = order in the FASTA
-    let by_name: AHashMap<String, usize> = tg.iter().enumerate().map(|(i, t)| (t.name.clone(), i)).collect();
-    // two reader threads (R1, R2) feed batches; k-mer screening and alignment run in parallel
+    // own aligner (from hla-wgs): targets first, then the decoys
+    let n_targets = tg.len();
+    let all_targets: Vec<Target> = tg
+        .iter()
+        .map(|t| Target { name: t.name.clone(), seq: vec![], chrom: t.chrom.clone(), start: t.start })
+        .collect();
+    let idx = aln::Index::new(
+        tg.iter().map(|t| t.name.clone()).chain(decoy_seqs.iter().map(|d| d.0.clone())).collect(),
+        tg.iter().map(|t| t.seq.clone()).chain(decoy_seqs.iter().map(|d| d.1.clone())).collect(),
+        aln::Opts::sr(),
+    );
+    let _ = threads;
+    // the paired reader of hla-wgs feeds batches (it survives I/O errors: pause, reopen, continue);
+    // k-mer screening and alignment run in parallel
     let (tx, rx) = std::sync::mpsc::sync_channel::<(Vec<Fq>, Vec<Fq>)>(4);
     let (p1, p2) = (r1.to_string(), r2.to_string());
     let reader = std::thread::spawn(move || -> io::Result<u64> {
-        let (mut a, mut b) = (fq_reader(&p1)?, fq_reader(&p2)?);
+        let mut src = PairedFq::new(&p1, &p2);
         let mut n = 0u64;
         loop {
-            let (b1, b2) = std::thread::scope(|s| {
-                let h = s.spawn(|| read_batch(&mut *b, 200_000));
-                let x = read_batch(&mut *a, 200_000);
-                (x, h.join().unwrap())
-            });
-            let (b1, b2) = (b1?, b2?);
+            let (b1, b2) = src.batch(200_000);
             if b1.is_empty() {
                 break;
-            }
-            if b1.len() != b2.len() {
-                return Err(io::Error::other("R1 and R2 have a different number of reads"));
             }
             n += b1.len() as u64;
             if tx.send((b1, b2)).is_err() {
@@ -681,20 +791,34 @@ pub fn to_bam(r1: &str, r2: &str, reference: &str, regions: &[(String, u64, u64,
                 if x.name != y.name {
                     return vec![];
                 }
-                let Ok((m1, m2)) = al.map_pair(&x.seq, &y.seq, false, false, None, None, Some(&x.name)) else { return vec![] };
-                let (mut h1, mut h2) = (hits(&m1, &tg, &by_name, &tids), hits(&m2, &tg, &by_name, &tids));
+                let (mut h1, mut h2) = pair_hits(&idx, n_targets, x, y, &all_targets, &tids);
                 // a read without genome-unique 31-mers of its own could come from a copy outside the
                 // targets (segmental duplication, repeat): mapping quality 0, as BWA gives it on the
                 // whole genome
                 // likewise a read whose mate does not align to the targets at all: the pair comes from
                 // another locus (the targets have 2 kb flanks, so mates of gene reads lie inside them)
-                let (u1, u2) = (h1.iter().all(|z| z.supp), h2.iter().all(|z| z.supp));
+                // a mate aligned with less than half of its bases and no second piece elsewhere (the rest
+                // fits nowhere in the panel) counts as unaligned as well: minimap2 leaves such mates
+                // unmapped, and its partner most likely comes from another locus too
+                let partial = |h: &[Hit], q: usize| {
+                    h.len() == 1 && {
+                        let al: u32 = h[0].cigar.iter().filter(|c| c.1 == 'M' || c.1 == 'I').map(|c| c.0).sum();
+                        (al as f64) < *PARTIAL * q as f64
+                    }
+                };
+                let (p1, p2) = (partial(&h1, x.seq.len()), partial(&h2, y.seq.len()));
+                let (u1, u2) = (h1.iter().all(|z| z.supp) || (p1 && *PARTIAL_MATE), h2.iter().all(|z| z.supp) || (p2 && *PARTIAL_MATE));
+                for (h, p) in [(&mut h1, p1), (&mut h2, p2)] {
+                    if p {
+                        h.iter_mut().for_each(|z| z.mapq = 0);
+                    }
+                }
                 for (h, r, mate_unaligned) in [(&mut h1, x, u2), (&mut h2, y, u1)] {
                     if !has(&r.seq) || mate_unaligned {
                         h.iter_mut().for_each(|z| z.mapq = 0);
                     }
                 }
-                pair_records(&x.name, x, y, &h1, &h2, &names)
+                pair_records(x.name.as_bytes(), x, y, &h1, &h2, &names)
             })
             .collect();
         for g in got {

@@ -3,6 +3,23 @@ on:
   push:
   pull_request:
 jobs:
+  # brca12-wgs 2.0 (Rust, one program without external tools), as the hla-wgs CI
+  rust-2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --release --locked
+      - name: Unit tests
+        run: cargo test --release --locked
+      - name: Version and usage text
+        run: |
+          ./target/release/brca12-wgs --version
+          ./target/release/brca12-wgs 2>&1 | grep -q "R1.fastq.gz R2.fastq.gz OUTPREFIX"
+      - name: Start file syntax
+        run: bash -n start/brca12-wgs-2-start.command && bash tests/run_start_2.sh
   unit:
     runs-on: ubuntu-latest
     steps:

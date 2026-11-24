@@ -5,6 +5,19 @@ OUTPREFIX --reference REF.fa`) writes, in the form of the hla-wgs output: `OUTPR
 result page), `OUTPREFIX.tsv`, `OUTPREFIX.variants.tsv`, `OUTPREFIX.exons.tsv`, `OUTPREFIX.sv.tsv` and
 `OUTPREFIX.json`; from FASTQ also `OUTPREFIX.bam`. Research use only.
 
+## Start without the command line
+
+`start/brca12-wgs-2-start.command` (built on the hla-wgs start file): double-click it on macOS (or
+`bash start/brca12-wgs-2-start.command`), drag the BAM, CRAM or the two FASTQ files into the window
+and, once, the GRCh38 reference FASTA (remembered in `~/.brca12-wgs/reference`). The program then
+runs with a progress display, writes everything to `~/Downloads/brca12-wgs-SAMPLE`, shows the result
+of both genes and opens the result page. `brca12-wgs html PREFIX.json` writes the page again.
+
+Before the first read the program checks the input, its index, the reference and its `.fai`, and
+that the output folder can be written. FASTQ input survives I/O errors (for example an external
+disk that disconnects briefly): it pauses, reopens the files and continues where it stopped
+(`BRCA12_IO_RETRIES`, default 6).
+
 ## OUTPREFIX.html
 
 One self-contained page (IBM Plex Mono embedded, no network), German and English in one file with
@@ -25,6 +38,15 @@ e.g. by MLPA), 5-9 a hint in the JSON (`exon_copy_number.hints`). The panel is v
 PCR-free Illumina whole genomes aligned with BWA-MEM like the 1000 Genomes data; with data of another
 platform or alignment the exons can deviate as a whole and give false duplication calls (seen on
 HiSeq data aligned with novoalign).
+
+GC gate (brca12-wgs 2.0, not in 1.1): when the exon depths of a sample depend on the GC content of
+the exons, the panel does not fit and the copy number is not assessable. Measured is the least-squares
+slope of the exon log2 deviation against the GC fraction of exon +/- 200 bp over all 50 exons, in log2
+per 10 % GC (`exon_copy_number.gc_slope_per_10pct`); above 0.2 the copy number is not determined
+(`enabled: false`, `reason`, `reason_de`), its segments move to `withheld_calls` / `withheld_hints`
+and never make a gene `candidate`. GIAB NovaSeq 30x HG001-HG005 and NA12878 30x give |slope| <= 0.11,
+HG006 0.60 and HG007 0.40 (each with false exon deletions in both genes before the gate).
+`BRCA12_CNV_GATE=0` turns the gate off.
 
 Without reads in the gene regions (truncated file, other reference or chromosome names) the program
 stops with an error instead of writing a result.

@@ -163,7 +163,8 @@ fn render_one(rep: &Value, de: bool) -> String {
         limits.push(t("unsichere Exons", "uncertain exons"));
     }
     if ecn["enabled"] != true {
-        limits.push(t("Exon-Kopienzahl nicht bestimmt", "exon copy number not determined"));
+        limits.push(if ecn["gc_slope_per_10pct"].is_number() { t("Exon-Kopienzahl nicht beurteilbar", "exon copy number not assessable") }
+                    else { t("Exon-Kopienzahl nicht bestimmt", "exon copy number not determined") });
     }
     let qc = if limits.is_empty() {
         format!("<span class=\"ok\">{}</span>", t("bestanden", "passed"))
@@ -200,7 +201,12 @@ fn render_one(rep: &Value, de: bool) -> String {
             h.push_str(&format!("<div class=\"alert soft\">{}</div>\n", l(&g["statement"])));
         }
     }
-    if ecn["enabled"] != true {
+    if ecn["enabled"] != true && ecn["gc_slope_per_10pct"].is_number() {
+        h.push_str(&format!("<div class=\"alert soft\">{}: {}</div>\n", t(
+            "Exon-Kopienzahl nicht beurteilbar, mögliche Exon-Deletionen oder -Duplikationen werden nicht gemeldet",
+            "Exon copy number not assessable, possible exon deletions or duplications are not reported"),
+            if de { s(&ecn["reason_de"]) } else { s(&ecn["reason"]) }));
+    } else if ecn["enabled"] != true {
         h.push_str(&format!("<div class=\"alert soft\">{} ({})</div>\n", t(
             "Exon-Kopienzahl nicht bestimmt: Die Kontrollfenster des Referenzpanels fehlen in der Eingabe, etwa bei einer BAM nur der Genregionen.",
             "Exon copy number not determined: the control windows of the reference panel are missing in the input, for example in a BAM of the gene regions only."),
