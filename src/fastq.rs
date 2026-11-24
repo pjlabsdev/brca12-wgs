@@ -377,6 +377,10 @@ static OLD_MAPQ: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::en
 static OLD_RESCUE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_RESCUE").is_ok_and(|v| v == "old"));
 static NO_SUBC: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_SUBC").is_ok_and(|v| v == "0"));
 static PARTIAL: std::sync::LazyLock<f64> = std::sync::LazyLock::new(|| std::env::var("BRCA12_PARTIAL").ok().and_then(|v| v.parse().ok()).unwrap_or(0.5));
+// a partly aligned mate loses only its own MAPQ, not its partner's: HG001 chr17:43064827 AT>A (true
+// 0/1) lost its deletion read when its 75M76S mate (49.7 % aligned, clipped at a shared breakpoint)
+// counted as unaligned. BRCA12_PARTIAL_MATE=1 makes the partner MAPQ 0 as well (ffc5492).
+static PARTIAL_MATE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_PARTIAL_MATE").is_ok_and(|v| v == "1"));
 static NO_RESCUE: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| std::env::var("BRCA12_RESCUE").is_ok_and(|v| v == "0"));
 
 /// alignments of a read pair with the own aligner (from hla-wgs): the best proper pair on one target
@@ -803,7 +807,7 @@ pub fn to_bam(r1: &str, r2: &str, reference: &str, regions: &[(String, u64, u64,
                     }
                 };
                 let (p1, p2) = (partial(&h1, x.seq.len()), partial(&h2, y.seq.len()));
-                let (u1, u2) = (h1.iter().all(|z| z.supp) || p1, h2.iter().all(|z| z.supp) || p2);
+                let (u1, u2) = (h1.iter().all(|z| z.supp) || (p1 && *PARTIAL_MATE), h2.iter().all(|z| z.supp) || (p2 && *PARTIAL_MATE));
                 for (h, p) in [(&mut h1, p1), (&mut h2, p2)] {
                     if p {
                         h.iter_mut().for_each(|z| z.mapq = 0);
