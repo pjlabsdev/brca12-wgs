@@ -1,5 +1,6 @@
 //! brca12-wgs 2.0 (in development): BRCA1/BRCA2 germline analysis from whole-genome sequencing in
 //! one program, without external tools. Research use only (RUO).
+mod aln;
 mod annot;
 mod assemble;
 mod caller;
@@ -23,7 +24,7 @@ usage:
   brca12-wgs INPUT.bam|INPUT.cram OUTPREFIX --reference REF.fa [--exons BED] [--regions BED]
   brca12-wgs R1.fastq.gz R2.fastq.gz OUTPREFIX --reference REF.fa [--threads N]
       paired whole-genome FASTQ: the reads of BRCA1/BRCA2 are found by genome-unique 31-mers,
-      aligned inside the program (minimap2) to OUTPREFIX.bam, then analysed as below
+      aligned inside the program (own aligner) to OUTPREFIX.bam, then analysed as below
       the analysis: writes OUTPREFIX.tsv (one line per gene), OUTPREFIX.variants.tsv (one line per
       small variant with HGVS, ClinVar and gnomAD), OUTPREFIX.exons.tsv (one line per exon with its
       certainty) and OUTPREFIX.json (schema genome.brca12.v2); see docs/output-2.md
